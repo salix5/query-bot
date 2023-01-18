@@ -541,13 +541,13 @@ initSqlJs().then(function(SQL){
 	db2 = new SQL.Database(arr2);
 });
 
-const client = new Client({ intents: ["GUILDS", "GUILD_MESSAGES"] });
+const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages] });
 
-client.on('ready', () => {
-	console.log(`Logged in as ${client.user.tag}!`);
+client.once(Events.ClientReady, c => {
+	console.log(`Ready! Logged in as ${c.user.tag}`);
 });
 
-client.on('messageCreate', async (msg) => {
+client.on(Events.MessageCreate, async (msg) => {
 	let cmd = msg.content.substring(0, 3);
 	let search_string = msg.content.substring(3, INPUT_LIMIT);
 	if (cmd === 'q! ' || cmd === 'n! ') {
