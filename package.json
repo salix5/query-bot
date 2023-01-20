@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "discord.js": "",
+    "dotenv": "^16.0.3",
     "sql.js": ""
   },
   "name": "query-bot",
