@@ -148,6 +148,93 @@ function is_alternative(id, alias, type) {
 		return Math.abs(id - alias) < 10;
 }
 
+function query_db(db, qstr, arg, ret) {
+	let stmt = db.prepare(qstr);
+	stmt.bind(arg);
+
+	while (stmt.step()) {
+		let card = stmt.getAsObject();
+		if (is_alternative(card.id, card.alias, card.type))
+			continue;
+
+		// spell & trap reset data
+		if (card.type & (TYPE_SPELL | TYPE_TRAP)) {
+			card.atk = 0;
+			card.def = 0;
+			card.level = 0;
+			card.race = 0;
+			card.attribute = 0;
+		}
+		card.scale = (card.level >> 24) & 0xff;
+		card.level = card.level & 0xff;
+
+		// color
+		if (card.type & TYPE_MONSTER) {
+			if (!(card.type & TYPE_EXT)) {
+				if (card.type & TYPE_TOKEN)
+					card.color = 0;
+				else if (card.type & TYPE_NORMAL)
+					card.color = 1;
+				else if (card.type & TYPE_RITUAL)
+					card.color = 3;
+				else if (card.type & TYPE_EFFECT)
+					card.color = 2;
+				else
+					card.color = null;
+			}
+			else {
+				if (card.type & TYPE_FUSION)
+					card.color = 4;
+				else if (card.type & TYPE_SYNCHRO)
+					card.color = 5;
+				else if (card.type & TYPE_XYZ)
+					card.color = 6;
+				else if (card.type & TYPE_LINK)
+					card.color = 7;
+				else
+					card.color = null;
+			}
+		}
+		else if (card.type & TYPE_SPELL) {
+			if (card.type === TYPE_SPELL)
+				card.color = 10;
+			else if (card.type & TYPE_QUICKPLAY)
+				card.color = 11;
+			else if (card.type & TYPE_CONTINUOUS)
+				card.color = 12;
+			else if (card.type & TYPE_EQUIP)
+				card.color = 13;
+			else if (card.type & TYPE_RITUAL)
+				card.color = 14;
+			else if (card.type & TYPE_FIELD)
+				card.color = 15;
+			else
+				card.color = null;
+		}
+		else if (card.type & TYPE_TRAP) {
+			if (card.type === TYPE_TRAP)
+				card.color = 20;
+			else if (card.type & TYPE_CONTINUOUS)
+				card.color = 21;
+			else if (card.type & TYPE_COUNTER)
+				card.color = 22;
+			else
+				card.color = null;
+		}
+		else {
+			card.color = null;
+		}
+
+		// cid
+		card.cid = cid_table[card.id] ? cid_table[card.id] : null;
+		card.jp_name = name_table[card.id] ? name_table[card.id] : null;
+		card.en_name = name_table_en[card.id] ? name_table_en[card.id] : null;
+
+		ret.push(card);
+	}
+	stmt.free();
+}
+
 function print_ad(x) {
 	if (x === -2)
 		return '?';
@@ -156,91 +243,9 @@ function print_ad(x) {
 }
 
 module.exports = {
-	query_card(db, qstr, arg, ret) {
-			let stmt = db.prepare(qstr);
-			stmt.bind(arg);
-
-			while (stmt.step()) {
-				let card = stmt.getAsObject();
-				if (is_alternative(card.id, card.alias, card.type))
-					continue;
-
-				// spell & trap reset data
-				if (card.type & (TYPE_SPELL | TYPE_TRAP)) {
-					card.atk = 0;
-					card.def = 0;
-					card.level = 0;
-					card.race = 0;
-					card.attribute = 0;
-				}
-				card.scale = (card.level >> 24) & 0xff;
-				card.level = card.level & 0xff;
-
-				// color
-				if (card.type & TYPE_MONSTER) {
-					if (!(card.type & TYPE_EXT)) {
-						if (card.type & TYPE_TOKEN)
-							card.color = 0;
-						else if (card.type & TYPE_NORMAL)
-							card.color = 1;
-						else if (card.type & TYPE_RITUAL)
-							card.color = 3;
-						else if (card.type & TYPE_EFFECT)
-							card.color = 2;
-						else
-							card.color = null;
-					}
-					else {
-						if (card.type & TYPE_FUSION)
-							card.color = 4;
-						else if (card.type & TYPE_SYNCHRO)
-							card.color = 5;
-						else if (card.type & TYPE_XYZ)
-							card.color = 6;
-						else if (card.type & TYPE_LINK)
-							card.color = 7;
-						else
-							card.color = null;
-					}
-				}
-				else if (card.type & TYPE_SPELL) {
-					if (card.type === TYPE_SPELL)
-						card.color = 10;
-					else if (card.type & TYPE_QUICKPLAY)
-						card.color = 11;
-					else if (card.type & TYPE_CONTINUOUS)
-						card.color = 12;
-					else if (card.type & TYPE_EQUIP)
-						card.color = 13;
-					else if (card.type & TYPE_RITUAL)
-						card.color = 14;
-					else if (card.type & TYPE_FIELD)
-						card.color = 15;
-					else
-						card.color = null;
-				}
-				else if (card.type & TYPE_TRAP) {
-					if (card.type === TYPE_TRAP)
-						card.color = 20;
-					else if (card.type & TYPE_CONTINUOUS)
-						card.color = 21;
-					else if (card.type & TYPE_COUNTER)
-						card.color = 22;
-					else
-						card.color = null;
-				}
-				else {
-					card.color = null;
-				}
-
-				// cid
-				card.cid = cid_table[card.id] ? cid_table[card.id] : null;
-				card.jp_name = name_table[card.id] ? name_table[card.id] : null;
-				card.en_name = name_table_en[card.id] ? name_table_en[card.id] : null;
-
-				ret.push(card);
-			}
-			stmt.free();
+	query_card(qstr, arg, ret) {
+		query_db(db1, qstr, arg, ret);
+		query_db(db2, qstr, arg, ret);
 	},
 	print_data(card) {
 		let mtype = '';
@@ -433,8 +438,8 @@ module.exports = {
 		let qstr = `SELECT datas.id, ot, alias, type, atk, def, level, attribute, race, name, desc FROM datas, texts WHERE datas.id == texts.id AND abs(datas.id - alias) >= 10 AND NOT type & $token AND datas.id == ${id}`;
 		let arg = new Object();
 		arg.$token = TYPE_TOKEN;
-		this.query_card(db1, qstr, arg, ret);
+		query_db(db1, qstr, arg, ret);
 		if (!ret.length)
-			this.query_card(db2, qstr, arg, ret);
+			query_db(db2, qstr, arg, ret);
 	},
 };
