@@ -434,11 +434,12 @@ function print_data(card) {
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('card')
-		.setDescription('以卡名搜尋卡片')
+		.setDescription('以中文卡名搜尋卡片')
 		.addStringOption(option => 
 			option.setName('input')
 				.setDescription('卡名')
 				.setRequired(true)
+				.setMaxLength(50)
 				.setAutocomplete(true)
 	),
 	async autocomplete(interaction) {
@@ -459,14 +460,15 @@ module.exports = {
 			let arg = new Object();
 			arg.$token = TYPE_TOKEN;
 			query_card(db1, qstr, arg, result);
-			query_card(db2, qstr, arg, result);
+			if (!result.length)
+				query_card(db2, qstr, arg, result);
 			if (result.length == 1)
 				await interaction.reply(print_data(result[0]));
 			else
-				await interaction.reply('沒有符合搜尋的項目。');
+				await interaction.reply('沒有符合條件的卡片。');
 		}
 		else {
-			await interaction.reply('沒有符合搜尋的項目。');
+			await interaction.reply('沒有符合條件的卡片。');
 		}
 	},
 };

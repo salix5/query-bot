@@ -542,7 +542,7 @@ initSqlJs().then(function(SQL){
 	db2 = new SQL.Database(arr2);
 });
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages] });
+const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
 
 // get commnads in ./commands
 client.commands = new Collection();
@@ -606,7 +606,7 @@ client.on(Events.MessageCreate, async msg => {
 				await msg.channel.send(list_card);
 		}
 		else {
-			await msg.channel.send('沒有符合搜尋的項目。');
+			await msg.channel.send('沒有符合條件的卡片。');
 		}
 	}
 });
