@@ -1,11 +1,11 @@
 const { SlashCommandBuilder } = require('discord.js');
-const choice_table = require('../data/choices_tc.json');
+const choice_table = require('../data/choices_jp.json');
 const ygo = require('../ygo-query.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
-		.setName('card')
-		.setDescription('以中文卡名搜尋卡片')
+		.setName('card-jp')
+		.setDescription('以日文卡名搜尋卡片')
 		.addStringOption(option => 
 			option.setName('input')
 				.setDescription('卡名')
