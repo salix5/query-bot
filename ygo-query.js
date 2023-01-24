@@ -249,7 +249,7 @@ module.exports = {
 	},
 
 	query_id(id, ret) {
-		let qstr = `SELECT datas.id, ot, alias, type, atk, def, level, attribute, race, name, desc FROM datas, texts WHERE datas.id == texts.id AND abs(datas.id - alias) >= 10 AND NOT type & $token AND datas.id == ${id}`;
+		let qstr = `SELECT datas.id, ot, alias, type, atk, def, level, attribute, race, name, desc FROM datas, texts WHERE datas.id == texts.id AND abs(datas.id - alias) >= 10 AND NOT type & $token AND datas.id == ${id};`;
 		let arg = new Object();
 		arg.$token = TYPE_TOKEN;
 		query_db(db1, qstr, arg, ret);
