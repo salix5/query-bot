@@ -247,6 +247,16 @@ module.exports = {
 		query_db(db1, qstr, arg, ret);
 		query_db(db2, qstr, arg, ret);
 	},
+
+	query_id(id, ret) {
+		let qstr = `SELECT datas.id, ot, alias, type, atk, def, level, attribute, race, name, desc FROM datas, texts WHERE datas.id == texts.id AND abs(datas.id - alias) >= 10 AND NOT type & $token AND datas.id == ${id}`;
+		let arg = new Object();
+		arg.$token = TYPE_TOKEN;
+		query_db(db1, qstr, arg, ret);
+		if (!ret.length)
+			query_db(db2, qstr, arg, ret);
+	},
+
 	print_data(card) {
 		let mtype = '';
 		let subtype = '';
@@ -434,12 +444,16 @@ module.exports = {
 		let card_text = `**${card.name}**\n${official_name}${data}${card.desc}\n--`;
 		return card_text;
 	},
-	query_id(id, ret) {
-		let qstr = `SELECT datas.id, ot, alias, type, atk, def, level, attribute, race, name, desc FROM datas, texts WHERE datas.id == texts.id AND abs(datas.id - alias) >= 10 AND NOT type & $token AND datas.id == ${id}`;
-		let arg = new Object();
-		arg.$token = TYPE_TOKEN;
-		query_db(db1, qstr, arg, ret);
-		if (!ret.length)
-			query_db(db2, qstr, arg, ret);
+
+	split_keys(keys, str) {
+		let starts_with = [];
+		let other = [];
+		for (let i = 0; i < keys.length; ++i) {
+			if (keys[i].toLowerCase().startsWith(str))
+				starts_with.push(keys[i]);
+			else
+				other.push(keys[i]);
+		}
+		return starts_with.concat(other);
 	},
 };
