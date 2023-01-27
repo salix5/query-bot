@@ -1,5 +1,6 @@
 const { SlashCommandBuilder } = require('discord.js');
 const choice_table = require('../data/choices_tc.json');
+const name_table = require('../data/name_table.json');
 const ygo = require('../ygo-query.js');
 
 module.exports = {
@@ -31,12 +32,7 @@ module.exports = {
 		const input = interaction.options.getString('input');
 		let id = choice_table[input];
 		if (id) {
-			let result = [];
-			ygo.query_id(id, result);
-			if (result.length == 1)
-				await interaction.reply(result[0].jp_name);
-			else
-				await interaction.reply('沒有符合條件的卡片。');
+			await interaction.reply(name_table[id]);
 		}
 		else {
 			await interaction.reply('沒有符合條件的卡片。');

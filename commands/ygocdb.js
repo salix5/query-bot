@@ -4,8 +4,8 @@ const ygo = require('../ygo-query.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
-		.setName('faq')
-		.setDescription('官方資料庫FAQ連結')
+		.setName('ygocdb')
+		.setDescription('裁定相關連結')
 		.addStringOption(option => 
 			option.setName('input')
 				.setDescription('卡名')
@@ -31,12 +31,7 @@ module.exports = {
 		const input = interaction.options.getString('input');
 		let id = choice_table[input];
 		if (id) {
-			let result = [];
-			ygo.query_id(id, result);
-			if (result.length == 1)
-				await interaction.reply(`https://www.db.yugioh-card.com/yugiohdb/faq_search.action?ope=4&cid=${result[0].cid}&request_locale=ja`);
-			else
-				await interaction.reply('沒有符合條件的卡片。');
+			await interaction.reply(`https://ygocdb.com/card/${id}`);
 		}
 		else {
 			await interaction.reply('沒有符合條件的卡片。');
