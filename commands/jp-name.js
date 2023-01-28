@@ -31,7 +31,7 @@ module.exports = {
 	async execute(interaction) {
 		const input = interaction.options.getString('input');
 		let id = choice_table[input];
-		if (id) {
+		if (id && name_table[id]) {
 			await interaction.reply(name_table[id]);
 		}
 		else {
