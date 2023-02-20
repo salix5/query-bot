@@ -67,7 +67,10 @@ function process_name(locale, str_name, arg) {
 				name_cmd += ` OR datas.id=${jp_list[i]}`;
 			// zh, setcode
 			if (!re_wildcard.test(str_name)) {
-				let real_str = str_name.replace(/\$%/g, '%').replace(/\$_/g, '_').toLowerCase();
+				let mapObj = Object.create(null);
+				mapObj['$%'] = '%';
+				mapObj['$_'] = '_';
+				let real_str = str_name.replace(/\$%|\$_/g, (x) => mapObj[x]).toLowerCase();
 				for (const [key, value] of Object.entries(setname)) {
 					if (key.toLowerCase() === real_str) {
 						name_cmd += setcode_str;
