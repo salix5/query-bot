@@ -445,14 +445,17 @@ module.exports = {
 		return card_text;
 	},
 
-	split_keys(keys, str) {
+	filter_choice(choice_table, focused) {
+		const keyword = focused.toLowerCase();
+		const filtered1 = Object.keys(choice_table).filter(choice => choice.toLowerCase().includes(keyword));
+
 		let starts_with = [];
 		let other = [];
-		for (let i = 0; i < keys.length; ++i) {
-			if (keys[i].toLowerCase().startsWith(str))
-				starts_with.push(keys[i]);
+		for (const choice of filtered1) {
+			if (choice.toLowerCase().startsWith(keyword))
+				starts_with.push(choice);
 			else
-				other.push(keys[i]);
+				other.push(choice);
 		}
 		return starts_with.concat(other);
 	},

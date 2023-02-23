@@ -15,13 +15,12 @@ module.exports = {
 				.setAutocomplete(true)
 	),
 	async autocomplete(interaction) {
-		const focusedValue = interaction.options.getFocused().toLowerCase();
+		const focusedValue = interaction.options.getFocused();
 		if (!focusedValue) {
 			await interaction.respond([]);
 			return;
 		}
-		const filtered = Object.keys(choice_table).filter(choice => choice.toLowerCase().includes(focusedValue));
-		const ret = ygo.split_keys(filtered, focusedValue);
+		const ret = ygo.filter_choice(choice_table, focusedValue);
 		if (ret.length > 20)
 			ret.length = 20;
 		await interaction.respond(
