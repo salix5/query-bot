@@ -1,21 +1,22 @@
 {
-  "dependencies": {
-    "discord.js": "",
-    "dotenv": "^16.0.3",
-    "sql.js": ""
-  },
   "name": "query-bot",
   "version": "1.0.0",
-  "description": "discord card query bot",
+  "description": "Discord card query bot",
   "main": "bot.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
+    "ygo",
     "query"
   ],
   "author": "salix5",
   "license": "MIT",
+  "dependencies": {
+    "discord.js": "",
+    "dotenv": "^16.0.3",
+    "sql.js": ""
+  },
   "engines": {
     "node": "18.x"
   }
