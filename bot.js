@@ -1,13 +1,12 @@
 "use strict";
 const name_table = require('./data/name_table.json');
-const name_table_en = require('./data/name_table_en.json');
 const setname = require('./data/setname.json');
 
 require('dotenv').config();
 const fs = require('node:fs');
 const path = require('node:path');
 const { Client, Collection, Events, GatewayIntentBits } = require('discord.js');
-const ygo = require('./ygo-query.js');
+const ygoQuery = require('./ygo-query.js');
 
 const TYPE_TOKEN = 0x4000
 const MAX_RESULT_LEN = 200;
@@ -153,7 +152,7 @@ client.on(Events.MessageCreate, async msg => {
 		if (name_cmd) {
 			qstr += ` AND (${name_cmd});`;
 			name = search_string;
-			ygo.query_card(qstr, arg, result);
+			ygoQuery.query_card(qstr, arg, result);
 			result.sort(compare_type);
 		}
 		
@@ -161,7 +160,7 @@ client.on(Events.MessageCreate, async msg => {
 			for (let i = 0; i < REPLY_LENGTH && i < result.length; ++i) {
 				let ret = '';
 				if (cmd === 'q! ') {
-					ret = ygo.print_data(result[i]);
+					ret = ygoQuery.print_data(result[i]);
 				}
 				else {
 					ret = result[i].jp_name ? result[i].jp_name : result[i].id.toString();
@@ -220,4 +219,6 @@ client.on(Events.InteractionCreate, async interaction => {
 	}
 });
 
-client.login(process.env.TOKEN);
+ygoQuery.ready.then(() => {
+	client.login(process.env.TOKEN);
+});

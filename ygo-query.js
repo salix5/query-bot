@@ -1,5 +1,4 @@
 "use strict";
-const fs = require('fs');
 const initSqlJs = require('sql.js');
 
 const cid_table = require('./data/cid.json');
@@ -131,15 +130,17 @@ const race_to_str = {
 	[RACE_CYBERSE]: '電子界'
 };
 
+const base_url = "https://salix5.github.io";
+const promise_db = fetch(`${base_url}/CardEditor/cards.cdb`).then(response => response.arrayBuffer()).then(buf => new Uint8Array(buf));
+const promise_db2 = fetch(`${base_url}/cdb/pre-release.cdb`).then(response => response.arrayBuffer()).then(buf => new Uint8Array(buf));
+var db1 = null, db2 = null;
 
-var arr1 = new Uint8Array(fs.readFileSync('./data/cards.cdb'));
-var arr2 = new Uint8Array(fs.readFileSync('./data/pre-release.cdb'));
-var db1, db2;
-
-initSqlJs().then(function (SQL) {
-	db1 = new SQL.Database(arr1);
-	db2 = new SQL.Database(arr2);
+const promise_sql = Promise.all([initSqlJs(), promise_db, promise_db2,]).then(values => {
+	let SQL = values[0];
+	db1 = new SQL.Database(values[1]);
+	db2 = new SQL.Database(values[2]);
 });
+
 
 function is_alternative(id, alias, type) {
 	if (type & TYPE_TOKEN)
@@ -149,9 +150,11 @@ function is_alternative(id, alias, type) {
 }
 
 function query_db(db, qstr, arg, ret) {
+	if (!db)
+		return;
+
 	let stmt = db.prepare(qstr);
 	stmt.bind(arg);
-
 	while (stmt.step()) {
 		let card = stmt.getAsObject();
 		if (is_alternative(card.id, card.alias, card.type))
@@ -225,11 +228,9 @@ function query_db(db, qstr, arg, ret) {
 			card.color = null;
 		}
 
-		// cid
 		card.cid = cid_table[card.id] ? cid_table[card.id] : null;
 		card.jp_name = name_table[card.id] ? name_table[card.id] : null;
 		card.en_name = name_table_en[card.id] ? name_table_en[card.id] : null;
-
 		ret.push(card);
 	}
 	stmt.free();
@@ -243,6 +244,8 @@ function print_ad(x) {
 }
 
 module.exports = {
+	ready: promise_sql,
+
 	query_card(qstr, arg, ret) {
 		query_db(db1, qstr, arg, ret);
 		query_db(db2, qstr, arg, ret);
