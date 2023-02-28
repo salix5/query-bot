@@ -20,8 +20,6 @@ module.exports = {
 			return;
 		}
 		const ret = ygo.filter_choice(choice_table, focusedValue);
-		if (ret.length > 20)
-			ret.length = 20;
 		await interaction.respond(
 			ret.map(choice => ({ name: choice, value: choice })),
 		);

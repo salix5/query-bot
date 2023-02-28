@@ -7,6 +7,8 @@ const name_table_en = require('./data/name_table_en.json');
 const ltable = require('./data/lflist.json');
 const ltable_md = require('./data/lflist_md.json');
 
+const MAX_CHOICE = 20;
+
 // type
 const TYPE_MONSTER = 0x1
 const TYPE_SPELL = 0x2
@@ -450,16 +452,25 @@ module.exports = {
 
 	filter_choice(choice_table, focused) {
 		const keyword = focused.toLowerCase();
-		const filtered1 = Object.keys(choice_table).filter(choice => choice.toLowerCase().includes(keyword));
+		const starts_with = [];
+		const other = [];
 
-		let starts_with = [];
-		let other = [];
-		for (const choice of filtered1) {
-			if (choice.toLowerCase().startsWith(keyword))
-				starts_with.push(choice);
-			else
-				other.push(choice);
+		for (const choice of Object.keys(choice_table)) {
+			if (choice.toLowerCase().includes(keyword)) {
+				if (choice.toLowerCase().startsWith(keyword))
+					starts_with.push(choice);
+				else
+					other.push(choice);
+			}
 		}
-		return starts_with.concat(other);
+		if (starts_with.length >= MAX_CHOICE) {
+			starts_with.length = MAX_CHOICE;
+			return starts_with;
+		}
+		else {
+			const ret = starts_with.concat(other);
+			ret.length = MAX_CHOICE;
+			return ret;
+		}
 	},
 };
