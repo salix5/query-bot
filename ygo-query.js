@@ -463,14 +463,9 @@ module.exports = {
 					other.push(choice);
 			}
 		}
-		if (starts_with.length >= MAX_CHOICE) {
-			starts_with.length = MAX_CHOICE;
-			return starts_with;
-		}
-		else {
-			const ret = starts_with.concat(other);
+		const ret = starts_with.concat(other);
+		if (ret.length > MAX_CHOICE)
 			ret.length = MAX_CHOICE;
-			return ret;
-		}
+		return ret;
 	},
 };
