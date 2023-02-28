@@ -1,3 +1,4 @@
+"use strict";
 const { SlashCommandBuilder } = require('discord.js');
 const choice_table = require('../data/choices_tc_pre.json');
 const ygo = require('../ygo-query.js');

@@ -9,127 +9,133 @@ const ltable_md = require('./data/lflist_md.json');
 
 const MAX_CHOICE = 20;
 
-// type
-const TYPE_MONSTER = 0x1
-const TYPE_SPELL = 0x2
-const TYPE_TRAP = 0x4
+const const_type = {
+	// type
+	TYPE_MONSTER: 0x1,
+	TYPE_SPELL: 0x2,
+	TYPE_TRAP: 0x4,
+	
+	// color type
+	TYPE_NORMAL: 0x10,
+	TYPE_EFFECT: 0x20,
+	TYPE_FUSION: 0x40,
+	TYPE_RITUAL: 0x80,
+	TYPE_SYNCHRO: 0x2000,
+	TYPE_XYZ: 0x800000,
+	TYPE_PENDULUM: 0x1000000,
+	TYPE_LINK: 0x4000000,
+	
+	// extype
+	TYPE_SPIRIT: 0x200,
+	TYPE_UNION: 0x400,
+	TYPE_DUAL: 0x800,
+	TYPE_TUNER: 0x1000,
+	TYPE_TOKEN: 0x4000,
+	TYPE_FLIP: 0x200000,
+	TYPE_TOON: 0x400000,
+	TYPE_SPSUMMON: 0x2000000,
+	
+	// spell type
+	TYPE_QUICKPLAY: 0x10000,
+	TYPE_CONTINUOUS: 0x20000,
+	TYPE_EQUIP: 0x40000,
+	//TYPE_RITUAL
+	TYPE_FIELD: 0x80000,
+	
+	// trap type
+	//TYPE_CONTINUOUS
+	TYPE_COUNTER: 0x100000,
+};
+const_type.TYPE_EXT = const_type.TYPE_FUSION | const_type.TYPE_SYNCHRO | const_type.TYPE_XYZ | const_type.TYPE_LINK;
 
-// color type
-const TYPE_NORMAL = 0x10
-const TYPE_EFFECT = 0x20
-const TYPE_FUSION = 0x40
-const TYPE_RITUAL = 0x80
-const TYPE_SYNCHRO = 0x2000
-const TYPE_XYZ = 0x800000
-const TYPE_PENDULUM = 0x1000000
-const TYPE_LINK = 0x4000000
-const TYPE_EXT = TYPE_FUSION | TYPE_SYNCHRO | TYPE_XYZ | TYPE_LINK
+const const_race = {
+	RACE_WARRIOR: 0x1,
+	RACE_SPELLCASTER: 0x2,
+	RACE_FAIRY: 0x4,
+	RACE_FIEND: 0x8,
+	RACE_ZOMBIE: 0x10,
+	RACE_MACHINE: 0x20,
+	RACE_AQUA: 0x40,
+	RACE_PYRO: 0x80,
+	RACE_ROCK: 0x100,
+	RACE_WINDBEAST: 0x200,
+	RACE_PLANT: 0x400,
+	RACE_INSECT: 0x800,
+	RACE_THUNDER: 0x1000,
+	RACE_DRAGON: 0x2000,
+	RACE_BEAST: 0x4000,
+	RACE_BEASTWARRIOR: 0x8000,
+	RACE_DINOSAUR: 0x10000,
+	RACE_FISH: 0x20000,
+	RACE_SEASERPENT: 0x40000,
+	RACE_REPTILE: 0x80000,
+	RACE_PSYCHO: 0x100000,
+	RACE_DIVINE: 0x200000,
+	RACE_CREATORGOD: 0x400000,
+	RACE_WYRM: 0x800000,
+	RACE_CYBERSE: 0x1000000,
+};
 
-// extype
-const TYPE_SPIRIT = 0x200
-const TYPE_UNION = 0x400
-const TYPE_DUAL = 0x800
-const TYPE_TUNER = 0x1000
-const TYPE_TOKEN = 0x4000
-const TYPE_FLIP = 0x200000
-const TYPE_TOON = 0x400000
-const TYPE_SPSUMMON = 0x2000000
+const const_attribute = {
+	ATTRIBUTE_EARTH: 0x01,
+	ATTRIBUTE_WATER: 0x02,
+	ATTRIBUTE_FIRE: 0x04,
+	ATTRIBUTE_WIND: 0x08,
+	ATTRIBUTE_LIGHT: 0x10,
+	ATTRIBUTE_DARK: 0x20,
+	ATTRIBUTE_DIVINE: 0x40,
+};
 
-// spell type
-const TYPE_QUICKPLAY = 0x10000
-const TYPE_CONTINUOUS = 0x20000
-const TYPE_EQUIP = 0x40000
-//const TYPE_RITUAL			=0x80
-const TYPE_FIELD = 0x80000
+const const_marker = {
+	LINK_MARKER_BOTTOM_LEFT: 0x001, // ↙
+	LINK_MARKER_BOTTOM: 0x002, // ↓
+	LINK_MARKER_BOTTOM_RIGHT: 0x004, // ↘
 
-// trap type
-//const TYPE_CONTINUOUS		=0x20000
-const TYPE_COUNTER = 0x100000
+	LINK_MARKER_LEFT: 0x008, // ←
+	LINK_MARKER_RIGHT: 0x020, // →
 
-// race
-const RACE_WARRIOR = 0x1
-const RACE_SPELLCASTER = 0x2
-const RACE_FAIRY = 0x4
-const RACE_FIEND = 0x8
-const RACE_ZOMBIE = 0x10
-const RACE_MACHINE = 0x20
-const RACE_AQUA = 0x40
-const RACE_PYRO = 0x80
-const RACE_ROCK = 0x100
-const RACE_WINDBEAST = 0x200
-const RACE_PLANT = 0x400
-const RACE_INSECT = 0x800
-const RACE_THUNDER = 0x1000
-const RACE_DRAGON = 0x2000
-const RACE_BEAST = 0x4000
-const RACE_BEASTWARRIOR = 0x8000
-const RACE_DINOSAUR = 0x10000
-const RACE_FISH = 0x20000
-const RACE_SEASERPENT = 0x40000
-const RACE_REPTILE = 0x80000
-const RACE_PSYCHO = 0x100000
-const RACE_DIVINE = 0x200000
-const RACE_CREATORGOD = 0x400000
-const RACE_WYRM = 0x800000
-const RACE_CYBERSE = 0x1000000
+	LINK_MARKER_TOP_LEFT: 0x040, // ↖
+	LINK_MARKER_TOP: 0x080, // ↑
+	LINK_MARKER_TOP_RIGHT: 0x100, // ↗
+};
 
-// attr
-const ATTRIBUTE_EARTH = 0x01
-const ATTRIBUTE_WATER = 0x02
-const ATTRIBUTE_FIRE = 0x04
-const ATTRIBUTE_WIND = 0x08
-const ATTRIBUTE_LIGHT = 0x10
-const ATTRIBUTE_DARK = 0x20
-const ATTRIBUTE_DIVINE = 0x40
-
-// Link Marker
-const LINK_MARKER_BOTTOM_LEFT = 0x001; // ↙
-const LINK_MARKER_BOTTOM = 0x002; // ↓
-const LINK_MARKER_BOTTOM_RIGHT = 0x004; // ↘
-
-const LINK_MARKER_LEFT = 0x008; // ←
-const LINK_MARKER_RIGHT = 0x020; // →
-
-const LINK_MARKER_TOP_LEFT = 0x040; // ↖
-const LINK_MARKER_TOP = 0x080; // ↑
-const LINK_MARKER_TOP_RIGHT = 0x100; // ↗
 
 const attr_to_str = {
-	[ATTRIBUTE_EARTH]: '地',
-	[ATTRIBUTE_WATER]: '水',
-	[ATTRIBUTE_FIRE]: '炎',
-	[ATTRIBUTE_WIND]: '風',
-	[ATTRIBUTE_LIGHT]: '光',
-	[ATTRIBUTE_DARK]: '闇',
-	[ATTRIBUTE_DIVINE]: '神'
+	[const_attribute.ATTRIBUTE_EARTH]: '地',
+	[const_attribute.ATTRIBUTE_WATER]: '水',
+	[const_attribute.ATTRIBUTE_FIRE]: '炎',
+	[const_attribute.ATTRIBUTE_WIND]: '風',
+	[const_attribute.ATTRIBUTE_LIGHT]: '光',
+	[const_attribute.ATTRIBUTE_DARK]: '闇',
+	[const_attribute.ATTRIBUTE_DIVINE]: '神',
 };
 
 const race_to_str = {
-	[RACE_WARRIOR]: '戰士',
-	[RACE_SPELLCASTER]: '魔法使',
-	[RACE_FAIRY]: '天使',
-	[RACE_FIEND]: '惡魔',
-	[RACE_ZOMBIE]: '不死',
-	[RACE_MACHINE]: '機械',
-	[RACE_AQUA]: '水',
-	[RACE_PYRO]: '炎',
-	[RACE_ROCK]: '岩石',
-	[RACE_WINDBEAST]: '鳥獸',
-	[RACE_PLANT]: '植物',
-	[RACE_INSECT]: '昆蟲',
-	[RACE_THUNDER]: '雷',
-	[RACE_DRAGON]: '龍',
-	[RACE_BEAST]: '獸',
-	[RACE_BEASTWARRIOR]: '獸戰士',
-	[RACE_DINOSAUR]: '恐龍',
-	[RACE_FISH]: '魚',
-	[RACE_SEASERPENT]: '海龍',
-	[RACE_REPTILE]: '爬蟲類',
-	[RACE_PSYCHO]: '超能',
-	[RACE_DIVINE]: '幻神獸',
-	[RACE_CREATORGOD]: '創造神',
-	[RACE_WYRM]: '幻龍',
-	[RACE_CYBERSE]: '電子界'
+	[const_race.RACE_WARRIOR]: '戰士',
+	[const_race.RACE_SPELLCASTER]: '魔法使',
+	[const_race.RACE_FAIRY]: '天使',
+	[const_race.RACE_FIEND]: '惡魔',
+	[const_race.RACE_ZOMBIE]: '不死',
+	[const_race.RACE_MACHINE]: '機械',
+	[const_race.RACE_AQUA]: '水',
+	[const_race.RACE_PYRO]: '炎',
+	[const_race.RACE_ROCK]: '岩石',
+	[const_race.RACE_WINDBEAST]: '鳥獸',
+	[const_race.RACE_PLANT]: '植物',
+	[const_race.RACE_INSECT]: '昆蟲',
+	[const_race.RACE_THUNDER]: '雷',
+	[const_race.RACE_DRAGON]: '龍',
+	[const_race.RACE_BEAST]: '獸',
+	[const_race.RACE_BEASTWARRIOR]: '獸戰士',
+	[const_race.RACE_DINOSAUR]: '恐龍',
+	[const_race.RACE_FISH]: '魚',
+	[const_race.RACE_SEASERPENT]: '海龍',
+	[const_race.RACE_REPTILE]: '爬蟲類',
+	[const_race.RACE_PSYCHO]: '超能',
+	[const_race.RACE_DIVINE]: '幻神獸',
+	[const_race.RACE_CREATORGOD]: '創造神',
+	[const_race.RACE_WYRM]: '幻龍',
+	[const_race.RACE_CYBERSE]: '電子界',
 };
 
 const base_url = "https://salix5.github.io";
@@ -144,13 +150,6 @@ const promise_sql = Promise.all([initSqlJs(), promise_db, promise_db2,]).then(va
 });
 
 
-function is_alternative(id, alias, type) {
-	if (type & TYPE_TOKEN)
-		return alias !== 0;
-	else
-		return Math.abs(id - alias) < 10;
-}
-
 function query_db(db, qstr, arg, ret) {
 	if (!db)
 		return;
@@ -159,11 +158,8 @@ function query_db(db, qstr, arg, ret) {
 	stmt.bind(arg);
 	while (stmt.step()) {
 		let card = stmt.getAsObject();
-		if (is_alternative(card.id, card.alias, card.type))
-			continue;
-
 		// spell & trap reset data
-		if (card.type & (TYPE_SPELL | TYPE_TRAP)) {
+		if (card.type & (const_type.TYPE_SPELL | const_type.TYPE_TRAP)) {
 			card.atk = 0;
 			card.def = 0;
 			card.level = 0;
@@ -174,54 +170,54 @@ function query_db(db, qstr, arg, ret) {
 		card.level = card.level & 0xff;
 
 		// color
-		if (card.type & TYPE_MONSTER) {
-			if (!(card.type & TYPE_EXT)) {
-				if (card.type & TYPE_TOKEN)
+		if (card.type & const_type.TYPE_MONSTER) {
+			if (!(card.type & const_type.TYPE_EXT)) {
+				if (card.type & const_type.TYPE_TOKEN)
 					card.color = 0;
-				else if (card.type & TYPE_NORMAL)
+				else if (card.type & const_type.TYPE_NORMAL)
 					card.color = 1;
-				else if (card.type & TYPE_RITUAL)
+				else if (card.type & const_type.TYPE_RITUAL)
 					card.color = 3;
-				else if (card.type & TYPE_EFFECT)
+				else if (card.type & const_type.TYPE_EFFECT)
 					card.color = 2;
 				else
 					card.color = null;
 			}
 			else {
-				if (card.type & TYPE_FUSION)
+				if (card.type & const_type.TYPE_FUSION)
 					card.color = 4;
-				else if (card.type & TYPE_SYNCHRO)
+				else if (card.type & const_type.TYPE_SYNCHRO)
 					card.color = 5;
-				else if (card.type & TYPE_XYZ)
+				else if (card.type & const_type.TYPE_XYZ)
 					card.color = 6;
-				else if (card.type & TYPE_LINK)
+				else if (card.type & const_type.TYPE_LINK)
 					card.color = 7;
 				else
 					card.color = null;
 			}
 		}
-		else if (card.type & TYPE_SPELL) {
-			if (card.type === TYPE_SPELL)
+		else if (card.type & const_type.TYPE_SPELL) {
+			if (card.type === const_type.TYPE_SPELL)
 				card.color = 10;
-			else if (card.type & TYPE_QUICKPLAY)
+			else if (card.type & const_type.TYPE_QUICKPLAY)
 				card.color = 11;
-			else if (card.type & TYPE_CONTINUOUS)
+			else if (card.type & const_type.TYPE_CONTINUOUS)
 				card.color = 12;
-			else if (card.type & TYPE_EQUIP)
+			else if (card.type & const_type.TYPE_EQUIP)
 				card.color = 13;
-			else if (card.type & TYPE_RITUAL)
+			else if (card.type & const_type.TYPE_RITUAL)
 				card.color = 14;
-			else if (card.type & TYPE_FIELD)
+			else if (card.type & const_type.TYPE_FIELD)
 				card.color = 15;
 			else
 				card.color = null;
 		}
-		else if (card.type & TYPE_TRAP) {
-			if (card.type === TYPE_TRAP)
+		else if (card.type & const_type.TYPE_TRAP) {
+			if (card.type === const_type.TYPE_TRAP)
 				card.color = 20;
-			else if (card.type & TYPE_CONTINUOUS)
+			else if (card.type & const_type.TYPE_CONTINUOUS)
 				card.color = 21;
-			else if (card.type & TYPE_COUNTER)
+			else if (card.type & const_type.TYPE_COUNTER)
 				card.color = 22;
 			else
 				card.color = null;
@@ -248,15 +244,28 @@ function print_ad(x) {
 module.exports = {
 	ready: promise_sql,
 
+	const_type: const_type,
+	const_race: const_attribute,
+	const_attribute: const_attribute,
+	const_marker: const_marker,
+
+	default_query: `SELECT datas.id, ot, alias, type, atk, def, level, attribute, race, name, desc FROM datas, texts WHERE datas.id == texts.id AND abs(datas.id - alias) >= 10 AND NOT type & ${const_type.TYPE_TOKEN}`,
+
+	is_alternative(card) {
+		if (card.type & const_type.TYPE_TOKEN)
+			return alias !== 0;
+		else
+			return Math.abs(card.id - card.alias) < 10;
+	},
+
 	query_card(qstr, arg, ret) {
 		query_db(db1, qstr, arg, ret);
 		query_db(db2, qstr, arg, ret);
 	},
 
 	query_id(id, ret) {
-		let qstr = `SELECT datas.id, ot, alias, type, atk, def, level, attribute, race, name, desc FROM datas, texts WHERE datas.id == texts.id AND abs(datas.id - alias) >= 10 AND NOT type & $token AND datas.id == ${id};`;
+		let qstr = `${this.default_query} AND datas.id == ${id};`;
 		let arg = new Object();
-		arg.$token = TYPE_TOKEN;
 		query_db(db1, qstr, arg, ret);
 		if (!ret.length)
 			query_db(db2, qstr, arg, ret);
@@ -310,44 +319,44 @@ module.exports = {
 			lfstr = `(${lfstr_o} / ${lfstr_m})\n`;
 		}
 
-		if (card.type & TYPE_MONSTER) {
+		if (card.type & const_type.TYPE_MONSTER) {
 			mtype = '怪獸';
-			if (card.type & TYPE_RITUAL)
+			if (card.type & const_type.TYPE_RITUAL)
 				subtype = '/儀式';
-			else if (card.type & TYPE_FUSION)
+			else if (card.type & const_type.TYPE_FUSION)
 				subtype = '/融合';
-			else if (card.type & TYPE_SYNCHRO)
+			else if (card.type & const_type.TYPE_SYNCHRO)
 				subtype = '/同步';
-			else if (card.type & TYPE_XYZ) {
+			else if (card.type & const_type.TYPE_XYZ) {
 				subtype = '/超量';
 				lvstr = `\u2606`;
 			}
-			else if (card.type & TYPE_LINK) {
+			else if (card.type & const_type.TYPE_LINK) {
 				subtype = '/連結';
 				lvstr = 'LINK-';
 			}
-			if (card.type & TYPE_PENDULUM) {
+			if (card.type & const_type.TYPE_PENDULUM) {
 				subtype += '/靈擺';
 			}
 
 			// extype
-			if (card.type & TYPE_NORMAL)
+			if (card.type & const_type.TYPE_NORMAL)
 				subtype += '/通常';
-			if (card.type & TYPE_SPIRIT)
+			if (card.type & const_type.TYPE_SPIRIT)
 				subtype += '/靈魂';
-			if (card.type & TYPE_UNION)
+			if (card.type & const_type.TYPE_UNION)
 				subtype += '/聯合';
-			if (card.type & TYPE_DUAL)
+			if (card.type & const_type.TYPE_DUAL)
 				subtype += '/二重';
-			if (card.type & TYPE_TUNER)
+			if (card.type & const_type.TYPE_TUNER)
 				subtype += '/協調';
-			if (card.type & TYPE_FLIP)
+			if (card.type & const_type.TYPE_FLIP)
 				subtype += '/反轉';
-			if (card.type & TYPE_TOON)
+			if (card.type & const_type.TYPE_TOON)
 				subtype += '/卡通';
-			if (card.type & TYPE_SPSUMMON)
+			if (card.type & const_type.TYPE_SPSUMMON)
 				subtype += '/特殊召喚';
-			if (card.type & TYPE_EFFECT)
+			if (card.type & const_type.TYPE_EFFECT)
 				subtype += '/效果';
 			data = `${lfstr}[${mtype}${subtype}]\n`;
 
@@ -362,14 +371,14 @@ module.exports = {
 			else
 				data += '/？族';
 			data += `/攻${print_ad(card.atk)}`;
-			if (!(card.type & TYPE_LINK)) {
+			if (!(card.type & const_type.TYPE_LINK)) {
 				data += `/守${print_ad(card.def)}`;
 			}
 			data += '\n';
-			if (card.type & TYPE_PENDULUM) {
+			if (card.type & const_type.TYPE_PENDULUM) {
 				data += `【靈擺刻度：${card.scale}】\n`;
 			}
-			if (card.type & TYPE_LINK) {
+			if (card.type & const_type.TYPE_LINK) {
 				let marker = '';
 				if (card.def & LINK_MARKER_TOP_LEFT)
 					marker += `:arrow_upper_left:`;
@@ -420,27 +429,27 @@ module.exports = {
 				data += marker;
 			}
 		}
-		else if (card.type & TYPE_SPELL) {
+		else if (card.type & const_type.TYPE_SPELL) {
 			mtype = '魔法';
-			if (card.type & TYPE_QUICKPLAY)
+			if (card.type & const_type.TYPE_QUICKPLAY)
 				subtype = '速攻';
-			else if (card.type & TYPE_CONTINUOUS)
+			else if (card.type & const_type.TYPE_CONTINUOUS)
 				subtype = '永續';
-			else if (card.type & TYPE_EQUIP)
+			else if (card.type & const_type.TYPE_EQUIP)
 				subtype = '裝備';
-			else if (card.type & TYPE_RITUAL)
+			else if (card.type & const_type.TYPE_RITUAL)
 				subtype = '儀式';
-			else if (card.type & TYPE_FIELD)
+			else if (card.type & const_type.TYPE_FIELD)
 				subtype = '場地';
 			else
 				subtype = '通常';
 			data = `${lfstr}[${subtype}${mtype}]\n`;
 		}
-		else if (card.type & TYPE_TRAP) {
+		else if (card.type & const_type.TYPE_TRAP) {
 			mtype = '陷阱';
-			if (card.type & TYPE_CONTINUOUS)
+			if (card.type & const_type.TYPE_CONTINUOUS)
 				subtype = '永續';
-			else if (card.type & TYPE_COUNTER)
+			else if (card.type & const_type.TYPE_COUNTER)
 				subtype = '反擊';
 			else
 				subtype = '通常';

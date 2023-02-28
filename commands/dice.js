@@ -1,3 +1,4 @@
+"use strict";
 const { SlashCommandBuilder } = require('discord.js');
 const { randomInt } = require('node:crypto');
 
