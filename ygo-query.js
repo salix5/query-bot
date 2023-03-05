@@ -157,14 +157,6 @@ const promise_sql = Promise.all([initSqlJs(), promise_db, promise_db2,]).then(va
 	db2 = new SQL.Database(values[2]);
 });
 
-
-function is_alternative(id, alias, type) {
-	if (type & TYPE_TOKEN)
-		return alias !== 0;
-	else
-		return Math.abs(id - alias) < 10;
-}
-
 function query_db(db, qstr, arg, ret) {
 	if (!db)
 		return;
@@ -173,8 +165,6 @@ function query_db(db, qstr, arg, ret) {
 	stmt.bind(arg);
 	while (stmt.step()) {
 		let card = stmt.getAsObject();
-		if (is_alternative(card.id, card.alias, card.type))
-			continue;
 
 		// spell & trap reset data
 		if (card.type & (TYPE_SPELL | TYPE_TRAP)) {
@@ -264,6 +254,13 @@ module.exports = {
 
 	default_query1: `SELECT datas.id, ot, alias, type, atk, def, level, attribute, race, name, desc FROM datas, texts WHERE datas.id == texts.id AND abs(datas.id - alias) >= 10 AND NOT type & ${TYPE_TOKEN}`,
 	default_query2: `SELECT datas.id FROM datas, texts WHERE datas.id == texts.id AND alias == 0 AND NOT type & ${TYPE_TOKEN}`,
+
+	is_alternative(card) {
+		if (card.type & TYPE_TOKEN)
+			return card.alias !== 0;
+		else
+			return Math.abs(card.id - card.alias) < 10;
+	},
 
 	query_card(qstr, arg, ret) {
 		query_db(db1, qstr, arg, ret);
