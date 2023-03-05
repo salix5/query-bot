@@ -1,6 +1,5 @@
 "use strict";
 const initSqlJs = require('sql.js');
-
 const cid_table = require('./data/cid.json');
 const name_table = require('./data/name_table.json');
 const name_table_en = require('./data/name_table_en.json');
@@ -10,89 +9,89 @@ const ltable_md = require('./data/lflist_md.json');
 const MAX_CHOICE = 20;
 
 // type
-const TYPE_MONSTER = 0x1
-const TYPE_SPELL = 0x2
-const TYPE_TRAP = 0x4
+const TYPE_MONSTER = 0x1;
+const TYPE_SPELL = 0x2;
+const TYPE_TRAP = 0x4;
 
 // color type
-const TYPE_NORMAL = 0x10
-const TYPE_EFFECT = 0x20
-const TYPE_FUSION = 0x40
-const TYPE_RITUAL = 0x80
-const TYPE_SYNCHRO = 0x2000
-const TYPE_XYZ = 0x800000
-const TYPE_PENDULUM = 0x1000000
-const TYPE_LINK = 0x4000000
-const TYPE_EXT = TYPE_FUSION | TYPE_SYNCHRO | TYPE_XYZ | TYPE_LINK
+const TYPE_NORMAL = 0x10;
+const TYPE_EFFECT = 0x20;
+const TYPE_FUSION = 0x40;
+const TYPE_RITUAL = 0x80;
+const TYPE_SYNCHRO = 0x2000;
+const TYPE_XYZ = 0x800000;
+const TYPE_PENDULUM = 0x1000000;
+const TYPE_LINK = 0x4000000;
+const TYPE_EXT = TYPE_FUSION | TYPE_SYNCHRO | TYPE_XYZ | TYPE_LINK;
 
 // extype
-const TYPE_SPIRIT = 0x200
-const TYPE_UNION = 0x400
-const TYPE_DUAL = 0x800
-const TYPE_TUNER = 0x1000
-const TYPE_TOKEN = 0x4000
-const TYPE_FLIP = 0x200000
-const TYPE_TOON = 0x400000
-const TYPE_SPSUMMON = 0x2000000
+const TYPE_SPIRIT = 0x200;
+const TYPE_UNION = 0x400;
+const TYPE_DUAL = 0x800;
+const TYPE_TUNER = 0x1000;
+const TYPE_TOKEN = 0x4000;
+const TYPE_FLIP = 0x200000;
+const TYPE_TOON = 0x400000;
+const TYPE_SPSUMMON = 0x2000000;
 
 // spell type
-const TYPE_QUICKPLAY = 0x10000
-const TYPE_CONTINUOUS = 0x20000
-const TYPE_EQUIP = 0x40000
-//const TYPE_RITUAL			=0x80
+const TYPE_QUICKPLAY = 0x10000;
+const TYPE_CONTINUOUS = 0x20000;
+const TYPE_EQUIP = 0x40000;
+//const TYPE_RITUAL
 const TYPE_FIELD = 0x80000
 
 // trap type
-//const TYPE_CONTINUOUS		=0x20000
-const TYPE_COUNTER = 0x100000
+//const TYPE_CONTINUOUS
+const TYPE_COUNTER = 0x100000;
 
 // race
-const RACE_WARRIOR = 0x1
-const RACE_SPELLCASTER = 0x2
-const RACE_FAIRY = 0x4
-const RACE_FIEND = 0x8
-const RACE_ZOMBIE = 0x10
-const RACE_MACHINE = 0x20
-const RACE_AQUA = 0x40
-const RACE_PYRO = 0x80
-const RACE_ROCK = 0x100
-const RACE_WINDBEAST = 0x200
-const RACE_PLANT = 0x400
-const RACE_INSECT = 0x800
-const RACE_THUNDER = 0x1000
-const RACE_DRAGON = 0x2000
-const RACE_BEAST = 0x4000
-const RACE_BEASTWARRIOR = 0x8000
-const RACE_DINOSAUR = 0x10000
-const RACE_FISH = 0x20000
-const RACE_SEASERPENT = 0x40000
-const RACE_REPTILE = 0x80000
-const RACE_PSYCHO = 0x100000
-const RACE_DIVINE = 0x200000
-const RACE_CREATORGOD = 0x400000
-const RACE_WYRM = 0x800000
-const RACE_CYBERSE = 0x1000000
+const RACE_WARRIOR = 0x1;
+const RACE_SPELLCASTER = 0x2;
+const RACE_FAIRY = 0x4;
+const RACE_FIEND = 0x8;
+const RACE_ZOMBIE = 0x10;
+const RACE_MACHINE = 0x20;
+const RACE_AQUA = 0x40;
+const RACE_PYRO = 0x80;
+const RACE_ROCK = 0x100;
+const RACE_WINDBEAST = 0x200;
+const RACE_PLANT = 0x400;
+const RACE_INSECT = 0x800;
+const RACE_THUNDER = 0x1000;
+const RACE_DRAGON = 0x2000;
+const RACE_BEAST = 0x4000;
+const RACE_BEASTWARRIOR = 0x8000;
+const RACE_DINOSAUR = 0x10000;
+const RACE_FISH = 0x20000;
+const RACE_SEASERPENT = 0x40000;
+const RACE_REPTILE = 0x80000;
+const RACE_PSYCHO = 0x100000;
+const RACE_DIVINE = 0x200000;
+const RACE_CREATORGOD = 0x400000;
+const RACE_WYRM = 0x800000;
+const RACE_CYBERSE = 0x1000000;
 
 // attr
-const ATTRIBUTE_EARTH = 0x01
-const ATTRIBUTE_WATER = 0x02
-const ATTRIBUTE_FIRE = 0x04
-const ATTRIBUTE_WIND = 0x08
-const ATTRIBUTE_LIGHT = 0x10
-const ATTRIBUTE_DARK = 0x20
-const ATTRIBUTE_DIVINE = 0x40
+const ATTRIBUTE_EARTH = 0x01;
+const ATTRIBUTE_WATER = 0x02;
+const ATTRIBUTE_FIRE = 0x04;
+const ATTRIBUTE_WIND = 0x08;
+const ATTRIBUTE_LIGHT = 0x10;
+const ATTRIBUTE_DARK = 0x20;
+const ATTRIBUTE_DIVINE = 0x40;
 
 // Link Marker
-const LINK_MARKER_BOTTOM_LEFT = 0x001; // ↙
-const LINK_MARKER_BOTTOM = 0x002; // ↓
-const LINK_MARKER_BOTTOM_RIGHT = 0x004; // ↘
+const LINK_MARKER_BOTTOM_LEFT = 0x001;	// ↙
+const LINK_MARKER_BOTTOM = 0x002;		// ↓
+const LINK_MARKER_BOTTOM_RIGHT = 0x004;	// ↘
 
-const LINK_MARKER_LEFT = 0x008; // ←
-const LINK_MARKER_RIGHT = 0x020; // →
+const LINK_MARKER_LEFT = 0x008;			// ←
+const LINK_MARKER_RIGHT = 0x020;		// →
 
-const LINK_MARKER_TOP_LEFT = 0x040; // ↖
-const LINK_MARKER_TOP = 0x080; // ↑
-const LINK_MARKER_TOP_RIGHT = 0x100; // ↗
+const LINK_MARKER_TOP_LEFT = 0x040;		// ↖
+const LINK_MARKER_TOP = 0x080;			// ↑
+const LINK_MARKER_TOP_RIGHT = 0x100;	// ↗
 
 const attr_to_str = {
 	[ATTRIBUTE_EARTH]: '地',
@@ -130,6 +129,21 @@ const race_to_str = {
 	[RACE_CREATORGOD]: '創造神',
 	[RACE_WYRM]: '幻龍',
 	[RACE_CYBERSE]: '電子界'
+};
+
+const marker_to_str = {
+	[LINK_MARKER_BOTTOM_LEFT]: ':arrow_lower_left:',
+	[LINK_MARKER_BOTTOM]: ':arrow_down:',
+	[LINK_MARKER_BOTTOM_RIGHT]: ':arrow_lower_right:',
+
+	[LINK_MARKER_LEFT]: ':arrow_left:',
+	[LINK_MARKER_RIGHT]: ':arrow_right:',
+
+	[LINK_MARKER_TOP_LEFT]: ':arrow_upper_left:',
+	[LINK_MARKER_TOP]: ':arrow_up:',
+	[LINK_MARKER_TOP_RIGHT]: ':arrow_upper_right:',
+
+	default: ':black_large_square:',
 };
 
 const base_url = "https://salix5.github.io";
@@ -248,15 +262,18 @@ function print_ad(x) {
 module.exports = {
 	ready: promise_sql,
 
+	default_query1: `SELECT datas.id, ot, alias, type, atk, def, level, attribute, race, name, desc FROM datas, texts WHERE datas.id == texts.id AND abs(datas.id - alias) >= 10 AND NOT type & ${TYPE_TOKEN}`,
+	default_query2: `SELECT datas.id FROM datas, texts WHERE datas.id == texts.id AND alias == 0 AND NOT type & ${TYPE_TOKEN}`,
+
 	query_card(qstr, arg, ret) {
 		query_db(db1, qstr, arg, ret);
 		query_db(db2, qstr, arg, ret);
 	},
 
 	query_id(id, ret) {
-		let qstr = `SELECT datas.id, ot, alias, type, atk, def, level, attribute, race, name, desc FROM datas, texts WHERE datas.id == texts.id AND abs(datas.id - alias) >= 10 AND NOT type & $token AND datas.id == ${id};`;
+		let qstr = `${this.default_query1} AND datas.id == $id;`;
 		let arg = new Object();
-		arg.$token = TYPE_TOKEN;
+		arg.$id = id;
 		query_db(db1, qstr, arg, ret);
 		if (!ret.length)
 			query_db(db2, qstr, arg, ret);
@@ -370,54 +387,37 @@ module.exports = {
 				data += `【靈擺刻度：${card.scale}】\n`;
 			}
 			if (card.type & TYPE_LINK) {
-				let marker = '';
-				if (card.def & LINK_MARKER_TOP_LEFT)
-					marker += `:arrow_upper_left:`;
-				else
-					marker += `:black_large_square:`;
-
-				if (card.def & LINK_MARKER_TOP)
-					marker += `:arrow_up:`;
-				else
-					marker += `:black_large_square:`;
-
-				if (card.def & LINK_MARKER_TOP_RIGHT)
-					marker += `:arrow_upper_right:`;
-				else
-					marker += `:black_large_square:`;
-
-				marker += '\n';
+				let marker_text = '';
+				for (let marker = LINK_MARKER_TOP_LEFT; marker <= LINK_MARKER_TOP_RIGHT; marker <<= 1) {
+					if (card.def & marker)
+						marker_text += marker_to_str[marker];
+					else
+						marker_text += marker_to_str.default;
+				}
+				marker_text += '\n';
 
 				if (card.def & LINK_MARKER_LEFT)
-					marker += `:arrow_left:`;
+					marker_text += marker_to_str[LINK_MARKER_LEFT];
 				else
-					marker += `:black_large_square:`;
+					marker_text += marker_to_str.default;
 
-				marker += `:black_large_square:`;
+				marker_text += marker_to_str.default;
 
 				if (card.def & LINK_MARKER_RIGHT)
-					marker += `:arrow_right:`;
+					marker_text += marker_to_str[LINK_MARKER_RIGHT];
 				else
-					marker += `:black_large_square:`;
+					marker_text += marker_to_str.default;
 
-				marker += '\n';
+				marker_text += '\n';
 
-				if (card.def & LINK_MARKER_BOTTOM_LEFT)
-					marker += `:arrow_lower_left:`;
-				else
-					marker += `:black_large_square:`;
-
-				if (card.def & LINK_MARKER_BOTTOM)
-					marker += `:arrow_down:`;
-				else
-					marker += `:black_large_square:`;
-
-				if (card.def & LINK_MARKER_BOTTOM_RIGHT)
-					marker += `:arrow_lower_right:`;
-				else
-					marker += `:black_large_square:`;
-				marker += '\n';
-				data += marker;
+				for (let marker = LINK_MARKER_BOTTOM_LEFT; marker <= LINK_MARKER_BOTTOM_RIGHT; marker <<= 1) {
+					if (card.def & marker)
+						marker_text += marker_to_str[marker];
+					else
+						marker_text += marker_to_str.default;
+				}
+				marker_text += '\n';
+				data += marker_text;
 			}
 		}
 		else if (card.type & TYPE_SPELL) {

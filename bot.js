@@ -8,7 +8,6 @@ const path = require('node:path');
 const { Client, Collection, Events, GatewayIntentBits } = require('discord.js');
 const ygoQuery = require('./ygo-query.js');
 
-const TYPE_TOKEN = 0x4000
 const MAX_RESULT_LEN = 200;
 const REPLY_LENGTH = 5;
 const LIST_LENGTH = 20;
@@ -80,7 +79,7 @@ function process_name(locale, str_name, arg) {
 			}
 			// zh, name
 			name_cmd += " OR name LIKE $name ESCAPE '$' OR desc LIKE $kanji ESCAPE '$'";
-			name_cmd += " OR alias IN (SELECT datas.id FROM datas, texts WHERE datas.id == texts.id AND alias == 0 AND NOT type & $token AND name LIKE $name ESCAPE '$')";
+			name_cmd += ` OR alias IN (${ygoQuery.default_query2} AND name LIKE $name ESCAPE '$')`;
 			arg.$name = string_to_literal(str_name);
 			arg.$kanji = `%※${string_to_literal(str_name)}`;
 			break;
@@ -146,8 +145,7 @@ client.on(Events.MessageCreate, async msg => {
 	if (cmd === 'q! ' || cmd === 'n! ') {
 		let result = [];
 		let arg = new Object();
-		let qstr = "SELECT datas.id, ot, alias, type, atk, def, level, attribute, race, name, desc FROM datas, texts WHERE datas.id == texts.id AND abs(datas.id - alias) >= 10 AND NOT type & $token";
-		arg.$token = TYPE_TOKEN;
+		let qstr = ygoQuery.default_query1;
 		let name_cmd = process_name('', search_string, arg);
 		if (name_cmd) {
 			qstr += ` AND (${name_cmd});`;
