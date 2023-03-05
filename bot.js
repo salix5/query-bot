@@ -6,8 +6,9 @@ require('dotenv').config();
 const fs = require('node:fs');
 const path = require('node:path');
 const { Client, Collection, Events, GatewayIntentBits } = require('discord.js');
-const ygo = require('./ygo-query.js');
+const ygoQuery = require('./ygo-query.js');
 
+const TYPE_TOKEN = 0x4000
 const MAX_RESULT_LEN = 200;
 const REPLY_LENGTH = 5;
 const LIST_LENGTH = 20;
@@ -146,12 +147,12 @@ client.on(Events.MessageCreate, async msg => {
 		let result = [];
 		let arg = new Object();
 		let qstr = "SELECT datas.id, ot, alias, type, atk, def, level, attribute, race, name, desc FROM datas, texts WHERE datas.id == texts.id AND abs(datas.id - alias) >= 10 AND NOT type & $token";
-		arg.$token = ygo.const_type.TYPE_TOKEN;
+		arg.$token = TYPE_TOKEN;
 		let name_cmd = process_name('', search_string, arg);
 		if (name_cmd) {
 			qstr += ` AND (${name_cmd});`;
 			name = search_string;
-			ygo.query_card(qstr, arg, result);
+			ygoQuery.query_card(qstr, arg, result);
 			result.sort(compare_type);
 		}
 		
@@ -159,7 +160,7 @@ client.on(Events.MessageCreate, async msg => {
 			for (let i = 0; i < REPLY_LENGTH && i < result.length; ++i) {
 				let ret = '';
 				if (cmd === 'q! ') {
-					ret = ygo.print_data(result[i]);
+					ret = ygoQuery.print_data(result[i]);
 				}
 				else {
 					ret = result[i].jp_name ? result[i].jp_name : result[i].id.toString();
@@ -218,6 +219,6 @@ client.on(Events.InteractionCreate, async interaction => {
 	}
 });
 
-ygo.ready.then(() => {
+ygoQuery.ready.then(() => {
 	client.login(process.env.TOKEN);
 });

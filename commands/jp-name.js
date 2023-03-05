@@ -1,4 +1,3 @@
-"use strict";
 const { SlashCommandBuilder } = require('discord.js');
 const choice_table = require('../data/choices_tc.json');
 const name_table = require('../data/name_table.json');
