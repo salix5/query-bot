@@ -31,7 +31,7 @@ module.exports = {
 		if (id) {
 			let result = [];
 			ygo.query_id(id, result);
-			if (result.length == 1)
+			if (result.length === 1)
 				await interaction.reply(ygo.print_data(result[0]));
 			else
 				await interaction.reply('沒有符合條件的卡片。');

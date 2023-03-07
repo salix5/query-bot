@@ -263,6 +263,7 @@ module.exports = {
 	},
 
 	query_card(qstr, arg, ret) {
+		ret.length = 0;
 		query_db(db1, qstr, arg, ret);
 		query_db(db2, qstr, arg, ret);
 	},
@@ -271,6 +272,7 @@ module.exports = {
 		let qstr = `${this.default_query1} AND datas.id == $id;`;
 		let arg = new Object();
 		arg.$id = id;
+		ret.length = 0;
 		query_db(db1, qstr, arg, ret);
 		if (!ret.length)
 			query_db(db2, qstr, arg, ret);
