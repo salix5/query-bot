@@ -29,6 +29,7 @@ module.exports = {
 		const input = interaction.options.getString('input');
 		let id = choice_table[input];
 		if (id) {
+			await interaction.deferReply();
 			let result = [];
 			ygo.query_id(id, result);
 			if (result.length === 1) {
@@ -48,14 +49,14 @@ module.exports = {
 							.setURL(`https://www.db.yugioh-card.com/yugiohdb/faq_search.action?ope=4&cid=${card.cid}&request_locale=ja`);
 						row1.addComponents(button2);
 					}
-					await interaction.reply({ content: ygo.print_data(result[0]), components: [row1] });
+					await interaction.editReply({ content: ygo.print_data(result[0]), components: [row1] });
 				}
 				else {
-					await interaction.reply(ygo.print_data(result[0]));
+					await interaction.editReply(ygo.print_data(result[0]));
 				}
 			}
 			else {
-				await interaction.reply('沒有符合條件的卡片。');
+				await interaction.editReply('沒有符合條件的卡片。');
 			}
 		}
 		else {
