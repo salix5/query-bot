@@ -53,7 +53,7 @@ function process_name(locale, str_name, arg) {
 			let jp_list = [];
 			let str_jp = str_name.toHalfWidth().toLowerCase();
 			for (const [key, value] of Object.entries(name_table)) {
-				if (value.toHalfWidth().toLowerCase().includes(str_jp))
+				if (value && value.toHalfWidth().toLowerCase().includes(str_jp))
 					jp_list.push(key);
 				if (jp_list.length > MAX_RESULT_LEN) {
 					jp_list.length = 0;
