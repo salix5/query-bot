@@ -289,7 +289,7 @@ module.exports = {
 
 		if (card.jp_name)
 			official_name += `${card.jp_name}\n`;
-		if (card.en_name && !(card.ot === 2 && card.en_name === card.jp_name))
+		if (card.en_name)
 			official_name += `${card.en_name}\n`;
 
 		if (ltable[card.id] !== undefined || ltable_md[card.id] !== undefined) {
