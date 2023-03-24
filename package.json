@@ -13,9 +13,9 @@
   "author": "salix5",
   "license": "MIT",
   "dependencies": {
-    "discord.js": "",
+    "discord.js": "*",
     "dotenv": "^16.0.3",
-    "sql.js": ""
+    "sql.js": "*"
   },
   "engines": {
     "node": "18.x"
