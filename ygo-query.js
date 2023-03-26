@@ -233,10 +233,12 @@ function query_db(db, qstr, arg, ret) {
 		else {
 			card.color = null;
 		}
-
-		card.cid = cid_table[card.id] ? cid_table[card.id] : null;
-		card.jp_name = name_table[card.id] ? name_table[card.id] : null;
-		card.en_name = name_table_en[card.id] ? name_table_en[card.id] : null;
+		if (cid_table[card.id])
+			card.cid = cid_table[card.id];
+		if (name_table[card.id])
+			card.jp_name = name_table[card.id];
+		if (name_table_en[card.id])
+			card.en_name = name_table_en[card.id];
 		ret.push(card);
 	}
 	stmt.free();
