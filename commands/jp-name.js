@@ -1,8 +1,8 @@
 "use strict";
 const { SlashCommandBuilder } = require('discord.js');
+const common1 = require('../common_all.js');
 const choice_table = require('../data/choices_tc.json');
 const name_table = require('../data/name_table.json');
-const ygo = require('../ygo-query.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -16,15 +16,7 @@ module.exports = {
 				.setAutocomplete(true)
 	),
 	async autocomplete(interaction) {
-		const focusedValue = interaction.options.getFocused();
-		if (!focusedValue) {
-			await interaction.respond([]);
-			return;
-		}
-		const ret = ygo.filter_choice(choice_table, focusedValue);
-		await interaction.respond(
-			ret.map(choice => ({ name: choice, value: choice })),
-		);
+		common1.autocomplete(interaction, choice_table);
 	},
 	async execute(interaction) {
 		const input = interaction.options.getString('input');
