@@ -220,6 +220,7 @@ client.on(Events.InteractionCreate, async interaction => {
 		catch (error) {
 			console.error(error);
 			console.error(interaction.commandName);
+			console.error(interaction.options.getFocused());
 		}
 	}
 });
