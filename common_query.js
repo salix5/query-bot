@@ -35,7 +35,7 @@ module.exports = {
 			}
 			else {
 				await interaction.editReply('沒有符合條件的卡片。');
-				console.log(`${id}`);
+				console.error('Error card id', id);
 			}
 		}
 		else {
