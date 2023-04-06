@@ -136,7 +136,8 @@ for (const file of commandFiles) {
 }
 
 client.once(Events.ClientReady, c => {
-	console.log(`Ready! Logged in as ${c.user.tag}`);
+	let currentDate = new Date();
+	console.log(`[${currentDate.toUTCString()}] Ready! Logged in as ${c.user.tag}`);
 });
 
 client.on(Events.MessageCreate, async msg => {
@@ -197,7 +198,13 @@ client.on(Events.InteractionCreate, async interaction => {
 		}
 		catch (error) {
 			console.error(error);
-			await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
+			console.error(interaction.commandName);
+			if (interaction.replied || interaction.deferred) {
+				await interaction.followUp({ content: 'There was an error while executing this command!', ephemeral: true });
+			}
+			else {
+				await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
+			}
 		}
 	}
 	else if (interaction.isAutocomplete()) {
@@ -212,6 +219,7 @@ client.on(Events.InteractionCreate, async interaction => {
 		}
 		catch (error) {
 			console.error(error);
+			console.error(interaction.commandName);
 		}
 	}
 });
