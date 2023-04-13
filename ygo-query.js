@@ -3,6 +3,7 @@ const initSqlJs = require('sql.js');
 const cid_table = require('./data/cid.json');
 const name_table = require('./data/name_table.json');
 const name_table_en = require('./data/name_table_en.json');
+const name_table_md = require('./data/name_table_md.json');
 const ltable = require('./data/lflist.json');
 const ltable_md = require('./data/lflist_md.json');
 
@@ -292,7 +293,7 @@ module.exports = {
 		if (card.en_name)
 			official_name += `${card.en_name}\n`;
 
-		if (ltable[card.id] !== undefined || ltable_md[card.id] !== undefined) {
+		if (ltable[card.id] !== undefined || ltable_md[card.id] !== undefined || !name_table_md[card.id]) {
 			let lfstr_o = '';
 			let lfstr_m = '';
 			switch (ltable[card.id]) {
@@ -320,7 +321,10 @@ module.exports = {
 					lfstr_m = 'MD：準限制';
 					break;
 				default:
-					lfstr_m = 'MD：無';
+					if (name_table_md[card.id])
+						lfstr_m = 'MD：無';
+					else
+						lfstr_m = 'MD：未收錄';
 					break;
 			}
 			lfstr = `(${lfstr_o} / ${lfstr_m})\n`;
