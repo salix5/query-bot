@@ -250,6 +250,19 @@ function print_ad(x) {
 		return x;
 }
 
+function print_limit(limit) {
+	switch (limit) {
+		case 0:
+			return '禁止';
+		case 1:
+			return '限制';
+		case 2:
+			return '準限制';
+		default:
+			return '無';
+	}
+}
+
 module.exports = {
 	ready: promise_sql,
 
@@ -294,38 +307,16 @@ module.exports = {
 			official_name += `${card.en_name}\n`;
 
 		if (ltable[card.id] !== undefined || ltable_md[card.id] !== undefined || !name_table_md[card.id]) {
-			let lfstr_o = '';
+			let lfstr_o = `OCG：${print_limit(ltable[card.id])}`;
 			let lfstr_m = '';
-			switch (ltable[card.id]) {
-				case 0:
-					lfstr_o = 'OCG：禁止';
-					break;
-				case 1:
-					lfstr_o = 'OCG：限制';
-					break;
-				case 2:
-					lfstr_o = 'OCG：準限制';
-					break;
-				default:
-					lfstr_o = 'OCG：無';
-					break;
+			if (ltable_md[card.id] !== undefined) {
+				lfstr_m = `MD：${print_limit(ltable_md[card.id])}`;
 			}
-			switch (ltable_md[card.id]) {
-				case 0:
-					lfstr_m = 'MD：禁止';
-					break;
-				case 1:
-					lfstr_m = 'MD：限制';
-					break;
-				case 2:
-					lfstr_m = 'MD：準限制';
-					break;
-				default:
-					if (name_table_md[card.id])
-						lfstr_m = 'MD：無';
-					else
-						lfstr_m = 'MD：未收錄';
-					break;
+			else if (name_table_md[card.id]) {
+				lfstr_m = 'MD：無';
+			}
+			else {
+				lfstr_m = 'MD：未收錄';
 			}
 			lfstr = `(${lfstr_o} / ${lfstr_m})\n`;
 		}
