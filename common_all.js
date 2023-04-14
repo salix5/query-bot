@@ -5,6 +5,7 @@ module.exports = {
 	async autocomplete(interaction, choice_table) {
 		const focused = interaction.options.getFocused();
 		if (!focused) {
+			await interaction.respond([]);
 			return;
 		}
 
