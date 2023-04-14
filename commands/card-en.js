@@ -16,7 +16,7 @@ module.exports = {
 				.setAutocomplete(true)
 	),
 	async autocomplete(interaction) {
-		common1.autocomplete(interaction, choice_table);
+		await common1.autocomplete(interaction, choice_table);
 	},
 	async execute(interaction) {
 		common2.query_command(interaction, choice_table);
