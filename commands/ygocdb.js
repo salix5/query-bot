@@ -15,7 +15,7 @@ module.exports = {
 				.setAutocomplete(true)
 	),
 	async autocomplete(interaction) {
-		common1.autocomplete(interaction, choice_table);
+		await common1.autocomplete(interaction, choice_table);
 	},
 	async execute(interaction) {
 		const input = interaction.options.getString('input');
