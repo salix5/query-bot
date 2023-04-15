@@ -145,9 +145,9 @@ const marker_to_str = {
 	default: ':black_large_square:',
 };
 
-const base_url = "https://salix5.github.io";
-const promise_db = fetch(`${base_url}/CardEditor/cards.cdb`).then(response => response.arrayBuffer()).then(buf => new Uint8Array(buf));
-const promise_db2 = fetch(`${base_url}/cdb/pre-release.cdb`).then(response => response.arrayBuffer()).then(buf => new Uint8Array(buf));
+const domain = "https://salix5.github.io";
+const promise_db = fetch(`${domain}/CardEditor/cards.cdb`).then(response => response.arrayBuffer()).then(buf => new Uint8Array(buf));
+const promise_db2 = fetch(`${domain}/cdb/pre-release.cdb`).then(response => response.arrayBuffer()).then(buf => new Uint8Array(buf));
 var db1 = null, db2 = null;
 
 const promise_sql = Promise.all([initSqlJs(), promise_db, promise_db2,]).then(values => {
@@ -264,19 +264,11 @@ function print_limit(limit) {
 }
 
 module.exports = {
-	ready: promise_sql,
-
+	db_ready: promise_sql,
 	default_query1: `SELECT datas.id, ot, alias, type, atk, def, level, attribute, race, name, desc FROM datas, texts WHERE datas.id == texts.id AND abs(datas.id - alias) >= 10 AND NOT type & ${TYPE_TOKEN}`,
 	default_query2: `SELECT datas.id FROM datas, texts WHERE datas.id == texts.id AND alias == 0 AND NOT type & ${TYPE_TOKEN}`,
 
-	is_alternative(card) {
-		if (card.type & TYPE_TOKEN)
-			return card.alias !== 0;
-		else
-			return Math.abs(card.id - card.alias) < 10;
-	},
-
-	query_card(qstr, arg, ret) {
+	query(qstr, arg, ret) {
 		ret.length = 0;
 		query_db(db1, qstr, arg, ret);
 		query_db(db2, qstr, arg, ret);
@@ -442,5 +434,12 @@ module.exports = {
 		}
 		let card_text = `**${card.name}**\n${official_name}${data}${card.desc}\n--`;
 		return card_text;
+	},
+
+	is_alternative(card) {
+		if (card.type & TYPE_TOKEN)
+			return card.alias !== 0;
+		else
+			return Math.abs(card.id - card.alias) < 10;
 	},
 };
