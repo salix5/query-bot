@@ -151,7 +151,7 @@ client.on(Events.MessageCreate, async msg => {
 		if (name_cmd) {
 			qstr += ` AND (${name_cmd});`;
 			name = search_string;
-			ygoQuery.query_card(qstr, arg, result);
+			ygoQuery.query(qstr, arg, result);
 			result.sort(compare_type);
 		}
 		
@@ -224,6 +224,6 @@ client.on(Events.InteractionCreate, async interaction => {
 	}
 });
 
-ygoQuery.ready.then(() => {
+ygoQuery.db_ready.then(() => {
 	client.login(process.env.TOKEN);
 });
