@@ -238,6 +238,8 @@ function query_db(db, qstr, arg, ret) {
 			card.jp_name = name_table[card.id];
 		if (name_table_en[card.id])
 			card.en_name = name_table_en[card.id];
+		if (name_table_md[card.id])
+			card.md_name = name_table_md[card.id];
 		ret.push(card);
 	}
 	stmt.free();
@@ -261,6 +263,10 @@ function print_limit(limit) {
 		default:
 			return '無';
 	}
+}
+
+function is_released(card) {
+	return !!(card.jp_name || card.en_name);
 }
 
 module.exports = {
@@ -298,13 +304,13 @@ module.exports = {
 		if (card.en_name)
 			official_name += `${card.en_name}\n`;
 
-		if (ltable[card.id] !== undefined || ltable_md[card.id] !== undefined || !name_table_md[card.id]) {
+		if (ltable[card.id] !== undefined || ltable_md[card.id] !== undefined || (is_released(card) && !card.md_name)) {
 			let lfstr_o = `OCG：${print_limit(ltable[card.id])}`;
 			let lfstr_m = '';
 			if (ltable_md[card.id] !== undefined) {
 				lfstr_m = `MD：${print_limit(ltable_md[card.id])}`;
 			}
-			else if (name_table_md[card.id]) {
+			else if (card.md_name) {
 				lfstr_m = 'MD：無';
 			}
 			else {
