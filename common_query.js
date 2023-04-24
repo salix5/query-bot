@@ -13,20 +13,26 @@ module.exports = {
 			if (result.length === 1) {
 				const card = result[0];
 				if (card.cid) {
-					const locale = (card.ot === 2) ? 'en' : 'ja';
 					const button1 = new ButtonBuilder()
 						.setStyle(ButtonStyle.Link)
 						.setLabel('DB')
-						.setURL(`https://www.db.yugioh-card.com/yugiohdb/card_search.action?ope=2&cid=${card.cid}&request_locale=${locale}`);
-					const row1 = new ActionRowBuilder()
-						.addComponents(button1);
-					if (locale === 'ja') {
+						.setURL(ygo.print_db_link(card.cid, card.ot));
+					const row1 = new ActionRowBuilder().addComponents(button1);
+					if (card.ot !== 2) {
 						const button2 = new ButtonBuilder()
 							.setStyle(ButtonStyle.Link)
 							.setLabel('Q&A')
 							.setURL(`https://www.db.yugioh-card.com/yugiohdb/faq_search.action?ope=4&cid=${card.cid}&request_locale=ja`);
 						row1.addComponents(button2);
 					}
+					await interaction.editReply({ content: ygo.print_data(result[0]), components: [row1] });
+				}
+				else if (card.cid === 0) {
+					const button1 = new ButtonBuilder()
+						.setStyle(ButtonStyle.Link)
+						.setLabel('Yugipedia')
+						.setURL(ygo.print_db_link(card.cid, card.ot));
+					const row1 = new ActionRowBuilder().addComponents(button1);
 					await interaction.editReply({ content: ygo.print_data(result[0]), components: [row1] });
 				}
 				else {
