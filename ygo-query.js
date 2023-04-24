@@ -234,7 +234,7 @@ function query_db(db, qstr, arg, ret) {
 		else {
 			card.color = null;
 		}
-		if (cid_table[card.id])
+		if (typeof cid_table[card.id] === "number")
 			card.cid = cid_table[card.id];
 		if (name_table[card.id])
 			card.jp_name = name_table[card.id];
@@ -449,5 +449,16 @@ module.exports = {
 			return card.alias !== 0;
 		else
 			return Math.abs(card.id - card.alias) < 10;
+	},
+
+	print_db_link(cid, ot) {
+		let locale = 'ja';
+		if (ot === 2)
+			locale = 'en';
+		return `https://www.db.yugioh-card.com/yugiohdb/card_search.action?ope=2&cid=${cid}&request_locale=${locale}`;
+	},
+
+	print_wiki_link(id) {
+		return `https://yugipedia.com/wiki/${id}`;
 	},
 };
