@@ -16,7 +16,7 @@ module.exports = {
 	async execute(interaction) {
 		const face = interaction.options.getInteger('face');
 		if (face) {
-			const result = randomInt(1, face);
+			const result = randomInt(face) + 1;
 			await interaction.reply(result.toString());
 		}
 		else {
