@@ -1,12 +1,11 @@
 "use strict";
-const name_table = require('./data/name_table.json');
-const setname = require('./data/setname.json');
-
+const { Client, Collection, Events, GatewayIntentBits } = require('discord.js');
 require('dotenv').config();
+const ygoQuery = require('./ygo-query.js');
 const fs = require('node:fs');
 const path = require('node:path');
-const { Client, Collection, Events, GatewayIntentBits } = require('discord.js');
-const ygoQuery = require('./ygo-query.js');
+const name_table = require('./data/name_table.json');
+const setname = require('./data/setname.json');
 
 const MAX_RESULT_LEN = 200;
 const REPLY_LENGTH = 5;
