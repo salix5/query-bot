@@ -1,6 +1,8 @@
 "use strict";
 const { SlashCommandBuilder } = require('discord.js');
 const { randomInt } = require('node:crypto');
+const { promisify } = require('node:util');
+const rand = promisify(randomInt);
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -16,7 +18,7 @@ module.exports = {
 	async execute(interaction) {
 		const face = interaction.options.getInteger('face');
 		if (face) {
-			const result = randomInt(face) + 1;
+			const result = await rand(face) + 1;
 			await interaction.reply(result.toString());
 		}
 		else {
