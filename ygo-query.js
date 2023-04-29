@@ -263,7 +263,7 @@ function print_limit(limit) {
 		case 2:
 			return '準限制';
 		default:
-			return '無';
+			return '';
 	}
 }
 
@@ -297,6 +297,9 @@ module.exports = {
 		let subtype = '';
 		let lvstr = `\u2605`;
 		let lfstr = '';
+		let lfstr_o = '';
+		let lfstr_m = '';
+		let seperator = '';
 
 		let official_name = '';
 		let data = '';
@@ -306,20 +309,20 @@ module.exports = {
 		if (card.en_name)
 			official_name += `${card.en_name}\n`;
 
-		if (ltable[card.id] !== undefined || ltable_md[card.id] !== undefined || (is_released(card) && !card.md_name)) {
-			let lfstr_o = `OCG：${print_limit(ltable[card.id])}`;
-			let lfstr_m = '';
+		if (ltable[card.id] !== undefined)
+			lfstr_o = `OCG：${print_limit(ltable[card.id])}`;
+		if (ltable_md[card.id] !== undefined || (is_released(card) && !card.md_name)) {
 			if (ltable_md[card.id] !== undefined) {
 				lfstr_m = `MD：${print_limit(ltable_md[card.id])}`;
-			}
-			else if (card.md_name) {
-				lfstr_m = 'MD：無';
 			}
 			else {
 				lfstr_m = 'MD：未收錄';
 			}
-			lfstr = `(${lfstr_o} / ${lfstr_m})\n`;
 		}
+		if (lfstr_o && lfstr_m)
+			seperator = ' / ';
+		if (lfstr_o || lfstr_m)
+			lfstr = `(${lfstr_o}${seperator}${lfstr_m})\n`;
 
 		if (card.type & TYPE_MONSTER) {
 			mtype = '怪獸';
