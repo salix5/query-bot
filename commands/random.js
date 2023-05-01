@@ -9,7 +9,7 @@ const rand = promisify(randomInt);
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('random')
-		.setDescription('從OCG卡池隨機抽一張卡。'),
+		.setDescription('從OCG卡池隨機抽一張卡'),
 	async execute(interaction) {
 		const id_list = Object.values(ocg_table);
 		const id = id_list[await rand(id_list.length)];

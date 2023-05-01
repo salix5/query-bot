@@ -7,7 +7,7 @@ const rand = promisify(randomInt);
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('dice')
-		.setDescription('擲一個N面骰。')
+		.setDescription('擲一個N面骰')
 		.addIntegerOption(option =>
 			option.setName('face')
 				.setDescription('面數')
