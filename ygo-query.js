@@ -70,7 +70,7 @@ const RACE_DIVINE = 0x200000;
 const RACE_CREATORGOD = 0x400000;
 const RACE_WYRM = 0x800000;
 const RACE_CYBERSE = 0x1000000;
-const RACE_ILLUSIONIST = 0x2000000;
+const RACE_ILLUSION = 0x2000000;
 
 // attr
 const ATTRIBUTE_EARTH = 0x01;
@@ -129,7 +129,7 @@ const race_to_str = {
 	[RACE_CREATORGOD]: '創造神',
 	[RACE_WYRM]: '幻龍',
 	[RACE_CYBERSE]: '電子界',
-	[RACE_ILLUSIONIST]: '幻想魔',
+	[RACE_ILLUSION]: '幻想魔',
 };
 
 const marker_to_str = {
