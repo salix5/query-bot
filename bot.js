@@ -198,7 +198,10 @@ client.on(Events.InteractionCreate, async interaction => {
 		catch (error) {
 			console.error(error);
 			console.error(interaction.commandName);
-			await interaction.followUp({ content: 'There was an error while executing this command!', ephemeral: true });
+			try {
+				await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
+			}
+			catch { }
 		}
 	}
 	else if (interaction.isAutocomplete()) {
