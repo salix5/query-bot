@@ -3,7 +3,7 @@ const { randomInt } = require('node:crypto');
 const { promisify } = require('node:util');
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle, SlashCommandBuilder } = require('discord.js');
 const ygo = require('../ygo-query.js');
-const ocg_table = require('../data/choices_tc.json');
+const ocg_table = require('../data/name_table.json');
 const rand = promisify(randomInt);
 
 module.exports = {
@@ -12,7 +12,7 @@ module.exports = {
 		.setDescription('從OCG卡池隨機抽一張卡'),
 	async execute(interaction) {
 		await interaction.deferReply();
-		const id_list = Object.values(ocg_table);
+		const id_list = Object.keys(ocg_table);
 		const id = id_list[await rand(id_list.length)];
 		const result = [];
 		ygo.query_id(id, result);
