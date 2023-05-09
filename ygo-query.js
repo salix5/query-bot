@@ -283,7 +283,7 @@ module.exports = {
 	},
 
 	query_id(id, ret) {
-		let qstr = `${this.default_query1} AND datas.id == $id;`;
+		let qstr = `SELECT datas.id, ot, alias, type, atk, def, level, attribute, race, name, desc FROM datas, texts WHERE datas.id == $id AND datas.id == texts.id;`;
 		let arg = new Object();
 		arg.$id = id;
 		ret.length = 0;
