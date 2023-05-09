@@ -11,7 +11,6 @@ module.exports = {
 		.setName('random')
 		.setDescription('從OCG卡池隨機抽一張卡'),
 	async execute(interaction) {
-		await interaction.deferReply();
 		const id_list = Object.values(ocg_table);
 		const id = id_list[await rand(id_list.length)];
 		const result = [];
@@ -29,10 +28,10 @@ module.exports = {
 			const row1 = new ActionRowBuilder()
 				.addComponents(button1)
 				.addComponents(button2);
-			await interaction.editReply({ content: ygo.print_data(card), components: [row1] });
+			await interaction.reply({ content: ygo.print_data(card), components: [row1] });
 		}
 		else {
-			await interaction.editReply('Error');
+			await interaction.reply('Error');
 		}
 	},
 };
