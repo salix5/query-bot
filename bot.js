@@ -155,7 +155,7 @@ client.on(Events.MessageCreate, async msg => {
 		}
 		
 		if (result.length) {
-			for (let i = 0; i < REPLY_LENGTH && i < result.length; ++i) {
+			for (let i = 0; i < Math.min(REPLY_LENGTH, result.length); ++i) {
 				let ret = '';
 				if (cmd === 'q! ') {
 					ret = ygoQuery.print_data(result[i]);
@@ -163,23 +163,47 @@ client.on(Events.MessageCreate, async msg => {
 				else {
 					ret = result[i].jp_name ? result[i].jp_name : result[i].id.toString();
 				}
-				await msg.channel.send(ret);
-			}
 
-			let list_card = '其他搜尋結果：\n';
-			for (let i = REPLY_LENGTH; i < result.length && i < LIST_LENGTH; ++i) {
-				if (cmd === 'q! ') {
-					list_card += `${result[i].name}\n`;
+				try {
+					await msg.channel.send(ret);
 				}
-				else {
-					list_card += `${result[i].jp_name ? result[i].jp_name : result[i].id.toString()}\n`;
+				catch (error) {
+					console.error(msg.content);
+					console.error(msg.channel);
+					console.error(error);
+					return;
 				}
 			}
-			if (result.length > REPLY_LENGTH)
-				await msg.channel.send(list_card);
+			if (result.length > REPLY_LENGTH) {
+				let list_card = '其他搜尋結果：\n';
+				for (let i = REPLY_LENGTH; i < Math.min(LIST_LENGTH, result.length); ++i) {
+					if (cmd === 'q! ') {
+						list_card += `${result[i].name}\n`;
+					}
+					else {
+						list_card += `${result[i].jp_name ? result[i].jp_name : result[i].id.toString()}\n`;
+					}
+				}
+
+				try {
+					await msg.channel.send(list_card);
+				}
+				catch (error) {
+					console.error(msg.content);
+					console.error(msg.channel);
+					console.error(error);
+				}
+			}
 		}
 		else {
-			await msg.channel.send('沒有符合條件的卡片。');
+			try {
+				await msg.channel.send('沒有符合條件的卡片。');
+			}
+			catch (error) {
+				console.error(msg.content);
+				console.error(msg.channel);
+				console.error(error);
+			}
 		}
 	}
 });
@@ -196,8 +220,8 @@ client.on(Events.InteractionCreate, async interaction => {
 			await command.execute(interaction);
 		}
 		catch (error) {
-			console.error(error);
 			console.error(interaction.commandName);
+			console.error(error);
 			try {
 				await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
 			}
@@ -215,8 +239,8 @@ client.on(Events.InteractionCreate, async interaction => {
 			await command.autocomplete(interaction);
 		}
 		catch (error) {
-			console.error(error);
 			console.error(interaction.commandName, interaction.options.getFocused());
+			console.error(error);
 		}
 	}
 });
