@@ -170,8 +170,7 @@ client.on(Events.MessageCreate, async msg => {
 				catch (error) {
 					console.error(msg.content);
 					console.error(msg.channel.guild.name, msg.channel.name);
-					console.error(error);
-					return;
+					throw error;
 				}
 			}
 			if (result.length > REPLY_LENGTH) {
@@ -191,7 +190,7 @@ client.on(Events.MessageCreate, async msg => {
 				catch (error) {
 					console.error(msg.content);
 					console.error(msg.channel.guild.name, msg.channel.name);
-					console.error(error);
+					throw error;
 				}
 			}
 		}
@@ -202,7 +201,7 @@ client.on(Events.MessageCreate, async msg => {
 			catch (error) {
 				console.error(msg.content);
 				console.error(msg.channel.guild.name, msg.channel.name);
-				console.error(error);
+				throw error;
 			}
 		}
 	}
