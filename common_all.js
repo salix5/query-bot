@@ -1,5 +1,5 @@
 "use strict";
-const MAX_CHOICE = 20;
+const MAX_CHOICE = 25;
 
 module.exports = {
 	async autocomplete(interaction, choice_table) {
