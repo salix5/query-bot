@@ -245,6 +245,10 @@ client.on(Events.InteractionCreate, async interaction => {
 	}
 });
 
+client.on(Events.Error, (err) => {
+	console.error(err);
+});
+
 ygoQuery.db_ready.then(() => {
 	client.login(process.env.TOKEN);
 });
