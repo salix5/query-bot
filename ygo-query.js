@@ -313,7 +313,7 @@ module.exports = {
 		if (card.en_name)
 			official_name += `${card.en_name}\n`;
 		else if (card.md_name_en)
-			official_name += `${card.md_name_en} (MD)\n`;
+			official_name += `${card.md_name_en}    (MD)\n`;
 
 		if (ltable[card.id] !== undefined)
 			lfstr_o = `OCG：${print_limit(ltable[card.id])}`;
