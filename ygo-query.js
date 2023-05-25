@@ -3,7 +3,7 @@ const initSqlJs = require('sql.js');
 const cid_table = require('./data/cid.json');
 const name_table = require('./data/name_table.json');
 const name_table_en = require('./data/name_table_en.json');
-const name_table_md = require('./data/name_table_md.json');
+const md_name = require('./data/md_name.json');
 const ltable = require('./data/lflist.json');
 const ltable_md = require('./data/lflist_md.json');
 
@@ -240,8 +240,8 @@ function query_db(db, qstr, arg, ret) {
 			card.jp_name = name_table[card.id];
 		if (name_table_en[card.id])
 			card.en_name = name_table_en[card.id];
-		if (name_table_md[card.id])
-			card.md_name = name_table_md[card.id];
+		if (md_name[card.id])
+			card.md_name = md_name[card.id];
 		ret.push(card);
 	}
 	stmt.free();
