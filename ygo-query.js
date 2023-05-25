@@ -4,6 +4,7 @@ const cid_table = require('./data/cid.json');
 const name_table = require('./data/name_table.json');
 const name_table_en = require('./data/name_table_en.json');
 const md_name = require('./data/md_name.json');
+const md_name_en = require('./data/md_name_en.json');
 const ltable = require('./data/lflist.json');
 const ltable_md = require('./data/lflist_md.json');
 
@@ -242,6 +243,8 @@ function query_db(db, qstr, arg, ret) {
 			card.en_name = name_table_en[card.id];
 		if (md_name[card.id])
 			card.md_name = md_name[card.id];
+		if (md_name_en[card.id])
+			card.md_name_en = md_name_en[card.id];
 		ret.push(card);
 	}
 	stmt.free();
@@ -306,8 +309,11 @@ module.exports = {
 
 		if (card.jp_name)
 			official_name += `${card.jp_name}\n`;
+
 		if (card.en_name)
 			official_name += `${card.en_name}\n`;
+		else if (card.md_name_en)
+			official_name += `${card.md_name_en} (MD)\n`;
 
 		if (ltable[card.id] !== undefined)
 			lfstr_o = `OCG：${print_limit(ltable[card.id])}`;
