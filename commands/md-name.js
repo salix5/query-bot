@@ -2,7 +2,7 @@
 const { SlashCommandBuilder } = require('discord.js');
 const common1 = require('../common_all.js');
 const choice_table = require('../data/choices_tc.json');
-const name_table_md = require('../data/name_table_md.json');
+const md_name = require('../data/md_name.json');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -22,8 +22,8 @@ module.exports = {
 		const input = interaction.options.getString('input');
 		let id = choice_table[input];
 		if (id) {
-			if (name_table_md[id])
-				await interaction.reply(name_table_md[id]);
+			if (md_name[id])
+				await interaction.reply(md_name[id]);
 			else
 				await interaction.reply('MD未收錄。');
 		}
