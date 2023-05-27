@@ -86,35 +86,37 @@ function process_name(locale, str_name, arg) {
 	return name_cmd;
 }
 
+/** 
+ *  is_equal() - case-insensitive equal
+ *  @param {string} a
+ *  @param {string} b
+ */
+function is_equal(a, b) {
+	return a.toHalfWidth().toLowerCase() === b.toHalfWidth().toLowerCase();
+}
+
 function compare_type(a, b) {
-	let jp_name = name ? name.toHalfWidth() : "";
-	let en_name = name ? name.toLowerCase() : "";
-	if (a.name === name) {
+	if (is_equal(a.name, name)) {
 		return -1;
 	}
-	else if (b.name === name) {
+	else if (is_equal(b.name, name)) {
 		return 1;
 	}
-	else if (a.jp_name && a.jp_name.toHalfWidth() === jp_name) {
+	else if (a.jp_name && is_equal(a.jp_name, name)) {
 		return -1;
 	}
-	else if (b.jp_name && b.jp_name.toHalfWidth() === jp_name) {
+	else if (b.jp_name && is_equal(b.jp_name, name)) {
 		return 1;
 	}
-	else if (a.en_name && a.en_name.toLowerCase() === en_name) {
-		return -1;
-	}
-	else if (b.en_name && b.en_name.toLowerCase() === en_name) {
-		return 1;
-	}
-	else if (a.color !== b.color) {
+
+	if (a.color !== b.color) {
 		return a.color - b.color;
 	}
 	else if (a.level !== b.level) {
 		return b.level - a.level;
 	}
 	else {
-		return a.name.localeCompare(b.name);
+		return a.name.localeCompare(b.name, 'zh-Hant');
 	}
 }
 
