@@ -13,8 +13,6 @@ const LIST_LENGTH = 20;
 const INPUT_LIMIT = 50;
 const re_wildcard = /(^|[^\$])[%_]/;
 
-var name = '';
-
 String.prototype.toHalfWidth = function () {
 	return this.replace(/[Ａ-Ｚａ-ｚ０-９]/g, function (s) { return String.fromCharCode(s.charCodeAt(0) - 0xFEE0) });
 };
@@ -95,28 +93,30 @@ function is_equal(a, b) {
 	return a.toHalfWidth().toLowerCase() === b.toHalfWidth().toLowerCase();
 }
 
-function compare_type(a, b) {
-	if (is_equal(a.name, name)) {
-		return -1;
-	}
-	else if (is_equal(b.name, name)) {
-		return 1;
-	}
-	else if (a.jp_name && is_equal(a.jp_name, name)) {
-		return -1;
-	}
-	else if (b.jp_name && is_equal(b.jp_name, name)) {
-		return 1;
-	}
+function compare_card(name) {
+	return function (a, b) {
+		if (is_equal(a.name, name)) {
+			return -1;
+		}
+		else if (is_equal(b.name, name)) {
+			return 1;
+		}
+		else if (a.jp_name && is_equal(a.jp_name, name)) {
+			return -1;
+		}
+		else if (b.jp_name && is_equal(b.jp_name, name)) {
+			return 1;
+		}
 
-	if (a.color !== b.color) {
-		return a.color - b.color;
-	}
-	else if (a.level !== b.level) {
-		return b.level - a.level;
-	}
-	else {
-		return a.name.localeCompare(b.name, 'zh-Hant');
+		if (a.color !== b.color) {
+			return a.color - b.color;
+		}
+		else if (a.level !== b.level) {
+			return b.level - a.level;
+		}
+		else {
+			return a.name.localeCompare(b.name, 'zh-Hant');
+		}
 	}
 }
 
@@ -151,11 +151,10 @@ client.on(Events.MessageCreate, async msg => {
 		let name_cmd = process_name('', search_string, arg);
 		if (name_cmd) {
 			qstr += ` AND (${name_cmd});`;
-			name = search_string;
 			ygoQuery.query(qstr, arg, result);
-			result.sort(compare_type);
+			result.sort(compare_card(search_string));
 		}
-		
+
 		if (result.length) {
 			for (let i = 0; i < Math.min(REPLY_LENGTH, result.length); ++i) {
 				let ret = '';
