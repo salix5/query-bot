@@ -241,10 +241,10 @@ function query_db(db, qstr, arg, ret) {
 			card.jp_name = name_table[card.id];
 		if (name_table_en[card.id])
 			card.en_name = name_table_en[card.id];
+		else if (md_name_en[card.id])
+			card.md_name_en = md_name_en[card.id];
 		if (md_name[card.id])
 			card.md_name = md_name[card.id];
-		if (md_name_en[card.id])
-			card.md_name_en = md_name_en[card.id];
 		ret.push(card);
 	}
 	stmt.free();
