@@ -295,6 +295,15 @@ module.exports = {
 			query_db(db2, qstr, arg, ret);
 	},
 
+	query_alias(alias, ret) {
+		let qstr = `${this.default_query1} AND alias == $alias;`;
+		let arg = new Object();
+		arg.$alias = alias;
+		ret.length = 0;
+		query_db(db1, qstr, arg, ret);
+		query_db(db2, qstr, arg, ret);
+	},
+
 	print_data(card) {
 		let mtype = '';
 		let subtype = '';
