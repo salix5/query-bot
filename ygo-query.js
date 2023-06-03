@@ -95,57 +95,57 @@ const LINK_MARKER_TOP = 0x080;			// ↑
 const LINK_MARKER_TOP_RIGHT = 0x100;	// ↗
 
 const attr_to_str = {
-	[ATTRIBUTE_EARTH]: '地',
-	[ATTRIBUTE_WATER]: '水',
-	[ATTRIBUTE_FIRE]: '炎',
-	[ATTRIBUTE_WIND]: '風',
-	[ATTRIBUTE_LIGHT]: '光',
-	[ATTRIBUTE_DARK]: '闇',
-	[ATTRIBUTE_DIVINE]: '神',
+	[ATTRIBUTE_EARTH]: "地",
+	[ATTRIBUTE_WATER]: "水",
+	[ATTRIBUTE_FIRE]: "炎",
+	[ATTRIBUTE_WIND]: "風",
+	[ATTRIBUTE_LIGHT]: "光",
+	[ATTRIBUTE_DARK]: "闇",
+	[ATTRIBUTE_DIVINE]: "神",
 };
 
 const race_to_str = {
-	[RACE_WARRIOR]: '戰士',
-	[RACE_SPELLCASTER]: '魔法使',
-	[RACE_FAIRY]: '天使',
-	[RACE_FIEND]: '惡魔',
-	[RACE_ZOMBIE]: '不死',
-	[RACE_MACHINE]: '機械',
-	[RACE_AQUA]: '水',
-	[RACE_PYRO]: '炎',
-	[RACE_ROCK]: '岩石',
-	[RACE_WINDBEAST]: '鳥獸',
-	[RACE_PLANT]: '植物',
-	[RACE_INSECT]: '昆蟲',
-	[RACE_THUNDER]: '雷',
-	[RACE_DRAGON]: '龍',
-	[RACE_BEAST]: '獸',
-	[RACE_BEASTWARRIOR]: '獸戰士',
-	[RACE_DINOSAUR]: '恐龍',
-	[RACE_FISH]: '魚',
-	[RACE_SEASERPENT]: '海龍',
-	[RACE_REPTILE]: '爬蟲類',
-	[RACE_PSYCHO]: '超能',
-	[RACE_DIVINE]: '幻神獸',
-	[RACE_CREATORGOD]: '創造神',
-	[RACE_WYRM]: '幻龍',
-	[RACE_CYBERSE]: '電子界',
-	[RACE_ILLUSION]: '幻想魔',
+	[RACE_WARRIOR]: "戰士",
+	[RACE_SPELLCASTER]: "魔法使",
+	[RACE_FAIRY]: "天使",
+	[RACE_FIEND]: "惡魔",
+	[RACE_ZOMBIE]: "不死",
+	[RACE_MACHINE]: "機械",
+	[RACE_AQUA]: "水",
+	[RACE_PYRO]: "炎",
+	[RACE_ROCK]: "岩石",
+	[RACE_WINDBEAST]: "鳥獸",
+	[RACE_PLANT]: "植物",
+	[RACE_INSECT]: "昆蟲",
+	[RACE_THUNDER]: "雷",
+	[RACE_DRAGON]: "龍",
+	[RACE_BEAST]: "獸",
+	[RACE_BEASTWARRIOR]: "獸戰士",
+	[RACE_DINOSAUR]: "恐龍",
+	[RACE_FISH]: "魚",
+	[RACE_SEASERPENT]: "海龍",
+	[RACE_REPTILE]: "爬蟲類",
+	[RACE_PSYCHO]: "超能",
+	[RACE_DIVINE]: "幻神獸",
+	[RACE_CREATORGOD]: "創造神",
+	[RACE_WYRM]: "幻龍",
+	[RACE_CYBERSE]: "電子界",
+	[RACE_ILLUSION]: "幻想魔",
 };
 
 const marker_to_str = {
-	[LINK_MARKER_BOTTOM_LEFT]: ':arrow_lower_left:',
-	[LINK_MARKER_BOTTOM]: ':arrow_down:',
-	[LINK_MARKER_BOTTOM_RIGHT]: ':arrow_lower_right:',
+	[LINK_MARKER_BOTTOM_LEFT]: ":arrow_lower_left:",
+	[LINK_MARKER_BOTTOM]: ":arrow_down:",
+	[LINK_MARKER_BOTTOM_RIGHT]: ":arrow_lower_right:",
 
-	[LINK_MARKER_LEFT]: ':arrow_left:',
-	[LINK_MARKER_RIGHT]: ':arrow_right:',
+	[LINK_MARKER_LEFT]: ":arrow_left:",
+	[LINK_MARKER_RIGHT]: ":arrow_right:",
 
-	[LINK_MARKER_TOP_LEFT]: ':arrow_upper_left:',
-	[LINK_MARKER_TOP]: ':arrow_up:',
-	[LINK_MARKER_TOP_RIGHT]: ':arrow_upper_right:',
+	[LINK_MARKER_TOP_LEFT]: ":arrow_upper_left:",
+	[LINK_MARKER_TOP]: ":arrow_up:",
+	[LINK_MARKER_TOP_RIGHT]: ":arrow_upper_right:",
 
-	default: ':black_large_square:',
+	default: ":black_large_square:",
 };
 
 const domain = "https://salix5.github.io";
@@ -252,7 +252,7 @@ function query_db(db, qstr, arg, ret) {
 
 function print_ad(x) {
 	if (x === -2)
-		return '?';
+		return "?";
 	else
 		return x;
 }
@@ -260,13 +260,13 @@ function print_ad(x) {
 function print_limit(limit) {
 	switch (limit) {
 		case 0:
-			return '禁止';
+			return "禁止";
 		case 1:
-			return '限制';
+			return "限制";
 		case 2:
-			return '準限制';
+			return "準限制";
 		default:
-			return '';
+			return "";
 	}
 }
 
@@ -305,16 +305,16 @@ module.exports = {
 	},
 
 	print_data(card) {
-		let mtype = '';
-		let subtype = '';
+		let mtype = "";
+		let subtype = "";
 		let lvstr = `\u2605`;
-		let lfstr = '';
-		let lfstr_o = '';
-		let lfstr_m = '';
-		let seperator = '';
+		let lfstr = "";
+		let lfstr_o = "";
+		let lfstr_m = "";
+		let seperator = "";
 
-		let official_name = '';
-		let data = '';
+		let official_name = "";
+		let data = "";
 
 		if (card.jp_name)
 			official_name += `${card.jp_name}\n`;
@@ -331,53 +331,53 @@ module.exports = {
 				lfstr_m = `MD：${print_limit(ltable_md[card.id])}`;
 			}
 			else {
-				lfstr_m = 'MD：未收錄';
+				lfstr_m = "MD：未收錄";
 			}
 		}
 		if (lfstr_o && lfstr_m)
-			seperator = ' / ';
+			seperator = " / ";
 		if (lfstr_o || lfstr_m)
 			lfstr = `(${lfstr_o}${seperator}${lfstr_m})\n`;
 
 		if (card.type & TYPE_MONSTER) {
-			mtype = '怪獸';
+			mtype = "怪獸";
 			if (card.type & TYPE_RITUAL)
-				subtype = '/儀式';
+				subtype = "/儀式";
 			else if (card.type & TYPE_FUSION)
-				subtype = '/融合';
+				subtype = "/融合";
 			else if (card.type & TYPE_SYNCHRO)
-				subtype = '/同步';
+				subtype = "/同步";
 			else if (card.type & TYPE_XYZ) {
-				subtype = '/超量';
+				subtype = "/超量";
 				lvstr = `\u2606`;
 			}
 			else if (card.type & TYPE_LINK) {
-				subtype = '/連結';
-				lvstr = 'LINK-';
+				subtype = "/連結";
+				lvstr = "LINK-";
 			}
 			if (card.type & TYPE_PENDULUM) {
-				subtype += '/靈擺';
+				subtype += "/靈擺";
 			}
 
 			// extype
 			if (card.type & TYPE_NORMAL)
-				subtype += '/通常';
+				subtype += "/通常";
 			if (card.type & TYPE_SPIRIT)
-				subtype += '/靈魂';
+				subtype += "/靈魂";
 			if (card.type & TYPE_UNION)
-				subtype += '/聯合';
+				subtype += "/聯合";
 			if (card.type & TYPE_DUAL)
-				subtype += '/二重';
+				subtype += "/二重";
 			if (card.type & TYPE_TUNER)
-				subtype += '/協調';
+				subtype += "/協調";
 			if (card.type & TYPE_FLIP)
-				subtype += '/反轉';
+				subtype += "/反轉";
 			if (card.type & TYPE_TOON)
-				subtype += '/卡通';
+				subtype += "/卡通";
 			if (card.type & TYPE_SPSUMMON)
-				subtype += '/特殊召喚';
+				subtype += "/特殊召喚";
 			if (card.type & TYPE_EFFECT)
-				subtype += '/效果';
+				subtype += "/效果";
 			data = `${lfstr}[${mtype}${subtype}]\n`;
 
 			let lv = card.level;
@@ -385,28 +385,28 @@ module.exports = {
 			if (card.attribute)
 				data += `/${attr_to_str[card.attribute]}`;
 			else
-				data += '/？';
+				data += "/？";
 			if (card.race)
 				data += `/${race_to_str[card.race]}族`;
 			else
-				data += '/？族';
+				data += "/？族";
 			data += `/攻${print_ad(card.atk)}`;
 			if (!(card.type & TYPE_LINK)) {
 				data += `/守${print_ad(card.def)}`;
 			}
-			data += '\n';
+			data += "\n";
 			if (card.type & TYPE_PENDULUM) {
 				data += `【靈擺刻度：${card.scale}】\n`;
 			}
 			if (card.type & TYPE_LINK) {
-				let marker_text = '';
+				let marker_text = "";
 				for (let marker = LINK_MARKER_TOP_LEFT; marker <= LINK_MARKER_TOP_RIGHT; marker <<= 1) {
 					if (card.def & marker)
 						marker_text += marker_to_str[marker];
 					else
 						marker_text += marker_to_str.default;
 				}
-				marker_text += '\n';
+				marker_text += "\n";
 
 				if (card.def & LINK_MARKER_LEFT)
 					marker_text += marker_to_str[LINK_MARKER_LEFT];
@@ -420,7 +420,7 @@ module.exports = {
 				else
 					marker_text += marker_to_str.default;
 
-				marker_text += '\n';
+				marker_text += "\n";
 
 				for (let marker = LINK_MARKER_BOTTOM_LEFT; marker <= LINK_MARKER_BOTTOM_RIGHT; marker <<= 1) {
 					if (card.def & marker)
@@ -428,34 +428,34 @@ module.exports = {
 					else
 						marker_text += marker_to_str.default;
 				}
-				marker_text += '\n';
+				marker_text += "\n";
 				data += marker_text;
 			}
 		}
 		else if (card.type & TYPE_SPELL) {
-			mtype = '魔法';
+			mtype = "魔法";
 			if (card.type & TYPE_QUICKPLAY)
-				subtype = '速攻';
+				subtype = "速攻";
 			else if (card.type & TYPE_CONTINUOUS)
-				subtype = '永續';
+				subtype = "永續";
 			else if (card.type & TYPE_EQUIP)
-				subtype = '裝備';
+				subtype = "裝備";
 			else if (card.type & TYPE_RITUAL)
-				subtype = '儀式';
+				subtype = "儀式";
 			else if (card.type & TYPE_FIELD)
-				subtype = '場地';
+				subtype = "場地";
 			else
-				subtype = '通常';
+				subtype = "通常";
 			data = `${lfstr}[${subtype}${mtype}]\n`;
 		}
 		else if (card.type & TYPE_TRAP) {
-			mtype = '陷阱';
+			mtype = "陷阱";
 			if (card.type & TYPE_CONTINUOUS)
-				subtype = '永續';
+				subtype = "永續";
 			else if (card.type & TYPE_COUNTER)
-				subtype = '反擊';
+				subtype = "反擊";
 			else
-				subtype = '通常';
+				subtype = "通常";
 			data = `${lfstr}[${subtype}${mtype}]\n`;
 		}
 		let card_text = `**${card.name}**\n${official_name}${data}${card.desc}\n--`;
@@ -470,11 +470,11 @@ module.exports = {
 	},
 
 	print_db_link(cid, ot) {
-		let locale = '';
+		let locale = "";
 		if (ot === 2)
-			locale = 'en';
+			locale = "en";
 		else
-			locale = 'ja';
+			locale = "ja";
 		return `https://www.db.yugioh-card.com/yugiohdb/card_search.action?ope=2&cid=${cid}&request_locale=${locale}`;
 	},
 
