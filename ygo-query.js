@@ -168,7 +168,7 @@ function query_db(db, qstr, arg, ret) {
 	while (stmt.step()) {
 		let card = stmt.getAsObject();
 
-		// spell & trap reset data
+		// reset & change data
 		if (card.type & (TYPE_SPELL | TYPE_TRAP)) {
 			card.atk = 0;
 			card.def = 0;
@@ -176,8 +176,10 @@ function query_db(db, qstr, arg, ret) {
 			card.race = 0;
 			card.attribute = 0;
 		}
-		card.scale = (card.level >> 24) & 0xff;
-		card.level = card.level & 0xff;
+		else if (card.type & TYPE_PENDULUM) {
+			card.scale = (card.level >> 24) & 0xff;
+			card.level = card.level & 0xff;
+		}
 
 		// color
 		if (card.type & TYPE_MONSTER) {
@@ -191,7 +193,7 @@ function query_db(db, qstr, arg, ret) {
 				else if (card.type & TYPE_EFFECT)
 					card.color = 2;
 				else
-					card.color = null;
+					card.color = -1;
 			}
 			else {
 				if (card.type & TYPE_FUSION)
@@ -203,7 +205,7 @@ function query_db(db, qstr, arg, ret) {
 				else if (card.type & TYPE_LINK)
 					card.color = 7;
 				else
-					card.color = null;
+					card.color = -1;
 			}
 		}
 		else if (card.type & TYPE_SPELL) {
@@ -220,7 +222,7 @@ function query_db(db, qstr, arg, ret) {
 			else if (card.type & TYPE_FIELD)
 				card.color = 15;
 			else
-				card.color = null;
+				card.color = -1;
 		}
 		else if (card.type & TYPE_TRAP) {
 			if (card.type === TYPE_TRAP)
@@ -230,10 +232,10 @@ function query_db(db, qstr, arg, ret) {
 			else if (card.type & TYPE_COUNTER)
 				card.color = 22;
 			else
-				card.color = null;
+				card.color = -1;
 		}
 		else {
-			card.color = null;
+			card.color = -1;
 		}
 		if (typeof cid_table[card.id] === "number")
 			card.cid = cid_table[card.id];
