@@ -2,7 +2,7 @@
 const { SlashCommandBuilder } = require('discord.js');
 const common1 = require('../common_all.js');
 const common2 = require('../common_query.js');
-const choice_table = require('../data/choices_en.json');
+const choice_table = require('../commands_data/choices_en.json');
 
 module.exports = {
 	data: new SlashCommandBuilder()

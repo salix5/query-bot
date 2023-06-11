@@ -1,7 +1,7 @@
 "use strict";
 const { SlashCommandBuilder } = require('discord.js');
 const common1 = require('../common_all.js');
-const choice_table = require('../data/choices_tc.json');
+const choice_table = require('../commands_data/choices_tc.json');
 const name_table = require('../data/name_table.json');
 
 module.exports = {
