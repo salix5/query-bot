@@ -3,7 +3,7 @@ const { randomInt } = require('node:crypto');
 const { promisify } = require('node:util');
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle, SlashCommandBuilder } = require('discord.js');
 const ygo = require('../ygo-query.js');
-const ocg_list = require('../commands_data/ocg_list.json');
+const ocg_list = require('../data/ocg_list.json');
 const rand = promisify(randomInt);
 
 module.exports = {
