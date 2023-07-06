@@ -1,7 +1,10 @@
 const { REST, Routes } = require('discord.js');
-const { clientId, guildId, token } = require('./config.json');
+require('dotenv').config();
 const fs = require('node:fs');
 
+const clientId = process.env.CLIENT_ID;
+const guildId = 0;
+const token = process.env.TOKEN;
 const commands = [];
 // Grab all the command files from the commands directory you created earlier
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
