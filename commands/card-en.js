@@ -12,7 +12,7 @@ module.exports = {
 			option.setName('input')
 				.setDescription('卡名')
 				.setRequired(true)
-				.setMaxLength(50)
+				.setMaxLength(200)
 				.setAutocomplete(true)
 	),
 	async autocomplete(interaction) {
