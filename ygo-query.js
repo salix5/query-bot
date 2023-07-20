@@ -159,6 +159,17 @@ const promise_sql = Promise.all([initSqlJs(), promise_db, promise_db2,]).then(va
 	db2 = new SQL.Database(values[2]);
 });
 
+function is_released(card) {
+	return !!(card.jp_name || card.en_name);
+}
+
+function is_alternative(card) {
+	if (card.type & TYPE_TOKEN)
+		return card.alias !== 0;
+	else
+		return Math.abs(card.id - card.alias) < 10;
+}
+
 function query_db(db, qstr, arg, ret) {
 	if (!db)
 		return;
@@ -167,6 +178,9 @@ function query_db(db, qstr, arg, ret) {
 	stmt.bind(arg);
 	while (stmt.step()) {
 		let card = stmt.getAsObject();
+
+		// real_id
+		card.real_id = is_alternative(card) ? card.alias : card.id;
 
 		// reset & change data
 		if (card.type & (TYPE_SPELL | TYPE_TRAP)) {
@@ -237,16 +251,16 @@ function query_db(db, qstr, arg, ret) {
 		else {
 			card.color = -1;
 		}
-		if (typeof cid_table[card.id] === "number")
-			card.cid = cid_table[card.id];
-		if (name_table[card.id])
-			card.jp_name = name_table[card.id];
-		if (name_table_en[card.id])
-			card.en_name = name_table_en[card.id];
-		else if (md_name_en[card.id])
-			card.md_name_en = md_name_en[card.id];
-		if (md_name[card.id])
-			card.md_name = md_name[card.id];
+		if (typeof cid_table[card.real_id] === "number")
+			card.cid = cid_table[card.real_id];
+		if (name_table[card.real_id])
+			card.jp_name = name_table[card.real_id];
+		if (name_table_en[card.real_id])
+			card.en_name = name_table_en[card.real_id];
+		else if (md_name_en[card.real_id])
+			card.md_name_en = md_name_en[card.real_id];
+		if (md_name[card.real_id])
+			card.md_name = md_name[card.real_id];
 		ret.push(card);
 	}
 	stmt.free();
@@ -270,10 +284,6 @@ function print_limit(limit) {
 		default:
 			return "";
 	}
-}
-
-function is_released(card) {
-	return !!(card.jp_name || card.en_name);
 }
 
 module.exports = {
@@ -326,11 +336,11 @@ module.exports = {
 		else if (card.md_name_en)
 			official_name += `${card.md_name_en}    (MD)\n`;
 
-		if (ltable[card.id] !== undefined)
-			lfstr_o = `OCG：${print_limit(ltable[card.id])}`;
-		if (ltable_md[card.id] !== undefined || (is_released(card) && !card.md_name)) {
-			if (ltable_md[card.id] !== undefined) {
-				lfstr_m = `MD：${print_limit(ltable_md[card.id])}`;
+		if (ltable[card.real_id] !== undefined)
+			lfstr_o = `OCG：${print_limit(ltable[card.real_id])}`;
+		if (ltable_md[card.real_id] !== undefined || (is_released(card) && !card.md_name)) {
+			if (ltable_md[card.real_id] !== undefined) {
+				lfstr_m = `MD：${print_limit(ltable_md[card.real_id])}`;
 			}
 			else {
 				lfstr_m = "MD：未收錄";
@@ -464,12 +474,7 @@ module.exports = {
 		return card_text;
 	},
 
-	is_alternative(card) {
-		if (card.type & TYPE_TOKEN)
-			return card.alias !== 0;
-		else
-			return Math.abs(card.id - card.alias) < 10;
-	},
+	is_alternative: is_alternative,
 
 	print_db_link(cid, ot) {
 		let locale = "";
