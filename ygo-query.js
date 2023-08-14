@@ -290,6 +290,7 @@ module.exports = {
 	db_ready: promise_sql,
 	default_query1: `SELECT datas.id, ot, alias, type, atk, def, level, attribute, race, name, desc FROM datas, texts WHERE datas.id == texts.id AND abs(datas.id - alias) >= 10 AND NOT type & ${TYPE_TOKEN}`,
 	default_query2: `SELECT datas.id FROM datas, texts WHERE datas.id == texts.id AND alias == 0 AND NOT type & ${TYPE_TOKEN}`,
+	effect_filter: ` AND (NOT type & ${TYPE_NORMAL} OR type & ${TYPE_PENDULUM})`,
 
 	query(qstr, arg, ret) {
 		ret.length = 0;
