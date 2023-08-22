@@ -337,15 +337,13 @@ module.exports = {
 		else if (card.md_name_en)
 			official_name += `${card.md_name_en}    (MD)\n`;
 
+		if (card.md_name)
+			official_name += `MD：${card.md_name}\n`;
+
 		if (ltable[card.real_id] !== undefined)
 			lfstr_o = `OCG：${print_limit(ltable[card.real_id])}`;
-		if (ltable_md[card.real_id] !== undefined || (is_released(card) && !card.md_name)) {
-			if (ltable_md[card.real_id] !== undefined) {
-				lfstr_m = `MD：${print_limit(ltable_md[card.real_id])}`;
-			}
-			else {
-				lfstr_m = "MD：未收錄";
-			}
+		if (ltable_md[card.real_id] !== undefined) {
+			lfstr_m = `MD：${print_limit(ltable_md[card.real_id])}`;
 		}
 		if (lfstr_o && lfstr_m)
 			seperator = " / ";
