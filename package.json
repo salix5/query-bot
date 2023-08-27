@@ -13,7 +13,7 @@
   "author": "salix5",
   "license": "MIT",
   "dependencies": {
-    "discord.js": "*",
+    "discord.js": "14.x",
     "dotenv": "^16.0.3",
     "sql.js": "*"
   },
