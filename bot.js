@@ -123,10 +123,11 @@ function compare_card(name) {
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
 
 client.cooldowns = new Collection();
-// get commnads in ./commands
 client.commands = new Collection();
 const commandsPath = path.join(__dirname, 'commands');
 const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
+
+// get commnads in ./commands
 for (const file of commandFiles) {
 	const filePath = path.join(commandsPath, file);
 	const command = require(filePath);
@@ -158,15 +159,6 @@ client.on(Events.MessageCreate, async msg => {
 			const expirationTime = timestamps.get(msg.channel.id) + cooldownAmount;
 			if (now < expirationTime) {
 				const expiredTimestamp = Math.round(expirationTime / 1000);
-				/*try {
-					return msg.channel.send(`指令\`${cmd}\`正在冷卻，請於<t:${expiredTimestamp}:R>再試。`);
-				}
-				catch (error) {
-					console.error(msg.channel.id);
-					console.error(msg.content);
-					console.error(error);
-					return;
-				}*/
 				return;
 			}
 		}
@@ -214,7 +206,7 @@ client.on(Events.MessageCreate, async msg => {
 				}
 
 				try {
-					return msg.channel.send(list_card);
+					await msg.channel.send(list_card);
 				}
 				catch (error) {
 					console.error(msg.content);
@@ -224,7 +216,7 @@ client.on(Events.MessageCreate, async msg => {
 		}
 		else {
 			try {
-				return msg.channel.send('沒有符合條件的卡片。');
+				await msg.channel.send('沒有符合條件的卡片。');
 			}
 			catch (error) {
 				console.error(msg.content);
