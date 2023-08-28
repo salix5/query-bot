@@ -122,6 +122,7 @@ function compare_card(name) {
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
 
+client.cooldowns = new Collection();
 // get commnads in ./commands
 client.commands = new Collection();
 const commandsPath = path.join(__dirname, 'commands');
@@ -145,6 +146,32 @@ client.on(Events.MessageCreate, async msg => {
 	let cmd = msg.content.substring(0, 3);
 	let search_string = msg.content.substring(3, INPUT_LIMIT);
 	if (cmd === 'q! ' || cmd === 'n! ') {
+		const { cooldowns } = client;
+		if (!cooldowns.has(cmd)) {
+			cooldowns.set(cmd, new Collection());
+		}
+		const now = Date.now();
+		const timestamps = cooldowns.get(cmd);
+		const cooldownAmount = 2000;
+	
+		if (timestamps.has(msg.channel.id)) {
+			const expirationTime = timestamps.get(msg.channel.id) + cooldownAmount;
+			if (now < expirationTime) {
+				const expiredTimestamp = Math.round(expirationTime / 1000);
+				try {
+					return msg.channel.send(`指令\`${cmd}\`正在冷卻，請於<t:${expiredTimestamp}:R>再試。`);
+				}
+				catch (error) {
+					console.error(msg.channel.id);
+					console.error(msg.content);
+					console.error(error);
+					return;
+				}
+			}
+		}
+		timestamps.set(msg.channel.id, now);
+		setTimeout(() => timestamps.delete(msg.channel.id), cooldownAmount);
+		
 		let result = [];
 		let arg = new Object();
 		let qstr = ygoQuery.default_query1;
@@ -186,18 +213,17 @@ client.on(Events.MessageCreate, async msg => {
 				}
 
 				try {
-					await msg.channel.send(list_card);
+					return msg.channel.send(list_card);
 				}
 				catch (error) {
 					console.error(msg.content);
 					console.error(error);
-					return;
 				}
 			}
 		}
 		else {
 			try {
-				await msg.channel.send('沒有符合條件的卡片。');
+				return msg.channel.send('沒有符合條件的卡片。');
 			}
 			catch (error) {
 				console.error(msg.content);
