@@ -152,13 +152,13 @@ client.on(Events.MessageCreate, async msg => {
 		}
 		const now = Date.now();
 		const timestamps = cooldowns.get(cmd);
-		const cooldownAmount = 2000;
+		const cooldownAmount = 4000;
 	
 		if (timestamps.has(msg.channel.id)) {
 			const expirationTime = timestamps.get(msg.channel.id) + cooldownAmount;
 			if (now < expirationTime) {
 				const expiredTimestamp = Math.round(expirationTime / 1000);
-				try {
+				/*try {
 					return msg.channel.send(`指令\`${cmd}\`正在冷卻，請於<t:${expiredTimestamp}:R>再試。`);
 				}
 				catch (error) {
@@ -166,7 +166,8 @@ client.on(Events.MessageCreate, async msg => {
 					console.error(msg.content);
 					console.error(error);
 					return;
-				}
+				}*/
+				return;
 			}
 		}
 		timestamps.set(msg.channel.id, now);
