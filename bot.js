@@ -127,7 +127,6 @@ client.commands = new Collection();
 const commandsPath = path.join(__dirname, 'commands');
 const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
 
-// get commnads in ./commands
 for (const file of commandFiles) {
 	const filePath = path.join(commandsPath, file);
 	const command = require(filePath);
@@ -147,7 +146,7 @@ client.on(Events.MessageCreate, async msg => {
 	let cmd = msg.content.substring(0, 3);
 	let search_string = msg.content.substring(3, INPUT_LIMIT);
 	if (cmd === 'q! ' || cmd === 'n! ') {
-		const { cooldowns } = client;
+		const { cooldowns } = msg.client;
 		if (!cooldowns.has(cmd)) {
 			cooldowns.set(cmd, new Collection());
 		}
