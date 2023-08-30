@@ -1,5 +1,5 @@
 "use strict";
-const { Client, Collection, Events, GatewayIntentBits } = require('discord.js');
+const { Client, Collection, Events, GatewayIntentBits, PermissionFlagsBits } = require('discord.js');
 require('dotenv').config();
 const ygoQuery = require('./ygo-query.js');
 const fs = require('node:fs');
@@ -143,6 +143,11 @@ client.once(Events.ClientReady, c => {
 });
 
 client.on(Events.MessageCreate, async msg => {
+	if (!msg.guild.available)
+		return;
+	if (!msg.channel.permissionsFor(msg.guild.members.me).has(PermissionFlagsBits.SendMessages))
+		return;
+		
 	let cmd = msg.content.substring(0, 3);
 	let search_string = msg.content.substring(3, INPUT_LIMIT);
 	if (cmd === 'q! ' || cmd === 'n! ') {
