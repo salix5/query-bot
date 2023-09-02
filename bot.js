@@ -76,7 +76,7 @@ function process_name(locale, str_name, arg) {
 			}
 			// zh, name
 			name_cmd += " OR name LIKE $name ESCAPE '$' OR desc LIKE $kanji ESCAPE '$'";
-			name_cmd += ` OR alias IN (${ygoQuery.default_query2} AND name LIKE $name ESCAPE '$')`;
+			name_cmd += ` OR alias IN (${ygoQuery.stmt_no_alias} AND name LIKE $name ESCAPE '$')`;
 			arg.$name = string_to_literal(str_name);
 			arg.$kanji = `%※${string_to_literal(str_name)}`;
 			break;
@@ -171,7 +171,7 @@ client.on(Events.MessageCreate, async msg => {
 		
 		let result = [];
 		let arg = new Object();
-		let qstr = ygoQuery.default_query1;
+		let qstr = ygoQuery.stmt_default;
 		let name_cmd = process_name('', search_string, arg);
 		if (name_cmd) {
 			qstr += ` AND (${name_cmd});`;
