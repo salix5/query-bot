@@ -94,6 +94,8 @@ const LINK_MARKER_TOP_LEFT = 0x040;		// ↖
 const LINK_MARKER_TOP = 0x080;			// ↑
 const LINK_MARKER_TOP_RIGHT = 0x100;	// ↗
 
+const ID_BLACK_LUSTER_SOLDIER = 5405695;
+
 const attr_to_str = {
 	[ATTRIBUTE_EARTH]: "地",
 	[ATTRIBUTE_WATER]: "水",
@@ -166,6 +168,8 @@ function is_released(card) {
 function is_alternative(card) {
 	if (card.type & TYPE_TOKEN)
 		return card.alias !== 0;
+	else if (card.id === ID_BLACK_LUSTER_SOLDIER)
+		return false;
 	else
 		return Math.abs(card.id - card.alias) < 10;
 }
@@ -288,8 +292,11 @@ function print_limit(limit) {
 
 module.exports = {
 	db_ready: promise_sql,
+
+	ID_BLACK_LUSTER_SOLDIER: ID_BLACK_LUSTER_SOLDIER,
+
 	stmt_default: `SELECT datas.id, ot, alias, type, atk, def, level, attribute, race, name, desc FROM datas, texts`
-		+ ` WHERE datas.id == texts.id AND NOT type & ${TYPE_TOKEN} AND (datas.id == 5405695 OR abs(datas.id - alias) >= 10)`,
+		+ ` WHERE datas.id == texts.id AND NOT type & ${TYPE_TOKEN} AND (datas.id == ${ID_BLACK_LUSTER_SOLDIER} OR abs(datas.id - alias) >= 10)`,
 	stmt_no_alternative: `SELECT datas.id, ot, alias, type, atk, def, level, attribute, race, name, desc FROM datas, texts`
 		+ ` WHERE datas.id == texts.id AND NOT type & ${TYPE_TOKEN} AND abs(datas.id - alias) >= 10`,
 	stmt_no_alias: `SELECT datas.id FROM datas, texts WHERE datas.id == texts.id AND alias == 0 AND NOT type & ${TYPE_TOKEN}`,
