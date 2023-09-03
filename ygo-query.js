@@ -299,9 +299,11 @@ module.exports = {
 		+ ` WHERE datas.id == texts.id AND NOT type & ${TYPE_TOKEN} AND (datas.id == ${ID_BLACK_LUSTER_SOLDIER} OR abs(datas.id - alias) >= 10)`,
 	stmt_no_alternative: `SELECT datas.id, ot, alias, type, atk, def, level, attribute, race, name, desc FROM datas, texts`
 		+ ` WHERE datas.id == texts.id AND NOT type & ${TYPE_TOKEN} AND abs(datas.id - alias) >= 10`,
-	stmt_no_alias: `SELECT datas.id FROM datas, texts WHERE datas.id == texts.id AND alias == 0 AND NOT type & ${TYPE_TOKEN}`,
+	stmt_no_alias: `SELECT datas.id FROM datas, texts WHERE datas.id == texts.id AND NOT type & ${TYPE_TOKEN} AND alias == 0`,
 	effect_filter: ` AND (NOT type & ${TYPE_NORMAL} OR type & ${TYPE_PENDULUM})`,
-
+	
+	is_alternative: is_alternative,
+	
 	query(qstr, arg, ret) {
 		ret.length = 0;
 		query_db(db1, qstr, arg, ret);
@@ -482,8 +484,6 @@ module.exports = {
 		let card_text = `**${card.name}**\n${official_name}${data}${card.desc}\n--`;
 		return card_text;
 	},
-
-	is_alternative: is_alternative,
 
 	print_db_link(cid, ot) {
 		let locale = "";
