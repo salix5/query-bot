@@ -1,5 +1,5 @@
 "use strict";
-const { Client, Collection, Events, GatewayIntentBits, PermissionFlagsBits, ChannelType, MessageType } = require('discord.js');
+const { Client, Collection, Events, GatewayIntentBits, PermissionFlagsBits, ChannelType, MessageType, Partials } = require('discord.js');
 require('dotenv').config();
 const ygoQuery = require('./ygo-query.js');
 const fs = require('node:fs');
@@ -120,7 +120,10 @@ function compare_card(name) {
 	}
 }
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
+const client = new Client({
+	intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.DirectMessages],
+	partials: [Partials.Channel]
+});
 
 client.cooldowns = new Collection();
 client.commands = new Collection();
@@ -231,14 +234,14 @@ client.on(Events.MessageCreate, async msg => {
 		}
 	}
 	else if (msg.channel.type === ChannelType.DM) {
-		if (msg.content === "!delete") {
-			let history = await msg.channel.messages.fetch({ limit: 10000, cache: false, force: true });
+		if (msg.content === "d!") {
+			let history = await msg.channel.messages.fetch({ force: true });
 			let list_delete = [];
 			history.each((message) => {
 				if (message.type === MessageType.ChatInputCommand)
 					list_delete.push(message);
 			});
-			for (message of list_delete) {
+			for (const message of list_delete) {
 				await message.delete();
 			}
 		}
