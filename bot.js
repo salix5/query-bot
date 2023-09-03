@@ -143,7 +143,7 @@ client.once(Events.ClientReady, c => {
 });
 
 client.on(Events.MessageCreate, async msg => {
-	if (msg.guild) {
+	if (msg.inGuild()) {
 		if (!msg.guild.available)
 			return;
 		if (!msg.channel.permissionsFor(msg.guild.members.me).has(PermissionFlagsBits.SendMessages))
