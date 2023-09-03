@@ -143,88 +143,90 @@ client.once(Events.ClientReady, c => {
 });
 
 client.on(Events.MessageCreate, async msg => {
-	if (!msg.guild.available)
-		return;
-	if (!msg.channel.permissionsFor(msg.guild.members.me).has(PermissionFlagsBits.SendMessages))
-		return;
-		
-	let cmd = msg.content.substring(0, 3);
-	let search_string = msg.content.substring(3, INPUT_LIMIT);
-	if (cmd === 'q! ' || cmd === 'n! ') {
-		const { cooldowns } = msg.client;
-		if (!cooldowns.has(cmd)) {
-			cooldowns.set(cmd, new Collection());
-		}
-		const now = Date.now();
-		const timestamps = cooldowns.get(cmd);
-		const cooldownAmount = 4000;
-	
-		if (timestamps.has(msg.channel.id)) {
-			const expirationTime = timestamps.get(msg.channel.id) + cooldownAmount;
-			if (now < expirationTime) {
-				const expiredTimestamp = Math.round(expirationTime / 1000);
-				return;
+	if (msg.guild) {
+		if (!msg.guild.available)
+			return;
+		if (!msg.channel.permissionsFor(msg.guild.members.me).has(PermissionFlagsBits.SendMessages))
+			return;
+
+		let cmd = msg.content.substring(0, 3);
+		let search_string = msg.content.substring(3, INPUT_LIMIT);
+		if (cmd === 'q! ' || cmd === 'n! ') {
+			const { cooldowns } = msg.client;
+			if (!cooldowns.has(cmd)) {
+				cooldowns.set(cmd, new Collection());
 			}
-		}
-		timestamps.set(msg.channel.id, now);
-		setTimeout(() => timestamps.delete(msg.channel.id), cooldownAmount);
-		
-		let result = [];
-		let arg = new Object();
-		let qstr = ygoQuery.stmt_default;
-		let name_cmd = process_name('', search_string, arg);
-		if (name_cmd) {
-			qstr += ` AND (${name_cmd});`;
-			ygoQuery.query(qstr, arg, result);
-			result.sort(compare_card(search_string));
-		}
+			const now = Date.now();
+			const timestamps = cooldowns.get(cmd);
+			const cooldownAmount = 4000;
 
-		if (result.length) {
-			for (let i = 0; i < Math.min(REPLY_LENGTH, result.length); ++i) {
-				let ret = '';
-				if (cmd === 'q! ') {
-					ret = ygoQuery.print_data(result[i]);
-				}
-				else {
-					ret = result[i].jp_name ? result[i].jp_name : result[i].id.toString();
-				}
-
-				try {
-					await msg.channel.send(ret);
-				}
-				catch (error) {
-					console.error(msg.content);
-					console.error(error);
+			if (timestamps.has(msg.channel.id)) {
+				const expirationTime = timestamps.get(msg.channel.id) + cooldownAmount;
+				if (now < expirationTime) {
+					const expiredTimestamp = Math.round(expirationTime / 1000);
 					return;
 				}
 			}
-			if (result.length > REPLY_LENGTH) {
-				let list_card = '其他搜尋結果：\n';
-				for (let i = REPLY_LENGTH; i < Math.min(LIST_LENGTH, result.length); ++i) {
+			timestamps.set(msg.channel.id, now);
+			setTimeout(() => timestamps.delete(msg.channel.id), cooldownAmount);
+
+			let result = [];
+			let arg = new Object();
+			let qstr = ygoQuery.stmt_default;
+			let name_cmd = process_name('', search_string, arg);
+			if (name_cmd) {
+				qstr += ` AND (${name_cmd});`;
+				ygoQuery.query(qstr, arg, result);
+				result.sort(compare_card(search_string));
+			}
+
+			if (result.length) {
+				for (let i = 0; i < Math.min(REPLY_LENGTH, result.length); ++i) {
+					let ret = '';
 					if (cmd === 'q! ') {
-						list_card += `${result[i].name}\n`;
+						ret = ygoQuery.print_data(result[i]);
 					}
 					else {
-						list_card += `${result[i].jp_name ? result[i].jp_name : result[i].id.toString()}\n`;
+						ret = result[i].jp_name ? result[i].jp_name : result[i].id.toString();
+					}
+
+					try {
+						await msg.channel.send(ret);
+					}
+					catch (error) {
+						console.error(msg.content);
+						console.error(error);
+						return;
 					}
 				}
+				if (result.length > REPLY_LENGTH) {
+					let list_card = '其他搜尋結果：\n';
+					for (let i = REPLY_LENGTH; i < Math.min(LIST_LENGTH, result.length); ++i) {
+						if (cmd === 'q! ') {
+							list_card += `${result[i].name}\n`;
+						}
+						else {
+							list_card += `${result[i].jp_name ? result[i].jp_name : result[i].id.toString()}\n`;
+						}
+					}
 
+					try {
+						await msg.channel.send(list_card);
+					}
+					catch (error) {
+						console.error(msg.content);
+						console.error(error);
+					}
+				}
+			}
+			else {
 				try {
-					await msg.channel.send(list_card);
+					await msg.channel.send('沒有符合條件的卡片。');
 				}
 				catch (error) {
 					console.error(msg.content);
 					console.error(error);
 				}
-			}
-		}
-		else {
-			try {
-				await msg.channel.send('沒有符合條件的卡片。');
-			}
-			catch (error) {
-				console.error(msg.content);
-				console.error(error);
 			}
 		}
 	}
