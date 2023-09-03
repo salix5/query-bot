@@ -1,5 +1,5 @@
 "use strict";
-const { Client, Collection, Events, GatewayIntentBits, PermissionFlagsBits } = require('discord.js');
+const { Client, Collection, Events, GatewayIntentBits, PermissionFlagsBits, ChannelType, MessageType } = require('discord.js');
 require('dotenv').config();
 const ygoQuery = require('./ygo-query.js');
 const fs = require('node:fs');
@@ -227,6 +227,19 @@ client.on(Events.MessageCreate, async msg => {
 					console.error(msg.content);
 					console.error(error);
 				}
+			}
+		}
+	}
+	else if (msg.channel.type === ChannelType.DM) {
+		if (msg.content === "!delete") {
+			let history = await msg.channel.messages.fetch({ limit: 10000, cache: false, force: true });
+			let list_delete = [];
+			history.each((message) => {
+				if (message.type === MessageType.ChatInputCommand)
+					list_delete.push(message);
+			});
+			for (message of list_delete) {
+				await message.delete();
 			}
 		}
 	}
