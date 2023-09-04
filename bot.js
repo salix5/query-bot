@@ -25,21 +25,12 @@ function string_to_literal(str) {
 	return re_wildcard.test(str) ? str : `%${str}%`;
 }
 
-function setcode_cmd(setcode) {
-	const setcode_str1 = `(setcode & 0xfff) == (${setcode} & 0xfff) AND (setcode & (${setcode} & 0xf000)) == (${setcode} & 0xf000)`;
-	const setcode_str2 = `(setcode >> 16 & 0xfff) == (${setcode} & 0xfff) AND (setcode >> 16 & (${setcode} & 0xf000)) == (${setcode} & 0xf000)`;
-	const setcode_str3 = `(setcode >> 32 & 0xfff) == (${setcode} & 0xfff) AND (setcode >> 32 & (${setcode} & 0xf000)) == (${setcode} & 0xf000)`;
-	const setcode_str4 = `(setcode >> 48 & 0xfff) == (${setcode} & 0xfff) AND (setcode >> 48 & (${setcode} & 0xf000)) == (${setcode} & 0xf000)`;
-	let ret = `(${setcode_str1} OR ${setcode_str2} OR ${setcode_str3} OR ${setcode_str4})`;
-	return ret;
-}
-
 // return: name_cmd
 // en: table, ja: table, zh: query
 function process_name(locale, str_name, arg) {
 	if (!str_name)
 		return "";
-	const setcode_str = ` OR ${setcode_cmd("$setcode")}`;
+	const setcode_str = ` OR ${ygoQuery.setcode_condition("$setcode")}`;
 	let name_cmd = "";
 	switch (locale) {
 		case "en":
