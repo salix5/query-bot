@@ -303,6 +303,15 @@ module.exports = {
 	effect_filter: ` AND (NOT type & ${TYPE_NORMAL} OR type & ${TYPE_PENDULUM})`,
 	
 	is_alternative: is_alternative,
+
+	setcode_condition(setcode) {
+		const setcode_str1 = `(setcode & 0xfff) == (${setcode} & 0xfff) AND (setcode & (${setcode} & 0xf000)) == (${setcode} & 0xf000)`;
+		const setcode_str2 = `(setcode >> 16 & 0xfff) == (${setcode} & 0xfff) AND (setcode >> 16 & (${setcode} & 0xf000)) == (${setcode} & 0xf000)`;
+		const setcode_str3 = `(setcode >> 32 & 0xfff) == (${setcode} & 0xfff) AND (setcode >> 32 & (${setcode} & 0xf000)) == (${setcode} & 0xf000)`;
+		const setcode_str4 = `(setcode >> 48 & 0xfff) == (${setcode} & 0xfff) AND (setcode >> 48 & (${setcode} & 0xf000)) == (${setcode} & 0xf000)`;
+		let ret = `(${setcode_str1} OR ${setcode_str2} OR ${setcode_str3} OR ${setcode_str4})`;
+		return ret;
+	},
 	
 	query(qstr, arg, ret) {
 		ret.length = 0;
