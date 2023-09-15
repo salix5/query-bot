@@ -16,7 +16,10 @@ module.exports = {
 				.setAutocomplete(true)
 	),
 	async autocomplete(interaction) {
-		await common1.autocomplete(interaction, choice_table);
+		const ret = common1.filter_choice(interaction, choice_table);
+		await interaction.respond(
+			ret.map(choice => ({ name: choice, value: choice })),
+		);
 	},
 	async execute(interaction) {
 		await common2.query_command(interaction, choice_table);
