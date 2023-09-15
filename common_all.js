@@ -12,14 +12,15 @@ module.exports = {
 		const keyword = focused.toHalfWidth().toLowerCase();
 		const starts_with = [];
 		const other = [];
-		for (const choice of Object.keys(choice_table)) {
+		const result = Object.keys(choice_table).filter((choice) => choice.toHalfWidth().toLowerCase().includes(keyword));
+		for (const choice of result) {
 			let card_name = choice.toHalfWidth().toLowerCase();
-			if (card_name.includes(keyword)) {
-				if (card_name.startsWith(keyword))
-					starts_with.push(choice);
-				else
-					other.push(choice);
-			}
+			if (card_name.startsWith(keyword))
+				starts_with.push(choice);
+			else
+				other.push(choice);
+			if (starts_with.length >= MAX_CHOICE)
+				break;
 		}
 		const ret = starts_with.concat(other);
 		if (ret.length > MAX_CHOICE)
