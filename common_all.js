@@ -1,10 +1,11 @@
 "use strict";
-const MAX_CHOICE = 25;
 
 module.exports = {
+	MAX_CHOICE: 25,
+
 	filter_choice(interaction, choice_table) {
 		const focused = interaction.options.getFocused();
-		if (!focused || typeof focused !== 'string') {
+		if (!focused) {
 			return [];
 		}
 
@@ -18,15 +19,15 @@ module.exports = {
 				starts_with.push(choice);
 			else
 				other.push(choice);
-			if (starts_with.length >= MAX_CHOICE)
+			if (starts_with.length >= this.MAX_CHOICE)
 				break;
 		}
 		const ret = starts_with.concat(other);
-		if (ret.length > MAX_CHOICE)
-			ret.length = MAX_CHOICE;
+		if (ret.length > this.MAX_CHOICE)
+			ret.length = this.MAX_CHOICE;
 		return ret;
 	},
-	
+
 	async autocomplete(interaction, choice_table) {
 		const ret = this.filter_choice(interaction, choice_table);
 		await interaction.respond(
