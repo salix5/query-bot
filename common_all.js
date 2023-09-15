@@ -2,7 +2,7 @@
 const MAX_CHOICE = 25;
 
 module.exports = {
-	async autocomplete(interaction, choice_table) {
+	async autocomplete(interaction, choice_table, ruby_table = null) {
 		const focused = interaction.options.getFocused();
 		if (!focused || typeof focused !== 'string') {
 			await interaction.respond([]);
