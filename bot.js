@@ -4,8 +4,8 @@ require('dotenv').config();
 const ygoQuery = require('./ygo-query.js');
 const fs = require('node:fs');
 const path = require('node:path');
-const name_table = require('./data/name_table.json');
-const setname = require('./data/setname.json');
+//const name_table = require('./data/name_table.json');
+//const setname = require('./data/setname.json');
 
 const MAX_RESULT_LEN = 200;
 const re_wildcard = /(^|[^\$])[%_]/;
