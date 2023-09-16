@@ -1,6 +1,6 @@
 "use strict";
 const { SlashCommandBuilder } = require('discord.js');
-const common1 = require('../common_all.js');
+const { autocomplete } = require('../common_all.js');
 const choice_table = require('../commands_data/choices_tc.json');
 const md_name = require('../data/md_name.json');
 
@@ -8,15 +8,15 @@ module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('md-name')
 		.setDescription('中文卡名轉換成MD簡中譯名')
-		.addStringOption(option => 
+		.addStringOption(option =>
 			option.setName('input')
 				.setDescription('卡名')
 				.setRequired(true)
 				.setMaxLength(50)
 				.setAutocomplete(true)
-	),
+		),
 	async autocomplete(interaction) {
-		await common1.autocomplete(interaction, choice_table);
+		await autocomplete(interaction, choice_table);
 	},
 	async execute(interaction) {
 		const input = interaction.options.getString('input');

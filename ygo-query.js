@@ -301,7 +301,7 @@ module.exports = {
 		+ ` WHERE datas.id == texts.id AND NOT type & ${TYPE_TOKEN} AND abs(datas.id - alias) >= 10`,
 	stmt_no_alias: `SELECT datas.id FROM datas, texts WHERE datas.id == texts.id AND NOT type & ${TYPE_TOKEN} AND alias == 0`,
 	effect_filter: ` AND (NOT type & ${TYPE_NORMAL} OR type & ${TYPE_PENDULUM})`,
-	
+
 	is_alternative: is_alternative,
 
 	setcode_condition(setcode) {
@@ -312,7 +312,7 @@ module.exports = {
 		let ret = `(${setcode_str1} OR ${setcode_str2} OR ${setcode_str3} OR ${setcode_str4})`;
 		return ret;
 	},
-	
+
 	query(qstr, arg, ret) {
 		ret.length = 0;
 		query_db(db1, qstr, arg, ret);
