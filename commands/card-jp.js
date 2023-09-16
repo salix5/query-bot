@@ -1,7 +1,7 @@
 "use strict";
 const { SlashCommandBuilder } = require('discord.js');
 const { filter_choice, MAX_CHOICE } = require('../common_all.js');
-const common2 = require('../common_query.js');
+const { query_command } = require('../common_query.js');
 const choice_table = require('../commands_data/choices_jp.json');
 const choice_ruby = require('../commands_data/choices_ruby.json');
 const name_table = require('../data/name_table.json');
@@ -48,6 +48,6 @@ module.exports = {
 		);
 	},
 	async execute(interaction) {
-		await common2.query_command(interaction, choice_table);
+		await query_command(interaction, choice_table);
 	},
 };
