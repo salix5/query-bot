@@ -1,6 +1,6 @@
 "use strict";
 const { SlashCommandBuilder } = require('discord.js');
-const common1 = require('../common_all.js');
+const { filter_choice, MAX_CHOICE } = require('../common_all.js');
 const common2 = require('../common_query.js');
 const choice_table = require('../commands_data/choices_jp.json');
 const choice_ruby = require('../commands_data/choices_ruby.json');
@@ -18,11 +18,11 @@ module.exports = {
 				.setAutocomplete(true)
 		),
 	async autocomplete(interaction) {
-		var ret = common1.filter_choice(interaction, choice_table);
+		var ret = filter_choice(interaction, choice_table);
 		const focused = interaction.options.getFocused();
 		const id_list = [];
-		if (focused && ret.length < common1.MAX_CHOICE) {
-			const ruby_max_length = common1.MAX_CHOICE - ret.length;
+		if (focused && ret.length < MAX_CHOICE) {
+			const ruby_max_length = MAX_CHOICE - ret.length;
 			const starts_with = [];
 			const other = [];
 

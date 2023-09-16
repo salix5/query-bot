@@ -14,7 +14,7 @@ module.exports = {
 				.setRequired(true)
 				.setMinValue(2)
 				.setMaxValue(0xffffffffffff)
-	),
+		),
 	async execute(interaction) {
 		const face = interaction.options.getInteger('face');
 		if (face) {
