@@ -73,7 +73,7 @@ const RACE_WYRM = 0x800000;
 const RACE_CYBERSE = 0x1000000;
 const RACE_ILLUSION = 0x2000000;
 
-// attr
+// attribute
 const ATTRIBUTE_EARTH = 0x01;
 const ATTRIBUTE_WATER = 0x02;
 const ATTRIBUTE_FIRE = 0x04;
@@ -94,9 +94,10 @@ const LINK_MARKER_TOP_LEFT = 0x040;		// ↖
 const LINK_MARKER_TOP = 0x080;			// ↑
 const LINK_MARKER_TOP_RIGHT = 0x100;	// ↗
 
+// special ID
 const ID_BLACK_LUSTER_SOLDIER = 5405695;
 
-const attr_to_str = {
+const attribute_name = {
 	[ATTRIBUTE_EARTH]: "地",
 	[ATTRIBUTE_WATER]: "水",
 	[ATTRIBUTE_FIRE]: "炎",
@@ -106,36 +107,72 @@ const attr_to_str = {
 	[ATTRIBUTE_DIVINE]: "神",
 };
 
-const race_to_str = {
-	[RACE_WARRIOR]: "戰士",
-	[RACE_SPELLCASTER]: "魔法使",
-	[RACE_FAIRY]: "天使",
-	[RACE_FIEND]: "惡魔",
-	[RACE_ZOMBIE]: "不死",
-	[RACE_MACHINE]: "機械",
-	[RACE_AQUA]: "水",
-	[RACE_PYRO]: "炎",
-	[RACE_ROCK]: "岩石",
-	[RACE_WINDBEAST]: "鳥獸",
-	[RACE_PLANT]: "植物",
-	[RACE_INSECT]: "昆蟲",
-	[RACE_THUNDER]: "雷",
-	[RACE_DRAGON]: "龍",
-	[RACE_BEAST]: "獸",
-	[RACE_BEASTWARRIOR]: "獸戰士",
-	[RACE_DINOSAUR]: "恐龍",
-	[RACE_FISH]: "魚",
-	[RACE_SEASERPENT]: "海龍",
-	[RACE_REPTILE]: "爬蟲類",
-	[RACE_PSYCHO]: "超能",
-	[RACE_DIVINE]: "幻神獸",
-	[RACE_CREATORGOD]: "創造神",
-	[RACE_WYRM]: "幻龍",
-	[RACE_CYBERSE]: "電子界",
-	[RACE_ILLUSION]: "幻想魔",
+const race_name = {
+	[RACE_WARRIOR]: "戰士族",
+	[RACE_SPELLCASTER]: "魔法使族",
+	[RACE_FAIRY]: "天使族",
+	[RACE_FIEND]: "惡魔族",
+	[RACE_ZOMBIE]: "不死族",
+	[RACE_MACHINE]: "機械族",
+	[RACE_AQUA]: "水族",
+	[RACE_PYRO]: "炎族",
+	[RACE_ROCK]: "岩石族",
+	[RACE_WINDBEAST]: "鳥獸族",
+	[RACE_PLANT]: "植物族",
+	[RACE_INSECT]: "昆蟲族",
+	[RACE_THUNDER]: "雷族",
+	[RACE_DRAGON]: "龍族",
+	[RACE_BEAST]: "獸族",
+	[RACE_BEASTWARRIOR]: "獸戰士族",
+	[RACE_DINOSAUR]: "恐龍族",
+	[RACE_FISH]: "魚族",
+	[RACE_SEASERPENT]: "海龍族",
+	[RACE_REPTILE]: "爬蟲類族",
+	[RACE_PSYCHO]: "超能族",
+	[RACE_DIVINE]: "幻神獸族",
+	[RACE_CREATORGOD]: "創造神族",
+	[RACE_WYRM]: "幻龍族",
+	[RACE_CYBERSE]: "電子界族",
+	[RACE_ILLUSION]: "幻想魔族",
 };
 
-const marker_to_str = {
+const type_name = {
+	[TYPE_MONSTER]: "怪獸",
+	[TYPE_SPELL]: "魔法",
+	[TYPE_TRAP]: "陷阱",
+
+	[TYPE_NORMAL]: "通常",
+	[TYPE_EFFECT]: "效果",
+	[TYPE_FUSION]: "融合",
+	[TYPE_RITUAL]: "儀式",
+	[TYPE_SYNCHRO]: "同步",
+	[TYPE_XYZ]: "超量",
+	[TYPE_PENDULUM]: "靈擺",
+	[TYPE_LINK]: "連結",
+
+	[TYPE_SPIRIT]: "靈魂",
+	[TYPE_UNION]: "聯合",
+	[TYPE_DUAL]: "二重",
+	[TYPE_TUNER]: "協調",
+	[TYPE_TOKEN]: "衍生物",
+	[TYPE_FLIP]: "反轉",
+	[TYPE_TOON]: "卡通",
+	[TYPE_SPSUMMON]: "特殊召喚",
+
+	[TYPE_QUICKPLAY]: "速攻",
+	[TYPE_CONTINUOUS]: "永續",
+	[TYPE_EQUIP]: "裝備",
+	[TYPE_FIELD]: "場地",
+	[TYPE_COUNTER]: "反擊",
+}
+
+const limit_name = {
+	0: "禁止",
+	1: "限制",
+	2: "準限制",
+}
+
+const marker_character = {
 	[LINK_MARKER_BOTTOM_LEFT]: ":arrow_lower_left:",
 	[LINK_MARKER_BOTTOM]: ":arrow_down:",
 	[LINK_MARKER_BOTTOM_RIGHT]: ":arrow_lower_right:",
@@ -277,19 +314,6 @@ function print_ad(x) {
 		return x;
 }
 
-function print_limit(limit) {
-	switch (limit) {
-		case 0:
-			return "禁止";
-		case 1:
-			return "限制";
-		case 2:
-			return "準限制";
-		default:
-			return "";
-	}
-}
-
 module.exports = {
 	db_ready: promise_sql,
 
@@ -297,9 +321,12 @@ module.exports = {
 
 	stmt_default: `SELECT datas.id, ot, alias, type, atk, def, level, attribute, race, name, desc FROM datas, texts`
 		+ ` WHERE datas.id == texts.id AND NOT type & ${TYPE_TOKEN} AND (datas.id == ${ID_BLACK_LUSTER_SOLDIER} OR abs(datas.id - alias) >= 10)`,
+
 	stmt_no_alternative: `SELECT datas.id, ot, alias, type, atk, def, level, attribute, race, name, desc FROM datas, texts`
 		+ ` WHERE datas.id == texts.id AND NOT type & ${TYPE_TOKEN} AND abs(datas.id - alias) >= 10`,
+
 	stmt_no_alias: `SELECT datas.id FROM datas, texts WHERE datas.id == texts.id AND NOT type & ${TYPE_TOKEN} AND alias == 0`,
+
 	effect_filter: ` AND (NOT type & ${TYPE_NORMAL} OR type & ${TYPE_PENDULUM})`,
 
 	is_alternative: is_alternative,
@@ -362,9 +389,9 @@ module.exports = {
 			official_name += `MD：${card.md_name}\n`;
 
 		if (ltable[card.real_id] !== undefined)
-			lfstr_o = `OCG：${print_limit(ltable[card.real_id])}`;
+			lfstr_o = `OCG：${limit_name[ltable[card.real_id]]}`;
 		if (ltable_md[card.real_id] !== undefined) {
-			lfstr_m = `MD：${print_limit(ltable_md[card.real_id])}`;
+			lfstr_m = `MD：${limit_name[ltable[card.real_id]]}`;
 		}
 		if (lfstr_o && lfstr_m)
 			seperator = " / ";
@@ -372,54 +399,54 @@ module.exports = {
 			lfstr = `(${lfstr_o}${seperator}${lfstr_m})\n`;
 
 		if (card.type & TYPE_MONSTER) {
-			mtype = "怪獸";
+			mtype = type_name[TYPE_MONSTER];
 			if (card.type & TYPE_RITUAL)
-				subtype = "/儀式";
+				subtype = `/${type_name[TYPE_RITUAL]}`;
 			else if (card.type & TYPE_FUSION)
-				subtype = "/融合";
+				subtype = `/${type_name[TYPE_FUSION]}`;
 			else if (card.type & TYPE_SYNCHRO)
-				subtype = "/同步";
+				subtype = `/${type_name[TYPE_SYNCHRO]}`;
 			else if (card.type & TYPE_XYZ) {
-				subtype = "/超量";
+				subtype = `/${type_name[TYPE_XYZ]}`;
 				lvstr = `\u2606`;
 			}
 			else if (card.type & TYPE_LINK) {
-				subtype = "/連結";
-				lvstr = "LINK-";
+				subtype = `/${type_name[TYPE_LINK]}`;
+				lvstr = `LINK-`;
 			}
 			if (card.type & TYPE_PENDULUM) {
-				subtype += "/靈擺";
+				subtype += `/${type_name[TYPE_PENDULUM]}`;
 			}
 
 			// extype
 			if (card.type & TYPE_NORMAL)
-				subtype += "/通常";
+				subtype += `/${type_name[TYPE_NORMAL]}`;
 			if (card.type & TYPE_SPIRIT)
-				subtype += "/靈魂";
+				subtype += `/${type_name[TYPE_SPIRIT]}`;
 			if (card.type & TYPE_UNION)
-				subtype += "/聯合";
+				subtype += `/${type_name[TYPE_UNION]}`;
 			if (card.type & TYPE_DUAL)
-				subtype += "/二重";
+				subtype += `/${type_name[TYPE_DUAL]}`;
 			if (card.type & TYPE_TUNER)
-				subtype += "/協調";
+				subtype += `/${type_name[TYPE_TUNER]}`;
 			if (card.type & TYPE_FLIP)
-				subtype += "/反轉";
+				subtype += `/${type_name[TYPE_FLIP]}`;
 			if (card.type & TYPE_TOON)
-				subtype += "/卡通";
+				subtype += `/${type_name[TYPE_TOON]}`;
 			if (card.type & TYPE_SPSUMMON)
-				subtype += "/特殊召喚";
+				subtype += `/${type_name[TYPE_SPSUMMON]}`;
 			if (card.type & TYPE_EFFECT)
-				subtype += "/效果";
+				subtype += `/${type_name[TYPE_EFFECT]}`;
 			data = `${lfstr}[${mtype}${subtype}]\n`;
 
 			let lv = card.level;
 			data += `${lvstr}${lv == 0 ? "?" : lv}`;
 			if (card.attribute)
-				data += `/${attr_to_str[card.attribute]}`;
+				data += `/${attribute_name[card.attribute]}`;
 			else
 				data += "/？";
 			if (card.race)
-				data += `/${race_to_str[card.race]}族`;
+				data += `/${race_name[card.race]}`;
 			else
 				data += "/？族";
 			data += `/攻${print_ad(card.atk)}`;
@@ -434,60 +461,60 @@ module.exports = {
 				let marker_text = "";
 				for (let marker = LINK_MARKER_TOP_LEFT; marker <= LINK_MARKER_TOP_RIGHT; marker <<= 1) {
 					if (card.def & marker)
-						marker_text += marker_to_str[marker];
+						marker_text += marker_character[marker];
 					else
-						marker_text += marker_to_str.default;
+						marker_text += marker_character.default;
 				}
 				marker_text += "\n";
 
 				if (card.def & LINK_MARKER_LEFT)
-					marker_text += marker_to_str[LINK_MARKER_LEFT];
+					marker_text += marker_character[LINK_MARKER_LEFT];
 				else
-					marker_text += marker_to_str.default;
+					marker_text += marker_character.default;
 
-				marker_text += marker_to_str.default;
+				marker_text += marker_character.default;
 
 				if (card.def & LINK_MARKER_RIGHT)
-					marker_text += marker_to_str[LINK_MARKER_RIGHT];
+					marker_text += marker_character[LINK_MARKER_RIGHT];
 				else
-					marker_text += marker_to_str.default;
+					marker_text += marker_character.default;
 
 				marker_text += "\n";
 
 				for (let marker = LINK_MARKER_BOTTOM_LEFT; marker <= LINK_MARKER_BOTTOM_RIGHT; marker <<= 1) {
 					if (card.def & marker)
-						marker_text += marker_to_str[marker];
+						marker_text += marker_character[marker];
 					else
-						marker_text += marker_to_str.default;
+						marker_text += marker_character.default;
 				}
 				marker_text += "\n";
 				data += marker_text;
 			}
 		}
 		else if (card.type & TYPE_SPELL) {
-			mtype = "魔法";
+			mtype = `${type_name[TYPE_SPELL]}`;
 			if (card.type & TYPE_QUICKPLAY)
-				subtype = "速攻";
+				subtype = `${type_name[TYPE_QUICKPLAY]}`;
 			else if (card.type & TYPE_CONTINUOUS)
-				subtype = "永續";
+				subtype = `${type_name[TYPE_CONTINUOUS]}`;
 			else if (card.type & TYPE_EQUIP)
-				subtype = "裝備";
+				subtype = `${type_name[TYPE_EQUIP]}`;
 			else if (card.type & TYPE_RITUAL)
-				subtype = "儀式";
+				subtype = `${type_name[TYPE_RITUAL]}`;
 			else if (card.type & TYPE_FIELD)
-				subtype = "場地";
+				subtype = `${type_name[TYPE_FIELD]}`;
 			else
-				subtype = "通常";
+				subtype = `${type_name[TYPE_NORMAL]}`;
 			data = `${lfstr}[${subtype}${mtype}]\n`;
 		}
 		else if (card.type & TYPE_TRAP) {
-			mtype = "陷阱";
+			mtype = `${type_name[TYPE_TRAP]}`;
 			if (card.type & TYPE_CONTINUOUS)
-				subtype = "永續";
+				subtype = `${type_name[TYPE_CONTINUOUS]}`;
 			else if (card.type & TYPE_COUNTER)
-				subtype = "反擊";
+				subtype = `${type_name[TYPE_COUNTER]}`;
 			else
-				subtype = "通常";
+				subtype = `${type_name[TYPE_NORMAL]}`;
 			data = `${lfstr}[${subtype}${mtype}]\n`;
 		}
 		let card_text = `**${card.name}**\n${official_name}${data}${card.desc}\n--`;
