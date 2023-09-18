@@ -98,6 +98,7 @@ const LINK_MARKER_TOP_RIGHT = 0x100;	// ↗
 const ID_BLACK_LUSTER_SOLDIER = 5405695;
 
 const attribute_name = {
+	unknown: "？",
 	[ATTRIBUTE_EARTH]: "地",
 	[ATTRIBUTE_WATER]: "水",
 	[ATTRIBUTE_FIRE]: "炎",
@@ -108,6 +109,7 @@ const attribute_name = {
 };
 
 const race_name = {
+	unknown: "？族",
 	[RACE_WARRIOR]: "戰士族",
 	[RACE_SPELLCASTER]: "魔法使族",
 	[RACE_FAIRY]: "天使族",
@@ -164,6 +166,12 @@ const type_name = {
 	[TYPE_EQUIP]: "裝備",
 	[TYPE_FIELD]: "場地",
 	[TYPE_COUNTER]: "反擊",
+}
+
+const value_name = {
+	atk: "攻",
+	def: "守",
+	scale: "靈擺刻度",
 }
 
 const limit_name = {
@@ -444,18 +452,18 @@ module.exports = {
 			if (card.attribute)
 				data += `/${attribute_name[card.attribute]}`;
 			else
-				data += "/？";
+				data += `/${attribute_name["unknown"]}`;
 			if (card.race)
 				data += `/${race_name[card.race]}`;
 			else
-				data += "/？族";
-			data += `/攻${print_ad(card.atk)}`;
+				data += `/${race_name["unknown"]}`;
+			data += `/${value_name["atk"]}${print_ad(card.atk)}`;
 			if (!(card.type & TYPE_LINK)) {
-				data += `/守${print_ad(card.def)}`;
+				data += `/${value_name["def"]}${print_ad(card.def)}`;
 			}
 			data += "\n";
 			if (card.type & TYPE_PENDULUM) {
-				data += `【靈擺刻度：${card.scale}】\n`;
+				data += `【${value_name["scale"]}：${card.scale}】\n`;
 			}
 			if (card.type & TYPE_LINK) {
 				let marker_text = "";
@@ -463,21 +471,21 @@ module.exports = {
 					if (card.def & marker)
 						marker_text += marker_character[marker];
 					else
-						marker_text += marker_character.default;
+						marker_text += marker_character["default"];
 				}
 				marker_text += "\n";
 
 				if (card.def & LINK_MARKER_LEFT)
 					marker_text += marker_character[LINK_MARKER_LEFT];
 				else
-					marker_text += marker_character.default;
+					marker_text += marker_character["default"];
 
-				marker_text += marker_character.default;
+				marker_text += marker_character["default"];
 
 				if (card.def & LINK_MARKER_RIGHT)
 					marker_text += marker_character[LINK_MARKER_RIGHT];
 				else
-					marker_text += marker_character.default;
+					marker_text += marker_character["default"];
 
 				marker_text += "\n";
 
@@ -485,7 +493,7 @@ module.exports = {
 					if (card.def & marker)
 						marker_text += marker_character[marker];
 					else
-						marker_text += marker_character.default;
+						marker_text += marker_character["default"];
 				}
 				marker_text += "\n";
 				data += marker_text;
