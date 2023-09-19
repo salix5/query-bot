@@ -39,7 +39,7 @@ const TYPE_QUICKPLAY = 0x10000;
 const TYPE_CONTINUOUS = 0x20000;
 const TYPE_EQUIP = 0x40000;
 //const TYPE_RITUAL
-const TYPE_FIELD = 0x80000
+const TYPE_FIELD = 0x80000;
 
 // trap type
 //const TYPE_CONTINUOUS
