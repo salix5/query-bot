@@ -98,112 +98,112 @@ const LINK_MARKER_TOP_RIGHT = 0x100;	// ↗
 const ID_BLACK_LUSTER_SOLDIER = 5405695;
 
 const attribute_name = {
-	unknown: "？",
-	[ATTRIBUTE_EARTH]: "地",
-	[ATTRIBUTE_WATER]: "水",
-	[ATTRIBUTE_FIRE]: "炎",
-	[ATTRIBUTE_WIND]: "風",
-	[ATTRIBUTE_LIGHT]: "光",
-	[ATTRIBUTE_DARK]: "闇",
-	[ATTRIBUTE_DIVINE]: "神",
+	unknown: '？',
+	[ATTRIBUTE_EARTH]: '地',
+	[ATTRIBUTE_WATER]: '水',
+	[ATTRIBUTE_FIRE]: '炎',
+	[ATTRIBUTE_WIND]: '風',
+	[ATTRIBUTE_LIGHT]: '光',
+	[ATTRIBUTE_DARK]: '闇',
+	[ATTRIBUTE_DIVINE]: '神',
 };
 
 const race_name = {
-	unknown: "？族",
-	[RACE_WARRIOR]: "戰士族",
-	[RACE_SPELLCASTER]: "魔法使族",
-	[RACE_FAIRY]: "天使族",
-	[RACE_FIEND]: "惡魔族",
-	[RACE_ZOMBIE]: "不死族",
-	[RACE_MACHINE]: "機械族",
-	[RACE_AQUA]: "水族",
-	[RACE_PYRO]: "炎族",
-	[RACE_ROCK]: "岩石族",
-	[RACE_WINDBEAST]: "鳥獸族",
-	[RACE_PLANT]: "植物族",
-	[RACE_INSECT]: "昆蟲族",
-	[RACE_THUNDER]: "雷族",
-	[RACE_DRAGON]: "龍族",
-	[RACE_BEAST]: "獸族",
-	[RACE_BEASTWARRIOR]: "獸戰士族",
-	[RACE_DINOSAUR]: "恐龍族",
-	[RACE_FISH]: "魚族",
-	[RACE_SEASERPENT]: "海龍族",
-	[RACE_REPTILE]: "爬蟲類族",
-	[RACE_PSYCHO]: "超能族",
-	[RACE_DIVINE]: "幻神獸族",
-	[RACE_CREATORGOD]: "創造神族",
-	[RACE_WYRM]: "幻龍族",
-	[RACE_CYBERSE]: "電子界族",
-	[RACE_ILLUSION]: "幻想魔族",
+	unknown: '？族',
+	[RACE_WARRIOR]: '戰士族',
+	[RACE_SPELLCASTER]: '魔法使族',
+	[RACE_FAIRY]: '天使族',
+	[RACE_FIEND]: '惡魔族',
+	[RACE_ZOMBIE]: '不死族',
+	[RACE_MACHINE]: '機械族',
+	[RACE_AQUA]: '水族',
+	[RACE_PYRO]: '炎族',
+	[RACE_ROCK]: '岩石族',
+	[RACE_WINDBEAST]: '鳥獸族',
+	[RACE_PLANT]: '植物族',
+	[RACE_INSECT]: '昆蟲族',
+	[RACE_THUNDER]: '雷族',
+	[RACE_DRAGON]: '龍族',
+	[RACE_BEAST]: '獸族',
+	[RACE_BEASTWARRIOR]: '獸戰士族',
+	[RACE_DINOSAUR]: '恐龍族',
+	[RACE_FISH]: '魚族',
+	[RACE_SEASERPENT]: '海龍族',
+	[RACE_REPTILE]: '爬蟲類族',
+	[RACE_PSYCHO]: '超能族',
+	[RACE_DIVINE]: '幻神獸族',
+	[RACE_CREATORGOD]: '創造神族',
+	[RACE_WYRM]: '幻龍族',
+	[RACE_CYBERSE]: '電子界族',
+	[RACE_ILLUSION]: '幻想魔族',
 };
 
 const type_name = {
-	[TYPE_MONSTER]: "怪獸",
-	[TYPE_SPELL]: "魔法",
-	[TYPE_TRAP]: "陷阱",
+	[TYPE_MONSTER]: '怪獸',
+	[TYPE_SPELL]: '魔法',
+	[TYPE_TRAP]: '陷阱',
 
-	[TYPE_NORMAL]: "通常",
-	[TYPE_EFFECT]: "效果",
-	[TYPE_FUSION]: "融合",
-	[TYPE_RITUAL]: "儀式",
-	[TYPE_SYNCHRO]: "同步",
-	[TYPE_XYZ]: "超量",
-	[TYPE_PENDULUM]: "靈擺",
-	[TYPE_LINK]: "連結",
+	[TYPE_NORMAL]: '通常',
+	[TYPE_EFFECT]: '效果',
+	[TYPE_FUSION]: '融合',
+	[TYPE_RITUAL]: '儀式',
+	[TYPE_SYNCHRO]: '同步',
+	[TYPE_XYZ]: '超量',
+	[TYPE_PENDULUM]: '靈擺',
+	[TYPE_LINK]: '連結',
 
-	[TYPE_SPIRIT]: "靈魂",
-	[TYPE_UNION]: "聯合",
-	[TYPE_DUAL]: "二重",
-	[TYPE_TUNER]: "協調",
-	[TYPE_TOKEN]: "衍生物",
-	[TYPE_FLIP]: "反轉",
-	[TYPE_TOON]: "卡通",
-	[TYPE_SPSUMMON]: "特殊召喚",
+	[TYPE_SPIRIT]: '靈魂',
+	[TYPE_UNION]: '聯合',
+	[TYPE_DUAL]: '二重',
+	[TYPE_TUNER]: '協調',
+	[TYPE_TOKEN]: '衍生物',
+	[TYPE_FLIP]: '反轉',
+	[TYPE_TOON]: '卡通',
+	[TYPE_SPSUMMON]: '特殊召喚',
 
-	[TYPE_QUICKPLAY]: "速攻",
-	[TYPE_CONTINUOUS]: "永續",
-	[TYPE_EQUIP]: "裝備",
-	[TYPE_FIELD]: "場地",
-	[TYPE_COUNTER]: "反擊",
+	[TYPE_QUICKPLAY]: '速攻',
+	[TYPE_CONTINUOUS]: '永續',
+	[TYPE_EQUIP]: '裝備',
+	[TYPE_FIELD]: '場地',
+	[TYPE_COUNTER]: '反擊',
 }
 
 const value_name = {
-	atk: "攻",
-	def: "守",
-	scale: "靈擺刻度",
+	atk: '攻',
+	def: '守',
+	scale: '靈擺刻度',
 }
 
 const limit_name = {
-	0: "禁止",
-	1: "限制",
-	2: "準限制",
+	0: '禁止',
+	1: '限制',
+	2: '準限制',
 }
 
 const marker_character = {
-	[LINK_MARKER_BOTTOM_LEFT]: ":arrow_lower_left:",
-	[LINK_MARKER_BOTTOM]: ":arrow_down:",
-	[LINK_MARKER_BOTTOM_RIGHT]: ":arrow_lower_right:",
+	[LINK_MARKER_BOTTOM_LEFT]: ':arrow_lower_left:',
+	[LINK_MARKER_BOTTOM]: ':arrow_down:',
+	[LINK_MARKER_BOTTOM_RIGHT]: ':arrow_lower_right:',
 
-	[LINK_MARKER_LEFT]: ":arrow_left:",
-	[LINK_MARKER_RIGHT]: ":arrow_right:",
+	[LINK_MARKER_LEFT]: ':arrow_left:',
+	[LINK_MARKER_RIGHT]: ':arrow_right:',
 
-	[LINK_MARKER_TOP_LEFT]: ":arrow_upper_left:",
-	[LINK_MARKER_TOP]: ":arrow_up:",
-	[LINK_MARKER_TOP_RIGHT]: ":arrow_upper_right:",
+	[LINK_MARKER_TOP_LEFT]: ':arrow_upper_left:',
+	[LINK_MARKER_TOP]: ':arrow_up:',
+	[LINK_MARKER_TOP_RIGHT]: ':arrow_upper_right:',
 
-	default: ":black_large_square:",
+	default: ':black_large_square:',
 };
 
-const domain = "https://salix5.github.io";
+const domain = 'https://salix5.github.io';
 const promise_db = fetch(`${domain}/CardEditor/cards.cdb`).then(response => response.arrayBuffer()).then(buf => new Uint8Array(buf));
 const promise_db2 = fetch(`${domain}/cdb/pre-release.cdb`).then(response => response.arrayBuffer()).then(buf => new Uint8Array(buf));
-var db1 = null, db2 = null;
+const db_list = [];
 
 const promise_sql = Promise.all([initSqlJs(), promise_db, promise_db2,]).then(values => {
 	let SQL = values[0];
-	db1 = new SQL.Database(values[1]);
-	db2 = new SQL.Database(values[2]);
+	db_list.push(new SQL.Database(values[1]));
+	db_list.push(new SQL.Database(values[2]));
 });
 
 function is_released(card) {
@@ -300,14 +300,16 @@ function query_db(db, qstr, arg, ret) {
 		else {
 			card.color = -1;
 		}
-		if (typeof cid_table[card.real_id] === "number")
+		if (typeof cid_table[card.real_id] === 'number')
 			card.cid = cid_table[card.real_id];
 		if (name_table[card.real_id])
 			card.jp_name = name_table[card.real_id];
+
 		if (name_table_en[card.real_id])
 			card.en_name = name_table_en[card.real_id];
 		else if (md_name_en[card.real_id])
 			card.md_name_en = md_name_en[card.real_id];
+
 		if (md_name[card.real_id])
 			card.md_name = md_name[card.real_id];
 		ret.push(card);
@@ -317,7 +319,7 @@ function query_db(db, qstr, arg, ret) {
 
 function print_ad(x) {
 	if (x === -2)
-		return "?";
+		return '?';
 	else
 		return x;
 }
@@ -350,8 +352,9 @@ module.exports = {
 
 	query(qstr, arg, ret) {
 		ret.length = 0;
-		query_db(db1, qstr, arg, ret);
-		query_db(db2, qstr, arg, ret);
+		for (db of db_list) {
+			query_db(db, qstr, arg, ret);
+		}
 	},
 
 	query_id(id, ret) {
@@ -359,9 +362,11 @@ module.exports = {
 		let arg = new Object();
 		arg.$id = id;
 		ret.length = 0;
-		query_db(db1, qstr, arg, ret);
-		if (!ret.length)
-			query_db(db2, qstr, arg, ret);
+		for (db of db_list) {
+			query_db(db, qstr, arg, ret);
+			if (ret.length)
+				break;
+		}
 	},
 
 	query_alias(alias, ret) {
@@ -369,21 +374,22 @@ module.exports = {
 		let arg = new Object();
 		arg.$alias = alias;
 		ret.length = 0;
-		query_db(db1, qstr, arg, ret);
-		query_db(db2, qstr, arg, ret);
+		for (db of db_list) {
+			query_db(db, qstr, arg, ret);
+		}
 	},
 
 	print_data(card) {
-		let mtype = "";
-		let subtype = "";
-		let lvstr = `\u2605`;
-		let lfstr = "";
-		let lfstr_o = "";
-		let lfstr_m = "";
-		let seperator = "";
+		let mtype = '';
+		let subtype = '';
+		let lvstr = '\u2605';
+		let lfstr = '';
+		let lfstr_o = '';
+		let lfstr_m = '';
+		let seperator = '';
 
-		let official_name = "";
-		let data = "";
+		let official_name = '';
+		let data = '';
 
 		if (card.jp_name)
 			official_name += `${card.jp_name}\n`;
@@ -402,7 +408,7 @@ module.exports = {
 			lfstr_m = `MD：${limit_name[ltable[card.real_id]]}`;
 		}
 		if (lfstr_o && lfstr_m)
-			seperator = " / ";
+			seperator = ' / ';
 		if (lfstr_o || lfstr_m)
 			lfstr = `(${lfstr_o}${seperator}${lfstr_m})\n`;
 
@@ -448,54 +454,54 @@ module.exports = {
 			data = `${lfstr}[${mtype}${subtype}]\n`;
 
 			let lv = card.level;
-			data += `${lvstr}${lv == 0 ? "?" : lv}`;
+			data += `${lvstr}${lv == 0 ? '?' : lv}`;
 			if (card.attribute)
 				data += `/${attribute_name[card.attribute]}`;
 			else
-				data += `/${attribute_name["unknown"]}`;
+				data += `/${attribute_name['unknown']}`;
 			if (card.race)
 				data += `/${race_name[card.race]}`;
 			else
-				data += `/${race_name["unknown"]}`;
-			data += `/${value_name["atk"]}${print_ad(card.atk)}`;
+				data += `/${race_name['unknown']}`;
+			data += `/${value_name['atk']}${print_ad(card.atk)}`;
 			if (!(card.type & TYPE_LINK)) {
-				data += `/${value_name["def"]}${print_ad(card.def)}`;
+				data += `/${value_name['def']}${print_ad(card.def)}`;
 			}
-			data += "\n";
+			data += '\n';
 			if (card.type & TYPE_PENDULUM) {
-				data += `【${value_name["scale"]}：${card.scale}】\n`;
+				data += `【${value_name['scale']}：${card.scale}】\n`;
 			}
 			if (card.type & TYPE_LINK) {
-				let marker_text = "";
+				let marker_text = '';
 				for (let marker = LINK_MARKER_TOP_LEFT; marker <= LINK_MARKER_TOP_RIGHT; marker <<= 1) {
 					if (card.def & marker)
 						marker_text += marker_character[marker];
 					else
-						marker_text += marker_character["default"];
+						marker_text += marker_character['default'];
 				}
-				marker_text += "\n";
+				marker_text += '\n';
 
 				if (card.def & LINK_MARKER_LEFT)
 					marker_text += marker_character[LINK_MARKER_LEFT];
 				else
-					marker_text += marker_character["default"];
+					marker_text += marker_character['default'];
 
-				marker_text += marker_character["default"];
+				marker_text += marker_character['default'];
 
 				if (card.def & LINK_MARKER_RIGHT)
 					marker_text += marker_character[LINK_MARKER_RIGHT];
 				else
-					marker_text += marker_character["default"];
+					marker_text += marker_character['default'];
 
-				marker_text += "\n";
+				marker_text += '\n';
 
 				for (let marker = LINK_MARKER_BOTTOM_LEFT; marker <= LINK_MARKER_BOTTOM_RIGHT; marker <<= 1) {
 					if (card.def & marker)
 						marker_text += marker_character[marker];
 					else
-						marker_text += marker_character["default"];
+						marker_text += marker_character['default'];
 				}
-				marker_text += "\n";
+				marker_text += '\n';
 				data += marker_text;
 			}
 		}
@@ -530,11 +536,11 @@ module.exports = {
 	},
 
 	print_db_link(cid, ot) {
-		let locale = "";
+		let locale = '';
 		if (ot === 2)
-			locale = "en";
+			locale = 'en';
 		else
-			locale = "ja";
+			locale = 'ja';
 		return `https://www.db.yugioh-card.com/yugiohdb/card_search.action?ope=2&cid=${cid}&request_locale=${locale}`;
 	},
 
