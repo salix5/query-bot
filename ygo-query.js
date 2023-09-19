@@ -355,7 +355,7 @@ module.exports = {
 
 	query(qstr, arg, ret) {
 		ret.length = 0;
-		for (db of db_list) {
+		for (const db of db_list) {
 			query_db(db, qstr, arg, ret);
 		}
 	},
@@ -365,7 +365,7 @@ module.exports = {
 		let arg = new Object();
 		arg.$id = id;
 		ret.length = 0;
-		for (db of db_list) {
+		for (const db of db_list) {
 			query_db(db, qstr, arg, ret);
 			if (ret.length)
 				break;
@@ -377,7 +377,7 @@ module.exports = {
 		let arg = new Object();
 		arg.$alias = alias;
 		ret.length = 0;
-		for (db of db_list) {
+		for (const db of db_list) {
 			query_db(db, qstr, arg, ret);
 		}
 	},
