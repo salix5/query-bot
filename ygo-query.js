@@ -22,7 +22,7 @@ const TYPE_SYNCHRO = 0x2000;
 const TYPE_XYZ = 0x800000;
 const TYPE_PENDULUM = 0x1000000;
 const TYPE_LINK = 0x4000000;
-const TYPE_EXT = TYPE_FUSION | TYPE_SYNCHRO | TYPE_XYZ | TYPE_LINK;
+const TYPE_EXTRA = TYPE_FUSION | TYPE_SYNCHRO | TYPE_XYZ | TYPE_LINK;
 
 // extype
 const TYPE_SPIRIT = 0x200;
@@ -246,7 +246,7 @@ function query_db(db, qstr, arg, ret) {
 
 		// color
 		if (card.type & TYPE_MONSTER) {
-			if (!(card.type & TYPE_EXT)) {
+			if (!(card.type & TYPE_EXTRA)) {
 				if (card.type & TYPE_TOKEN)
 					card.color = 0;
 				else if (card.type & TYPE_NORMAL)
