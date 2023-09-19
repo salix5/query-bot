@@ -195,15 +195,18 @@ const marker_character = {
 	default: ':black_large_square:',
 };
 
-const domain = 'https://salix5.github.io';
-const promise_db = fetch(`${domain}/CardEditor/cards.cdb`).then(response => response.arrayBuffer()).then(buf => new Uint8Array(buf));
-const promise_db2 = fetch(`${domain}/cdb/pre-release.cdb`).then(response => response.arrayBuffer()).then(buf => new Uint8Array(buf));
+let SQL = null;
 const db_list = [];
+const domain = 'https://salix5.github.io';
 
-const promise_sql = Promise.all([initSqlJs(), promise_db, promise_db2,]).then(values => {
-	let SQL = values[0];
-	db_list.push(new SQL.Database(values[1]));
-	db_list.push(new SQL.Database(values[2]));
+Promise.all([
+	initSqlJs(),
+	fetch(`${domain}/CardEditor/cards.cdb`).then(response => response.arrayBuffer()).then(buf => new Uint8Array(buf)),
+	fetch(`${domain}/cdb/pre-release.cdb`).then(response => response.arrayBuffer()).then(buf => new Uint8Array(buf)),
+]).then(([sql, file1, file2]) => {
+	SQL = sql;
+	db_list.push(new SQL.Database(file1));
+	db_list.push(new SQL.Database(file2));
 });
 
 function is_released(card) {
