@@ -199,7 +199,7 @@ let SQL = null;
 const db_list = [];
 const domain = 'https://salix5.github.io';
 
-Promise.all([
+const db_ready = Promise.all([
 	initSqlJs(),
 	fetch(`${domain}/CardEditor/cards.cdb`).then(response => response.arrayBuffer()).then(buf => new Uint8Array(buf)),
 	fetch(`${domain}/cdb/pre-release.cdb`).then(response => response.arrayBuffer()).then(buf => new Uint8Array(buf)),
@@ -328,7 +328,7 @@ function print_ad(x) {
 }
 
 module.exports = {
-	db_ready: promise_sql,
+	db_ready: db_ready,
 
 	ID_BLACK_LUSTER_SOLDIER: ID_BLACK_LUSTER_SOLDIER,
 
