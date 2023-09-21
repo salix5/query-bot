@@ -360,18 +360,6 @@ module.exports = {
 		}
 	},
 
-	query_id(id, ret) {
-		let qstr = `SELECT datas.id, ot, alias, type, atk, def, level, attribute, race, name, desc FROM datas, texts WHERE datas.id == $id AND datas.id == texts.id;`;
-		let arg = new Object();
-		arg.$id = id;
-		ret.length = 0;
-		for (const db of db_list) {
-			query_db(db, qstr, arg, ret);
-			if (ret.length)
-				break;
-		}
-	},
-
 	query_alias(alias, ret) {
 		let qstr = `${this.stmt_no_alternative} AND alias == $alias;`;
 		let arg = new Object();
@@ -380,6 +368,19 @@ module.exports = {
 		for (const db of db_list) {
 			query_db(db, qstr, arg, ret);
 		}
+	},
+
+	get_card(id) {
+		let qstr = `SELECT datas.id, ot, alias, type, atk, def, level, attribute, race, name, desc FROM datas, texts WHERE datas.id == $id AND datas.id == texts.id;`;
+		let arg = new Object();
+		arg.$id = id;
+		let ret = [];
+		for (const db of db_list) {
+			query_db(db, qstr, arg, ret);
+			if (ret.length)
+				return ret[0];
+		}
+		return null;
 	},
 
 	print_data(card) {

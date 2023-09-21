@@ -7,10 +7,8 @@ module.exports = {
 		const input = interaction.options.getString('input');
 		let id = choice_table[input];
 		if (id) {
-			let result = [];
-			ygo.query_id(id, result);
-			if (result.length === 1) {
-				const card = result[0];
+			const card = ygo.get_card(id);
+			if (card) {
 				if (card.cid) {
 					const row1 = new ActionRowBuilder();
 					const button1 = new ButtonBuilder()
@@ -29,7 +27,7 @@ module.exports = {
 						button1.setLabel('DB (TCG)');
 						row1.addComponents(button1);
 					}
-					await interaction.reply({ content: ygo.print_data(result[0]), components: [row1] });
+					await interaction.reply({ content: ygo.print_data(card), components: [row1] });
 				}
 				else if (card.cid === 0) {
 					const button1 = new ButtonBuilder()
@@ -37,10 +35,10 @@ module.exports = {
 						.setLabel('Yugipedia')
 						.setURL(ygo.print_wiki_link(card.id));
 					const row1 = new ActionRowBuilder().addComponents(button1);
-					await interaction.reply({ content: ygo.print_data(result[0]), components: [row1] });
+					await interaction.reply({ content: ygo.print_data(card), components: [row1] });
 				}
 				else {
-					await interaction.reply(ygo.print_data(result[0]));
+					await interaction.reply(ygo.print_data(card));
 				}
 			}
 			else {
