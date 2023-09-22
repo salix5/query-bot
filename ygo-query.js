@@ -195,19 +195,24 @@ const marker_char = {
 	default: ':black_large_square:',
 };
 
+const file_list = [];
+
 let SQL = null;
 const db_list = [];
 const domain = 'https://salix5.github.io';
-
-const db_ready = Promise.all([
-	initSqlJs(),
-	fetch(`${domain}/CardEditor/cards.cdb`).then(response => response.arrayBuffer()).then(buf => new Uint8Array(buf)),
-	fetch(`${domain}/cdb/pre-release.cdb`).then(response => response.arrayBuffer()).then(buf => new Uint8Array(buf)),
-]).then(([sql, file1, file2]) => {
-	SQL = sql;
-	db_list.push(new SQL.Database(file1));
-	db_list.push(new SQL.Database(file2));
-});
+const fetch_db = fetch(`${domain}/CardEditor/cards.cdb`)
+	.then(response => response.arrayBuffer())
+	.then(buf => { file_list[0] = new Uint8Array(buf)});
+const fetch_db2 = fetch(`${domain}/cdb/pre-release.cdb`)
+	.then(response => response.arrayBuffer())
+	.then(buf => { file_list[1] = new Uint8Array(buf)});
+const db_ready = Promise.all([initSqlJs(), fetch_db, fetch_db2])
+	.then(([sql, _res1, _res2]) => {
+		SQL = sql;
+		for (const file of file_list){
+			db_list.push(new SQL.Database(file));
+		}
+	});
 
 function is_released(card) {
 	return !!(card.jp_name || card.en_name);
