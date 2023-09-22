@@ -327,6 +327,134 @@ function print_ad(x) {
 		return x;
 }
 
+function print_data(card, newline) {
+	let mtype = '';
+	let subtype = '';
+	let lvstr = '\u2605';
+	let data = '';
+
+	if (card.type & TYPE_MONSTER) {
+		mtype = type_name[TYPE_MONSTER];
+		if (card.type & TYPE_RITUAL)
+			subtype = `/${type_name[TYPE_RITUAL]}`;
+		else if (card.type & TYPE_FUSION)
+			subtype = `/${type_name[TYPE_FUSION]}`;
+		else if (card.type & TYPE_SYNCHRO)
+			subtype = `/${type_name[TYPE_SYNCHRO]}`;
+		else if (card.type & TYPE_XYZ) {
+			subtype = `/${type_name[TYPE_XYZ]}`;
+			lvstr = `\u2606`;
+		}
+		else if (card.type & TYPE_LINK) {
+			subtype = `/${type_name[TYPE_LINK]}`;
+			lvstr = `LINK-`;
+		}
+		if (card.type & TYPE_PENDULUM) {
+			subtype += `/${type_name[TYPE_PENDULUM]}`;
+		}
+
+		// extype
+		if (card.type & TYPE_NORMAL)
+			subtype += `/${type_name[TYPE_NORMAL]}`;
+		if (card.type & TYPE_SPIRIT)
+			subtype += `/${type_name[TYPE_SPIRIT]}`;
+		if (card.type & TYPE_UNION)
+			subtype += `/${type_name[TYPE_UNION]}`;
+		if (card.type & TYPE_DUAL)
+			subtype += `/${type_name[TYPE_DUAL]}`;
+		if (card.type & TYPE_TUNER)
+			subtype += `/${type_name[TYPE_TUNER]}`;
+		if (card.type & TYPE_FLIP)
+			subtype += `/${type_name[TYPE_FLIP]}`;
+		if (card.type & TYPE_TOON)
+			subtype += `/${type_name[TYPE_TOON]}`;
+		if (card.type & TYPE_SPSUMMON)
+			subtype += `/${type_name[TYPE_SPSUMMON]}`;
+		if (card.type & TYPE_EFFECT)
+			subtype += `/${type_name[TYPE_EFFECT]}`;
+		data = `[${mtype}${subtype}]${newline}`;
+
+		let lv = card.level;
+		data += `${lvstr}${lv == 0 ? '?' : lv}`;
+		if (card.attribute)
+			data += `/${attribute_name[card.attribute]}`;
+		else
+			data += `/${attribute_name['unknown']}`;
+		if (card.race)
+			data += `/${race_name[card.race]}`;
+		else
+			data += `/${race_name['unknown']}`;
+		data += `/${value_name['atk']}${print_ad(card.atk)}`;
+		if (!(card.type & TYPE_LINK)) {
+			data += `/${value_name['def']}${print_ad(card.def)}`;
+		}
+		data += newline;
+
+		if (card.type & TYPE_PENDULUM) {
+			data += `【${value_name['scale']}：${card.scale}】${newline}`;
+		}
+		if (card.type & TYPE_LINK) {
+			let marker_text = '';
+			for (let marker = LINK_MARKER_TOP_LEFT; marker <= LINK_MARKER_TOP_RIGHT; marker <<= 1) {
+				if (card.def & marker)
+					marker_text += marker_char[marker];
+				else
+					marker_text += marker_char['default'];
+			}
+			marker_text += newline;
+
+			if (card.def & LINK_MARKER_LEFT)
+				marker_text += marker_char[LINK_MARKER_LEFT];
+			else
+				marker_text += marker_char['default'];
+
+			marker_text += marker_char['default'];
+
+			if (card.def & LINK_MARKER_RIGHT)
+				marker_text += marker_char[LINK_MARKER_RIGHT];
+			else
+				marker_text += marker_char['default'];
+
+			marker_text += newline;
+
+			for (let marker = LINK_MARKER_BOTTOM_LEFT; marker <= LINK_MARKER_BOTTOM_RIGHT; marker <<= 1) {
+				if (card.def & marker)
+					marker_text += marker_char[marker];
+				else
+					marker_text += marker_char['default'];
+			}
+			marker_text += newline;
+			data += marker_text;
+		}
+	}
+	else if (card.type & TYPE_SPELL) {
+		mtype = `${type_name[TYPE_SPELL]}`;
+		if (card.type & TYPE_QUICKPLAY)
+			subtype = `${type_name[TYPE_QUICKPLAY]}`;
+		else if (card.type & TYPE_CONTINUOUS)
+			subtype = `${type_name[TYPE_CONTINUOUS]}`;
+		else if (card.type & TYPE_EQUIP)
+			subtype = `${type_name[TYPE_EQUIP]}`;
+		else if (card.type & TYPE_RITUAL)
+			subtype = `${type_name[TYPE_RITUAL]}`;
+		else if (card.type & TYPE_FIELD)
+			subtype = `${type_name[TYPE_FIELD]}`;
+		else
+			subtype = `${type_name[TYPE_NORMAL]}`;
+		data = `[${subtype}${mtype}]${newline}`;
+	}
+	else if (card.type & TYPE_TRAP) {
+		mtype = `${type_name[TYPE_TRAP]}`;
+		if (card.type & TYPE_CONTINUOUS)
+			subtype = `${type_name[TYPE_CONTINUOUS]}`;
+		else if (card.type & TYPE_COUNTER)
+			subtype = `${type_name[TYPE_COUNTER]}`;
+		else
+			subtype = `${type_name[TYPE_NORMAL]}`;
+		data = `[${subtype}${mtype}]${newline}`;
+	}
+}
+
 module.exports = {
 	db_ready: db_ready,
 
@@ -416,126 +544,7 @@ module.exports = {
 		if (lfstr_o || lfstr_m)
 			lfstr = `(${lfstr_o}${seperator}${lfstr_m})\n`;
 
-		if (card.type & TYPE_MONSTER) {
-			mtype = type_name[TYPE_MONSTER];
-			if (card.type & TYPE_RITUAL)
-				subtype = `/${type_name[TYPE_RITUAL]}`;
-			else if (card.type & TYPE_FUSION)
-				subtype = `/${type_name[TYPE_FUSION]}`;
-			else if (card.type & TYPE_SYNCHRO)
-				subtype = `/${type_name[TYPE_SYNCHRO]}`;
-			else if (card.type & TYPE_XYZ) {
-				subtype = `/${type_name[TYPE_XYZ]}`;
-				lvstr = `\u2606`;
-			}
-			else if (card.type & TYPE_LINK) {
-				subtype = `/${type_name[TYPE_LINK]}`;
-				lvstr = `LINK-`;
-			}
-			if (card.type & TYPE_PENDULUM) {
-				subtype += `/${type_name[TYPE_PENDULUM]}`;
-			}
-
-			// extype
-			if (card.type & TYPE_NORMAL)
-				subtype += `/${type_name[TYPE_NORMAL]}`;
-			if (card.type & TYPE_SPIRIT)
-				subtype += `/${type_name[TYPE_SPIRIT]}`;
-			if (card.type & TYPE_UNION)
-				subtype += `/${type_name[TYPE_UNION]}`;
-			if (card.type & TYPE_DUAL)
-				subtype += `/${type_name[TYPE_DUAL]}`;
-			if (card.type & TYPE_TUNER)
-				subtype += `/${type_name[TYPE_TUNER]}`;
-			if (card.type & TYPE_FLIP)
-				subtype += `/${type_name[TYPE_FLIP]}`;
-			if (card.type & TYPE_TOON)
-				subtype += `/${type_name[TYPE_TOON]}`;
-			if (card.type & TYPE_SPSUMMON)
-				subtype += `/${type_name[TYPE_SPSUMMON]}`;
-			if (card.type & TYPE_EFFECT)
-				subtype += `/${type_name[TYPE_EFFECT]}`;
-			data = `${lfstr}[${mtype}${subtype}]\n`;
-
-			let lv = card.level;
-			data += `${lvstr}${lv == 0 ? '?' : lv}`;
-			if (card.attribute)
-				data += `/${attribute_name[card.attribute]}`;
-			else
-				data += `/${attribute_name['unknown']}`;
-			if (card.race)
-				data += `/${race_name[card.race]}`;
-			else
-				data += `/${race_name['unknown']}`;
-			data += `/${value_name['atk']}${print_ad(card.atk)}`;
-			if (!(card.type & TYPE_LINK)) {
-				data += `/${value_name['def']}${print_ad(card.def)}`;
-			}
-			data += '\n';
-			if (card.type & TYPE_PENDULUM) {
-				data += `【${value_name['scale']}：${card.scale}】\n`;
-			}
-			if (card.type & TYPE_LINK) {
-				let marker_text = '';
-				for (let marker = LINK_MARKER_TOP_LEFT; marker <= LINK_MARKER_TOP_RIGHT; marker <<= 1) {
-					if (card.def & marker)
-						marker_text += marker_char[marker];
-					else
-						marker_text += marker_char['default'];
-				}
-				marker_text += '\n';
-
-				if (card.def & LINK_MARKER_LEFT)
-					marker_text += marker_char[LINK_MARKER_LEFT];
-				else
-					marker_text += marker_char['default'];
-
-				marker_text += marker_char['default'];
-
-				if (card.def & LINK_MARKER_RIGHT)
-					marker_text += marker_char[LINK_MARKER_RIGHT];
-				else
-					marker_text += marker_char['default'];
-
-				marker_text += '\n';
-
-				for (let marker = LINK_MARKER_BOTTOM_LEFT; marker <= LINK_MARKER_BOTTOM_RIGHT; marker <<= 1) {
-					if (card.def & marker)
-						marker_text += marker_char[marker];
-					else
-						marker_text += marker_char['default'];
-				}
-				marker_text += '\n';
-				data += marker_text;
-			}
-		}
-		else if (card.type & TYPE_SPELL) {
-			mtype = `${type_name[TYPE_SPELL]}`;
-			if (card.type & TYPE_QUICKPLAY)
-				subtype = `${type_name[TYPE_QUICKPLAY]}`;
-			else if (card.type & TYPE_CONTINUOUS)
-				subtype = `${type_name[TYPE_CONTINUOUS]}`;
-			else if (card.type & TYPE_EQUIP)
-				subtype = `${type_name[TYPE_EQUIP]}`;
-			else if (card.type & TYPE_RITUAL)
-				subtype = `${type_name[TYPE_RITUAL]}`;
-			else if (card.type & TYPE_FIELD)
-				subtype = `${type_name[TYPE_FIELD]}`;
-			else
-				subtype = `${type_name[TYPE_NORMAL]}`;
-			data = `${lfstr}[${subtype}${mtype}]\n`;
-		}
-		else if (card.type & TYPE_TRAP) {
-			mtype = `${type_name[TYPE_TRAP]}`;
-			if (card.type & TYPE_CONTINUOUS)
-				subtype = `${type_name[TYPE_CONTINUOUS]}`;
-			else if (card.type & TYPE_COUNTER)
-				subtype = `${type_name[TYPE_COUNTER]}`;
-			else
-				subtype = `${type_name[TYPE_NORMAL]}`;
-			data = `${lfstr}[${subtype}${mtype}]\n`;
-		}
-		let card_text = `**${card.name}**\n${official_name}${data}${card.desc}\n--`;
+		let card_text = `**${card.name}**\n${official_name}${lfstr}${print_data(card, '\n')}${card.desc}\n--`;
 		return card_text;
 	},
 
