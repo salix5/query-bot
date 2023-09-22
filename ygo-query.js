@@ -453,6 +453,7 @@ function print_data(card, newline) {
 			subtype = `${type_name[TYPE_NORMAL]}`;
 		data = `[${subtype}${mtype}]${newline}`;
 	}
+	return data;
 }
 
 module.exports = {
