@@ -180,7 +180,7 @@ const limit_name = {
 	2: '準限制',
 }
 
-const marker_character = {
+const marker_char = {
 	[LINK_MARKER_BOTTOM_LEFT]: ':arrow_lower_left:',
 	[LINK_MARKER_BOTTOM]: ':arrow_down:',
 	[LINK_MARKER_BOTTOM_RIGHT]: ':arrow_lower_right:',
@@ -479,31 +479,31 @@ module.exports = {
 				let marker_text = '';
 				for (let marker = LINK_MARKER_TOP_LEFT; marker <= LINK_MARKER_TOP_RIGHT; marker <<= 1) {
 					if (card.def & marker)
-						marker_text += marker_character[marker];
+						marker_text += marker_char[marker];
 					else
-						marker_text += marker_character['default'];
+						marker_text += marker_char['default'];
 				}
 				marker_text += '\n';
 
 				if (card.def & LINK_MARKER_LEFT)
-					marker_text += marker_character[LINK_MARKER_LEFT];
+					marker_text += marker_char[LINK_MARKER_LEFT];
 				else
-					marker_text += marker_character['default'];
+					marker_text += marker_char['default'];
 
-				marker_text += marker_character['default'];
+				marker_text += marker_char['default'];
 
 				if (card.def & LINK_MARKER_RIGHT)
-					marker_text += marker_character[LINK_MARKER_RIGHT];
+					marker_text += marker_char[LINK_MARKER_RIGHT];
 				else
-					marker_text += marker_character['default'];
+					marker_text += marker_char['default'];
 
 				marker_text += '\n';
 
 				for (let marker = LINK_MARKER_BOTTOM_LEFT; marker <= LINK_MARKER_BOTTOM_RIGHT; marker <<= 1) {
 					if (card.def & marker)
-						marker_text += marker_character[marker];
+						marker_text += marker_char[marker];
 					else
-						marker_text += marker_character['default'];
+						marker_text += marker_char['default'];
 				}
 				marker_text += '\n';
 				data += marker_text;
