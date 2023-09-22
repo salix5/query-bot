@@ -202,14 +202,14 @@ const db_list = [];
 const domain = 'https://salix5.github.io';
 const fetch_db = fetch(`${domain}/CardEditor/cards.cdb`)
 	.then(response => response.arrayBuffer())
-	.then(buf => { file_list[0] = new Uint8Array(buf)});
+	.then(buf => { file_list[0] = new Uint8Array(buf) });
 const fetch_db2 = fetch(`${domain}/cdb/pre-release.cdb`)
 	.then(response => response.arrayBuffer())
-	.then(buf => { file_list[1] = new Uint8Array(buf)});
+	.then(buf => { file_list[1] = new Uint8Array(buf) });
 const db_ready = Promise.all([initSqlJs(), fetch_db, fetch_db2])
 	.then(([sql, _res1, _res2]) => {
 		SQL = sql;
-		for (const file of file_list){
+		for (const file of file_list) {
 			db_list.push(new SQL.Database(file));
 		}
 	});
