@@ -166,19 +166,19 @@ const type_name = {
 	[TYPE_EQUIP]: '裝備',
 	[TYPE_FIELD]: '場地',
 	[TYPE_COUNTER]: '反擊',
-}
+};
 
 const value_name = {
 	atk: '攻',
 	def: '守',
 	scale: '靈擺刻度',
-}
+};
 
 const limit_name = {
 	0: '禁止',
 	1: '限制',
 	2: '準限制',
-}
+};
 
 const marker_char = {
 	[LINK_MARKER_BOTTOM_LEFT]: ':arrow_lower_left:',
