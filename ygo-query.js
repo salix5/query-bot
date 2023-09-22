@@ -383,7 +383,7 @@ module.exports = {
 		return null;
 	},
 
-	print_data(card) {
+	print_card(card) {
 		let mtype = '';
 		let subtype = '';
 		let lvstr = '\u2605';

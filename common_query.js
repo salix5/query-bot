@@ -27,7 +27,7 @@ module.exports = {
 						button1.setLabel('DB (TCG)');
 						row1.addComponents(button1);
 					}
-					await interaction.reply({ content: ygo.print_data(card), components: [row1] });
+					await interaction.reply({ content: ygo.print_card(card), components: [row1] });
 				}
 				else if (card.cid === 0) {
 					const button1 = new ButtonBuilder()
@@ -35,10 +35,10 @@ module.exports = {
 						.setLabel('Yugipedia')
 						.setURL(ygo.print_wiki_link(card.id));
 					const row1 = new ActionRowBuilder().addComponents(button1);
-					await interaction.reply({ content: ygo.print_data(card), components: [row1] });
+					await interaction.reply({ content: ygo.print_card(card), components: [row1] });
 				}
 				else {
-					await interaction.reply(ygo.print_data(card));
+					await interaction.reply(ygo.print_card(card));
 				}
 			}
 			else {
