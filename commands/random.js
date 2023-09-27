@@ -12,10 +12,8 @@ module.exports = {
 		.setDescription('從OCG卡池隨機抽一張卡'),
 	async execute(interaction) {
 		const id = ocg_list[await rand(ocg_list.length)];
-		const result = [];
-		ygo.query_id(id, result);
-		if (result.length === 1) {
-			const card = result[0];
+		const card = ygo.get_card(id);
+		if (card) {
 			const button1 = new ButtonBuilder()
 				.setStyle(ButtonStyle.Link)
 				.setLabel('DB')
@@ -27,7 +25,7 @@ module.exports = {
 			const row1 = new ActionRowBuilder()
 				.addComponents(button1)
 				.addComponents(button2);
-			await interaction.reply({ content: ygo.print_data(card), components: [row1] });
+			await interaction.reply({ content: ygo.print_card(card), components: [row1] });
 		}
 		else {
 			await interaction.reply('Error');
