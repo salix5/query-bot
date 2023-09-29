@@ -5,7 +5,6 @@ const ygoQuery = require('./ygo-query.js');
 const fs = require('node:fs');
 const path = require('node:path');
 
-const MAX_RESULT_LEN = 200;
 const re_wildcard = /(^|[^\$])[%_]/;
 
 const client = new Client({
