@@ -543,7 +543,7 @@ module.exports = {
 		if (ltable[card.real_id] !== undefined)
 			lfstr_o = `OCG：${limit_name[ltable[card.real_id]]}`;
 		if (ltable_md[card.real_id] !== undefined) {
-			lfstr_m = `MD：${limit_name[ltable[card.real_id]]}`;
+			lfstr_m = `MD：${limit_name[ltable_md[card.real_id]]}`;
 		}
 		if (lfstr_o && lfstr_m)
 			seperator = ' / ';
