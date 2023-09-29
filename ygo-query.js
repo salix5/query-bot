@@ -448,20 +448,20 @@ module.exports = {
 		let seperator = '';
 
 		let card_name = '';
-		let official_name = '';
+		let other_name = '';
 		let data = '';
 
 		card_name = card.tw_name;
 		if (card.jp_name)
-			official_name += `${card.jp_name}\n`;
+			other_name += `${card.jp_name}\n`;
 
 		if (card.en_name)
-			official_name += `${card.en_name}\n`;
+			other_name += `${card.en_name}\n`;
 		else if (card.md_name_en)
-			official_name += `${card.md_name_en}    (MD)\n`;
+			other_name += `${card.md_name_en}    (MD)\n`;
 
 		if (card.md_name)
-			official_name += `MD：${card.md_name}\n`;
+			other_name += `MD：${card.md_name}\n`;
 
 		if (ltable[card.real_id] !== undefined)
 			lfstr_o = `${strings.limit_name['region']}：${strings.limit_name[ltable[card.real_id]]}`;
@@ -473,7 +473,7 @@ module.exports = {
 		if (lfstr_o || lfstr_m)
 			lfstr = `(${lfstr_o}${seperator}${lfstr_m})\n`;
 
-		let card_text = `**${card_name}**\n${official_name}${lfstr}${print_data(card, '\n')}${card.desc}\n--`;
+		let card_text = `**${card_name}**\n${other_name}${lfstr}${print_data(card, '\n')}${card.desc}\n--`;
 		return card_text;
 	},
 
