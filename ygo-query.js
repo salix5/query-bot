@@ -438,7 +438,7 @@ module.exports = {
 		return null;
 	},
 
-	print_card(card) {
+	print_card(card, locale) {
 		let mtype = '';
 		let subtype = '';
 		let lvstr = '\u2605';
@@ -447,21 +447,27 @@ module.exports = {
 		let lfstr_m = '';
 		let seperator = '';
 
-		let card_name = '';
+		let card_name = 'null';
 		let other_name = '';
-		let data = '';
+		let desc = '';
 
-		card_name = card.tw_name;
-		if (card.jp_name)
-			other_name += `${card.jp_name}\n`;
+		switch (locale) {
+			case 'zh-tw':
+				card_name = card.tw_name;
+				desc = card.desc;
+				if (card.jp_name)
+					other_name += `${card.jp_name}\n`;
+				if (card.en_name)
+					other_name += `${card.en_name}\n`;
+				else if (card.md_name_en)
+					other_name += `${card.md_name_en}    (MD)\n`;
 
-		if (card.en_name)
-			other_name += `${card.en_name}\n`;
-		else if (card.md_name_en)
-			other_name += `${card.md_name_en}    (MD)\n`;
-
-		if (card.md_name)
-			other_name += `MD：${card.md_name}\n`;
+				if (card.md_name)
+					other_name += `MD：${card.md_name}\n`;
+				break;
+			default:
+				break;
+		}
 
 		if (ltable[card.real_id] !== undefined)
 			lfstr_o = `${strings.limit_name['region']}：${strings.limit_name[ltable[card.real_id]]}`;
@@ -473,7 +479,7 @@ module.exports = {
 		if (lfstr_o || lfstr_m)
 			lfstr = `(${lfstr_o}${seperator}${lfstr_m})\n`;
 
-		let card_text = `**${card_name}**\n${other_name}${lfstr}${print_data(card, '\n')}${card.desc}\n--`;
+		let card_text = `**${card_name}**\n${other_name}${lfstr}${print_data(card, '\n')}${desc}\n--`;
 		return card_text;
 	},
 

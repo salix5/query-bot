@@ -1,6 +1,7 @@
 "use strict";
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const ygo = require('./ygo-query.js');
+const locale = 'zh-tw';
 
 function create_reply(card) {
 	if (card.cid) {
@@ -21,7 +22,7 @@ function create_reply(card) {
 			button1.setLabel('DB (TCG)');
 			row1.addComponents(button1);
 		}
-		return { content: ygo.print_card(card), components: [row1] };
+		return { content: ygo.print_card(card, locale), components: [row1] };
 	}
 	else if (card.cid === 0) {
 		const button1 = new ButtonBuilder()
@@ -29,10 +30,10 @@ function create_reply(card) {
 			.setLabel('Yugipedia')
 			.setURL(ygo.print_wiki_link(card.id));
 		const row1 = new ActionRowBuilder().addComponents(button1);
-		return { content: ygo.print_card(card), components: [row1] };
+		return { content: ygo.print_card(card, locale), components: [row1] };
 	}
 	else {
-		return ygo.print_card(card);
+		return ygo.print_card(card, locale);
 	}
 }
 
