@@ -175,6 +175,7 @@ const value_name = {
 };
 
 const limit_name = {
+	region: 'OCG',
 	0: '禁止',
 	1: '限制',
 	2: '準限制',
@@ -541,7 +542,7 @@ module.exports = {
 			official_name += `MD：${card.md_name}\n`;
 
 		if (ltable[card.real_id] !== undefined)
-			lfstr_o = `OCG：${limit_name[ltable[card.real_id]]}`;
+			lfstr_o = `${limit_name['region']}：${limit_name[ltable[card.real_id]]}`;
 		if (ltable_md[card.real_id] !== undefined) {
 			lfstr_m = `MD：${limit_name[ltable_md[card.real_id]]}`;
 		}
