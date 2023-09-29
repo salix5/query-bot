@@ -137,12 +137,18 @@ function query_db(db, qstr, arg, ret) {
 	let stmt = db.prepare(qstr);
 	stmt.bind(arg);
 	while (stmt.step()) {
-		let card = stmt.getAsObject();
+		let cdata = stmt.getAsObject();
+		let card = Object.create(null);
 
-		// real_id
+		// basic
+		card.id = cdata.id;
+		card.ot = cdata.ot;
+		card.alias = cdata.alias;
+		card.setcode = cdata.setcode;
+		card.type = cdata.type;
 		card.real_id = is_alternative(card) ? card.alias : card.id;
 
-		// reset & change data
+		// copy data
 		if (card.type & (TYPE_SPELL | TYPE_TRAP)) {
 			card.atk = 0;
 			card.def = 0;
@@ -150,10 +156,21 @@ function query_db(db, qstr, arg, ret) {
 			card.race = 0;
 			card.attribute = 0;
 		}
-		else if (card.type & TYPE_PENDULUM) {
-			card.scale = (card.level >> 24) & 0xff;
-			card.level = card.level & 0xff;
+		else {
+			card.atk = cdata.atk;
+			card.def = cdata.def;
+			card.race = cdata.race;
+			card.attribute = cdata.attribute;
+			if (card.type & TYPE_PENDULUM) {
+				card.scale = (cdata.level >> 24) & 0xff;
+				card.level = cdata.level & 0xff;
+			}
+			else {
+				card.level = cdata.level;
+			}
 		}
+		card.tw_name = cdata.name;
+		card.desc = cdata.desc;
 
 		// color
 		if (card.type & TYPE_MONSTER) {
@@ -213,6 +230,7 @@ function query_db(db, qstr, arg, ret) {
 		}
 		if (typeof cid_table[card.real_id] === 'number')
 			card.cid = cid_table[card.real_id];
+
 		if (name_table[card.real_id])
 			card.jp_name = name_table[card.real_id];
 
@@ -429,9 +447,11 @@ module.exports = {
 		let lfstr_m = '';
 		let seperator = '';
 
+		let card_name = '';
 		let official_name = '';
 		let data = '';
 
+		card_name = card.tw_name;
 		if (card.jp_name)
 			official_name += `${card.jp_name}\n`;
 
@@ -453,7 +473,7 @@ module.exports = {
 		if (lfstr_o || lfstr_m)
 			lfstr = `(${lfstr_o}${seperator}${lfstr_m})\n`;
 
-		let card_text = `**${card.name}**\n${official_name}${lfstr}${print_data(card, '\n')}${card.desc}\n--`;
+		let card_text = `**${card_name}**\n${official_name}${lfstr}${print_data(card, '\n')}${card.desc}\n--`;
 		return card_text;
 	},
 
