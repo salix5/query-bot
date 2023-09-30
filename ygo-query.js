@@ -7,7 +7,7 @@ const md_name = require('./data/md_name.json');
 const md_name_en = require('./data/md_name_en.json');
 const ltable = require('./data/lflist.json');
 const ltable_md = require('./data/lflist_md.json');
-const strings = require('./lang/zh-tw.json');
+const lang_tw = require('./lang/zh-tw.json');
 
 // type
 const TYPE_MONSTER = 0x1;
@@ -98,6 +98,8 @@ const LINK_MARKER_TOP_RIGHT = 0x100;	// ↗
 // special ID
 const ID_BLACK_LUSTER_SOLDIER = 5405695;
 
+var locale = 'zh-tw';
+var strings = lang_tw;
 const file_list = [];
 
 let SQL = null;
@@ -438,7 +440,7 @@ module.exports = {
 		return null;
 	},
 
-	print_card(card, locale) {
+	print_card(card) {
 		let mtype = '';
 		let subtype = '';
 		let lvstr = '\u2605';
