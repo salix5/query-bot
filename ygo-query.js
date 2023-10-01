@@ -5,7 +5,7 @@ const name_table = require('./data/name_table.json');
 const name_table_en = require('./data/name_table_en.json');
 const md_name = require('./data/md_name.json');
 const md_name_en = require('./data/md_name_en.json');
-const ltable = require('./data/lflist.json');
+const ltable_ocg = require('./data/lflist.json');
 const ltable_md = require('./data/lflist_md.json');
 const lang_tw = require('./lang/zh-tw.json');
 const lang_en = require('./lang/en.json');
@@ -449,19 +449,19 @@ module.exports = {
 		let subtype = '';
 		let lvstr = '\u2605';
 		let lfstr = '';
-		let lfstr_o = '';
-		let lfstr_m = '';
+		let lfstr_main = '';
+		let lfstr_md = '';
 		let seperator = '';
 
 		let strings = lang[locale];
 		let card_name = 'null';
 		let other_name = '';
 		let desc = '';
+		let ltable = null;
 
 		switch (locale) {
 			case 'zh-tw':
 				card_name = card.tw_name;
-				desc = card.desc;
 				if (card.jp_name)
 					other_name += `${card.jp_name}\n`;
 				if (card.en_name)
@@ -471,6 +471,8 @@ module.exports = {
 
 				if (card.md_name)
 					other_name += `MD：${card.md_name}\n`;
+				desc = card.desc;
+				ltable = ltable_ocg;
 				break;
 			case 'en':
 				if (card.en_name)
@@ -481,20 +483,21 @@ module.exports = {
 				if (card.jp_name)
 					other_name = `${card.jp_name}\n`;
 				desc = '';
+				ltable = null;
 				break;
 			default:
 				break;
 		}
 
 		if (ltable[card.real_id] !== undefined)
-			lfstr_o = `${strings.limit_name['region']}：${strings.limit_name[ltable[card.real_id]]}`;
+			lfstr_main = `${strings.limit_name['region']}：${strings.limit_name[ltable[card.real_id]]}`;
 		if (ltable_md[card.real_id] !== undefined) {
-			lfstr_m = `MD：${strings.limit_name[ltable_md[card.real_id]]}`;
+			lfstr_md = `MD：${strings.limit_name[ltable_md[card.real_id]]}`;
 		}
-		if (lfstr_o && lfstr_m)
+		if (lfstr_main && lfstr_md)
 			seperator = ' / ';
-		if (lfstr_o || lfstr_m)
-			lfstr = `(${lfstr_o}${seperator}${lfstr_m})\n`;
+		if (lfstr_main || lfstr_md)
+			lfstr = `(${lfstr_main}${seperator}${lfstr_md})\n`;
 
 		let card_text = `**${card_name}**\n${other_name}${lfstr}${print_data(card, '\n', locale)}${desc}\n--`;
 		return card_text;
