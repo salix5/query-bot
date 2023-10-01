@@ -65,8 +65,8 @@
         "67108864": "Link"
     },
     "value_name": {
-        "atk": "ATK",
-        "def": "DEF",
+        "atk": "ATK ",
+        "def": "DEF ",
         "scale": "Pendulum Scale"
     },
     "marker_char": {
