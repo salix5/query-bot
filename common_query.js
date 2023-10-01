@@ -2,7 +2,7 @@
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const ygo = require('./ygo-query.js');
 
-function create_reply(card) {
+function create_reply(card, locale) {
 	if (card.cid) {
 		const row1 = new ActionRowBuilder();
 		const button1 = new ButtonBuilder()
@@ -21,7 +21,7 @@ function create_reply(card) {
 			button1.setLabel('DB (TCG)');
 			row1.addComponents(button1);
 		}
-		return { content: ygo.print_card(card), components: [row1] };
+		return { content: ygo.print_card(card, locale), components: [row1] };
 	}
 	else if (card.cid === 0) {
 		const button1 = new ButtonBuilder()
@@ -29,21 +29,21 @@ function create_reply(card) {
 			.setLabel('Yugipedia')
 			.setURL(ygo.print_wiki_link(card.id));
 		const row1 = new ActionRowBuilder().addComponents(button1);
-		return { content: ygo.print_card(card), components: [row1] };
+		return { content: ygo.print_card(card, locale), components: [row1] };
 	}
 	else {
-		return ygo.print_card(card);
+		return ygo.print_card(card, locale);
 	}
 }
 
 module.exports = {
 	create_reply: create_reply,
 
-	async query_command(interaction, id) {
+	async query_command(interaction, id, locale) {
 		if (id) {
 			const card = ygo.get_card(id);
 			if (card) {
-				await interaction.reply(create_reply(card));
+				await interaction.reply(create_reply(card, locale));
 			}
 			else {
 				await interaction.reply('沒有符合條件的卡片。');

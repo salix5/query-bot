@@ -15,7 +15,7 @@ module.exports = {
 		const id = ocg_list[await rand(ocg_list.length)];
 		const card = ygo.get_card(id);
 		if (card) {
-			await interaction.reply(create_reply(card));
+			await interaction.reply(create_reply(card, 'zh-tw'));
 		}
 		else {
 			await interaction.reply('Error');

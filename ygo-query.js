@@ -8,6 +8,7 @@ const md_name_en = require('./data/md_name_en.json');
 const ltable = require('./data/lflist.json');
 const ltable_md = require('./data/lflist_md.json');
 const lang_tw = require('./lang/zh-tw.json');
+const lang_en = require('./lang/en.json');
 
 // type
 const TYPE_MONSTER = 0x1;
@@ -98,8 +99,10 @@ const LINK_MARKER_TOP_RIGHT = 0x100;	// ↗
 // special ID
 const ID_BLACK_LUSTER_SOLDIER = 5405695;
 
-var locale = 'zh-tw';
-var strings = lang_tw;
+const lang = Object.create(null);
+lang['zh-tw'] = lang_tw;
+lang['en'] = lang_en;
+
 const file_list = [];
 
 let SQL = null;
@@ -255,11 +258,12 @@ function print_ad(x) {
 		return x;
 }
 
-function print_data(card, newline) {
+function print_data(card, newline, locale) {
 	let mtype = '';
 	let subtype = '';
 	let lvstr = '\u2605';
 	let data = '';
+	let strings = lang[locale];
 
 	if (card.type & TYPE_MONSTER) {
 		mtype = strings.type_name[TYPE_MONSTER];
@@ -440,7 +444,7 @@ module.exports = {
 		return null;
 	},
 
-	print_card(card) {
+	print_card(card, locale) {
 		let mtype = '';
 		let subtype = '';
 		let lvstr = '\u2605';
@@ -449,6 +453,7 @@ module.exports = {
 		let lfstr_m = '';
 		let seperator = '';
 
+		let strings = lang[locale];
 		let card_name = 'null';
 		let other_name = '';
 		let desc = '';
@@ -467,6 +472,16 @@ module.exports = {
 				if (card.md_name)
 					other_name += `MD：${card.md_name}\n`;
 				break;
+			case 'en':
+				if (card.en_name)
+					card_name = `${card.en_name}\n`;
+				else if (card.md_name_en)
+					card_name = `${card.md_name_en}    (MD)\n`;
+
+				if (card.jp_name)
+					other_name = `${card.jp_name}\n`;
+				desc = '';
+				break;
 			default:
 				break;
 		}
@@ -481,7 +496,7 @@ module.exports = {
 		if (lfstr_o || lfstr_m)
 			lfstr = `(${lfstr_o}${seperator}${lfstr_m})\n`;
 
-		let card_text = `**${card_name}**\n${other_name}${lfstr}${print_data(card, '\n')}${desc}\n--`;
+		let card_text = `**${card_name}**\n${other_name}${lfstr}${print_data(card, '\n', locale)}${desc}\n--`;
 		return card_text;
 	},
 
