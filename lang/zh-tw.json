@@ -81,9 +81,9 @@
         "default": ":black_large_square:"
     },
     "limit_name": {
-        "0": "禁止",
-        "1": "限制",
-        "2": "準限制",
+        "0": ":no_entry_sign:",
+        "1": ":one:",
+        "2": ":two:",
         "region": "OCG"
     }
 }
