@@ -21,6 +21,6 @@ module.exports = {
 	async execute(interaction) {
 		const input = interaction.options.getString('input');
 		const id = choice_table[input];
-		await query_command(interaction, id);
+		await query_command(interaction, id, 'zh-tw');
 	},
 };
