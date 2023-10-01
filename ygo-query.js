@@ -503,13 +503,8 @@ module.exports = {
 		return card_text;
 	},
 
-	print_db_link(cid, ot) {
-		let locale = '';
-		if (ot === 2)
-			locale = 'en';
-		else
-			locale = 'ja';
-		return `https://www.db.yugioh-card.com/yugiohdb/card_search.action?ope=2&cid=${cid}&request_locale=${locale}`;
+	print_db_link(cid, request_locale) {
+		return `https://www.db.yugioh-card.com/yugiohdb/card_search.action?ope=2&cid=${cid}&request_locale=${request_locale}`;
 	},
 
 	print_wiki_link(id) {
