@@ -4,11 +4,24 @@ const ygo = require('./ygo-query.js');
 
 function create_reply(card, locale) {
 	if (card.cid) {
+		let request_locale = '';
+		if (card.ot !== 2 && card.en_name) {
+			if (locale === 'zh-tw')
+				request_locale = 'ja';
+			else
+				request_locale = locale;
+		}
+		else if (card.ot !== 2) {
+			request_locale = 'ja';
+		}
+		else {
+			request_locale = locale;
+		}
 		const row1 = new ActionRowBuilder();
 		const button1 = new ButtonBuilder()
 			.setStyle(ButtonStyle.Link)
-			.setURL(ygo.print_db_link(card.cid, card.ot));
-		if (card.ot !== 2) {
+			.setURL(ygo.print_db_link(card.cid, request_locale));
+		if (request_locale === 'ja') {
 			button1.setLabel('DB');
 			row1.addComponents(button1);
 			const button2 = new ButtonBuilder()
