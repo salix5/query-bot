@@ -39,9 +39,7 @@ function create_reply(card) {
 module.exports = {
 	create_reply: create_reply,
 
-	async query_command(interaction, choice_table) {
-		const input = interaction.options.getString('input');
-		let id = choice_table[input];
+	async query_command(interaction, id) {
 		if (id) {
 			const card = ygo.get_card(id);
 			if (card) {

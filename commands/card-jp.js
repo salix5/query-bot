@@ -48,6 +48,8 @@ module.exports = {
 		);
 	},
 	async execute(interaction) {
-		await query_command(interaction, choice_table);
+		const input = interaction.options.getString('input');
+		const id = choice_table[input];
+		await query_command(interaction, id);
 	},
 };
