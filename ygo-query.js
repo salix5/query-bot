@@ -362,28 +362,28 @@ function print_data(card, newline, locale) {
 	else if (card.type & TYPE_SPELL) {
 		mtype = `${strings.type_name[TYPE_SPELL]}`;
 		if (card.type & TYPE_QUICKPLAY)
-			subtype = `${strings.type_name[TYPE_QUICKPLAY]}`;
+			subtype = `/${strings.type_name[TYPE_QUICKPLAY]}`;
 		else if (card.type & TYPE_CONTINUOUS)
-			subtype = `${strings.type_name[TYPE_CONTINUOUS]}`;
+			subtype = `/${strings.type_name[TYPE_CONTINUOUS]}`;
 		else if (card.type & TYPE_EQUIP)
-			subtype = `${strings.type_name[TYPE_EQUIP]}`;
+			subtype = `/${strings.type_name[TYPE_EQUIP]}`;
 		else if (card.type & TYPE_RITUAL)
-			subtype = `${strings.type_name[TYPE_RITUAL]}`;
+			subtype = `/${strings.type_name[TYPE_RITUAL]}`;
 		else if (card.type & TYPE_FIELD)
-			subtype = `${strings.type_name[TYPE_FIELD]}`;
+			subtype = `/${strings.type_name[TYPE_FIELD]}`;
 		else
-			subtype = `${strings.type_name[TYPE_NORMAL]}`;
-		data = `[${subtype}${mtype}]${newline}`;
+			subtype = `/${strings.type_name[TYPE_NORMAL]}`;
+		data = `[${mtype}${subtype}]${newline}`;
 	}
 	else if (card.type & TYPE_TRAP) {
 		mtype = `${strings.type_name[TYPE_TRAP]}`;
 		if (card.type & TYPE_CONTINUOUS)
-			subtype = `${strings.type_name[TYPE_CONTINUOUS]}`;
+			subtype = `/${strings.type_name[TYPE_CONTINUOUS]}`;
 		else if (card.type & TYPE_COUNTER)
-			subtype = `${strings.type_name[TYPE_COUNTER]}`;
+			subtype = `/${strings.type_name[TYPE_COUNTER]}`;
 		else
-			subtype = `${strings.type_name[TYPE_NORMAL]}`;
-		data = `[${subtype}${mtype}]${newline}`;
+			subtype = `/${strings.type_name[TYPE_NORMAL]}`;
+		data = `[${mtype}${subtype}]${newline}`;
 	}
 	return data;
 }
