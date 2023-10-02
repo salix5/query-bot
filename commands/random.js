@@ -4,7 +4,7 @@ const { promisify } = require('node:util');
 const { SlashCommandBuilder } = require('discord.js');
 const ygo = require('../ygo-query.js');
 const { create_reply } = require('../common_query.js');
-const ocg_list = require('../data/ocg_list.json');
+const ocg_list = require('../commands_data/ocg_list.json');
 const rand = promisify(randomInt);
 
 module.exports = {
