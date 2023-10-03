@@ -31,7 +31,7 @@ function create_reply(card, locale) {
 			.setStyle(ButtonStyle.Link)
 			.setURL(ygo.print_db_link(card.cid, request_locale));
 		if (request_locale === 'ja') {
-			button1.setLabel('DB');
+			button1.setLabel('DB (OCG)');
 			row1.addComponents(button1);
 			const button2 = new ButtonBuilder()
 				.setStyle(ButtonStyle.Link)

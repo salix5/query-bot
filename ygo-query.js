@@ -469,7 +469,7 @@ module.exports = {
 
 				if (card.md_name)
 					other_name += `MD：${card.md_name}\n`;
-				desc = card.desc;
+				desc = `${card.desc}\n--`;
 				ltable = ltable_ocg;
 				break;
 			case 'en':
