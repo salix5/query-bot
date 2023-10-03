@@ -242,8 +242,12 @@ function query_db(db, qstr, arg, ret) {
 		if (typeof cid_table[card.real_id] === 'number')
 			card.cid = cid_table[card.real_id];
 
-		if (name_table[card.real_id])
-			card.jp_name = name_table[card.real_id];
+		if (name_table[card.real_id]) {
+			if (card.ot === 2)
+				card.md_nmae_jp = name_table[card.real_id];
+			else
+				card.jp_name = name_table[card.real_id];
+		}
 
 		if (name_table_en[card.real_id])
 			card.en_name = name_table_en[card.real_id];
@@ -465,8 +469,11 @@ module.exports = {
 		switch (locale) {
 			case 'zh-tw':
 				card_name = card.tw_name;
+
 				if (card.jp_name)
 					other_name += `${card.jp_name}\n`;
+				else if (card.md_nmae_jp)
+					other_name += `${card.md_nmae_jp}    (MD)\n`;
 				if (card.en_name)
 					other_name += `${card.en_name}\n`;
 				else if (card.md_name_en)
@@ -480,6 +487,9 @@ module.exports = {
 			case 'ja':
 				if (card.jp_name)
 					card_name = card.jp_name;
+				else if (card.md_nmae_jp)
+					card_name = `${card.md_nmae_jp}    (MD)`;
+
 				if (card.en_name)
 					other_name = `${card.en_name}\n`;
 				else if (card.md_name_en)
@@ -490,6 +500,7 @@ module.exports = {
 			case 'ko':
 				if (card.kr_name)
 					card_name = card.kr_name;
+
 				if (card.en_name)
 					other_name = `${card.en_name}\n`;
 				else if (card.md_name_en)
@@ -499,12 +510,14 @@ module.exports = {
 				break;
 			case 'en':
 				if (card.en_name)
-					card_name = `${card.en_name}`;
+					card_name = card.en_name;
 				else if (card.md_name_en)
 					card_name = `${card.md_name_en}    (MD)`;
 
 				if (card.jp_name)
 					other_name = `${card.jp_name}\n`;
+				else if (card.md_nmae_jp)
+					other_name = `${card.md_nmae_jp}    (MD)\n`;
 				desc = '';
 				ltable = ltable_tcg;
 				break;

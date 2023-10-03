@@ -35,19 +35,15 @@ function create_reply(card, locale) {
 		const row1 = new ActionRowBuilder();
 		const button1 = new ButtonBuilder()
 			.setStyle(ButtonStyle.Link)
-			.setURL(ygo.print_db_link(card.cid, request_locale));
+			.setURL(ygo.print_db_link(card.cid, request_locale))
+			.setLabel('DB');
+		row1.addComponents(button1);
 		if (request_locale === 'ja') {
-			button1.setLabel('DB (OCG)');
-			row1.addComponents(button1);
 			const button2 = new ButtonBuilder()
 				.setStyle(ButtonStyle.Link)
 				.setLabel('Q&A')
 				.setURL(ygo.print_qa_link(card.cid));
 			row1.addComponents(button2);
-		}
-		else {
-			button1.setLabel('DB (TCG)');
-			row1.addComponents(button1);
 		}
 		return { content: ygo.print_card(card, locale), components: [row1] };
 	}
