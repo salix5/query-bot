@@ -2,6 +2,15 @@
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const ygo = require('./ygo-query.js');
 
+const lang = {
+	"zh-tw": {
+		none: "沒有符合條件的卡片。",
+	},
+	"en": {
+		none: "No cards were found.",
+	},
+};
+
 function create_reply(card, locale) {
 	if (card.cid) {
 		let request_locale = '';
@@ -59,12 +68,12 @@ module.exports = {
 				await interaction.reply(create_reply(card, locale));
 			}
 			else {
-				await interaction.reply('沒有符合條件的卡片。');
+				await interaction.reply(lang[locale].none);
 				console.error('Error card id', id);
 			}
 		}
 		else {
-			await interaction.reply('沒有符合條件的卡片。');
+			await interaction.reply(lang[locale].none);
 		}
 	},
 };
