@@ -6,6 +6,7 @@ const name_table_en = require('./data/name_table_en.json');
 const md_name = require('./data/md_name.json');
 const md_name_en = require('./data/md_name_en.json');
 const ltable_ocg = require('./data/lflist.json');
+const ltable_tcg = require('./data/lflist_tcg.json');
 const ltable_md = require('./data/lflist_md.json');
 const lang_tw = require('./lang/zh-tw.json');
 const lang_en = require('./lang/en.json');
@@ -445,9 +446,6 @@ module.exports = {
 	},
 
 	print_card(card, locale) {
-		let mtype = '';
-		let subtype = '';
-		let lvstr = '\u2605';
 		let lfstr = '';
 		let lfstr_main = '';
 		let lfstr_md = '';
@@ -483,7 +481,7 @@ module.exports = {
 				if (card.jp_name)
 					other_name = `${card.jp_name}\n`;
 				desc = '';
-				ltable = null;
+				ltable = ltable_tcg;
 				break;
 			default:
 				break;
