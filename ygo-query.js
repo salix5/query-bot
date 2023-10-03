@@ -8,7 +8,10 @@ const md_name_en = require('./data/md_name_en.json');
 const ltable_ocg = require('./data/lflist.json');
 const ltable_tcg = require('./data/lflist_tcg.json');
 const ltable_md = require('./data/lflist_md.json');
+
 const lang_tw = require('./lang/zh-tw.json');
+const lang_ja = null;
+const lang_ko = require('./lang/ko.json');
 const lang_en = require('./lang/en.json');
 
 // type
@@ -102,6 +105,8 @@ const ID_BLACK_LUSTER_SOLDIER = 5405695;
 
 const lang = Object.create(null);
 lang['zh-tw'] = lang_tw;
+lang['ja'] = lang_ja;
+lang['ko'] = lang_ko;
 lang['en'] = lang_en;
 
 const file_list = [];
@@ -470,6 +475,26 @@ module.exports = {
 				if (card.md_name)
 					other_name += `MD：${card.md_name}\n`;
 				desc = `${card.desc}\n--`;
+				ltable = ltable_ocg;
+				break;
+			case 'ja':
+				if (card.jp_name)
+					card_name = card.jp_name;
+				if (card.en_name)
+					other_name = `${card.en_name}\n`;
+				else if (card.md_name_en)
+					other_name = `${card.md_name_en}    (MD)\n`;
+				desc = '';
+				ltable = ltable_ocg;
+				break;
+			case 'ko':
+				if (card.kr_name)
+					card_name = card.kr_name;
+				if (card.en_name)
+					other_name = `${card.en_name}\n`;
+				else if (card.md_name_en)
+					other_name = `${card.md_name_en}    (MD)\n`;
+				desc = '';
 				ltable = ltable_ocg;
 				break;
 			case 'en':

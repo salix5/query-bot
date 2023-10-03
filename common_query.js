@@ -3,11 +3,17 @@ const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const ygo = require('./ygo-query.js');
 
 const lang = {
-	"zh-tw": {
-		none: "沒有符合條件的卡片。",
+	'zh-tw': {
+		none: '沒有符合條件的卡片。',
 	},
-	"en": {
-		none: "No cards were found.",
+	'ja': {
+		none: '該当データがありません。',
+	},
+	'ko': {
+		none: '조건을 만족하고 있는 카드가 없습니다.',
+	},
+	'en': {
+		none: 'No cards were found.',
 	},
 };
 
