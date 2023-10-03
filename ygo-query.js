@@ -10,7 +10,7 @@ const ltable_tcg = require('./data/lflist_tcg.json');
 const ltable_md = require('./data/lflist_md.json');
 
 const lang_tw = require('./lang/zh-tw.json');
-const lang_ja = null;
+const lang_ja = require('./lang/ja.json');
 const lang_ko = require('./lang/ko.json');
 const lang_en = require('./lang/en.json');
 
