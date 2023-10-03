@@ -81,9 +81,9 @@
         "default": ":black_large_square:"
     },
     "limit_name": {
-        "0": "Forbidden",
-        "1": "Limited",
-        "2": "Semi-Limited",
+        "0": ":no_entry_sign:",
+        "1": ":one:",
+        "2": ":two:",
         "region": "TCG"
     }
 }
