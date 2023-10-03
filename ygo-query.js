@@ -474,9 +474,9 @@ module.exports = {
 				break;
 			case 'en':
 				if (card.en_name)
-					card_name = `${card.en_name}\n`;
+					card_name = `${card.en_name}`;
 				else if (card.md_name_en)
-					card_name = `${card.md_name_en}    (MD)\n`;
+					card_name = `${card.md_name_en}    (MD)`;
 
 				if (card.jp_name)
 					other_name = `${card.jp_name}\n`;
@@ -497,7 +497,7 @@ module.exports = {
 		if (lfstr_main || lfstr_md)
 			lfstr = `(${lfstr_main}${seperator}${lfstr_md})\n`;
 
-		let card_text = `**${card_name}**\n${other_name}${lfstr}${print_data(card, '\n', locale)}${desc}\n--`;
+		let card_text = `**${card_name}**\n${other_name}${lfstr}${print_data(card, '\n', locale)}${desc}\n`;
 		return card_text;
 	},
 
