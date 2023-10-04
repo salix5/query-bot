@@ -10,7 +10,7 @@ const lang = {
 		none: '該当データがありません。',
 	},
 	'ko': {
-		none: '조건을 만족하고 있는 카드가 없습니다.',
+		none: '검색과 일치하는 카드가 없습니다.',
 	},
 	'en': {
 		none: 'No cards were found.',
