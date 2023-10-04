@@ -6,7 +6,7 @@ const choice_table = require('../commands_data/choices_en.json');
 
 module.exports = {
 	data: new SlashCommandBuilder()
-		.setName('tcg')
+		.setName('tcg-en')
 		.setDescription('Find a card by name.')
 		.addStringOption(option =>
 			option.setName('input')
