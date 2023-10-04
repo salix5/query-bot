@@ -30,11 +30,8 @@ function is_equal(a, b) {
 	return toHalfWidth(a.toLowerCase()) === toHalfWidth(b.toLowerCase());
 }
 
-/**
- * compare_card() - Generate the compare function of cards.
- * @param {string} name query name
- * @returns compare function
- */
+// compare_card() - Generate the compare function of cards.
+// deprecated
 function compare_card(name) {
 	return function (a, b) {
 		if (is_equal(a.name, name)) {
