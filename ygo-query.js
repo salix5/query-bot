@@ -494,6 +494,8 @@ module.exports = {
 					other_name = `${card.en_name}\n`;
 				else if (card.md_name_en)
 					other_name = `${card.md_name_en}    (MD)\n`;
+				if (card.md_name)
+					other_name += `MD：:white_check_mark:\n`;
 				desc = '';
 				ltable = ltable_ocg;
 				break;
@@ -505,6 +507,8 @@ module.exports = {
 					other_name = `${card.en_name}\n`;
 				else if (card.md_name_en)
 					other_name = `${card.md_name_en}    (MD)\n`;
+				if (card.md_name)
+					other_name += `MD：:white_check_mark:\n`;
 				desc = '';
 				ltable = ltable_ocg;
 				break;
@@ -518,6 +522,8 @@ module.exports = {
 					other_name = `${card.jp_name}\n`;
 				else if (card.md_nmae_jp)
 					other_name = `${card.md_nmae_jp}    (MD)\n`;
+				if (card.md_name)
+					other_name += `MD：:white_check_mark:\n`;
 				desc = '';
 				ltable = ltable_tcg;
 				break;
