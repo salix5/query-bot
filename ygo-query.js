@@ -2,6 +2,7 @@
 const initSqlJs = require('sql.js');
 const cid_table = require('./data/cid.json');
 const name_table = require('./data/name_table.json');
+const name_table_kr = require('./data/name_table_kr.json');
 const name_table_en = require('./data/name_table_en.json');
 const md_name = require('./data/md_name.json');
 const md_name_en = require('./data/md_name_en.json');
@@ -248,6 +249,8 @@ function query_db(db, qstr, arg, ret) {
 			else
 				card.jp_name = name_table[card.real_id];
 		}
+		if (name_table_kr[card.real_id])
+			card.kr_name = name_table_kr[card.real_id];
 
 		if (name_table_en[card.real_id])
 			card.en_name = name_table_en[card.real_id];
