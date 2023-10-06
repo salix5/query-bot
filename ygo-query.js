@@ -406,6 +406,8 @@ module.exports = {
 
 	ID_BLACK_LUSTER_SOLDIER: ID_BLACK_LUSTER_SOLDIER,
 
+	TYPE_PENDULUM: TYPE_PENDULUM,
+
 	stmt_default: `SELECT datas.id, ot, alias, type, atk, def, level, attribute, race, name, desc FROM datas, texts`
 		+ ` WHERE datas.id == texts.id AND NOT type & ${TYPE_TOKEN} AND (datas.id == ${ID_BLACK_LUSTER_SOLDIER} OR abs(datas.id - alias) >= 10)`,
 
@@ -499,7 +501,8 @@ module.exports = {
 					other_name = `${card.md_name_en}    (MD)\n`;
 				if (card.md_name)
 					other_name += `MD：:white_check_mark:\n`;
-				desc = '';
+				if (card.db_desc)
+					desc = card.db_desc;
 				ltable = ltable_ocg;
 				break;
 			case 'ko':
@@ -512,7 +515,8 @@ module.exports = {
 					other_name = `${card.md_name_en}    (MD)\n`;
 				if (card.md_name)
 					other_name += `MD：:white_check_mark:\n`;
-				desc = '';
+				if (card.db_desc)
+					desc = card.db_desc;
 				ltable = ltable_ocg;
 				break;
 			case 'en':
@@ -527,7 +531,8 @@ module.exports = {
 					other_name = `${card.md_nmae_jp}    (MD)\n`;
 				if (card.md_name)
 					other_name += `MD：:white_check_mark:\n`;
-				desc = '';
+				if (card.db_desc)
+					desc = card.db_desc;
 				ltable = ltable_tcg;
 				break;
 			default:

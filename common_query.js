@@ -17,6 +17,30 @@ const lang = {
 	},
 };
 
+async function fetch_desc(card, request_locale) {
+	const re_ptext = /<div class="frame pen_effect">.*?<div class="item_box_text">.*?([^\r\n\t]+).*?<\/div>/s;
+	const re_text = /<div class="text_title">.*?<\/div>.*?([^\r\n\t]+).*?<\/div>/s;
+	if (!card.cid)
+		return '';
+	let raw_data = await fetch(ygo.print_db_link(card.cid, request_locale)).then(response => response.text());
+	let ctext = '';
+	let res_text = re_text.exec(raw_data);
+	if (res_text) {
+		ctext = res_text[1].replaceAll('<br>', '\n');
+	}
+	if (card.type & ygo.TYPE_PENDULUM) {
+		let ptext = '';
+		let res_ptext = re_ptext.exec(raw_data);
+		if (res_ptext) {
+			ptext = res_ptext[1].replaceAll('<br>', '\n');
+		}
+		return `${ptext}\n========\n${ctext}\n`;
+	}
+	else {
+		return `${ctext}\n`;
+	}
+}
+
 function create_reply(card, locale) {
 	if (card.cid) {
 		let request_locale = '';
@@ -67,6 +91,8 @@ module.exports = {
 		if (id) {
 			const card = ygo.get_card(id);
 			if (card) {
+				if (locale !== 'zh-tw')
+					card.db_desc = await fetch_desc(card, locale);
 				await interaction.reply(create_reply(card, locale));
 			}
 			else {
