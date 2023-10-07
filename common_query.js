@@ -91,9 +91,14 @@ module.exports = {
 		if (id) {
 			const card = ygo.get_card(id);
 			if (card) {
-				if (locale !== 'zh-tw')
+				if (locale === 'zh-tw') {
+					await interaction.reply(create_reply(card, locale));
+				}
+				else {
+					await interaction.deferReply();
 					card.db_desc = await fetch_desc(card, locale);
-				await interaction.reply(create_reply(card, locale));
+					await interaction.editReply(create_reply(card, locale));
+				}
 			}
 			else {
 				await interaction.reply(lang[locale].none);
