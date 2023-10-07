@@ -43,19 +43,7 @@ async function fetch_desc(card, request_locale) {
 
 function create_reply(card, locale) {
 	if (card.cid) {
-		let request_locale = '';
-		if (card.ot !== 2 && card.en_name) {
-			if (locale === 'zh-tw')
-				request_locale = 'ja';
-			else
-				request_locale = locale;
-		}
-		else if (card.ot !== 2) {
-			request_locale = 'ja';
-		}
-		else {
-			request_locale = locale;
-		}
+		let request_locale = ygo.get_request_locale(card, locale);
 		const row1 = new ActionRowBuilder();
 		const button1 = new ButtonBuilder()
 			.setStyle(ButtonStyle.Link)
@@ -96,7 +84,7 @@ module.exports = {
 				}
 				else {
 					await interaction.deferReply();
-					card.db_desc = await fetch_desc(card, locale);
+					card.db_desc = await fetch_desc(card, ygo.get_request_locale(card, locale));
 					await interaction.editReply(create_reply(card, locale));
 				}
 			}

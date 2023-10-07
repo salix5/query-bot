@@ -110,6 +110,11 @@ lang['ja'] = lang_ja;
 lang['ko'] = lang_ko;
 lang['en'] = lang_en;
 
+const official_name = Object.create(null);
+official_name['ja'] = 'jp_name';
+official_name['ko'] = 'kr_name';
+official_name['en'] = 'en_name';
+
 const file_list = [];
 
 let SQL = null;
@@ -457,6 +462,18 @@ module.exports = {
 				return ret[0];
 		}
 		return null;
+	},
+
+	get_request_locale(card, locale) {
+		if (card[official_name[locale]]) {
+			return locale;
+		}
+		else if (card.ot === 2) {
+			return 'en';
+		}
+		else {
+			return 'ja';
+		}
 	},
 
 	print_card(card, locale) {
