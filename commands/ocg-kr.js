@@ -15,7 +15,7 @@ module.exports = {
 				.setMaxLength(100)
 				.setAutocomplete(true)
 		),
-	is_test: true,
+	cooldown: 2,
 	async autocomplete(interaction) {
 		await autocomplete(interaction, choice_table);
 	},
