@@ -56,6 +56,35 @@ client.on(Events.InteractionCreate, async interaction => {
 			return;
 		}
 
+		const { cooldowns } = interaction.client;
+		if (!cooldowns.has(command.data.name)) {
+			cooldowns.set(command.data.name, new Collection());
+		}
+
+		const defaultCooldownDuration = 0;
+		const cooldownAmount = (command.cooldown ?? defaultCooldownDuration) * 1000;
+		if (cooldownAmount) {
+			const timestamps = cooldowns.get(command.data.name);
+			const now = Date.now();
+			if (timestamps.has(interaction.user.id)) {
+				const expirationTime = timestamps.get(interaction.user.id) + cooldownAmount;
+				if (now < expirationTime) {
+					const expiredTimestamp = Math.round(expirationTime / 1000);
+					try {
+						await interaction.reply({ content: `CD: <t:${expiredTimestamp}:R>`, ephemeral: true });
+					}
+					catch (error) {
+						console.error(interaction.user.id);
+						console.error(interaction.commandName);
+						console.error(error);
+					}
+					return;
+				}
+			}
+			timestamps.set(interaction.user.id, now);
+			setTimeout(() => timestamps.delete(interaction.user.id), cooldownAmount);
+		}
+
 		try {
 			await command.execute(interaction);
 		}
