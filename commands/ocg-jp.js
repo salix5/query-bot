@@ -17,7 +17,7 @@ module.exports = {
 				.setMaxLength(50)
 				.setAutocomplete(true)
 		),
-	is_test: true,
+	cooldown: 2,
 	async autocomplete(interaction) {
 		var ret = filter_choice(interaction, choice_table);
 		const focused = interaction.options.getFocused();
