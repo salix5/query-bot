@@ -2,7 +2,7 @@
 const { SlashCommandBuilder } = require('discord.js');
 const { autocomplete } = require('../common_all.js');
 const choice_table = require('../commands_data/choices_tc.json');
-const name_table = require('../data/name_table.json');
+const ygo = require('../ygo-query.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -21,8 +21,8 @@ module.exports = {
 	async execute(interaction) {
 		const input = interaction.options.getString('input');
 		let id = choice_table[input];
-		if (id && name_table[id]) {
-			await interaction.reply(name_table[id]);
+		if (id && ygo.get_name(id, 'ja')) {
+			await interaction.reply(ygo.get_name(id, 'ja'));
 		}
 		else {
 			await interaction.reply('沒有符合條件的卡片。');
