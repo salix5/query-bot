@@ -118,6 +118,7 @@ official_name['en'] = 'en_name';
 const name_table = Object.create(null);
 name_table['ja'] = name_table_jp;
 name_table['ko'] = name_table_kr;
+name_table['en'] = name_table_en;
 name_table['md'] = md_name;
 
 const file_list = [];
@@ -467,6 +468,14 @@ module.exports = {
 				return ret[0];
 		}
 		return null;
+	},
+
+	get_name(id, locale) {
+		const cid = cid_table[id];
+		if (name_table[locale])
+			return name_table[locale][cid];
+		else
+			return null;
 	},
 
 	get_request_locale(card, locale) {

@@ -2,7 +2,7 @@
 const { SlashCommandBuilder } = require('discord.js');
 const { autocomplete } = require('../common_all.js');
 const choice_table = require('../commands_data/choices_tc.json');
-const md_name = require('../data/md_name.json');
+const ygo = require('../ygo-query.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -22,8 +22,8 @@ module.exports = {
 		const input = interaction.options.getString('input');
 		let id = choice_table[input];
 		if (id) {
-			if (md_name[id])
-				await interaction.reply(md_name[id]);
+			if (ygo.get_name(id, 'md'))
+				await interaction.reply(ygo.get_name(id, 'md'));
 			else
 				await interaction.reply('MD未收錄。');
 		}
