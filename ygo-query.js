@@ -1,7 +1,7 @@
 "use strict";
 const initSqlJs = require('sql.js');
 const cid_table = require('./data/cid.json');
-const name_table = require('./data/name_table.json');
+const name_table_jp = require('./data/name_table.json');
 const name_table_kr = require('./data/name_table_kr.json');
 const name_table_en = require('./data/name_table_en.json');
 const md_name = require('./data/md_name.json');
@@ -114,6 +114,11 @@ const official_name = Object.create(null);
 official_name['ja'] = 'jp_name';
 official_name['ko'] = 'kr_name';
 official_name['en'] = 'en_name';
+
+const name_table = Object.create(null);
+name_table['ja'] = name_table_jp;
+name_table['ko'] = name_table_kr;
+name_table['md'] = md_name;
 
 const file_list = [];
 
@@ -247,11 +252,11 @@ function query_db(db, qstr, arg, ret) {
 		}
 		if (typeof cid_table[card.real_id] === 'number') {
 			card.cid = cid_table[card.real_id];
-			if (name_table[card.cid]) {
+			if (name_table_jp[card.cid]) {
 				if (card.ot === 2)
-					card.md_nmae_jp = name_table[card.cid];
+					card.md_nmae_jp = name_table_jp[card.cid];
 				else
-					card.jp_name = name_table[card.cid];
+					card.jp_name = name_table_jp[card.cid];
 			}
 			if (name_table_kr[card.cid])
 				card.kr_name = name_table_kr[card.cid];
