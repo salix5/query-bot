@@ -140,6 +140,7 @@ const db_ready = Promise.all([initSqlJs(), fetch_db, fetch_db2])
 		for (const file of file_list) {
 			db_list.push(new SQL.Database(file));
 		}
+		return db_list;
 	});
 
 function is_released(card) {
