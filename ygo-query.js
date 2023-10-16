@@ -131,10 +131,9 @@ name_table['ko'] = name_table_kr;
 name_table['en'] = name_table_en;
 name_table['md'] = md_name;
 
-const file_list = [];
-
 let SQL = null;
 const db_list = [];
+
 const domain = 'https://salix5.github.io';
 const fetch_db = fetch(`${domain}/CardEditor/cards.cdb`)
 	.then(response => response.arrayBuffer())
@@ -145,11 +144,8 @@ const fetch_db2 = fetch(`${domain}/cdb/pre-release.cdb`)
 const db_ready = Promise.all([initSqlJs(), fetch_db, fetch_db2])
 	.then(([sql, file1, file2]) => {
 		SQL = sql;
-		file_list.push(file1);
-		file_list.push(file2);
-		for (const file of file_list) {
-			db_list.push(new SQL.Database(file));
-		}
+		db_list.push(new SQL.Database(file1));
+		db_list.push(new SQL.Database(file2));
 		return db_list;
 	});
 
