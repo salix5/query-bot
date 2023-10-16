@@ -73,7 +73,7 @@ function create_reply(card, locale) {
 }
 
 module.exports = {
-	create_reply: create_reply,
+	create_reply,
 
 	async query_command(interaction, id, locale) {
 		if (id) {
