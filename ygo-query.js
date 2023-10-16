@@ -102,11 +102,12 @@ const LINK_MARKER_TOP = 0x080;			// ↑
 const LINK_MARKER_TOP_RIGHT = 0x100;	// ↗
 
 // special ID
+const ID_TYLER = 68811206;
 const ID_BLACK_LUSTER_SOLDIER = 5405695;
 
 const select_all = `SELECT datas.id, ot, alias, type, atk, def, level, attribute, race, name, desc FROM datas, texts`;
 
-const physical_filter = `AND NOT type & ${TYPE_TOKEN} AND (datas.id == ${ID_BLACK_LUSTER_SOLDIER} OR abs(datas.id - alias) >= 10)`;
+const physical_filter = `AND datas.id != ${ID_TYLER} AND NOT type & ${TYPE_TOKEN} AND (datas.id == ${ID_BLACK_LUSTER_SOLDIER} OR abs(datas.id - alias) >= 10)`;
 const effect_filter = `AND (NOT type & ${TYPE_NORMAL} OR type & ${TYPE_PENDULUM})`;
 
 const stmt_default = `${select_all} WHERE datas.id == texts.id ${physical_filter}`;
