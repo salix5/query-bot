@@ -104,14 +104,13 @@ const LINK_MARKER_TOP_RIGHT = 0x100;	// ↗
 // special ID
 const ID_BLACK_LUSTER_SOLDIER = 5405695;
 
-const stmt_default = `SELECT datas.id, ot, alias, type, atk, def, level, attribute, race, name, desc FROM datas, texts`
-	+ ` WHERE datas.id == texts.id AND NOT type & ${TYPE_TOKEN} AND (datas.id == ${ID_BLACK_LUSTER_SOLDIER} OR abs(datas.id - alias) >= 10)`;
+const select_all = `SELECT datas.id, ot, alias, type, atk, def, level, attribute, race, name, desc FROM datas, texts`;
 
-const stmt_no_alternative = `SELECT datas.id, ot, alias, type, atk, def, level, attribute, race, name, desc FROM datas, texts`
-	+ ` WHERE datas.id == texts.id AND NOT type & ${TYPE_TOKEN} AND abs(datas.id - alias) >= 10`;
+const physical_filter = `AND NOT type & ${TYPE_TOKEN} AND (datas.id == ${ID_BLACK_LUSTER_SOLDIER} OR abs(datas.id - alias) >= 10)`;
+const effect_filter = `AND (NOT type & ${TYPE_NORMAL} OR type & ${TYPE_PENDULUM})`;
 
+const stmt_default = `${select_all} WHERE datas.id == texts.id ${physical_filter}`;
 const stmt_no_alias = `SELECT datas.id FROM datas, texts WHERE datas.id == texts.id AND NOT type & ${TYPE_TOKEN} AND alias == 0`;
-const effect_filter = ` AND (NOT type & ${TYPE_NORMAL} OR type & ${TYPE_PENDULUM})`;
 
 
 const lang = Object.create(null);
@@ -425,16 +424,13 @@ module.exports = {
 	db_ready,
 
 	ID_BLACK_LUSTER_SOLDIER,
-
 	TYPE_PENDULUM,
 
-	stmt_default,
-
-	stmt_no_alternative,
-
-	stmt_no_alias,
-
+	physical_filter,
 	effect_filter,
+
+	stmt_default,
+	stmt_no_alias,
 
 	is_alternative,
 
@@ -455,7 +451,7 @@ module.exports = {
 	},
 
 	query_alias(alias, ret) {
-		let qstr = `${stmt_no_alternative} AND alias == $alias;`;
+		let qstr = `${stmt_default} AND alias == $alias;`;
 		let arg = new Object();
 		arg.$alias = alias;
 		ret.length = 0;
