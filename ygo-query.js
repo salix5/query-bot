@@ -104,6 +104,16 @@ const LINK_MARKER_TOP_RIGHT = 0x100;	// ↗
 // special ID
 const ID_BLACK_LUSTER_SOLDIER = 5405695;
 
+const stmt_default = `SELECT datas.id, ot, alias, type, atk, def, level, attribute, race, name, desc FROM datas, texts`
+	+ ` WHERE datas.id == texts.id AND NOT type & ${TYPE_TOKEN} AND (datas.id == ${ID_BLACK_LUSTER_SOLDIER} OR abs(datas.id - alias) >= 10)`;
+
+const stmt_no_alternative = `SELECT datas.id, ot, alias, type, atk, def, level, attribute, race, name, desc FROM datas, texts`
+	+ ` WHERE datas.id == texts.id AND NOT type & ${TYPE_TOKEN} AND abs(datas.id - alias) >= 10`;
+
+const stmt_no_alias = `SELECT datas.id FROM datas, texts WHERE datas.id == texts.id AND NOT type & ${TYPE_TOKEN} AND alias == 0`;
+const effect_filter = ` AND (NOT type & ${TYPE_NORMAL} OR type & ${TYPE_PENDULUM})`;
+
+
 const lang = Object.create(null);
 lang['zh-tw'] = lang_tw;
 lang['ja'] = lang_ja;
@@ -416,23 +426,21 @@ function print_data(card, newline, locale) {
 }
 
 module.exports = {
-	db_ready: db_ready,
+	db_ready,
 
-	ID_BLACK_LUSTER_SOLDIER: ID_BLACK_LUSTER_SOLDIER,
+	ID_BLACK_LUSTER_SOLDIER,
 
-	TYPE_PENDULUM: TYPE_PENDULUM,
+	TYPE_PENDULUM,
 
-	stmt_default: `SELECT datas.id, ot, alias, type, atk, def, level, attribute, race, name, desc FROM datas, texts`
-		+ ` WHERE datas.id == texts.id AND NOT type & ${TYPE_TOKEN} AND (datas.id == ${ID_BLACK_LUSTER_SOLDIER} OR abs(datas.id - alias) >= 10)`,
+	stmt_default,
 
-	stmt_no_alternative: `SELECT datas.id, ot, alias, type, atk, def, level, attribute, race, name, desc FROM datas, texts`
-		+ ` WHERE datas.id == texts.id AND NOT type & ${TYPE_TOKEN} AND abs(datas.id - alias) >= 10`,
+	stmt_no_alternative,
 
-	stmt_no_alias: `SELECT datas.id FROM datas, texts WHERE datas.id == texts.id AND NOT type & ${TYPE_TOKEN} AND alias == 0`,
+	stmt_no_alias,
 
-	effect_filter: ` AND (NOT type & ${TYPE_NORMAL} OR type & ${TYPE_PENDULUM})`,
+	effect_filter,
 
-	is_alternative: is_alternative,
+	is_alternative,
 
 	setcode_condition(setcode) {
 		const setcode_str1 = `(setcode & 0xfff) == (${setcode} & 0xfff) AND (setcode & (${setcode} & 0xf000)) == (${setcode} & 0xf000)`;
@@ -451,7 +459,7 @@ module.exports = {
 	},
 
 	query_alias(alias, ret) {
-		let qstr = `${this.stmt_no_alternative} AND alias == $alias;`;
+		let qstr = `${stmt_no_alternative} AND alias == $alias;`;
 		let arg = new Object();
 		arg.$alias = alias;
 		ret.length = 0;
