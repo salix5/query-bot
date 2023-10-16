@@ -93,7 +93,7 @@ function filter_choice(interaction, choice_table) {
 module.exports = {
 	MAX_CHOICE: MAX_CHOICE,
 
-	filter_choice: filter_choice,
+	filter_choice,
 
 	async autocomplete(interaction, choice_table) {
 		const ret = filter_choice(interaction, choice_table);
