@@ -1,5 +1,6 @@
 "use strict";
 const initSqlJs = require('sql.js');
+
 const cid_table = require('./data/cid.json');
 const name_table_jp = require('./data/name_table.json');
 const name_table_kr = require('./data/name_table_kr.json');
@@ -102,12 +103,12 @@ const LINK_MARKER_TOP = 0x080;			// ↑
 const LINK_MARKER_TOP_RIGHT = 0x100;	// ↗
 
 // special ID
-const ID_TYLER = 68811206;
+const ID_TYLER_THE_GREAT_WARRIOR = 68811206;
 const ID_BLACK_LUSTER_SOLDIER = 5405695;
 
 const select_all = `SELECT datas.id, ot, alias, type, atk, def, level, attribute, race, name, desc FROM datas, texts`;
 
-const physical_filter = `AND datas.id != ${ID_TYLER} AND NOT type & ${TYPE_TOKEN} AND (datas.id == ${ID_BLACK_LUSTER_SOLDIER} OR abs(datas.id - alias) >= 10)`;
+const physical_filter = `AND datas.id != ${ID_TYLER_THE_GREAT_WARRIOR} AND NOT type & ${TYPE_TOKEN} AND (datas.id == ${ID_BLACK_LUSTER_SOLDIER} OR abs(datas.id - alias) >= 10)`;
 const effect_filter = `AND (NOT type & ${TYPE_NORMAL} OR type & ${TYPE_PENDULUM})`;
 
 const stmt_default = `${select_all} WHERE datas.id == texts.id ${physical_filter}`;
@@ -149,9 +150,6 @@ const db_ready = Promise.all([initSqlJs(), fetch_db, fetch_db2])
 		return db_list;
 	});
 
-function is_released(card) {
-	return !!(card.jp_name || card.en_name);
-}
 
 function is_alternative(card) {
 	if (card.type & TYPE_TOKEN)
@@ -160,6 +158,21 @@ function is_alternative(card) {
 		return false;
 	else
 		return Math.abs(card.id - card.alias) < 10;
+}
+
+function is_released(card) {
+	return !!(card.jp_name || card.en_name);
+}
+
+
+// query
+function setcode_condition(setcode) {
+	const setcode_str1 = `(setcode & 0xfff) == (${setcode} & 0xfff) AND (setcode & (${setcode} & 0xf000)) == (${setcode} & 0xf000)`;
+	const setcode_str2 = `(setcode >> 16 & 0xfff) == (${setcode} & 0xfff) AND (setcode >> 16 & (${setcode} & 0xf000)) == (${setcode} & 0xf000)`;
+	const setcode_str3 = `(setcode >> 32 & 0xfff) == (${setcode} & 0xfff) AND (setcode >> 32 & (${setcode} & 0xf000)) == (${setcode} & 0xf000)`;
+	const setcode_str4 = `(setcode >> 48 & 0xfff) == (${setcode} & 0xfff) AND (setcode >> 48 & (${setcode} & 0xf000)) == (${setcode} & 0xf000)`;
+	let ret = `(${setcode_str1} OR ${setcode_str2} OR ${setcode_str3} OR ${setcode_str4})`;
+	return ret;
 }
 
 function query_db(db, qstr, arg, ret) {
@@ -284,6 +297,60 @@ function query_db(db, qstr, arg, ret) {
 	stmt.free();
 }
 
+function query(qstr, arg, ret) {
+	ret.length = 0;
+	for (const db of db_list) {
+		query_db(db, qstr, arg, ret);
+	}
+}
+
+function query_alias(alias, ret) {
+	let qstr = `${stmt_default} AND alias == $alias;`;
+	let arg = new Object();
+	arg.$alias = alias;
+	ret.length = 0;
+	for (const db of db_list) {
+		query_db(db, qstr, arg, ret);
+	}
+}
+
+function get_card(id) {
+	let qstr = `SELECT datas.id, ot, alias, type, atk, def, level, attribute, race, name, desc FROM datas, texts WHERE datas.id == $id AND datas.id == texts.id;`;
+	let arg = new Object();
+	arg.$id = id;
+	let ret = [];
+	for (const db of db_list) {
+		query_db(db, qstr, arg, ret);
+		if (ret.length)
+			return ret[0];
+	}
+	return null;
+}
+
+
+// locale
+function get_name(id, locale) {
+	const cid = cid_table[id];
+	if (name_table[locale])
+		return name_table[locale][cid];
+	else
+		return null;
+}
+
+function get_request_locale(card, locale) {
+	if (card[official_name[locale]]) {
+		return locale;
+	}
+	else if (card.ot === 2) {
+		return 'en';
+	}
+	else {
+		return 'ja';
+	}
+}
+
+
+// output
 function print_ad(x) {
 	if (x === -2)
 		return '?';
@@ -421,10 +488,118 @@ function print_data(card, newline, locale) {
 	return data;
 }
 
+function print_card(card, locale) {
+	let lfstr = '';
+	let lfstr_main = '';
+	let lfstr_md = '';
+	let seperator = '';
+
+	let strings = lang[locale];
+	let card_name = 'null';
+	let other_name = '';
+	let desc = '';
+	let ltable = null;
+
+	switch (locale) {
+		case 'zh-tw':
+			card_name = card.tw_name;
+
+			if (card.jp_name)
+				other_name += `${card.jp_name}\n`;
+			else if (card.md_nmae_jp)
+				other_name += `${card.md_nmae_jp}    (MD)\n`;
+			if (card.en_name)
+				other_name += `${card.en_name}\n`;
+			else if (card.md_name_en)
+				other_name += `${card.md_name_en}    (MD)\n`;
+
+			if (card.md_name)
+				other_name += `MD：${card.md_name}\n`;
+			desc = `${card.desc}\n--`;
+			ltable = ltable_ocg;
+			break;
+		case 'ja':
+			if (card.jp_name)
+				card_name = card.jp_name;
+			else if (card.md_nmae_jp)
+				card_name = `${card.md_nmae_jp}    (MD)`;
+
+			if (card.en_name)
+				other_name = `${card.en_name}\n`;
+			else if (card.md_name_en)
+				other_name = `${card.md_name_en}    (MD)\n`;
+			if (card.md_name)
+				other_name += `MD：:white_check_mark:\n`;
+			if (card.db_desc)
+				desc = card.db_desc;
+			ltable = ltable_ocg;
+			break;
+		case 'ko':
+			if (card.kr_name)
+				card_name = card.kr_name;
+
+			if (card.en_name)
+				other_name = `${card.en_name}\n`;
+			else if (card.md_name_en)
+				other_name = `${card.md_name_en}    (MD)\n`;
+			if (card.md_name)
+				other_name += `MD：:white_check_mark:\n`;
+			if (card.db_desc)
+				desc = card.db_desc;
+			ltable = ltable_ocg;
+			break;
+		case 'en':
+			if (card.en_name)
+				card_name = card.en_name;
+			else if (card.md_name_en)
+				card_name = `${card.md_name_en}    (MD)`;
+
+			if (card.jp_name)
+				other_name = `${card.jp_name}\n`;
+			else if (card.md_nmae_jp)
+				other_name = `${card.md_nmae_jp}    (MD)\n`;
+			if (card.md_name)
+				other_name += `MD：:white_check_mark:\n`;
+			if (card.db_desc)
+				desc = card.db_desc;
+			ltable = ltable_tcg;
+			break;
+		default:
+			break;
+	}
+
+	if (ltable[card.real_id] !== undefined)
+		lfstr_main = `${strings.limit_name['region']}：${strings.limit_name[ltable[card.real_id]]}`;
+	if (ltable_md[card.real_id] !== undefined) {
+		lfstr_md = `MD：${strings.limit_name[ltable_md[card.real_id]]}`;
+	}
+	if (lfstr_main && lfstr_md)
+		seperator = ' / ';
+	if (lfstr_main || lfstr_md)
+		lfstr = `(${lfstr_main}${seperator}${lfstr_md})\n`;
+
+	let card_text = `**${card_name}**\n${other_name}${lfstr}${print_data(card, '\n', locale)}${desc}\n`;
+	return card_text;
+}
+
+function print_db_link(cid, request_locale) {
+	return `https://www.db.yugioh-card.com/yugiohdb/card_search.action?ope=2&cid=${cid}&request_locale=${request_locale}`;
+}
+
+function print_wiki_link(id) {
+	return `https://yugipedia.com/wiki/${id}`;
+}
+
+function print_qa_link(cid) {
+	return `https://www.db.yugioh-card.com/yugiohdb/faq_search.action?ope=4&cid=${cid}&request_locale=ja`;
+}
+
+
 module.exports = {
 	db_ready,
 
 	ID_BLACK_LUSTER_SOLDIER,
+	ID_TYLER_THE_GREAT_WARRIOR,
 	TYPE_PENDULUM,
 
 	physical_filter,
@@ -434,169 +609,19 @@ module.exports = {
 	stmt_no_alias,
 
 	is_alternative,
+	is_released,
 
-	setcode_condition(setcode) {
-		const setcode_str1 = `(setcode & 0xfff) == (${setcode} & 0xfff) AND (setcode & (${setcode} & 0xf000)) == (${setcode} & 0xf000)`;
-		const setcode_str2 = `(setcode >> 16 & 0xfff) == (${setcode} & 0xfff) AND (setcode >> 16 & (${setcode} & 0xf000)) == (${setcode} & 0xf000)`;
-		const setcode_str3 = `(setcode >> 32 & 0xfff) == (${setcode} & 0xfff) AND (setcode >> 32 & (${setcode} & 0xf000)) == (${setcode} & 0xf000)`;
-		const setcode_str4 = `(setcode >> 48 & 0xfff) == (${setcode} & 0xfff) AND (setcode >> 48 & (${setcode} & 0xf000)) == (${setcode} & 0xf000)`;
-		let ret = `(${setcode_str1} OR ${setcode_str2} OR ${setcode_str3} OR ${setcode_str4})`;
-		return ret;
-	},
+	setcode_condition,
+	query,
+	query_alias,
+	get_card,
 
-	query(qstr, arg, ret) {
-		ret.length = 0;
-		for (const db of db_list) {
-			query_db(db, qstr, arg, ret);
-		}
-	},
+	get_name,
+	get_request_locale,
 
-	query_alias(alias, ret) {
-		let qstr = `${stmt_default} AND alias == $alias;`;
-		let arg = new Object();
-		arg.$alias = alias;
-		ret.length = 0;
-		for (const db of db_list) {
-			query_db(db, qstr, arg, ret);
-		}
-	},
-
-	get_card(id) {
-		let qstr = `SELECT datas.id, ot, alias, type, atk, def, level, attribute, race, name, desc FROM datas, texts WHERE datas.id == $id AND datas.id == texts.id;`;
-		let arg = new Object();
-		arg.$id = id;
-		let ret = [];
-		for (const db of db_list) {
-			query_db(db, qstr, arg, ret);
-			if (ret.length)
-				return ret[0];
-		}
-		return null;
-	},
-
-	get_name(id, locale) {
-		const cid = cid_table[id];
-		if (name_table[locale])
-			return name_table[locale][cid];
-		else
-			return null;
-	},
-
-	get_request_locale(card, locale) {
-		if (card[official_name[locale]]) {
-			return locale;
-		}
-		else if (card.ot === 2) {
-			return 'en';
-		}
-		else {
-			return 'ja';
-		}
-	},
-
-	print_card(card, locale) {
-		let lfstr = '';
-		let lfstr_main = '';
-		let lfstr_md = '';
-		let seperator = '';
-
-		let strings = lang[locale];
-		let card_name = 'null';
-		let other_name = '';
-		let desc = '';
-		let ltable = null;
-
-		switch (locale) {
-			case 'zh-tw':
-				card_name = card.tw_name;
-
-				if (card.jp_name)
-					other_name += `${card.jp_name}\n`;
-				else if (card.md_nmae_jp)
-					other_name += `${card.md_nmae_jp}    (MD)\n`;
-				if (card.en_name)
-					other_name += `${card.en_name}\n`;
-				else if (card.md_name_en)
-					other_name += `${card.md_name_en}    (MD)\n`;
-
-				if (card.md_name)
-					other_name += `MD：${card.md_name}\n`;
-				desc = `${card.desc}\n--`;
-				ltable = ltable_ocg;
-				break;
-			case 'ja':
-				if (card.jp_name)
-					card_name = card.jp_name;
-				else if (card.md_nmae_jp)
-					card_name = `${card.md_nmae_jp}    (MD)`;
-
-				if (card.en_name)
-					other_name = `${card.en_name}\n`;
-				else if (card.md_name_en)
-					other_name = `${card.md_name_en}    (MD)\n`;
-				if (card.md_name)
-					other_name += `MD：:white_check_mark:\n`;
-				if (card.db_desc)
-					desc = card.db_desc;
-				ltable = ltable_ocg;
-				break;
-			case 'ko':
-				if (card.kr_name)
-					card_name = card.kr_name;
-
-				if (card.en_name)
-					other_name = `${card.en_name}\n`;
-				else if (card.md_name_en)
-					other_name = `${card.md_name_en}    (MD)\n`;
-				if (card.md_name)
-					other_name += `MD：:white_check_mark:\n`;
-				if (card.db_desc)
-					desc = card.db_desc;
-				ltable = ltable_ocg;
-				break;
-			case 'en':
-				if (card.en_name)
-					card_name = card.en_name;
-				else if (card.md_name_en)
-					card_name = `${card.md_name_en}    (MD)`;
-
-				if (card.jp_name)
-					other_name = `${card.jp_name}\n`;
-				else if (card.md_nmae_jp)
-					other_name = `${card.md_nmae_jp}    (MD)\n`;
-				if (card.md_name)
-					other_name += `MD：:white_check_mark:\n`;
-				if (card.db_desc)
-					desc = card.db_desc;
-				ltable = ltable_tcg;
-				break;
-			default:
-				break;
-		}
-
-		if (ltable[card.real_id] !== undefined)
-			lfstr_main = `${strings.limit_name['region']}：${strings.limit_name[ltable[card.real_id]]}`;
-		if (ltable_md[card.real_id] !== undefined) {
-			lfstr_md = `MD：${strings.limit_name[ltable_md[card.real_id]]}`;
-		}
-		if (lfstr_main && lfstr_md)
-			seperator = ' / ';
-		if (lfstr_main || lfstr_md)
-			lfstr = `(${lfstr_main}${seperator}${lfstr_md})\n`;
-
-		let card_text = `**${card_name}**\n${other_name}${lfstr}${print_data(card, '\n', locale)}${desc}\n`;
-		return card_text;
-	},
-
-	print_db_link(cid, request_locale) {
-		return `https://www.db.yugioh-card.com/yugiohdb/card_search.action?ope=2&cid=${cid}&request_locale=${request_locale}`;
-	},
-
-	print_wiki_link(id) {
-		return `https://yugipedia.com/wiki/${id}`;
-	},
-
-	print_qa_link(cid) {
-		return `https://www.db.yugioh-card.com/yugiohdb/faq_search.action?ope=4&cid=${cid}&request_locale=ja`;
-	},
+	print_data,
+	print_card,
+	print_db_link,
+	print_wiki_link,
+	print_qa_link,
 };
