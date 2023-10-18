@@ -1,5 +1,5 @@
 "use strict";
-const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle, CommandInteraction } = require('discord.js');
 const ygo = require('./ygo-query.js');
 
 const lang = {
@@ -72,29 +72,36 @@ function create_reply(card, locale) {
 	}
 }
 
-module.exports = {
-	create_reply,
-
-	async query_command(interaction, id, locale) {
-		if (id) {
-			const card = ygo.get_card(id);
-			if (card) {
-				if (locale === 'zh-tw') {
-					await interaction.reply(create_reply(card, locale));
-				}
-				else {
-					await interaction.deferReply();
-					card.db_desc = await fetch_desc(card, ygo.get_request_locale(card, locale));
-					await interaction.editReply(create_reply(card, locale));
-				}
+/**
+ * query_command() - query command handler
+ * @param {CommandInteraction} interaction 
+ * @param {number} id 
+ * @param {string} locale 
+ */
+async function query_command(interaction, id, locale) {
+	if (id) {
+		const card = ygo.get_card(id);
+		if (card) {
+			if (locale === 'zh-tw') {
+				await interaction.reply(create_reply(card, locale));
 			}
 			else {
-				await interaction.reply(lang[locale].none);
-				console.error('Error card id', id);
+				await interaction.deferReply();
+				card.db_desc = await fetch_desc(card, ygo.get_request_locale(card, locale));
+				await interaction.editReply(create_reply(card, locale));
 			}
 		}
 		else {
 			await interaction.reply(lang[locale].none);
+			console.error('Error card id', id);
 		}
-	},
+	}
+	else {
+		await interaction.reply(lang[locale].none);
+	}
+}
+
+module.exports = {
+	create_reply,
+	query_command,
 };

@@ -30,35 +30,6 @@ function is_equal(a, b) {
 	return toHalfWidth(a.toLowerCase()) === toHalfWidth(b.toLowerCase());
 }
 
-// compare_card() - Generate the compare function of cards.
-// deprecated
-function compare_card(name) {
-	return function (a, b) {
-		if (is_equal(a.name, name)) {
-			return -1;
-		}
-		else if (is_equal(b.name, name)) {
-			return 1;
-		}
-		else if (a.jp_name && is_equal(a.jp_name, name)) {
-			return -1;
-		}
-		else if (b.jp_name && is_equal(b.jp_name, name)) {
-			return 1;
-		}
-
-		if (a.color !== b.color) {
-			return a.color - b.color;
-		}
-		else if (a.level !== b.level) {
-			return b.level - a.level;
-		}
-		else {
-			return a.name.localeCompare(b.name, 'zh-Hant');
-		}
-	}
-}
-
 /**
  * filter_choice() - Filter the choice table and push them into an array.
  * @param {AutocompleteInteraction} interaction 
@@ -90,15 +61,21 @@ function filter_choice(interaction, choice_table) {
 	return ret;
 }
 
+/**
+ * autocomplete() - autocomplete interaction handler
+ * @param {AutocompleteInteraction} interaction 
+ * @param {Object} choice_table
+ */
+async function autocomplete(interaction, choice_table) {
+	const ret = filter_choice(interaction, choice_table);
+	await interaction.respond(
+		ret.map(choice => ({ name: choice, value: choice })),
+	);
+}
+
 module.exports = {
-	MAX_CHOICE: MAX_CHOICE,
+	MAX_CHOICE,
 
 	filter_choice,
-
-	async autocomplete(interaction, choice_table) {
-		const ret = filter_choice(interaction, choice_table);
-		await interaction.respond(
-			ret.map(choice => ({ name: choice, value: choice })),
-		);
-	},
+	autocomplete,
 };
