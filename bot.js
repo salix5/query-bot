@@ -1,9 +1,9 @@
 "use strict";
 const { Client, Collection, Events, GatewayIntentBits, ChannelType, MessageType, Partials } = require('discord.js');
-require('dotenv').config();
 const ygoQuery = require('./ygo-query.js');
 const fs = require('node:fs');
 const path = require('node:path');
+//require('dotenv').config();
 
 const re_wildcard = /(^|[^\$])[%_]/;
 
