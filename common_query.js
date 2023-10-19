@@ -28,7 +28,7 @@ async function fetch_desc(card, request_locale) {
 	if (res_text) {
 		ctext = res_text[1].replaceAll('<br>', '\n');
 	}
-	if (card.type & ygo.TYPE_PENDULUM) {
+	if (card.type & ygo.monster_type.TYPE_PENDULUM) {
 		let ptext = '';
 		let res_ptext = re_ptext.exec(raw_data);
 		if (res_ptext) {
