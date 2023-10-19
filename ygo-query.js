@@ -106,13 +106,15 @@ const LINK_MARKER_TOP_RIGHT = 0x100;	// ↗
 const ID_TYLER_THE_GREAT_WARRIOR = 68811206;
 const ID_BLACK_LUSTER_SOLDIER = 5405695;
 
-const select_all = `SELECT datas.id, ot, alias, type, atk, def, level, attribute, race, name, desc FROM datas, texts`;
+const select_all = `SELECT datas.id, ot, alias, type, atk, def, level, attribute, race, name, desc FROM datas, texts WHERE datas.id == texts.id`;
+const select_id = `SELECT datas.id FROM datas, texts WHERE datas.id == texts.id`;
 
-const physical_filter = `AND datas.id != ${ID_TYLER_THE_GREAT_WARRIOR} AND NOT type & ${TYPE_TOKEN} AND (datas.id == ${ID_BLACK_LUSTER_SOLDIER} OR abs(datas.id - alias) >= 10)`;
-const effect_filter = `AND (NOT type & ${TYPE_NORMAL} OR type & ${TYPE_PENDULUM})`;
+const base_filter = ` AND datas.id != ${ID_TYLER_THE_GREAT_WARRIOR} AND NOT type & ${TYPE_TOKEN}`;
+const physical_filter = `${base_filter} AND (datas.id == ${ID_BLACK_LUSTER_SOLDIER} OR abs(datas.id - alias) >= 10)`;
+const effect_filter = ` AND (NOT type & ${TYPE_NORMAL} OR type & ${TYPE_PENDULUM})`;
 
-const stmt_default = `${select_all} WHERE datas.id == texts.id ${physical_filter}`;
-const stmt_no_alias = `SELECT datas.id FROM datas, texts WHERE datas.id == texts.id AND NOT type & ${TYPE_TOKEN} AND alias == 0`;
+const stmt_default = `${select_all}${physical_filter}`;
+const stmt_no_alias = `${select_id}${base_filter} AND alias == 0`;
 
 
 const lang = Object.create(null);
@@ -693,6 +695,10 @@ module.exports = {
 		LINK_MARKER_TOP_RIGHT,
 	},
 
+	select_all,
+	select_id,
+
+	base_filter,
 	physical_filter,
 	effect_filter,
 
