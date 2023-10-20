@@ -29,7 +29,7 @@ for (const file of commandFiles) {
 
 client.once(Events.ClientReady, c => {
 	let currentDate = new Date();
-	console.log(`[${currentDate.toUTCString()}] Ready! Logged in as ${c.user.tag}`);
+	console.log(`[${currentDate.toUTCString()}] Ready! Logged in as ${c.user.tag} (total: ${Object.keys(ygoQuery.name_table['ja']).length})`);
 });
 
 client.on(Events.MessageCreate, async msg => {
