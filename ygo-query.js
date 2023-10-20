@@ -279,7 +279,7 @@ function query_db(db, qstr, arg, ret) {
 			card.cid = cid_table[card.real_id];
 			if (name_table_jp[card.cid]) {
 				if (card.ot === 2)
-					card.md_nmae_jp = name_table_jp[card.cid];
+					card.md_name_jp = name_table_jp[card.cid];
 				else
 					card.jp_name = name_table_jp[card.cid];
 			}
@@ -508,8 +508,8 @@ function print_card(card, locale) {
 
 			if (card.jp_name)
 				other_name += `${card.jp_name}\n`;
-			else if (card.md_nmae_jp)
-				other_name += `${card.md_nmae_jp}    (MD)\n`;
+			else if (card.md_name_jp)
+				other_name += `${card.md_name_jp}    (MD)\n`;
 			if (card.en_name)
 				other_name += `${card.en_name}\n`;
 			else if (card.md_name_en)
@@ -523,8 +523,8 @@ function print_card(card, locale) {
 		case 'ja':
 			if (card.jp_name)
 				card_name = card.jp_name;
-			else if (card.md_nmae_jp)
-				card_name = `${card.md_nmae_jp}    (MD)`;
+			else if (card.md_name_jp)
+				card_name = `${card.md_name_jp}    (MD)`;
 
 			if (card.en_name)
 				other_name = `${card.en_name}\n`;
@@ -558,8 +558,8 @@ function print_card(card, locale) {
 
 			if (card.jp_name)
 				other_name = `${card.jp_name}\n`;
-			else if (card.md_nmae_jp)
-				other_name = `${card.md_nmae_jp}    (MD)\n`;
+			else if (card.md_name_jp)
+				other_name = `${card.md_name_jp}    (MD)\n`;
 			if (card.md_name)
 				other_name += `MD：:white_check_mark:\n`;
 			if (card.db_desc)
