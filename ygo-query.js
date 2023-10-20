@@ -119,6 +119,8 @@ const stmt_default = `${select_all}${physical_filter}`;
 const stmt_no_alias = `${select_id}${base_filter} AND alias == 0`;
 
 
+const cid_inverse = inverse_mapping(cid_table);
+
 const lang = Object.create(null);
 lang['zh-tw'] = lang_tw;
 lang['ja'] = lang_ja;
@@ -155,6 +157,20 @@ const db_ready = Promise.all([initSqlJs(), fetch_db, fetch_db2])
 	});
 
 
+function inverse_mapping(obj) {
+	const inverse = Object.create(null);
+	for (const [key, value] of Object.entries(obj)) {
+		if (inverse[value]) {
+			console.log('non-invertible', `${key}: ${value}`);
+			return Object.create(null);
+		}
+		inverse[value] = key;
+	}
+	return inverse;
+}
+
+
+// card
 function is_alternative(card) {
 	if (card.type & TYPE_TOKEN)
 		return card.alias !== 0;
@@ -707,6 +723,7 @@ module.exports = {
 	stmt_no_alias,
 
 	cid_table,
+	cid_inverse,
 	name_table,
 
 	is_alternative,
