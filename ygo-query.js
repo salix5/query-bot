@@ -6,7 +6,9 @@ const name_table_jp = require('./data/name_table.json');
 const name_table_kr = require('./data/name_table_kr.json');
 const name_table_en = require('./data/name_table_en.json');
 const md_name = require('./data/md_name.json');
+const md_name_jp = require('./data/md_name_jp.json');
 const md_name_en = require('./data/md_name_en.json');
+
 const ltable_ocg = require('./data/lflist.json');
 const ltable_tcg = require('./data/lflist_tcg.json');
 const ltable_md = require('./data/lflist_md.json');
@@ -277,12 +279,11 @@ function query_db(db, qstr, arg, ret) {
 		}
 		if (typeof cid_table[card.real_id] === 'number') {
 			card.cid = cid_table[card.real_id];
-			if (name_table_jp[card.cid]) {
-				if (card.ot === 2)
-					card.md_name_jp = name_table_jp[card.cid];
-				else
-					card.jp_name = name_table_jp[card.cid];
-			}
+			if (name_table_jp[card.cid])
+				card.jp_name = name_table_jp[card.cid];
+			else if (md_name_jp[card.cid])
+				card.md_name_jp = md_name_jp[card.cid];
+
 			if (name_table_kr[card.cid])
 				card.kr_name = name_table_kr[card.cid];
 
