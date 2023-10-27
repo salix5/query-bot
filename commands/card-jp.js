@@ -21,7 +21,7 @@ module.exports = {
 		var ret = filter_choice(interaction, choice_table);
 		const focused = interaction.options.getFocused();
 		const id_list = [];
-		if (focused && ret.length < MAX_CHOICE) {
+		/*if (focused && ret.length < MAX_CHOICE) {
 			const ruby_max_length = MAX_CHOICE - ret.length;
 			const starts_with = [];
 			const other = [];
@@ -42,7 +42,7 @@ module.exports = {
 			if (ruby_ret.length > ruby_max_length)
 				ruby_ret.length = ruby_max_length;
 			ret = ret.concat(ruby_ret);
-		}
+		}*/
 		await interaction.respond(
 			ret.map(choice => ({ name: choice, value: choice })),
 		);
