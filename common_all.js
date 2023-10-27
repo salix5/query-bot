@@ -31,13 +31,30 @@ function is_equal(a, b) {
 }
 
 /**
+ * inverse_mapping()
+ * @param {object} obj 
+ * @returns 
+ */
+function inverse_mapping(obj) {
+	const inverse = Object.create(null);
+	for (const [key, value] of Object.entries(obj)) {
+		if (inverse[value]) {
+			console.log('non-invertible', `${key}: ${value}`);
+			return Object.create(null);
+		}
+		inverse[value] = key;
+	}
+	return inverse;
+}
+
+
+/**
  * filter_choice() - Filter the choice table and push them into an array.
- * @param {AutocompleteInteraction} interaction 
- * @param {Object} choice_table 
+ * @param {string} focused 
+ * @param {object} choice_table 
  * @returns choice array
  */
-function filter_choice(interaction, choice_table) {
-	const focused = interaction.options.getFocused();
+function filter_choice(focused, choice_table) {
 	if (!focused) {
 		return [];
 	}
@@ -64,10 +81,11 @@ function filter_choice(interaction, choice_table) {
 /**
  * autocomplete() - autocomplete interaction handler
  * @param {AutocompleteInteraction} interaction 
- * @param {Object} choice_table
+ * @param {object} choice_table
  */
 async function autocomplete(interaction, choice_table) {
-	const ret = filter_choice(interaction, choice_table);
+	const focused = interaction.options.getFocused();
+	const ret = filter_choice(focused, choice_table);
 	await interaction.respond(
 		ret.map(choice => ({ name: choice, value: choice })),
 	);
