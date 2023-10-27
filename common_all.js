@@ -30,6 +30,8 @@ function is_equal(a, b) {
 	return toHalfWidth(a.toLowerCase()) === toHalfWidth(b.toLowerCase());
 }
 
+
+
 /**
  * inverse_mapping()
  * @param {object} obj 
@@ -46,7 +48,6 @@ function inverse_mapping(obj) {
 	}
 	return inverse;
 }
-
 
 /**
  * filter_choice() - Filter the choice table and push them into an array.
@@ -91,9 +92,49 @@ async function autocomplete(interaction, choice_table) {
 	);
 }
 
+/**
+ * autocomplete_jp() - autocomplete interaction handler (also check ruby table)
+ * @param {AutocompleteInteraction} interaction 
+ * @param {object} choice_table 
+ * @param {object} choice_ruby 
+ * @param {object} choice_inverse 
+ */
+async function autocomplete_jp(interaction, choice_table, choice_ruby, choice_inverse) {
+	const focused = interaction.options.getFocused();
+	var ret = filter_choice(focused, choice_table);
+	if (focused && ret.length < MAX_CHOICE) {
+		const ruby_max_length = MAX_CHOICE - ret.length;
+		const is_ready = Object.create(null);
+		const starts_with = [];
+		const other = [];
+
+		for (const choice of ret) {
+			is_ready[choice_table[choice]] = true;
+		}
+		const ruby_result = Object.entries(choice_ruby).filter(([ruby, id]) => !is_ready[id] && ruby.includes(focused));
+		for (const [ruby, id] of ruby_result) {
+			if (ruby.startsWith(focused))
+				starts_with.push(choice_inverse[id]);
+			else
+				other.push(choice_inverse[id]);
+			if (starts_with.length >= ruby_max_length)
+				break;
+		}
+		const ruby_ret = starts_with.concat(other);
+		if (ruby_ret.length > ruby_max_length)
+			ruby_ret.length = ruby_max_length;
+		ret = ret.concat(ruby_ret);
+	}
+	await interaction.respond(
+		ret.map(choice => ({ name: choice, value: choice })),
+	);
+}
+
 module.exports = {
 	MAX_CHOICE,
 
+	inverse_mapping,
 	filter_choice,
 	autocomplete,
+	autocomplete_jp,
 };
