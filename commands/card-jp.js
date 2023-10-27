@@ -18,8 +18,8 @@ module.exports = {
 				.setAutocomplete(true)
 		),
 	async autocomplete(interaction) {
-		var ret = filter_choice(interaction, choice_table);
 		const focused = interaction.options.getFocused();
+		var ret = filter_choice(focused, choice_table);
 		const id_list = [];
 		/*if (focused && ret.length < MAX_CHOICE) {
 			const ruby_max_length = MAX_CHOICE - ret.length;
