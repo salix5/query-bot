@@ -195,6 +195,14 @@ function setcode_condition(setcode) {
 	return ret;
 }
 
+/**
+ * query_db()
+ * @param {initSqlJs.Database} db 
+ * @param {string} qstr 
+ * @param {object} arg 
+ * @param {Array} ret 
+ * @returns 
+ */
 function query_db(db, qstr, arg, ret) {
 	if (!db)
 		return;
@@ -204,97 +212,86 @@ function query_db(db, qstr, arg, ret) {
 	while (stmt.step()) {
 		let cdata = stmt.getAsObject();
 		let card = Object.create(null);
-
-		// basic
-		card.id = cdata.id;
-		card.ot = cdata.ot;
-		card.alias = cdata.alias;
-		card.setcode = cdata.setcode;
-		card.type = cdata.type;
-		card.real_id = is_alternative(card) ? card.alias : card.id;
-
-		// copy data
-		if (card.type & (TYPE_SPELL | TYPE_TRAP)) {
-			card.atk = 0;
-			card.def = 0;
-			card.level = 0;
-			card.race = 0;
-			card.attribute = 0;
-		}
-		else {
-			card.atk = cdata.atk;
-			card.def = cdata.def;
-			card.race = cdata.race;
-			card.attribute = cdata.attribute;
-			if (card.type & TYPE_PENDULUM) {
-				card.scale = (cdata.level >> 24) & 0xff;
-				card.level = cdata.level & 0xff;
+		for (const [column, value] of Object.entries(cdata)) {
+			switch (column) {
+				case 'type':
+					card[column] = value;
+					if (card.type & TYPE_MONSTER) {
+						if (!(card.type & TYPE_EXTRA)) {
+							if (card.type & TYPE_TOKEN)
+								card.color = 0;
+							else if (card.type & TYPE_NORMAL)
+								card.color = 1;
+							else if (card.type & TYPE_RITUAL)
+								card.color = 3;
+							else if (card.type & TYPE_EFFECT)
+								card.color = 2;
+							else
+								card.color = -1;
+						}
+						else {
+							if (card.type & TYPE_FUSION)
+								card.color = 4;
+							else if (card.type & TYPE_SYNCHRO)
+								card.color = 5;
+							else if (card.type & TYPE_XYZ)
+								card.color = 6;
+							else if (card.type & TYPE_LINK)
+								card.color = 7;
+							else
+								card.color = -1;
+						}
+					}
+					else if (card.type & TYPE_SPELL) {
+						if (card.type === TYPE_SPELL)
+							card.color = 10;
+						else if (card.type & TYPE_QUICKPLAY)
+							card.color = 11;
+						else if (card.type & TYPE_CONTINUOUS)
+							card.color = 12;
+						else if (card.type & TYPE_EQUIP)
+							card.color = 13;
+						else if (card.type & TYPE_RITUAL)
+							card.color = 14;
+						else if (card.type & TYPE_FIELD)
+							card.color = 15;
+						else
+							card.color = -1;
+					}
+					else if (card.type & TYPE_TRAP) {
+						if (card.type === TYPE_TRAP)
+							card.color = 20;
+						else if (card.type & TYPE_CONTINUOUS)
+							card.color = 21;
+						else if (card.type & TYPE_COUNTER)
+							card.color = 22;
+						else
+							card.color = -1;
+					}
+					else {
+						card.color = -1;
+					}
+					break;
+				case 'level':
+					card.level = value & 0xff;
+					card.scale = (value >> 24) & 0xff;
+					break;
+				case 'name':
+					card.tw_name = value;
+					break;
+				default:
+					card[column] = value;
+					break;
 			}
-			else {
-				card.level = cdata.level;
-			}
 		}
-		card.tw_name = cdata.name;
-		card.desc = cdata.desc;
-
-		// color
-		if (card.type & TYPE_MONSTER) {
-			if (!(card.type & TYPE_EXTRA)) {
-				if (card.type & TYPE_TOKEN)
-					card.color = 0;
-				else if (card.type & TYPE_NORMAL)
-					card.color = 1;
-				else if (card.type & TYPE_RITUAL)
-					card.color = 3;
-				else if (card.type & TYPE_EFFECT)
-					card.color = 2;
-				else
-					card.color = -1;
-			}
-			else {
-				if (card.type & TYPE_FUSION)
-					card.color = 4;
-				else if (card.type & TYPE_SYNCHRO)
-					card.color = 5;
-				else if (card.type & TYPE_XYZ)
-					card.color = 6;
-				else if (card.type & TYPE_LINK)
-					card.color = 7;
-				else
-					card.color = -1;
-			}
+		// extra column
+		if (card.id && card.alias) {
+			card.real_id = is_alternative(card) ? card.alias : card.id;
 		}
-		else if (card.type & TYPE_SPELL) {
-			if (card.type === TYPE_SPELL)
-				card.color = 10;
-			else if (card.type & TYPE_QUICKPLAY)
-				card.color = 11;
-			else if (card.type & TYPE_CONTINUOUS)
-				card.color = 12;
-			else if (card.type & TYPE_EQUIP)
-				card.color = 13;
-			else if (card.type & TYPE_RITUAL)
-				card.color = 14;
-			else if (card.type & TYPE_FIELD)
-				card.color = 15;
-			else
-				card.color = -1;
-		}
-		else if (card.type & TYPE_TRAP) {
-			if (card.type === TYPE_TRAP)
-				card.color = 20;
-			else if (card.type & TYPE_CONTINUOUS)
-				card.color = 21;
-			else if (card.type & TYPE_COUNTER)
-				card.color = 22;
-			else
-				card.color = -1;
-		}
-		else {
-			card.color = -1;
-		}
-		if (typeof cid_table[card.real_id] === 'number') {
+		if (card.real_id && typeof cid_table[card.real_id] === 'number') {
 			card.cid = cid_table[card.real_id];
+		}
+		if (card.cid && card.tw_name) {
 			if (name_table_jp[card.cid])
 				card.jp_name = name_table_jp[card.cid];
 			else if (md_name_jp[card.cid])
