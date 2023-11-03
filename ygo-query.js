@@ -172,9 +172,7 @@ function inverse_mapping(obj) {
 
 // card
 function is_alternative(card) {
-	if (card.type & TYPE_TOKEN)
-		return card.alias !== 0;
-	else if (card.id === ID_BLACK_LUSTER_SOLDIER)
+	if (card.id === ID_BLACK_LUSTER_SOLDIER)
 		return false;
 	else
 		return Math.abs(card.id - card.alias) < 10;
@@ -285,13 +283,13 @@ function query_db(db, qstr, arg, ret) {
 			}
 		}
 		// extra column
-		if (card.id && card.alias) {
+		if ('id' in card && 'alias' in card) {
 			card.real_id = is_alternative(card) ? card.alias : card.id;
 		}
-		if (card.real_id && typeof cid_table[card.real_id] === 'number') {
+		if ('real_id' in card && typeof cid_table[card.real_id] === 'number') {
 			card.cid = cid_table[card.real_id];
 		}
-		if (card.cid && card.tw_name) {
+		if ('cid' in card && 'tw_name' in card) {
 			if (name_table_jp[card.cid])
 				card.jp_name = name_table_jp[card.cid];
 			else if (md_name_jp[card.cid])
