@@ -140,19 +140,19 @@ name_table['md'] = md_name;
 
 let SQL = null;
 const db_list = [];
+const load_prerelease = true;
 
-const domain = 'https://salix5.github.io';
-const fetch_db = fetch(`${domain}/CardEditor/cards.cdb`)
-	.then(response => response.arrayBuffer())
-	.then(buf => new Uint8Array(buf));
-const fetch_db2 = fetch(`${domain}/cdb/pre-release.cdb`)
-	.then(response => response.arrayBuffer())
-	.then(buf => new Uint8Array(buf));
+const domain = 'https://salix5.github.io/cdb';
+const fetch_db = fetch(`${domain}/cards.cdb`).then(response => response.arrayBuffer());
+const fetch_db2 = fetch(`${domain}/pre-release.cdb`).then(response => response.arrayBuffer());
+
 const db_ready = Promise.all([initSqlJs(), fetch_db, fetch_db2])
-	.then(([sql, file1, file2]) => {
+	.then(([sql, buf1, buf2]) => {
 		SQL = sql;
-		db_list.push(new SQL.Database(file1));
-		db_list.push(new SQL.Database(file2));
+		db_list.push(new SQL.Database(new Uint8Array(buf1)));
+		if (load_prerelease) {
+			db_list.push(new SQL.Database(new Uint8Array(buf2)));
+		}
 		return db_list;
 	});
 
