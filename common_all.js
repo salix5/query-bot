@@ -50,28 +50,30 @@ function inverse_mapping(obj) {
 }
 
 /**
- * Filter the choice matching `focused` in `choice_table` and push them into an array.
+ * Filter the choices matching `focused` in `choice_table` and push them into an array.
  * @param {string} focused 
  * @param {Object} choice_table 
- * @returns {Object[]}
+ * @param {boolean} case_sensitive
+ * @returns 
  */
-function filter_choice(focused, choice_table) {
+function filter_choice(focused, choice_table, case_sensitive = false) {
 	if (!focused) {
 		return [];
 	}
 
-	const keyword = toHalfWidth(focused.toLowerCase());
 	const starts_with = [];
 	const other = [];
-	const result = Object.keys(choice_table).filter((choice) => toHalfWidth(choice.toLowerCase()).includes(keyword));
+	const keyword = toHalfWidth(case_sensitive ? focused : focused.toLowerCase());
+	const filter_function = case_sensitive ? (choice => toHalfWidth(choice).includes(keyword)) : (choice => toHalfWidth(choice.toLowerCase()).includes(keyword));
+	const result = Object.keys(choice_table).filter(filter_function);
 	for (const choice of result) {
 		let card_name = toHalfWidth(choice.toLowerCase());
 		if (card_name.startsWith(keyword))
 			starts_with.push(choice);
 		else
 			other.push(choice);
-		if (starts_with.length >= MAX_CHOICE)
-			break;
+		if (starts_with.length == MAX_CHOICE)
+			return starts_with;
 	}
 	const ret = starts_with.concat(other);
 	if (ret.length > MAX_CHOICE)
@@ -101,7 +103,7 @@ async function autocomplete(interaction, choice_table) {
  */
 async function autocomplete_jp(interaction, choice_table, choice_ruby, choice_inverse) {
 	const focused = interaction.options.getFocused();
-	var ret = filter_choice(focused, choice_table);
+	var ret = filter_choice(focused, choice_table, true);
 	if (focused && ret.length < MAX_CHOICE) {
 		const ruby_max_length = MAX_CHOICE - ret.length;
 		const is_ready = Object.create(null);
