@@ -18,10 +18,11 @@ const response = {
 };
 
 async function fetch_desc(card, request_locale) {
-	const re_ptext = /<div class="frame pen_effect">.*?<div class="item_box_text">.*?([^\r\n\t]*).*?<\/div>/s;
-	const re_text = /<div class="text_title">.*?<\/div>.*?([^\r\n\t]+).*?<\/div>/s;
-	if (!card.cid)
+	if (!card.cid || !ygo.official_name[request_locale])
 		return '';
+
+	const re_ptext = /<div class="frame pen_effect">.*?<div class="item_box_text">.*?([^\r\n\t]+).*?<\/div>/s;
+	const re_text = /<div class="text_title">.*?<\/div>.*?([^\r\n\t]+).*?<\/div>/s;
 	let raw_data = await fetch(ygo.print_db_link(card.cid, request_locale)).then(response => response.text());
 	let ctext = '';
 	let res_text = re_text.exec(raw_data);
@@ -32,9 +33,11 @@ async function fetch_desc(card, request_locale) {
 		let ptext = '';
 		let res_ptext = re_ptext.exec(raw_data);
 		if (res_ptext) {
+			if (res_ptext[1] === '</div>')
+				res_ptext[1] = '';
 			ptext = res_ptext[1].replaceAll('<br>', '\n');
 		}
-		return `${ptext}\n【${ygo.lang[request_locale][ygo.type.TYPE_MONSTER]}${ygo.lang[request_locale][ygo.monster_type.TYPE_EFFECT]}】\n${ctext}\n`;
+		return `${ptext}\n【${ygo.lang[request_locale].type_name[ygo.monster_type.TYPE_EFFECT]}】\n${ctext}\n`;
 	}
 	else {
 		return `${ctext}\n`;
