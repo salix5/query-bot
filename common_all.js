@@ -21,7 +21,7 @@ function toFullWidth(str) {
 }
 
 /**
- * is_equal() - Check if 2 strings are case-insensitive equal.
+ * Check if 2 strings are case-insensitive equal.
  * @param {string} a 
  * @param {string} b 
  * @returns boolean result
@@ -33,9 +33,9 @@ function is_equal(a, b) {
 
 
 /**
- * inverse_mapping()
- * @param {object} obj 
- * @returns 
+ * Create the inverse mapping of `obj`.
+ * @param {Object} obj 
+ * @returns {Object}
  */
 function inverse_mapping(obj) {
 	const inverse = Object.create(null);
@@ -50,10 +50,10 @@ function inverse_mapping(obj) {
 }
 
 /**
- * filter_choice() - Filter the choice table and push them into an array.
+ * Filter the choice matching `focused` in `choice_table` and push them into an array.
  * @param {string} focused 
- * @param {object} choice_table 
- * @returns choice array
+ * @param {Object} choice_table 
+ * @returns {Object[]}
  */
 function filter_choice(focused, choice_table) {
 	if (!focused) {
@@ -80,9 +80,9 @@ function filter_choice(focused, choice_table) {
 }
 
 /**
- * autocomplete() - autocomplete interaction handler
+ * The handler of slash command autocomplete using `choice_table`.
  * @param {AutocompleteInteraction} interaction 
- * @param {object} choice_table
+ * @param {Object} choice_table
  */
 async function autocomplete(interaction, choice_table) {
 	const focused = interaction.options.getFocused();
@@ -93,11 +93,11 @@ async function autocomplete(interaction, choice_table) {
 }
 
 /**
- * autocomplete_jp() - autocomplete interaction handler (also check ruby table)
+ * The handler of slash command autocomplete using `choice_table` and `choice_ruby` for Japanese card names.
  * @param {AutocompleteInteraction} interaction 
- * @param {object} choice_table 
- * @param {object} choice_ruby 
- * @param {object} choice_inverse 
+ * @param {Object} choice_table 
+ * @param {Object} choice_ruby 
+ * @param {Object} choice_inverse 
  */
 async function autocomplete_jp(interaction, choice_table, choice_ruby, choice_inverse) {
 	const focused = interaction.options.getFocused();
