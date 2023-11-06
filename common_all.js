@@ -54,7 +54,7 @@ function inverse_mapping(obj) {
  * @param {string} focused 
  * @param {Object} choice_table 
  * @param {boolean} case_sensitive
- * @returns 
+ * @returns {string[]}
  */
 function filter_choice(focused, choice_table, case_sensitive = false) {
 	if (!focused) {

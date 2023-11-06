@@ -773,6 +773,7 @@ module.exports = {
 	cid_table,
 	cid_inverse,
 	name_table,
+	lang,
 
 	is_alternative,
 	is_released,
