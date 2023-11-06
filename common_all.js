@@ -67,7 +67,7 @@ function filter_choice(focused, choice_table, case_sensitive = false) {
 	const filter_function = case_sensitive ? (choice => toHalfWidth(choice).includes(keyword)) : (choice => toHalfWidth(choice.toLowerCase()).includes(keyword));
 	const result = Object.keys(choice_table).filter(filter_function);
 	for (const choice of result) {
-		let card_name = toHalfWidth(choice.toLowerCase());
+		let card_name = toHalfWidth(case_sensitive ? choice : choice.toLowerCase());
 		if (card_name.startsWith(keyword))
 			starts_with.push(choice);
 		else
