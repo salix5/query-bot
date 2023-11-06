@@ -41,6 +41,12 @@ async function fetch_desc(card, request_locale) {
 	}
 }
 
+/**
+ * Create the reply of `card` in region `locale`.
+ * @param {Object} card 
+ * @param {string} locale 
+ * @returns 
+ */
 function create_reply(card, locale) {
 	if (card.cid) {
 		let request_locale = ygo.get_request_locale(card, locale);
@@ -73,7 +79,7 @@ function create_reply(card, locale) {
 }
 
 /**
- * query_command() - query command handler
+ * The handler of query slash command.
  * @param {CommandInteraction} interaction 
  * @param {number} id 
  * @param {string} locale 
