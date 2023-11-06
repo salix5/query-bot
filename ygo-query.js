@@ -184,6 +184,11 @@ function is_released(card) {
 
 
 // query
+/**
+ * The sqlite condition of checking setcode.
+ * @param {string} setcode 
+ * @returns {string}
+ */
 function setcode_condition(setcode) {
 	const setcode_str1 = `(setcode & 0xfff) == (${setcode} & 0xfff) AND (setcode & (${setcode} & 0xf000)) == (${setcode} & 0xf000)`;
 	const setcode_str2 = `(setcode >> 16 & 0xfff) == (${setcode} & 0xfff) AND (setcode >> 16 & (${setcode} & 0xf000)) == (${setcode} & 0xf000)`;
@@ -194,12 +199,12 @@ function setcode_condition(setcode) {
 }
 
 /**
- * query_db()
+ * Query card from `db` using statement `qstr` and binding parame `arg`.
+ * The results are put in `ret`.
  * @param {initSqlJs.Database} db 
  * @param {string} qstr 
- * @param {object} arg 
- * @param {Array} ret 
- * @returns 
+ * @param {Object} arg 
+ * @param {Object[]} ret  
  */
 function query_db(db, qstr, arg, ret) {
 	if (!db)
@@ -311,6 +316,13 @@ function query_db(db, qstr, arg, ret) {
 	stmt.free();
 }
 
+/**
+ * Query card from all databases using statement `qstr` and binding parame `arg`.
+ * The results are put in `ret`.
+ * @param {string} qstr 
+ * @param {Object} arg 
+ * @param {Object[]} ret 
+ */
 function query(qstr, arg, ret) {
 	ret.length = 0;
 	for (const db of db_list) {
@@ -318,6 +330,12 @@ function query(qstr, arg, ret) {
 	}
 }
 
+/**
+ * Query card from all databases with `alias`.
+ * The results are put in `ret`.
+ * @param {number} alias 
+ * @param {Object[]} ret 
+ */
 function query_alias(alias, ret) {
 	let qstr = `${stmt_default} AND alias == $alias;`;
 	let arg = new Object();
@@ -328,6 +346,11 @@ function query_alias(alias, ret) {
 	}
 }
 
+/**
+ * Get a card from all databases with `id`.
+ * @param {number} id 
+ * @returns {Object}
+ */
 function get_card(id) {
 	let qstr = `SELECT datas.id, ot, alias, type, atk, def, level, attribute, race, name, desc FROM datas, texts WHERE datas.id == $id AND datas.id == texts.id;`;
 	let arg = new Object();
@@ -338,19 +361,31 @@ function get_card(id) {
 		if (ret.length)
 			return ret[0];
 	}
-	return null;
+	return Object.create(null);
 }
 
 
 // locale
+/**
+ * Get the card name of `id` in the region `locale`.
+ * @param {number} id 
+ * @param {string} locale 
+ * @returns {string}
+ */
 function get_name(id, locale) {
 	const cid = cid_table[id];
-	if (name_table[locale])
+	if (name_table[locale] && name_table[locale][cid])
 		return name_table[locale][cid];
 	else
-		return null;
+		return 'undefined';
 }
 
+/**
+ * Get the request_locale of `card` in region `locale`.
+ * @param {Object} card 
+ * @param {string} locale 
+ * @returns {string}
+ */
 function get_request_locale(card, locale) {
 	if (card[official_name[locale]]) {
 		return locale;
@@ -365,13 +400,25 @@ function get_request_locale(card, locale) {
 
 
 // output
+/**
+ * Print the ATK or DEF of a card.
+ * @param {number} x 
+ * @returns {string}
+ */
 function print_ad(x) {
 	if (x === -2)
 		return '?';
 	else
-		return x;
+		return x.toString();
 }
 
+/**
+ * Print the stat of `card` in language `locale`, using newline char `newline`.
+ * @param {Object} card 
+ * @param {string} newline 
+ * @param {string} locale 
+ * @returns {string}
+ */
 function print_data(card, newline, locale) {
 	let mtype = '';
 	let subtype = '';
@@ -502,6 +549,12 @@ function print_data(card, newline, locale) {
 	return data;
 }
 
+/**
+ * Print `card` in language `locale`.
+ * @param {object} card 
+ * @param {string} locale 
+ * @returns {string}
+ */
 function print_card(card, locale) {
 	let lfstr = '';
 	let lfstr_main = '';
