@@ -14,8 +14,11 @@
   "author": "salix5",
   "license": "MIT",
   "dependencies": {
-    "discord.js": "14.x",
+    "discord.js": "^14.14.0-dev.1699272270-637e1a4dd",
     "sql.js": "*"
+  },
+  "overrides": {
+    "@discordjs/rest": "2.1.0-dev.1699272281-637e1a4dd"
   },
   "engines": {
     "node": "20.x"
