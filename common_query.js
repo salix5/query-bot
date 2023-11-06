@@ -2,7 +2,7 @@
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle, CommandInteraction } = require('discord.js');
 const ygo = require('./ygo-query.js');
 
-const lang = {
+const response = {
 	'zh-tw': {
 		none: '沒有符合條件的卡片。',
 	},
@@ -18,7 +18,7 @@ const lang = {
 };
 
 async function fetch_desc(card, request_locale) {
-	const re_ptext = /<div class="frame pen_effect">.*?<div class="item_box_text">.*?([^\r\n\t]+).*?<\/div>/s;
+	const re_ptext = /<div class="frame pen_effect">.*?<div class="item_box_text">.*?([^\r\n\t]*).*?<\/div>/s;
 	const re_text = /<div class="text_title">.*?<\/div>.*?([^\r\n\t]+).*?<\/div>/s;
 	if (!card.cid)
 		return '';
@@ -34,7 +34,7 @@ async function fetch_desc(card, request_locale) {
 		if (res_ptext) {
 			ptext = res_ptext[1].replaceAll('<br>', '\n');
 		}
-		return `${ptext}\n========\n${ctext}\n`;
+		return `${ptext}\n【${ygo.lang[request_locale][ygo.type.TYPE_MONSTER]}${ygo.lang[request_locale][ygo.monster_type.TYPE_EFFECT]}】\n${ctext}\n`;
 	}
 	else {
 		return `${ctext}\n`;
@@ -98,12 +98,12 @@ async function query_command(interaction, id, locale) {
 			}
 		}
 		else {
-			await interaction.reply(lang[locale].none);
+			await interaction.reply(response[locale].none);
 			console.error('Error card id', id);
 		}
 	}
 	else {
-		await interaction.reply(lang[locale].none);
+		await interaction.reply(response[locale].none);
 	}
 }
 
