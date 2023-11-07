@@ -104,6 +104,98 @@ const LINK_MARKER_TOP_LEFT = 0x040;		// ↖
 const LINK_MARKER_TOP = 0x080;			// ↑
 const LINK_MARKER_TOP_RIGHT = 0x100;	// ↗
 
+const type = {
+	TYPE_MONSTER,
+	TYPE_SPELL,
+	TYPE_TRAP,
+};
+
+const monster_type = {
+	TYPE_NORMAL,
+	TYPE_EFFECT,
+	TYPE_FUSION,
+	TYPE_RITUAL,
+	TYPE_SYNCHRO,
+	TYPE_XYZ,
+	TYPE_PENDULUM,
+	TYPE_LINK,
+	TYPE_EXTRA,
+
+	TYPE_SPIRIT,
+	TYPE_UNION,
+	TYPE_DUAL,
+	TYPE_TUNER,
+	TYPE_TOKEN,
+	TYPE_FLIP,
+	TYPE_TOON,
+	TYPE_SPSUMMON,
+};
+
+const spell_type = {
+	TYPE_QUICKPLAY,
+	TYPE_CONTINUOUS,
+	TYPE_EQUIP,
+	TYPE_RITUAL,
+	TYPE_FIELD,
+};
+
+const trap_type = {
+	TYPE_CONTINUOUS,
+	TYPE_COUNTER,
+};
+
+const race = {
+	RACE_WARRIOR,
+	RACE_SPELLCASTER,
+	RACE_FAIRY,
+	RACE_FIEND,
+	RACE_ZOMBIE,
+	RACE_MACHINE,
+	RACE_AQUA,
+	RACE_PYRO,
+	RACE_ROCK,
+	RACE_WINDBEAST,
+	RACE_PLANT,
+	RACE_INSECT,
+	RACE_THUNDER,
+	RACE_DRAGON,
+	RACE_BEAST,
+	RACE_BEASTWARRIOR,
+	RACE_DINOSAUR,
+	RACE_FISH,
+	RACE_SEASERPENT,
+	RACE_REPTILE,
+	RACE_PSYCHO,
+	RACE_DIVINE,
+	RACE_CREATORGOD,
+	RACE_WYRM,
+	RACE_CYBERSE,
+	RACE_ILLUSION,
+};
+
+const attribute = {
+	ATTRIBUTE_EARTH,
+	ATTRIBUTE_WATER,
+	ATTRIBUTE_FIRE,
+	ATTRIBUTE_WIND,
+	ATTRIBUTE_LIGHT,
+	ATTRIBUTE_DARK,
+	ATTRIBUTE_DIVINE,
+};
+
+const link_marker = {
+	LINK_MARKER_BOTTOM_LEFT,
+	LINK_MARKER_BOTTOM,
+	LINK_MARKER_BOTTOM_RIGHT,
+
+	LINK_MARKER_LEFT,
+	LINK_MARKER_RIGHT,
+
+	LINK_MARKER_TOP_LEFT,
+	LINK_MARKER_TOP,
+	LINK_MARKER_TOP_RIGHT,
+};
+
 // special ID
 const ID_TYLER_THE_GREAT_WARRIOR = 68811206;
 const ID_BLACK_LUSTER_SOLDIER = 5405695;
@@ -117,9 +209,6 @@ const effect_filter = ` AND (NOT type & ${TYPE_NORMAL} OR type & ${TYPE_PENDULUM
 
 const stmt_default = `${select_all}${physical_filter}`;
 const stmt_no_alias = `${select_id}${base_filter} AND alias == 0`;
-
-
-const cid_inverse = inverse_mapping(cid_table);
 
 const lang = Object.create(null);
 lang['zh-tw'] = lang_tw;
@@ -137,6 +226,8 @@ name_table['ja'] = name_table_jp;
 name_table['ko'] = name_table_kr;
 name_table['en'] = name_table_en;
 name_table['md'] = md_name;
+
+
 
 let SQL = null;
 const db_list = [];
@@ -168,7 +259,7 @@ function inverse_mapping(obj) {
 	}
 	return inverse;
 }
-
+const cid_inverse = inverse_mapping(cid_table);
 
 // card
 function is_alternative(card) {
@@ -347,7 +438,7 @@ function query_alias(alias, ret) {
 }
 
 /**
- * Get a card from all databases with `id`.
+ * Get a card with `id` from all databases.
  * @param {number} id 
  * @returns {Object}
  */
@@ -668,97 +759,13 @@ module.exports = {
 	ID_BLACK_LUSTER_SOLDIER,
 	ID_TYLER_THE_GREAT_WARRIOR,
 
-	type: {
-		TYPE_MONSTER,
-		TYPE_SPELL,
-		TYPE_TRAP,
-	},
-
-	monster_type: {
-		TYPE_NORMAL,
-		TYPE_EFFECT,
-		TYPE_FUSION,
-		TYPE_RITUAL,
-		TYPE_SYNCHRO,
-		TYPE_XYZ,
-		TYPE_PENDULUM,
-		TYPE_LINK,
-		TYPE_EXTRA,
-
-		TYPE_SPIRIT,
-		TYPE_UNION,
-		TYPE_DUAL,
-		TYPE_TUNER,
-		TYPE_TOKEN,
-		TYPE_FLIP,
-		TYPE_TOON,
-		TYPE_SPSUMMON,
-	},
-
-	spell_type: {
-		TYPE_QUICKPLAY,
-		TYPE_CONTINUOUS,
-		TYPE_EQUIP,
-		TYPE_RITUAL,
-		TYPE_FIELD,
-	},
-
-	trap_type: {
-		TYPE_CONTINUOUS,
-		TYPE_COUNTER,
-	},
-
-	race: {
-		RACE_WARRIOR,
-		RACE_SPELLCASTER,
-		RACE_FAIRY,
-		RACE_FIEND,
-		RACE_ZOMBIE,
-		RACE_MACHINE,
-		RACE_AQUA,
-		RACE_PYRO,
-		RACE_ROCK,
-		RACE_WINDBEAST,
-		RACE_PLANT,
-		RACE_INSECT,
-		RACE_THUNDER,
-		RACE_DRAGON,
-		RACE_BEAST,
-		RACE_BEASTWARRIOR,
-		RACE_DINOSAUR,
-		RACE_FISH,
-		RACE_SEASERPENT,
-		RACE_REPTILE,
-		RACE_PSYCHO,
-		RACE_DIVINE,
-		RACE_CREATORGOD,
-		RACE_WYRM,
-		RACE_CYBERSE,
-		RACE_ILLUSION,
-	},
-
-	attribute: {
-		ATTRIBUTE_EARTH,
-		ATTRIBUTE_WATER,
-		ATTRIBUTE_FIRE,
-		ATTRIBUTE_WIND,
-		ATTRIBUTE_LIGHT,
-		ATTRIBUTE_DARK,
-		ATTRIBUTE_DIVINE,
-	},
-
-	link_marker: {
-		LINK_MARKER_BOTTOM_LEFT,
-		LINK_MARKER_BOTTOM,
-		LINK_MARKER_BOTTOM_RIGHT,
-
-		LINK_MARKER_LEFT,
-		LINK_MARKER_RIGHT,
-
-		LINK_MARKER_TOP_LEFT,
-		LINK_MARKER_TOP,
-		LINK_MARKER_TOP_RIGHT,
-	},
+	type,
+	monster_type,
+	spell_type,
+	trap_type,
+	race,
+	attribute,
+	link_marker,
 
 	select_all,
 	select_id,
