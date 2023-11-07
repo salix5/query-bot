@@ -377,7 +377,7 @@ function get_name(id, locale) {
 	if (name_table[locale] && name_table[locale][cid])
 		return name_table[locale][cid];
 	else
-		return 'undefined';
+		return '';
 }
 
 /**
