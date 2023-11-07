@@ -1,5 +1,4 @@
-"use strict";
-const { AutocompleteInteraction } = require("discord.js");
+import { AutocompleteInteraction } from "discord.js";
 const MAX_CHOICE = 25;
 
 /**
@@ -37,7 +36,7 @@ function is_equal(a, b) {
  * @param {Object} obj 
  * @returns {Object}
  */
-function inverse_mapping(obj) {
+export function inverse_mapping(obj) {
 	const inverse = Object.create(null);
 	for (const [key, value] of Object.entries(obj)) {
 		if (inverse[value]) {
@@ -56,7 +55,7 @@ function inverse_mapping(obj) {
  * @param {boolean} case_sensitive
  * @returns {string[]}
  */
-function filter_choice(focused, choice_table, case_sensitive = false) {
+export function filter_choice(focused, choice_table, case_sensitive = false) {
 	if (!focused) {
 		return [];
 	}
@@ -86,7 +85,7 @@ function filter_choice(focused, choice_table, case_sensitive = false) {
  * @param {AutocompleteInteraction} interaction 
  * @param {Object} choice_table
  */
-async function autocomplete(interaction, choice_table) {
+export async function autocomplete(interaction, choice_table) {
 	const focused = interaction.options.getFocused();
 	const ret = filter_choice(focused, choice_table);
 	await interaction.respond(
@@ -101,7 +100,7 @@ async function autocomplete(interaction, choice_table) {
  * @param {Object} choice_ruby 
  * @param {Object} choice_inverse 
  */
-async function autocomplete_jp(interaction, choice_table, choice_ruby, choice_inverse) {
+export async function autocomplete_jp(interaction, choice_table, choice_ruby, choice_inverse) {
 	const focused = interaction.options.getFocused();
 	var ret = filter_choice(focused, choice_table, true);
 	if (focused && ret.length < MAX_CHOICE) {
@@ -131,12 +130,3 @@ async function autocomplete_jp(interaction, choice_table, choice_ruby, choice_in
 		ret.map(choice => ({ name: choice, value: choice })),
 	);
 }
-
-module.exports = {
-	MAX_CHOICE,
-
-	inverse_mapping,
-	filter_choice,
-	autocomplete,
-	autocomplete_jp,
-};

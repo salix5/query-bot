@@ -1,6 +1,5 @@
-"use strict";
-const { ActionRowBuilder, ButtonBuilder, ButtonStyle, CommandInteraction } = require('discord.js');
-const ygo = require('./ygo-query.js');
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, CommandInteraction } from 'discord.js';
+import ygo from './ygo-query.js';
 
 const response = {
 	'zh-tw': {
@@ -50,7 +49,7 @@ async function fetch_desc(card, request_locale) {
  * @param {string} locale 
  * @returns 
  */
-function create_reply(card, locale) {
+export function create_reply(card, locale) {
 	if (card.cid) {
 		let request_locale = ygo.get_request_locale(card, locale);
 		const row1 = new ActionRowBuilder();
@@ -87,7 +86,7 @@ function create_reply(card, locale) {
  * @param {number} id 
  * @param {string} locale 
  */
-async function query_command(interaction, id, locale) {
+export async function query_command(interaction, id, locale) {
 	if (id) {
 		const card = ygo.get_card(id);
 		if (card) {
@@ -109,8 +108,3 @@ async function query_command(interaction, id, locale) {
 		await interaction.reply(response[locale].none);
 	}
 }
-
-module.exports = {
-	create_reply,
-	query_command,
-};
