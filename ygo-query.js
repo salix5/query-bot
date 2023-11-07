@@ -1,22 +1,20 @@
-"use strict";
-const initSqlJs = require('sql.js');
+import initSqlJs from 'sql.js';
+import cid_table from './data/cid.json' assert { type: 'json' };
+import name_table_jp from './data/name_table.json' assert { type: 'json' };
+import name_table_kr from './data/name_table_kr.json' assert { type: 'json' };
+import name_table_en from './data/name_table_en.json' assert { type: 'json' };
+import md_name from './data/md_name.json' assert { type: 'json' };
+import md_name_jp from './data/md_name_jp.json' assert { type: 'json' };
+import md_name_en from './data/md_name_en.json' assert { type: 'json' };
 
-const cid_table = require('./data/cid.json');
-const name_table_jp = require('./data/name_table.json');
-const name_table_kr = require('./data/name_table_kr.json');
-const name_table_en = require('./data/name_table_en.json');
-const md_name = require('./data/md_name.json');
-const md_name_jp = require('./data/md_name_jp.json');
-const md_name_en = require('./data/md_name_en.json');
+import ltable_ocg from './data/lflist.json' assert { type: 'json' };
+import ltable_tcg from './data/lflist_tcg.json' assert { type: 'json' };
+import ltable_md from './data/lflist_md.json' assert { type: 'json' };
 
-const ltable_ocg = require('./data/lflist.json');
-const ltable_tcg = require('./data/lflist_tcg.json');
-const ltable_md = require('./data/lflist_md.json');
-
-const lang_tw = require('./lang/zh-tw.json');
-const lang_ja = require('./lang/ja.json');
-const lang_ko = require('./lang/ko.json');
-const lang_en = require('./lang/en.json');
+import lang_tw from './lang/zh-tw.json' assert { type: 'json' };
+import lang_ja from './lang/ja.json' assert { type: 'json' };
+import lang_ko from './lang/ko.json' assert { type: 'json' };
+import lang_en from './lang/en.json' assert { type: 'json' };
 
 // type
 const TYPE_MONSTER = 0x1;
@@ -104,13 +102,13 @@ const LINK_MARKER_TOP_LEFT = 0x040;		// ↖
 const LINK_MARKER_TOP = 0x080;			// ↑
 const LINK_MARKER_TOP_RIGHT = 0x100;	// ↗
 
-const type = {
+export const type = {
 	TYPE_MONSTER,
 	TYPE_SPELL,
 	TYPE_TRAP,
 };
 
-const monster_type = {
+export const monster_type = {
 	TYPE_NORMAL,
 	TYPE_EFFECT,
 	TYPE_FUSION,
@@ -131,7 +129,7 @@ const monster_type = {
 	TYPE_SPSUMMON,
 };
 
-const spell_type = {
+export const spell_type = {
 	TYPE_QUICKPLAY,
 	TYPE_CONTINUOUS,
 	TYPE_EQUIP,
@@ -139,12 +137,12 @@ const spell_type = {
 	TYPE_FIELD,
 };
 
-const trap_type = {
+export const trap_type = {
 	TYPE_CONTINUOUS,
 	TYPE_COUNTER,
 };
 
-const race = {
+export const race = {
 	RACE_WARRIOR,
 	RACE_SPELLCASTER,
 	RACE_FAIRY,
@@ -173,7 +171,7 @@ const race = {
 	RACE_ILLUSION,
 };
 
-const attribute = {
+export const attribute = {
 	ATTRIBUTE_EARTH,
 	ATTRIBUTE_WATER,
 	ATTRIBUTE_FIRE,
@@ -183,7 +181,7 @@ const attribute = {
 	ATTRIBUTE_DIVINE,
 };
 
-const link_marker = {
+export const link_marker = {
 	LINK_MARKER_BOTTOM_LEFT,
 	LINK_MARKER_BOTTOM,
 	LINK_MARKER_BOTTOM_RIGHT,
@@ -197,58 +195,52 @@ const link_marker = {
 };
 
 // special ID
-const ID_TYLER_THE_GREAT_WARRIOR = 68811206;
-const ID_BLACK_LUSTER_SOLDIER = 5405695;
+export const ID_TYLER_THE_GREAT_WARRIOR = 68811206;
+export const ID_BLACK_LUSTER_SOLDIER = 5405695;
 
-const select_all = `SELECT datas.id, ot, alias, type, atk, def, level, attribute, race, name, desc FROM datas, texts WHERE datas.id == texts.id`;
-const select_id = `SELECT datas.id FROM datas, texts WHERE datas.id == texts.id`;
+export const select_all = `SELECT datas.id, ot, alias, type, atk, def, level, attribute, race, name, desc FROM datas, texts WHERE datas.id == texts.id`;
+export const select_id = `SELECT datas.id FROM datas, texts WHERE datas.id == texts.id`;
 
-const base_filter = ` AND datas.id != ${ID_TYLER_THE_GREAT_WARRIOR} AND NOT type & ${TYPE_TOKEN}`;
-const physical_filter = `${base_filter} AND (datas.id == ${ID_BLACK_LUSTER_SOLDIER} OR abs(datas.id - alias) >= 10)`;
-const effect_filter = ` AND (NOT type & ${TYPE_NORMAL} OR type & ${TYPE_PENDULUM})`;
+export const base_filter = ` AND datas.id != ${ID_TYLER_THE_GREAT_WARRIOR} AND NOT type & ${TYPE_TOKEN}`;
+export const physical_filter = `${base_filter} AND (datas.id == ${ID_BLACK_LUSTER_SOLDIER} OR abs(datas.id - alias) >= 10)`;
+export const effect_filter = ` AND (NOT type & ${TYPE_NORMAL} OR type & ${TYPE_PENDULUM})`;
 
-const stmt_default = `${select_all}${physical_filter}`;
-const stmt_no_alias = `${select_id}${base_filter} AND alias == 0`;
+export const stmt_default = `${select_all}${physical_filter}`;
+export const stmt_no_alias = `${select_id}${base_filter} AND alias == 0`;
 
-const lang = Object.create(null);
+export const cid_inverse = inverse_mapping(cid_table);
+export const lang = Object.create(null);
 lang['zh-tw'] = lang_tw;
 lang['ja'] = lang_ja;
 lang['ko'] = lang_ko;
 lang['en'] = lang_en;
 
-const official_name = Object.create(null);
+export const official_name = Object.create(null);
 official_name['ja'] = 'jp_name';
 official_name['ko'] = 'kr_name';
 official_name['en'] = 'en_name';
 
-const name_table = Object.create(null);
+export const name_table = Object.create(null);
 name_table['ja'] = name_table_jp;
 name_table['ko'] = name_table_kr;
 name_table['en'] = name_table_en;
 name_table['md'] = md_name;
 
-
-
-let SQL = null;
 const db_list = [];
-const load_prerelease = true;
+let load_prerelease = true;
 
 const domain = 'https://salix5.github.io/cdb';
 const fetch_db = fetch(`${domain}/cards.cdb`).then(response => response.arrayBuffer());
 const fetch_db2 = fetch(`${domain}/pre-release.cdb`).then(response => response.arrayBuffer());
-
-const db_ready = Promise.all([initSqlJs(), fetch_db, fetch_db2])
-	.then(([sql, buf1, buf2]) => {
-		SQL = sql;
-		db_list.push(new SQL.Database(new Uint8Array(buf1)));
-		if (load_prerelease) {
-			db_list.push(new SQL.Database(new Uint8Array(buf2)));
-		}
-		return db_list;
-	});
+const [SQL, buf1, buf2] = await Promise.all([initSqlJs(), fetch_db, fetch_db2]);
+db_list.push(new SQL.Database(new Uint8Array(buf1)));
+if (load_prerelease) {
+	db_list.push(new SQL.Database(new Uint8Array(buf2)));
+}
 
 
-function inverse_mapping(obj) {
+
+export function inverse_mapping(obj) {
 	const inverse = Object.create(null);
 	for (const [key, value] of Object.entries(obj)) {
 		if (inverse[value]) {
@@ -259,17 +251,16 @@ function inverse_mapping(obj) {
 	}
 	return inverse;
 }
-const cid_inverse = inverse_mapping(cid_table);
 
 // card
-function is_alternative(card) {
+export function is_alternative(card) {
 	if (card.id === ID_BLACK_LUSTER_SOLDIER)
 		return false;
 	else
 		return Math.abs(card.id - card.alias) < 10;
 }
 
-function is_released(card) {
+export function is_released(card) {
 	return !!(card.jp_name || card.en_name);
 }
 
@@ -280,7 +271,7 @@ function is_released(card) {
  * @param {string} setcode 
  * @returns {string}
  */
-function setcode_condition(setcode) {
+export function setcode_condition(setcode) {
 	const setcode_str1 = `(setcode & 0xfff) == (${setcode} & 0xfff) AND (setcode & (${setcode} & 0xf000)) == (${setcode} & 0xf000)`;
 	const setcode_str2 = `(setcode >> 16 & 0xfff) == (${setcode} & 0xfff) AND (setcode >> 16 & (${setcode} & 0xf000)) == (${setcode} & 0xf000)`;
 	const setcode_str3 = `(setcode >> 32 & 0xfff) == (${setcode} & 0xfff) AND (setcode >> 32 & (${setcode} & 0xf000)) == (${setcode} & 0xf000)`;
@@ -414,7 +405,7 @@ function query_db(db, qstr, arg, ret) {
  * @param {Object} arg 
  * @param {Object[]} ret 
  */
-function query(qstr, arg, ret) {
+export function query(qstr, arg, ret) {
 	ret.length = 0;
 	for (const db of db_list) {
 		query_db(db, qstr, arg, ret);
@@ -427,7 +418,7 @@ function query(qstr, arg, ret) {
  * @param {number} alias 
  * @param {Object[]} ret 
  */
-function query_alias(alias, ret) {
+export function query_alias(alias, ret) {
 	let qstr = `${stmt_default} AND alias == $alias;`;
 	let arg = new Object();
 	arg.$alias = alias;
@@ -442,7 +433,7 @@ function query_alias(alias, ret) {
  * @param {number} id 
  * @returns {Object}
  */
-function get_card(id) {
+export function get_card(id) {
 	let qstr = `SELECT datas.id, ot, alias, type, atk, def, level, attribute, race, name, desc FROM datas, texts WHERE datas.id == $id AND datas.id == texts.id;`;
 	let arg = new Object();
 	arg.$id = id;
@@ -463,7 +454,7 @@ function get_card(id) {
  * @param {string} locale 
  * @returns {string}
  */
-function get_name(id, locale) {
+export function get_name(id, locale) {
 	const cid = cid_table[id];
 	if (name_table[locale] && name_table[locale][cid])
 		return name_table[locale][cid];
@@ -477,7 +468,7 @@ function get_name(id, locale) {
  * @param {string} locale 
  * @returns {string}
  */
-function get_request_locale(card, locale) {
+export function get_request_locale(card, locale) {
 	if (card[official_name[locale]]) {
 		return locale;
 	}
@@ -510,7 +501,7 @@ function print_ad(x) {
  * @param {string} locale 
  * @returns {string}
  */
-function print_data(card, newline, locale) {
+export function print_data(card, newline, locale) {
 	let mtype = '';
 	let subtype = '';
 	let lvstr = '\u2605';
@@ -646,7 +637,7 @@ function print_data(card, newline, locale) {
  * @param {string} locale 
  * @returns {string}
  */
-function print_card(card, locale) {
+export function print_card(card, locale) {
 	let lfstr = '';
 	let lfstr_main = '';
 	let lfstr_md = '';
@@ -740,22 +731,20 @@ function print_card(card, locale) {
 	return card_text;
 }
 
-function print_db_link(cid, request_locale) {
+export function print_db_link(cid, request_locale) {
 	return `https://www.db.yugioh-card.com/yugiohdb/card_search.action?ope=2&cid=${cid}&request_locale=${request_locale}`;
 }
 
-function print_wiki_link(id) {
+export function print_wiki_link(id) {
 	return `https://yugipedia.com/wiki/${id}`;
 }
 
-function print_qa_link(cid) {
+export function print_qa_link(cid) {
 	return `https://www.db.yugioh-card.com/yugiohdb/faq_search.action?ope=4&cid=${cid}&request_locale=ja`;
 }
 
 
-module.exports = {
-	db_ready,
-
+export default {
 	ID_BLACK_LUSTER_SOLDIER,
 	ID_TYLER_THE_GREAT_WARRIOR,
 
