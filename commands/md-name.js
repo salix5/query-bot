@@ -1,4 +1,3 @@
-"use strict";
 import { SlashCommandBuilder } from 'discord.js';
 import { get_name } from '../ygo-query.js';
 import { autocomplete } from '../common_all.js';

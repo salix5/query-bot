@@ -1,4 +1,3 @@
-"use strict";
 import { SlashCommandBuilder } from 'discord.js';
 import { autocomplete } from '../common_all.js';
 import choice_table from '../commands_data/choices_tc.json' assert { type: 'json' };

@@ -1,4 +1,3 @@
-"use strict";
 import { Client, Collection, Events, GatewayIntentBits, ChannelType, MessageType, Partials } from 'discord.js';
 import { name_table } from './ygo-query.js';
 import { readdirSync } from 'node:fs';
