@@ -68,7 +68,7 @@ export function filter_choice(focused, choice_table, case_sensitive = false) {
  * @param {AutocompleteInteraction} interaction 
  * @param {Object} choice_table
  */
-export async function autocomplete(interaction, choice_table) {
+export async function autocomplete_default(interaction, choice_table) {
 	const focused = interaction.options.getFocused();
 	const ret = filter_choice(focused, choice_table);
 	await interaction.respond(
