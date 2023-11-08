@@ -1,4 +1,3 @@
-"use strict";
 import { SlashCommandBuilder } from 'discord.js';
 import { autocomplete } from '../common_all.js';
 import { query_command } from '../common_query.js';

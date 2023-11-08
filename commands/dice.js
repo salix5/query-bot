@@ -1,4 +1,3 @@
-"use strict";
 import { SlashCommandBuilder } from 'discord.js';
 import { randomInt } from 'node:crypto';
 import { promisify } from 'node:util';
