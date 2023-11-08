@@ -1,8 +1,7 @@
 "use strict";
-const { Client, Collection, Events, GatewayIntentBits, ChannelType, MessageType, Partials } = require('discord.js');
-const ygoQuery = require('./ygo-query.js');
-const fs = require('node:fs');
-const path = require('node:path');
+import { Client, Collection, Events, GatewayIntentBits, ChannelType, MessageType, Partials } from 'discord.js';
+import { name_table } from './ygo-query.js';
+import { readdirSync } from 'node:fs';
 //require('dotenv').config();
 
 const re_wildcard = /(^|[^\$])[%_]/;
@@ -14,22 +13,29 @@ const client = new Client({
 
 client.cooldowns = new Collection();
 client.commands = new Collection();
-const commandsPath = path.join(__dirname, 'commands');
-const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
+const commandsURL = new URL('commands/', import.meta.url);
+const commandFiles = readdirSync(commandsURL).filter(file => file.endsWith('.js'));
+const import_list = [];
 
 for (const file of commandFiles) {
-	const filePath = path.join(commandsPath, file);
-	const command = require(filePath);
+	const fileURL = new URL(file, commandsURL);
+	import_list.push(import(fileURL));
+}
+
+const commands = await Promise.all(import_list);
+for (const command of commands) {
 	if ('data' in command && 'execute' in command) {
 		client.commands.set(command.data.name, command);
 	} else {
-		console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
+		//console.log(`[WARNING] The command at ${} is missing a required "data" or "execute" property.`);
+		console.log(command);
 	}
 }
+client.login(process.env.TOKEN);
 
 client.once(Events.ClientReady, c => {
 	let currentDate = new Date();
-	console.log(`[${currentDate.toUTCString()}] Ready! Logged in as ${c.user.tag} (total: ${Object.keys(ygoQuery.name_table['ja']).length})`);
+	console.log(`[${currentDate.toUTCString()}] Ready! Logged in as ${c.user.tag} (total: ${Object.keys(name_table['ja']).length})`);
 });
 
 client.on(Events.MessageCreate, async msg => {
@@ -116,8 +122,4 @@ client.on(Events.InteractionCreate, async interaction => {
 
 client.on(Events.Error, (err) => {
 	console.error(err);
-});
-
-ygoQuery.db_ready.then(() => {
-	client.login(process.env.TOKEN);
 });
