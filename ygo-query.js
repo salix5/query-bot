@@ -239,7 +239,11 @@ if (load_prerelease) {
 }
 
 
-
+/**
+ * Create the inverse mapping of `obj`.
+ * @param {Object} obj 
+ * @returns {Object}
+ */
 export function inverse_mapping(obj) {
 	const inverse = Object.create(null);
 	for (const [key, value] of Object.entries(obj)) {
@@ -772,6 +776,7 @@ export default {
 	lang,
 	official_name,
 
+	inverse_mapping,
 	is_alternative,
 	is_released,
 

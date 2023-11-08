@@ -32,23 +32,6 @@ function is_equal(a, b) {
 
 
 /**
- * Create the inverse mapping of `obj`.
- * @param {Object} obj 
- * @returns {Object}
- */
-export function inverse_mapping(obj) {
-	const inverse = Object.create(null);
-	for (const [key, value] of Object.entries(obj)) {
-		if (inverse[value]) {
-			console.log('non-invertible', `${key}: ${value}`);
-			return Object.create(null);
-		}
-		inverse[value] = key;
-	}
-	return inverse;
-}
-
-/**
  * Filter the choices matching `focused` in `choice_table` and push them into an array.
  * @param {string} focused 
  * @param {Object} choice_table 
