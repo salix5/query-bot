@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from 'discord.js';
-import { autocomplete } from '../common_all.js';
+import { autocomplete_default } from '../common_all.js';
 import choice_table from '../commands_data/choices_tc.json' assert { type: 'json' };
 
 export const data = new SlashCommandBuilder()
@@ -12,7 +12,7 @@ export const data = new SlashCommandBuilder()
 		.setAutocomplete(true)
 	);
 export async function autocomplete(interaction) {
-	await autocomplete(interaction, choice_table);
+	await autocomplete_default(interaction, choice_table);
 }
 export async function execute(interaction) {
 	const input = interaction.options.getString('input');
