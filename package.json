@@ -7,9 +7,15 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/salix5/query-bot"
+  },
   "keywords": [
+    "yugioh",
     "ygo",
-    "query"
+    "query",
+    "Discord-bot"
   ],
   "author": "salix5",
   "license": "MIT",
