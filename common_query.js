@@ -1,5 +1,5 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, CommandInteraction } from 'discord.js';
-import * as ygo from './ygo-query.js';
+import * as ygo from './ygo-query.mjs';
 
 const response = {
 	'zh-tw': {

@@ -1,7 +1,7 @@
 import { randomInt } from 'node:crypto';
 import { promisify } from 'node:util';
 import { SlashCommandBuilder } from 'discord.js';
-import { name_table, cid_inverse, get_card } from '../ygo-query.js';
+import { name_table, cid_inverse, get_card } from '../ygo-query.mjs';
 import { create_reply } from '../common_query.js';
 const rand = promisify(randomInt);
 

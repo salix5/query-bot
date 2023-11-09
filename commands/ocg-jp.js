@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from 'discord.js';
-import { inverse_mapping } from '../ygo-query.js';
+import { inverse_mapping } from '../ygo-query.mjs';
 import { autocomplete_jp } from '../common_all.js';
 import { query_command } from '../common_query.js';
 import choice_table from '../commands_data/choices_jp.json' assert { type: 'json' };
