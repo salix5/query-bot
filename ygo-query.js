@@ -208,7 +208,6 @@ export const effect_filter = ` AND (NOT type & ${TYPE_NORMAL} OR type & ${TYPE_P
 export const stmt_default = `${select_all}${physical_filter}`;
 export const stmt_no_alias = `${select_id}${base_filter} AND alias == 0`;
 
-export const cid_inverse = inverse_mapping(cid_table);
 export const lang = Object.create(null);
 lang['zh-tw'] = lang_tw;
 lang['ja'] = lang_ja;
@@ -226,6 +225,8 @@ name_table['ko'] = name_table_kr;
 name_table['en'] = name_table_en;
 name_table['md'] = md_name;
 
+export const cid_inverse = inverse_mapping(cid_table);
+
 const db_list = [];
 let load_prerelease = true;
 
@@ -236,52 +237,6 @@ const [SQL, buf1, buf2] = await Promise.all([initSqlJs(), fetch_db, fetch_db2]);
 db_list.push(new SQL.Database(new Uint8Array(buf1)));
 if (load_prerelease) {
 	db_list.push(new SQL.Database(new Uint8Array(buf2)));
-}
-
-
-/**
- * Create the inverse mapping of `obj`.
- * @param {Object} obj 
- * @returns {Object}
- */
-export function inverse_mapping(obj) {
-	const inverse = Object.create(null);
-	for (const [key, value] of Object.entries(obj)) {
-		if (inverse[value]) {
-			console.log('non-invertible', `${key}: ${value}`);
-			return Object.create(null);
-		}
-		inverse[value] = key;
-	}
-	return inverse;
-}
-
-// card
-export function is_alternative(card) {
-	if (card.id === ID_BLACK_LUSTER_SOLDIER)
-		return false;
-	else
-		return Math.abs(card.id - card.alias) < 10;
-}
-
-export function is_released(card) {
-	return !!(card.jp_name || card.en_name);
-}
-
-
-// query
-/**
- * The sqlite condition of checking setcode.
- * @param {string} setcode 
- * @returns {string}
- */
-export function setcode_condition(setcode) {
-	const setcode_str1 = `(setcode & 0xfff) == (${setcode} & 0xfff) AND (setcode & (${setcode} & 0xf000)) == (${setcode} & 0xf000)`;
-	const setcode_str2 = `(setcode >> 16 & 0xfff) == (${setcode} & 0xfff) AND (setcode >> 16 & (${setcode} & 0xf000)) == (${setcode} & 0xf000)`;
-	const setcode_str3 = `(setcode >> 32 & 0xfff) == (${setcode} & 0xfff) AND (setcode >> 32 & (${setcode} & 0xf000)) == (${setcode} & 0xf000)`;
-	const setcode_str4 = `(setcode >> 48 & 0xfff) == (${setcode} & 0xfff) AND (setcode >> 48 & (${setcode} & 0xf000)) == (${setcode} & 0xf000)`;
-	let ret = `(${setcode_str1} OR ${setcode_str2} OR ${setcode_str3} OR ${setcode_str4})`;
-	return ret;
 }
 
 /**
@@ -402,6 +357,50 @@ function query_db(db, qstr, arg, ret) {
 	stmt.free();
 }
 
+
+// export
+/**
+ * Create the inverse mapping of `obj`.
+ * @param {Object} obj 
+ * @returns {Object}
+ */
+export function inverse_mapping(obj) {
+	const inverse = Object.create(null);
+	for (const [key, value] of Object.entries(obj)) {
+		if (inverse[value]) {
+			console.log('non-invertible', `${key}: ${value}`);
+			return Object.create(null);
+		}
+		inverse[value] = key;
+	}
+	return inverse;
+}
+
+export function is_alternative(card) {
+	if (card.id === ID_BLACK_LUSTER_SOLDIER)
+		return false;
+	else
+		return Math.abs(card.id - card.alias) < 10;
+}
+
+export function is_released(card) {
+	return !!(card.jp_name || card.en_name);
+}
+
+/**
+ * The sqlite condition of checking setcode.
+ * @param {string} setcode 
+ * @returns {string}
+ */
+export function setcode_condition(setcode) {
+	const setcode_str1 = `(setcode & 0xfff) == (${setcode} & 0xfff) AND (setcode & (${setcode} & 0xf000)) == (${setcode} & 0xf000)`;
+	const setcode_str2 = `(setcode >> 16 & 0xfff) == (${setcode} & 0xfff) AND (setcode >> 16 & (${setcode} & 0xf000)) == (${setcode} & 0xf000)`;
+	const setcode_str3 = `(setcode >> 32 & 0xfff) == (${setcode} & 0xfff) AND (setcode >> 32 & (${setcode} & 0xf000)) == (${setcode} & 0xf000)`;
+	const setcode_str4 = `(setcode >> 48 & 0xfff) == (${setcode} & 0xfff) AND (setcode >> 48 & (${setcode} & 0xf000)) == (${setcode} & 0xf000)`;
+	let ret = `(${setcode_str1} OR ${setcode_str2} OR ${setcode_str3} OR ${setcode_str4})`;
+	return ret;
+}
+
 /**
  * Query card from all databases using statement `qstr` and binding parame `arg`.
  * The results are put in `ret`.
@@ -450,8 +449,6 @@ export function get_card(id) {
 	return Object.create(null);
 }
 
-
-// locale
 /**
  * Get the card name of `id` in the region `locale`.
  * @param {number} id 
@@ -484,14 +481,12 @@ export function get_request_locale(card, locale) {
 	}
 }
 
-
-// output
 /**
  * Print the ATK or DEF of a card.
  * @param {number} x 
  * @returns {string}
  */
-function print_ad(x) {
+export function print_ad(x) {
 	if (x === -2)
 		return '?';
 	else
@@ -746,51 +741,3 @@ export function print_wiki_link(id) {
 export function print_qa_link(cid) {
 	return `https://www.db.yugioh-card.com/yugiohdb/faq_search.action?ope=4&cid=${cid}&request_locale=ja`;
 }
-
-
-export default {
-	ID_BLACK_LUSTER_SOLDIER,
-	ID_TYLER_THE_GREAT_WARRIOR,
-
-	type,
-	monster_type,
-	spell_type,
-	trap_type,
-	race,
-	attribute,
-	link_marker,
-
-	select_all,
-	select_id,
-
-	base_filter,
-	physical_filter,
-	effect_filter,
-
-	stmt_default,
-	stmt_no_alias,
-
-	cid_table,
-	cid_inverse,
-	name_table,
-	lang,
-	official_name,
-
-	inverse_mapping,
-	is_alternative,
-	is_released,
-
-	setcode_condition,
-	query,
-	query_alias,
-	get_card,
-
-	get_name,
-	get_request_locale,
-
-	print_data,
-	print_card,
-	print_db_link,
-	print_wiki_link,
-	print_qa_link,
-};
