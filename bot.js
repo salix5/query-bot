@@ -1,7 +1,6 @@
 import { Client, Collection, Events, GatewayIntentBits, ChannelType, MessageType, Partials } from 'discord.js';
 import { name_table } from './ygo-query.js';
 import { readdirSync } from 'node:fs';
-//require('dotenv').config();
 
 const re_wildcard = /(^|[^\$])[%_]/;
 
@@ -15,22 +14,23 @@ client.commands = new Collection();
 const commandsURL = new URL('commands/', import.meta.url);
 const commandFiles = readdirSync(commandsURL).filter(file => file.endsWith('.js'));
 const import_list = [];
-
+const url_list = [];
 for (const file of commandFiles) {
 	const fileURL = new URL(file, commandsURL);
 	import_list.push(import(fileURL));
+	url_list.push(fileURL.href);
 }
 
 const commands = await Promise.all(import_list);
-for (const command of commands) {
+for (let i = commands.length - 1; i >= 0; --i){
+	const command = commands[i];
+	const commandURL = url_list[i];
 	if ('data' in command && 'execute' in command) {
 		client.commands.set(command.data.name, command);
 	} else {
-		//console.log(`[WARNING] The command at ${} is missing a required "data" or "execute" property.`);
-		console.log(command);
+		console.log(`[WARNING] The command at ${commandURL} is missing a required "data" or "execute" property.`);
 	}
 }
-client.login(process.env.TOKEN);
 
 client.once(Events.ClientReady, c => {
 	let currentDate = new Date();
@@ -64,6 +64,7 @@ client.on(Events.InteractionCreate, async interaction => {
 		const { cooldowns } = interaction.client;
 		if (!cooldowns.has(command.data.name)) {
 			cooldowns.set(command.data.name, new Collection());
+			console.log('start:',command.data.name);
 		}
 
 		const defaultCooldownDuration = 0;
@@ -122,3 +123,5 @@ client.on(Events.InteractionCreate, async interaction => {
 client.on(Events.Error, (err) => {
 	console.error(err);
 });
+
+client.login(process.env.TOKEN);
