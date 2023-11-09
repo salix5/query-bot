@@ -1,5 +1,5 @@
 import { Client, Collection, Events, GatewayIntentBits, ChannelType, MessageType, Partials } from 'discord.js';
-import { name_table } from './ygo-query.js';
+import { name_table } from './ygo-query.mjs';
 import { readdirSync } from 'node:fs';
 
 const re_wildcard = /(^|[^\$])[%_]/;
