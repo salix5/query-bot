@@ -1,20 +1,20 @@
 import initSqlJs from 'sql.js';
 import cid_table from './data/cid.json' assert { type: 'json' };
-import name_table_jp from './data/name_table.json' assert { type: 'json' };
-import name_table_kr from './data/name_table_kr.json' assert { type: 'json' };
-import name_table_en from './data/name_table_en.json' assert { type: 'json' };
-import md_name from './data/md_name.json' assert { type: 'json' };
-import md_name_jp from './data/md_name_jp.json' assert { type: 'json' };
-import md_name_en from './data/md_name_en.json' assert { type: 'json' };
-
 import ltable_ocg from './data/lflist.json' assert { type: 'json' };
 import ltable_tcg from './data/lflist_tcg.json' assert { type: 'json' };
 import ltable_md from './data/lflist_md.json' assert { type: 'json' };
 
-import lang_tw from './lang/zh-tw.json' assert { type: 'json' };
+import name_table_en from './data/name_table_en.json' assert { type: 'json' };
+import name_table_jp from './data/name_table.json' assert { type: 'json' };
+import name_table_kr from './data/name_table_kr.json' assert { type: 'json' };
+import md_name from './data/md_name.json' assert { type: 'json' };
+import md_name_en from './data/md_name_en.json' assert { type: 'json' };
+import md_name_jp from './data/md_name_jp.json' assert { type: 'json' };
+
+import lang_en from './lang/en.json' assert { type: 'json' };
 import lang_ja from './lang/ja.json' assert { type: 'json' };
 import lang_ko from './lang/ko.json' assert { type: 'json' };
-import lang_en from './lang/en.json' assert { type: 'json' };
+import lang_zhtw from './lang/zh-tw.json' assert { type: 'json' };
 
 // type
 const TYPE_MONSTER = 0x1;
@@ -209,20 +209,20 @@ export const stmt_default = `${select_all}${physical_filter}`;
 export const stmt_no_alias = `${select_id}${base_filter} AND alias == 0`;
 
 export const lang = Object.create(null);
-lang['zh-tw'] = lang_tw;
+lang['en'] = lang_en;
 lang['ja'] = lang_ja;
 lang['ko'] = lang_ko;
-lang['en'] = lang_en;
+lang['zh-tw'] = lang_zhtw;
 
 export const official_name = Object.create(null);
+official_name['en'] = 'en_name';
 official_name['ja'] = 'jp_name';
 official_name['ko'] = 'kr_name';
-official_name['en'] = 'en_name';
 
 export const name_table = Object.create(null);
+name_table['en'] = name_table_en;
 name_table['ja'] = name_table_jp;
 name_table['ko'] = name_table_kr;
-name_table['en'] = name_table_en;
 name_table['md'] = md_name;
 
 export const cid_inverse = inverse_mapping(cid_table);
