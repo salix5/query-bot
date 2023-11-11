@@ -1,10 +1,7 @@
 import { SlashCommandBuilder } from 'discord.js';
-import { inverse_mapping } from '../ygo-query.mjs';
-import { autocomplete_jp } from '../common_all.js';
+import { autocomplete_jp, choices_jp as choice_table } from '../common_all.js';
 import { query_command } from '../common_query.js';
-import choice_table from '../commands_data/choices_jp.json' assert { type: 'json' };
 import choice_ruby from '../commands_data/choices_ruby.json' assert { type: 'json' };
-const choice_inverse = inverse_mapping(choice_table);
 
 export const data = new SlashCommandBuilder()
 	.setName('ocg-jp')
@@ -17,7 +14,7 @@ export const data = new SlashCommandBuilder()
 	);
 export const cooldown = 2;
 export async function autocomplete(interaction) {
-	await autocomplete_jp(interaction, choice_table, choice_ruby, choice_inverse);
+	await autocomplete_jp(interaction, choice_ruby);
 }
 export async function execute(interaction) {
 	const input = interaction.options.getString('input');
