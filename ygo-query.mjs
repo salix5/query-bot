@@ -197,6 +197,7 @@ export const link_marker = {
 // special ID
 export const ID_TYLER_THE_GREAT_WARRIOR = 68811206;
 export const ID_BLACK_LUSTER_SOLDIER = 5405695;
+export const CID_BLACK_LUSTER_SOLDIER = 19092;
 
 export const select_all = `SELECT datas.id, ot, alias, type, atk, def, level, attribute, race, name, desc FROM datas, texts WHERE datas.id == texts.id`;
 export const select_id = `SELECT datas.id FROM datas, texts WHERE datas.id == texts.id`;
@@ -224,6 +225,10 @@ name_table['en'] = name_table_en;
 name_table['ja'] = name_table_jp;
 name_table['ko'] = name_table_kr;
 name_table['md'] = md_name;
+
+export const md_table = Object.create(null);
+md_table['en'] = md_name_en;
+md_table['ja'] = md_name_jp;
 
 export const cid_inverse = inverse_mapping(cid_table);
 
@@ -374,6 +379,53 @@ export function inverse_mapping(obj) {
 		inverse[value] = key;
 	}
 	return inverse;
+}
+
+/**
+ * Create the name to id table of region `locale`
+ * @param {string} request_locale 
+ * @returns {Object}
+ */
+export function create_choice(request_locale) {
+	const temp_table = Object.create(null);
+	Object.assign(temp_table, name_table[request_locale]);
+	let postfix = '';
+	let locale = '';
+	switch (request_locale) {
+		case 'en':
+			postfix = ' (Normal)';
+			locale = 'en-US';
+			break;
+		case 'ja':
+			postfix = '（通常モンスター）';
+			locale = 'ja-JP';
+			break;
+		case 'ko':
+			postfix = '(일반)';
+			locale = 'ko-KR';
+		default:
+			return Object.create(null);
+	}
+	if (temp_table[CID_BLACK_LUSTER_SOLDIER])
+		temp_table[CID_BLACK_LUSTER_SOLDIER] = `${temp_table[CID_BLACK_LUSTER_SOLDIER]}${postfix}`;
+	if (md_table[request_locale]) {
+		for (const [cid, name] of Object.entries(md_table[request_locale])) {
+			if (temp_table[cid]) {
+				console.log('duplicate name', cid);
+				continue;
+			}
+			temp_table[cid] = name;
+		}
+	}
+
+	const inverse = inverse_mapping(temp_table);
+	const result = Object.create(null);
+	for (const [name, cid] of Object.entries(inverse)) {
+		result[name] = parseInt(cid_inverse[cid]);
+	}
+	const collator = new Intl.Collator(locale);
+	const ret = Object.create(null);
+	return Object.assign(ret, Object.fromEntries(Object.entries(result).sort((a, b) => collator.compare(a[0], b[0]))));
 }
 
 export function is_alternative(card) {
