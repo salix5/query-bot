@@ -1,5 +1,10 @@
 import { AutocompleteInteraction } from "discord.js";
+import { create_choice, inverse_mapping } from "./ygo-query.mjs";
+export const choices_en = create_choice('en');
+export const choices_jp = create_choice('ja');
+export const choices_kr = create_choice('ko');
 const MAX_CHOICE = 25;
+const choices_jp_inverse = inverse_mapping(choices_jp);
 
 /**
  * toHalfWidth()
@@ -77,15 +82,13 @@ export async function autocomplete_default(interaction, choice_table) {
 }
 
 /**
- * The handler of slash command autocomplete using `choice_table` and `choice_ruby` for Japanese card names.
+ * The handler of slash command autocomplete using `choice_ruby` for Japanese card names.
  * @param {AutocompleteInteraction} interaction 
- * @param {Object} choice_table 
  * @param {Object} choice_ruby 
- * @param {Object} choice_inverse 
  */
-export async function autocomplete_jp(interaction, choice_table, choice_ruby, choice_inverse) {
+export async function autocomplete_jp(interaction, choice_ruby) {
 	const focused = interaction.options.getFocused();
-	var ret = filter_choice(focused, choice_table, true);
+	var ret = filter_choice(focused, choices_jp, true);
 	if (focused && ret.length < MAX_CHOICE) {
 		const ruby_max_length = MAX_CHOICE - ret.length;
 		const is_ready = Object.create(null);
@@ -93,14 +96,14 @@ export async function autocomplete_jp(interaction, choice_table, choice_ruby, ch
 		const other = [];
 
 		for (const choice of ret) {
-			is_ready[choice_table[choice]] = true;
+			is_ready[choices_jp[choice]] = true;
 		}
 		const ruby_result = Object.entries(choice_ruby).filter(([ruby, id]) => !is_ready[id] && ruby.includes(focused));
 		for (const [ruby, id] of ruby_result) {
 			if (ruby.startsWith(focused))
-				starts_with.push(choice_inverse[id]);
+				starts_with.push(choices_jp_inverse[id]);
 			else
-				other.push(choice_inverse[id]);
+				other.push(choices_jp_inverse[id]);
 			if (starts_with.length >= ruby_max_length)
 				break;
 		}
