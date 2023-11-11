@@ -1,9 +1,9 @@
 import { SlashCommandBuilder } from 'discord.js';
 import { autocomplete_default } from '../common_all.js';
 import { query_command } from '../common_query.js';
-import choice_table from '../commands_data/choices_tc.json' assert { type: 'json' };
+import choices_tc from '../commands_data/choices_tc.json' assert { type: 'json' };
 import choices_tc_pre from '../commands_data/choices_tc_pre.json' assert { type: 'json' };
-Object.assign(choice_table, choices_tc_pre);
+const choice_table = { ...choices_tc, ...choices_tc_pre };
 
 export const data = new SlashCommandBuilder()
 	.setName('card')
