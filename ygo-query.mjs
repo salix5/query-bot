@@ -245,7 +245,7 @@ if (load_prerelease) {
 }
 
 /**
- * Query card from `db` using statement `qstr` and binding parame `arg`.
+ * Query card from `db` using statement `qstr` and binding object `arg`.
  * The results are put in `ret`.
  * @param {initSqlJs.Database} db 
  * @param {string} qstr 
@@ -373,7 +373,7 @@ export function inverse_mapping(obj) {
 	const inverse = Object.create(null);
 	for (const [key, value] of Object.entries(obj)) {
 		if (inverse[value]) {
-			console.log('non-invertible', `${key}: ${value}`);
+			console.error('non-invertible', `${key}: ${value}`);
 			return Object.create(null);
 		}
 		inverse[value] = key;
@@ -411,7 +411,7 @@ export function create_choice(request_locale) {
 	if (md_table[request_locale]) {
 		for (const [cid, name] of Object.entries(md_table[request_locale])) {
 			if (temp_table[cid]) {
-				console.log('duplicate name', cid);
+				console.error(`md_table[${request_locale}]`, cid);
 				continue;
 			}
 			temp_table[cid] = name;
@@ -426,6 +426,34 @@ export function create_choice(request_locale) {
 	const collator = new Intl.Collator(locale);
 	const ret = Object.create(null);
 	return Object.assign(ret, Object.fromEntries(Object.entries(result).sort((a, b) => collator.compare(a[0], b[0]))));
+}
+
+/**
+ * Create the name to id table for cards not released in Japan.
+ * @returns {Object}
+ */
+export function create_choice_prerelease() {
+	const inverse_table = Object.create(null);
+	const pre_list = [];
+	const search_pre = `SELECT datas.id, name, desc FROM datas, texts WHERE datas.id == texts.id AND (ot == 2 OR datas.id > 99999999)${physical_filter}`;
+	const re_kanji = /※.*/;
+	query(search_pre, {}, pre_list);
+	for (const card of pre_list) {
+		if (name_table_jp[cid_table[card.id]] || md_name_jp[cid_table[card.id]]) {
+			continue;
+		}
+		let res = re_kanji.exec(card.desc);
+		let kanji = res ? res[0] : '';
+		if (inverse_table[card.tw_name] || (kanji && inverse_table[kanji])) {
+			console.error('choice_prerelease', card.id);
+			return Object.create(null);
+		}
+		inverse_table[card.tw_name] = card.id;
+		if (kanji)
+			inverse_table[kanji] = card.id;
+	}
+	const collator = Intl.Collator('zh-Hant');
+	return Object.fromEntries(Object.entries(inverse_table).sort((a, b) => collator.compare(a[0], b[0])));
 }
 
 export function is_alternative(card) {
@@ -454,7 +482,7 @@ export function setcode_condition(setcode) {
 }
 
 /**
- * Query card from all databases using statement `qstr` and binding parame `arg`.
+ * Query card from all databases using statement `qstr` and binding object `arg`.
  * The results are put in `ret`.
  * @param {string} qstr 
  * @param {Object} arg 
