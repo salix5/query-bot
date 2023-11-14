@@ -237,7 +237,7 @@ let load_prerelease = true;
 
 const domain = 'https://salix5.github.io/cdb';
 const fetch_db = fetch(`${domain}/cards.cdb`).then(response => response.arrayBuffer());
-const fetch_db2 = fetch(`${domain}/pre-release.cdb`).then(response => response.arrayBuffer());
+const fetch_db2 = fetch(`${domain}/expansions/pre-release.cdb`).then(response => response.arrayBuffer());
 const [SQL, buf1, buf2] = await Promise.all([initSqlJs(), fetch_db, fetch_db2]);
 db_list.push(new SQL.Database(new Uint8Array(buf1)));
 if (load_prerelease) {
