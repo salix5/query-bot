@@ -401,8 +401,9 @@ export function create_choice(request_locale) {
 			locale = 'ja-JP';
 			break;
 		case 'ko':
-			postfix = '(일반)';
+			postfix = ' (일반)';
 			locale = 'ko-KR';
+			break;
 		default:
 			return Object.create(null);
 	}
