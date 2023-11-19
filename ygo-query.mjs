@@ -815,10 +815,14 @@ export function print_db_link(cid, request_locale) {
 	return `https://www.db.yugioh-card.com/yugiohdb/card_search.action?ope=2&cid=${cid}&request_locale=${request_locale}`;
 }
 
-export function print_wiki_link(id) {
+export function print_yp_link(id) {
 	return `https://yugipedia.com/wiki/${id}`;
 }
 
 export function print_qa_link(cid) {
 	return `https://www.db.yugioh-card.com/yugiohdb/faq_search.action?ope=4&cid=${cid}&request_locale=ja`;
+}
+
+export function print_history_link(cid) {
+	return `https://github.com/salix5/ygodb/commits/master/${cid}.txt`;
 }

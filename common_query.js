@@ -64,6 +64,11 @@ export function create_reply(card, locale) {
 				.setLabel('Q&A')
 				.setURL(ygo.print_qa_link(card.cid));
 			row1.addComponents(button2);
+			const button3 = new ButtonBuilder()
+				.setStyle(ButtonStyle.Link)
+				.setLabel('History')
+				.setURL(ygo.print_history_link(card.cid));
+			row1.addComponents(button3);
 		}
 		return { content: ygo.print_card(card, locale), components: [row1] };
 	}
@@ -71,7 +76,7 @@ export function create_reply(card, locale) {
 		const button1 = new ButtonBuilder()
 			.setStyle(ButtonStyle.Link)
 			.setLabel('Yugipedia')
-			.setURL(ygo.print_wiki_link(card.id));
+			.setURL(ygo.print_yp_link(card.id));
 		const row1 = new ActionRowBuilder().addComponents(button1);
 		return { content: ygo.print_card(card, locale), components: [row1] };
 	}
