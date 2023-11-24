@@ -245,8 +245,8 @@ if (load_prerelease) {
 }
 
 /**
- * Query card from `db` using statement `qstr` and binding object `arg`.
- * The results are put in `ret`.
+ * Query cards from `db` using statement `qstr` and binding object `arg`, and put the results in `ret`.
+ * scale = level >> 24
  * @param {initSqlJs.Database} db 
  * @param {string} qstr 
  * @param {Object} arg 
