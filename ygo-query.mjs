@@ -816,7 +816,7 @@ export function print_db_link(cid, request_locale) {
 }
 
 export function print_yp_link(id) {
-	return `https://yugipedia.com/wiki/${id}`;
+	return `https://yugipedia.com/wiki/${id.toString().padStart(8, '0')}`;
 }
 
 export function print_qa_link(cid) {
