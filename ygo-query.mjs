@@ -232,17 +232,13 @@ md_table['ja'] = md_name_jp;
 
 export const cid_inverse = inverse_mapping(cid_table);
 
-const db_list = [];
-let load_prerelease = true;
-
 const domain = 'https://salix5.github.io/cdb';
 const fetch_db = fetch(`${domain}/cards.cdb`).then(response => response.arrayBuffer());
 const fetch_db2 = fetch(`${domain}/expansions/pre-release.cdb`).then(response => response.arrayBuffer());
 const [SQL, buf1, buf2] = await Promise.all([initSqlJs(), fetch_db, fetch_db2]);
+const db_list = [];
 db_list.push(new SQL.Database(new Uint8Array(buf1)));
-if (load_prerelease) {
-	db_list.push(new SQL.Database(new Uint8Array(buf2)));
-}
+db_list.push(new SQL.Database(new Uint8Array(buf2)));
 
 /**
  * Query cards from `db` using statement `qstr` and binding object `arg`, and put the results in `ret`.
