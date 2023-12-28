@@ -1,6 +1,5 @@
 import { SlashCommandBuilder } from 'discord.js';
-import { autocomplete_default } from '../common_all.js';
-import choice_table from '../commands_data/choices_tc.json' assert { type: 'json' };
+import { autocomplete_default, choices_tc as choice_table } from '../common_all.js';
 
 export const data = new SlashCommandBuilder()
 	.setName('ygocdb')

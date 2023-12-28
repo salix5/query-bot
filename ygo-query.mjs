@@ -428,7 +428,10 @@ export function create_choice(request_locale) {
 	const inverse = inverse_mapping(temp_table);
 	const result = Object.create(null);
 	for (const [name, cid] of Object.entries(inverse)) {
-		result[name] = parseInt(cid_inverse[cid]);
+		if (cid_inverse[cid])
+			result[name] = parseInt(cid_inverse[cid]);
+		else
+			console.error('create_choice', `${cid}: ${name}`);
 	}
 	const collator = new Intl.Collator(locale);
 	const ret = Object.create(null);
