@@ -1,10 +1,21 @@
 import { AutocompleteInteraction } from "discord.js";
-import { create_choice, inverse_mapping } from "./ygo-query.mjs";
-export const choices_en = create_choice('en');
-export const choices_jp = create_choice('ja');
-export const choices_kr = create_choice('ko');
+import { cid_inverse, create_choice, inverse_mapping } from "./ygo-query.mjs";
+import choices_tc_temp from '../commands_data/choices_tc.json' assert { type: 'json' };
+
+const choices_en = create_choice('en');
+const choices_jp = create_choice('ja');
+const choices_kr = create_choice('ko');
 const MAX_CHOICE = 25;
 const choices_jp_inverse = inverse_mapping(choices_jp);
+
+const choices_tc = Object.create(null);
+for (const [name, cid] of Object.entries(choices_tc_temp)) {
+	if (cid_inverse[cid])
+		choices_tc[name] = cid_inverse[cid];
+	else
+		console.error('choices_tc', `${cid}: ${name}`);
+}
+export { choices_en, choices_jp, choices_kr, choices_tc };
 
 /**
  * toHalfWidth()

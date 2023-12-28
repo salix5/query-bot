@@ -1,8 +1,7 @@
 import { SlashCommandBuilder } from 'discord.js';
-import { autocomplete_default } from '../common_all.js';
+import { autocomplete_default, choices_tc } from '../common_all.js';
 import { query_command } from '../common_query.js';
 import { create_choice_prerelease } from '../ygo-query.mjs';
-import choices_tc from '../commands_data/choices_tc.json' assert { type: 'json' };
 const choices_tc_pre = create_choice_prerelease();
 const choice_table = { ...choices_tc, ...choices_tc_pre };
 
