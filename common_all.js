@@ -1,6 +1,6 @@
 import { AutocompleteInteraction } from "discord.js";
 import { cid_inverse, create_choice, inverse_mapping } from "./ygo-query.mjs";
-import choices_tc_temp from '../commands_data/choices_tc.json' assert { type: 'json' };
+import choices_tc_temp from './commands_data/choices_tc.json' assert { type: 'json' };
 
 const choices_en = create_choice('en');
 const choices_jp = create_choice('ja');
