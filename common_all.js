@@ -1,21 +1,29 @@
 import { AutocompleteInteraction } from "discord.js";
-import { cid_inverse, create_choice, inverse_mapping } from "./ygo-query.mjs";
-import choices_tc_temp from './commands_data/choices_tc.json' assert { type: 'json' };
+import { cid_inverse, create_choice, create_choice_prerelease, option_table } from "./ygo-query.mjs";
+import name_inverse_tc from './commands_data/choices_tc.json' assert { type: 'json' };
+import choice_ruby from './commands_data/choices_ruby.json' assert { type: 'json' };
 
-const choices_en = create_choice('en');
-const choices_jp = create_choice('ja');
-const choices_kr = create_choice('ko');
 const MAX_CHOICE = 25;
-const choices_jp_inverse = inverse_mapping(choices_jp);
+const choice_table = Object.create(null);
+choice_table['en'] = create_choice('en');
+choice_table['ja'] = create_choice('ja');
+choice_table['ko'] = create_choice('ko');
 
 const choices_tc = Object.create(null);
-for (const [name, cid] of Object.entries(choices_tc_temp)) {
+for (const [name, cid] of Object.entries(name_inverse_tc)) {
 	if (cid_inverse[cid])
 		choices_tc[name] = cid_inverse[cid];
 	else
 		console.error('choices_tc', `${cid}: ${name}`);
 }
-export { choices_en, choices_jp, choices_kr, choices_tc };
+const choices_tc_full = Object.assign(Object.create(null), choices_tc, create_choice_prerelease());
+
+const choice_filter_table = Object.create(null);
+choice_filter_table['en'] = lowercase_table(choice_table['en']);
+choice_filter_table['ja'] = half_width_table(choice_table['ja']);
+choice_filter_table['ko'] = choice_table['ko'];
+
+export { choice_table, choices_tc, choices_tc_full };
 
 /**
  * toHalfWidth()
@@ -45,85 +53,199 @@ function is_equal(a, b) {
 	return toHalfWidth(a.toLowerCase()) === toHalfWidth(b.toLowerCase());
 }
 
+function half_width_table(choices) {
+	const result = Object.create(null);
+	for (const [name, id] of Object.entries(choices)) {
+		result[toHalfWidth(name)] = id;
+	}
+	return result;
+}
 
+function lowercase_table(choices) {
+	const result = Object.create(null);
+	for (const [name, id] of Object.entries(choices)) {
+		result[name.toLowerCase()] = id;
+	}
+	return result;
+}
 
 /**
- * Filter the choices matching `focused` in `choice_table` and push them into an array.
- * @param {string} focused 
- * @param {Object} choice_table 
- * @param {boolean} case_sensitive
- * @returns {string[]}
+ * filter_choice()
+ * @param {AutocompleteInteraction} interaction 
+ * @param {Object} choice_filter 
+ * @returns id list
  */
-export function filter_choice(focused, choice_table, case_sensitive = false) {
-	if (!focused) {
-		return [];
-	}
-
+function filter_choice(interaction, choice_filter) {
+	const focused = interaction.options.getFocused();
 	const starts_with = [];
 	const other = [];
-	const keyword = toHalfWidth(case_sensitive ? focused : focused.toLowerCase());
-	const filter_function = case_sensitive ? (choice => toHalfWidth(choice).includes(keyword)) : (choice => toHalfWidth(choice.toLowerCase()).includes(keyword));
-	const result = Object.keys(choice_table).filter(filter_function);
-	for (const choice of result) {
-		let card_name = toHalfWidth(case_sensitive ? choice : choice.toLowerCase());
-		if (card_name.startsWith(keyword))
-			starts_with.push(choice);
+	const keyword = toHalfWidth(focused);
+	const result = Object.entries(choice_filter).filter(([choice, id]) => choice.includes(keyword));
+	for (const [choice, id] of result) {
+		if (choice.startsWith(keyword))
+			starts_with.push(id);
 		else
-			other.push(choice);
-		if (starts_with.length == MAX_CHOICE)
+			other.push(id);
+		if (starts_with.length >= MAX_CHOICE)
 			return starts_with;
 	}
-	const ret = starts_with.concat(other);
+	let ret = starts_with.concat(other);
 	if (ret.length > MAX_CHOICE)
 		ret.length = MAX_CHOICE;
 	return ret;
 }
 
 /**
- * The handler of slash command autocomplete using `choice_table`.
- * @param {AutocompleteInteraction} interaction 
- * @param {Object} choice_table
+ * The autocomplete handler using `choice_ruby` for Japanese card names.
+ * @param {AutocompleteInteraction} interaction
  */
-export async function autocomplete_default(interaction, choice_table) {
+export async function autocomplete_jp(interaction) {
 	const focused = interaction.options.getFocused();
-	const ret = filter_choice(focused, choice_table);
+	if (!focused) {
+		await interaction.respond([]);
+		return;
+	}
+	let ret = filter_choice(interaction, choice_filter_table['ja']);
+	if (ret.length < MAX_CHOICE) {
+		const ruby_max_length = MAX_CHOICE - ret.length;
+		const starts_with = [];
+		const other = [];
+		const id_set = new Set(ret);
+		const ruby_result = Object.entries(choice_ruby).filter(([ruby, id]) => !id_set.has(id) && ruby.includes(focused));
+		for (const [ruby, id] of ruby_result) {
+			if (ruby.startsWith(focused))
+				starts_with.push(id);
+			else
+				other.push(id);
+			if (starts_with.length >= ruby_max_length)
+				break;
+		}
+		ret = ret.concat(starts_with);
+		if (ret.length < MAX_CHOICE)
+			ret = ret.concat(other);
+		if (ret.length > MAX_CHOICE)
+			ret.length = MAX_CHOICE;
+	}
 	await interaction.respond(
-		ret.map(choice => ({ name: choice, value: choice })),
+		ret.map(id => ({ name: option_table['ja'][id], value: option_table['ja'][id] }))
 	);
 }
 
 /**
- * The handler of slash command autocomplete using `choice_ruby` for Japanese card names.
+ * The autocomplete handler for tc card names.
  * @param {AutocompleteInteraction} interaction 
- * @param {Object} choice_ruby 
+ * @returns 
  */
-export async function autocomplete_jp(interaction, choice_ruby) {
+export async function autocomplete_tc(interaction) {
 	const focused = interaction.options.getFocused();
-	var ret = filter_choice(focused, choices_jp, true);
-	if (focused && ret.length < MAX_CHOICE) {
-		const ruby_max_length = MAX_CHOICE - ret.length;
-		const is_ready = Object.create(null);
-		const starts_with = [];
-		const other = [];
-
-		for (const choice of ret) {
-			is_ready[choices_jp[choice]] = true;
-		}
-		const ruby_result = Object.entries(choice_ruby).filter(([ruby, id]) => !is_ready[id] && ruby.includes(focused));
-		for (const [ruby, id] of ruby_result) {
-			if (ruby.startsWith(focused))
-				starts_with.push(choices_jp_inverse[id]);
-			else
-				other.push(choices_jp_inverse[id]);
-			if (starts_with.length >= ruby_max_length)
-				break;
-		}
-		const ruby_ret = starts_with.concat(other);
-		if (ruby_ret.length > ruby_max_length)
-			ruby_ret.length = ruby_max_length;
-		ret = ret.concat(ruby_ret);
+	if (!focused) {
+		await interaction.respond([]);
+		return;
 	}
+	const starts_with = [];
+	const other = [];
+	const keyword = focused.toLowerCase();
+	const result = Object.keys(choices_tc).filter((choice) => choice.toLowerCase().includes(keyword));
+	for (const choice of result) {
+		if (choice.toLowerCase().startsWith(keyword))
+			starts_with.push(choice);
+		else
+			other.push(choice);
+		if (starts_with.length >= MAX_CHOICE)
+			break;
+	}
+	let ret;
+	if (starts_with.length >= MAX_CHOICE)
+		ret = starts_with;
+	else
+		ret = starts_with.concat(other);
+	if (ret.length > MAX_CHOICE)
+		ret.length = MAX_CHOICE;
 	await interaction.respond(
-		ret.map(choice => ({ name: choice, value: choice })),
+		ret.map(choice => ({ name: choice, value: choice }))
 	);
 }
+
+/**
+ * The autocomplete handler for tc card names (including prerelease cards).
+ * @param {AutocompleteInteraction} interaction 
+ * @returns 
+ */
+export async function autocomplete_prerelease(interaction) {
+	const focused = interaction.options.getFocused();
+	if (!focused) {
+		await interaction.respond([]);
+		return;
+	}
+	const starts_with = [];
+	const other = [];
+	const keyword = focused.toLowerCase();
+	const result = Object.keys(choices_tc_full).filter((choice) => choice.toLowerCase().includes(keyword));
+	for (const choice of result) {
+		if (choice.toLowerCase().startsWith(keyword))
+			starts_with.push(choice);
+		else
+			other.push(choice);
+		if (starts_with.length >= MAX_CHOICE)
+			break;
+	}
+	let ret;
+	if (starts_with.length >= MAX_CHOICE)
+		ret = starts_with;
+	else
+		ret = starts_with.concat(other);
+	if (ret.length > MAX_CHOICE)
+		ret.length = MAX_CHOICE;
+	await interaction.respond(
+		ret.map(choice => ({ name: choice, value: choice }))
+	);
+}
+
+/**
+ * The default autocomplete handler.
+ * @param {AutocompleteInteraction} interaction 
+ * @param {string} request_locale 
+ * @returns 
+ */
+export async function autocomplete_default(interaction, request_locale) {
+	const focused = interaction.options.getFocused();
+	if (!focused) {
+		await interaction.respond([]);
+		return;
+	}
+	const starts_with = [];
+	const other = [];
+	const choice_filter = choice_filter_table[request_locale];
+	let keyword = '';
+	switch (request_locale) {
+		case 'en':
+			keyword = focused.toLowerCase();
+			break;
+		case 'ko':
+			keyword = focused;
+			break;
+		default:
+			await interaction.respond([]);
+			return;
+	}
+	let result = Object.entries(choice_filter).filter(([choice, id]) => choice.includes(keyword));
+	for (const [choice, id] of result) {
+		if (choice.startsWith(keyword))
+			starts_with.push(id);
+		else
+			other.push(id);
+		if (starts_with.length >= MAX_CHOICE)
+			break;
+	}
+	let ret;
+	if (starts_with.length >= MAX_CHOICE)
+		ret = starts_with;
+	else
+		ret = starts_with.concat(other);
+	if (ret.length > MAX_CHOICE)
+		ret.length = MAX_CHOICE;
+	await interaction.respond(
+		ret.map(id => ({ name: option_table[request_locale][id], value: option_table[request_locale][id] }))
+	);
+}
+
