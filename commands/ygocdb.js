@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from 'discord.js';
-import { autocomplete_default, choices_tc as choice_table } from '../common_all.js';
+import { choices_tc } from '../common_all.js';
 
 export const data = new SlashCommandBuilder()
 	.setName('ygocdb')
@@ -10,12 +10,10 @@ export const data = new SlashCommandBuilder()
 		.setMaxLength(50)
 		.setAutocomplete(true)
 	);
-export async function autocomplete(interaction) {
-	await autocomplete_default(interaction, choice_table);
-}
+export { autocomplete_tc as autocomplete } from '../common_all.js';
 export async function execute(interaction) {
 	const input = interaction.options.getString('input');
-	let id = choice_table[input];
+	let id = choices_tc[input];
 	if (id) {
 		await interaction.reply(`https://ygocdb.com/card/${id}`);
 	}
