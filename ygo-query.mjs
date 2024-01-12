@@ -240,7 +240,13 @@ md_table['ja'] = md_name_jp;
 
 const cid_inverse = inverse_mapping(cid_table);
 
-export { lang, official_name, cid_table, name_table, md_table, cid_inverse };
+// id -> option
+const option_table = Object.create(null);
+option_table['en'] = create_options('en');
+option_table['ja'] = create_options('ja');
+option_table['ko'] = create_options('ko');
+
+export { lang, official_name, cid_table, name_table, md_table, cid_inverse, option_table };
 
 const domain = 'https://salix5.github.io/cdb';
 const fetch_db = fetch(`${domain}/cards.cdb`).then(response => response.arrayBuffer());
@@ -368,6 +374,47 @@ function query_db(db, qstr, arg, ret) {
 	stmt.free();
 }
 
+function create_options(request_locale) {
+	let postfix = '';
+	switch (request_locale) {
+		case 'en':
+			postfix = ' (Normal)';
+			break;
+		case 'ja':
+			postfix = '（通常モンスター）';
+			break;
+		case 'ko':
+			postfix = ' (일반)';
+			break;
+		default:
+			return Object.create(null);
+	}
+	const options = Object.create(null);
+	for (const [cid, name] of Object.entries(name_table[request_locale])) {
+		if (!cid_inverse[cid]) {
+			console.error(`unknown cid:`, cid);
+			continue;
+		}
+		if (cid == CID_BLACK_LUSTER_SOLDIER)
+			options[cid_inverse[cid]] = `${name}${postfix}`;
+		else
+			options[cid_inverse[cid]] = name;
+	}
+	if (md_table[request_locale]) {
+		for (const [cid, name] of Object.entries(md_table[request_locale])) {
+			if (!cid_inverse[cid]) {
+				console.error(`unknown cid:`, cid);
+				continue;
+			}
+			if (options[cid_inverse[cid]]) {
+				console.error(`duplicate cid: md_table[${request_locale}]`, cid);
+				continue;
+			}
+			options[cid_inverse[cid]] = name;
+		}
+	}
+	return options;
+}
 
 // export
 /**
@@ -382,60 +429,34 @@ export function inverse_mapping(obj) {
 			console.error('non-invertible', `${key}: ${value}`);
 			return Object.create(null);
 		}
-		inverse[value] = key;
+		inverse[value] = parseInt(key);
 	}
 	return inverse;
 }
 
 /**
- * Create the name to id table of region `locale`
+ * Create the option to id table of region `request_locale`
  * @param {string} request_locale 
  * @returns {Object}
  */
 export function create_choice(request_locale) {
-	const temp_table = Object.create(null);
-	Object.assign(temp_table, name_table[request_locale]);
-	let postfix = '';
 	let locale = '';
 	switch (request_locale) {
 		case 'en':
-			postfix = ' (Normal)';
 			locale = 'en-US';
 			break;
 		case 'ja':
-			postfix = '（通常モンスター）';
 			locale = 'ja-JP';
 			break;
 		case 'ko':
-			postfix = ' (일반)';
 			locale = 'ko-KR';
 			break;
 		default:
 			return Object.create(null);
 	}
-	if (temp_table[CID_BLACK_LUSTER_SOLDIER])
-		temp_table[CID_BLACK_LUSTER_SOLDIER] = `${temp_table[CID_BLACK_LUSTER_SOLDIER]}${postfix}`;
-	if (md_table[request_locale]) {
-		for (const [cid, name] of Object.entries(md_table[request_locale])) {
-			if (temp_table[cid]) {
-				console.error(`md_table[${request_locale}]`, cid);
-				continue;
-			}
-			temp_table[cid] = name;
-		}
-	}
-
-	const inverse = inverse_mapping(temp_table);
-	const result = Object.create(null);
-	for (const [name, cid] of Object.entries(inverse)) {
-		if (cid_inverse[cid])
-			result[name] = parseInt(cid_inverse[cid]);
-		else
-			console.error('create_choice', `${cid}: ${name}`);
-	}
+	const inverse = inverse_mapping(option_table[request_locale]);
 	const collator = new Intl.Collator(locale);
-	const ret = Object.create(null);
-	return Object.assign(ret, Object.fromEntries(Object.entries(result).sort((a, b) => collator.compare(a[0], b[0]))));
+	return Object.assign(Object.create(null), Object.fromEntries(Object.entries(inverse).sort((a, b) => collator.compare(a[0], b[0]))));
 }
 
 /**
