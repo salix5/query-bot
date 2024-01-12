@@ -1,7 +1,6 @@
 import { SlashCommandBuilder } from 'discord.js';
-import { autocomplete_jp, choices_jp as choice_table } from '../common_all.js';
+import { choice_table } from '../common_all.js';
 import { query_command } from '../common_query.js';
-import choice_ruby from '../commands_data/choices_ruby.json' assert { type: 'json' };
 
 export const data = new SlashCommandBuilder()
 	.setName('ocg-jp')
@@ -13,11 +12,9 @@ export const data = new SlashCommandBuilder()
 		.setAutocomplete(true)
 	);
 export const cooldown = 2;
-export async function autocomplete(interaction) {
-	await autocomplete_jp(interaction, choice_ruby);
-}
+export { autocomplete_jp as autocomplete } from '../common_all.js';
 export async function execute(interaction) {
 	const input = interaction.options.getString('input');
-	const id = choice_table[input];
+	const id = choice_table['ja'][input];
 	await query_command(interaction, id, 'ja');
 }
