@@ -21,7 +21,7 @@ for (const [name, cid] of Object.entries(name_to_cid)) {
 const choices_tc_full = Object.assign(Object.create(null), choices_tc, create_choice_prerelease());
 
 const choice_entries = Object.create(null);
-choice_entries['en'] = lowercase_entries(choice_table['en']);
+choice_entries['en'] = Object.entries(choice_table['en']);
 choice_entries['ja'] = half_width_entries(choice_table['ja']);
 choice_entries['ko'] = Object.entries(choice_table['ko']);
 const ruby_entries = Object.entries(choice_ruby);
@@ -64,14 +64,6 @@ function half_width_entries(choices) {
 	return result;
 }
 
-function lowercase_entries(choices) {
-	const result = [];
-	for (const [name, id] of Object.entries(choices)) {
-		result.push([name.toLowerCase(), id]);
-	}
-	return result;
-}
-
 /**
  * filter_choice()
  * @param {AutocompleteInteraction} interaction 
@@ -82,12 +74,13 @@ function filter_choice(interaction, entries) {
 	const focused = interaction.options.getFocused();
 	const starts_with = [];
 	const other = [];
-	const keyword = toHalfWidth(focused);
-	const result = entries.filter(([choice, id]) => choice.includes(keyword));
-	for (const [choice, id] of result) {
-		if (choice.startsWith(keyword))
+	const keyword = toHalfWidth(focused).replace(/[|\\{}()[\]^$+*?.]/g, '\\$&');
+	const start = new RegExp(`^${keyword}`);
+	const include = new RegExp(`${keyword}`);
+	for (const [choice, id] of entries) {
+		if (start.test(choice))
 			starts_with.push(id);
-		else
+		else if (include.test(choice))
 			other.push(id);
 		if (starts_with.length >= MAX_CHOICE)
 			return starts_with;
@@ -114,11 +107,15 @@ export async function autocomplete_jp(interaction) {
 		const starts_with = [];
 		const other = [];
 		const id_set = new Set(ret);
-		const ruby_result = ruby_entries.filter(([ruby, id]) => !id_set.has(id) && ruby.includes(focused));
-		for (const [ruby, id] of ruby_result) {
-			if (ruby.startsWith(focused))
+		let keyword = focused.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&');
+		const start = new RegExp(`^${keyword}`);
+		const include = new RegExp(`${keyword}`);
+		for (const [ruby, id] of ruby_entries) {
+			if (id_set.has(id))
+				continue;
+			if (start.test(ruby))
 				starts_with.push(id);
-			else
+			else if (include.test(ruby))
 				other.push(id);
 			if (starts_with.length >= ruby_max_length)
 				break;
@@ -216,38 +213,35 @@ export async function autocomplete_default(interaction, request_locale) {
 		await interaction.respond([]);
 		return;
 	}
-	const starts_with = [];
-	const other = [];
-	let keyword = '';
 	switch (request_locale) {
 		case 'en':
-			keyword = focused.toLowerCase();
-			break;
 		case 'ko':
-			keyword = focused;
 			break;
 		default:
 			await interaction.respond([]);
 			return;
 	}
-	let result = choice_entries[request_locale].filter(([choice, id]) => choice.includes(keyword));
-	for (const [choice, id] of result) {
-		if (choice.startsWith(keyword))
-			starts_with.push(id);
-		else
-			other.push(id);
+	const starts_with = [];
+	const other = [];
+	let keyword = focused.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&');
+	const start = new RegExp(`^${keyword}`, 'i');
+	const include = new RegExp(`${keyword}`, 'i');
+	for (const [choice, id] of choice_entries[request_locale]) {
+		if (start.test(choice))
+			starts_with.push(choice);
+		else if (include.test(choice))
+			other.push(choice);
 		if (starts_with.length >= MAX_CHOICE)
 			break;
 	}
 	let ret;
-	if (starts_with.length >= MAX_CHOICE)
+	if (starts_with.length >= MAX_CHOICE) 
 		ret = starts_with;
 	else
 		ret = starts_with.concat(other);
 	if (ret.length > MAX_CHOICE)
 		ret.length = MAX_CHOICE;
 	await interaction.respond(
-		ret.map(id => ({ name: option_table[request_locale][id], value: option_table[request_locale][id] }))
+		ret.map(choice => ({ name: choice, value: choice }))
 	);
 }
-
