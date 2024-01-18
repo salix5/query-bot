@@ -557,7 +557,7 @@ export function get_card(id) {
 		if (ret.length)
 			return ret[0];
 	}
-	return Object.create(null);
+	return null;
 }
 
 /**
