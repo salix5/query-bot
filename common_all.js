@@ -1,16 +1,18 @@
 import { AutocompleteInteraction } from "discord.js";
 import { cid_inverse, create_choice, create_choice_prerelease, option_table } from "./ygo-query.mjs";
-import name_inverse_tc from './commands_data/choices_tc.json' assert { type: 'json' };
+import name_to_cid from './commands_data/choices_tc.json' assert { type: 'json' };
 import choice_ruby from './commands_data/choices_ruby.json' assert { type: 'json' };
 
 const MAX_CHOICE = 25;
+
+// option name -> id
 const choice_table = Object.create(null);
 choice_table['en'] = create_choice('en');
 choice_table['ja'] = create_choice('ja');
 choice_table['ko'] = create_choice('ko');
 
 const choices_tc = Object.create(null);
-for (const [name, cid] of Object.entries(name_inverse_tc)) {
+for (const [name, cid] of Object.entries(name_to_cid)) {
 	if (cid_inverse[cid])
 		choices_tc[name] = cid_inverse[cid];
 	else
@@ -18,10 +20,11 @@ for (const [name, cid] of Object.entries(name_inverse_tc)) {
 }
 const choices_tc_full = Object.assign(Object.create(null), choices_tc, create_choice_prerelease());
 
-const choice_filter_table = Object.create(null);
-choice_filter_table['en'] = lowercase_table(choice_table['en']);
-choice_filter_table['ja'] = half_width_table(choice_table['ja']);
-choice_filter_table['ko'] = choice_table['ko'];
+const choice_entries = Object.create(null);
+choice_entries['en'] = lowercase_entries(choice_table['en']);
+choice_entries['ja'] = half_width_entries(choice_table['ja']);
+choice_entries['ko'] = Object.entries(choice_table['ko']);
+const ruby_entries = Object.entries(choice_ruby);
 
 export { choice_table, choices_tc, choices_tc_full };
 
@@ -53,18 +56,18 @@ function is_equal(a, b) {
 	return toHalfWidth(a.toLowerCase()) === toHalfWidth(b.toLowerCase());
 }
 
-function half_width_table(choices) {
-	const result = Object.create(null);
+function half_width_entries(choices) {
+	const result = [];
 	for (const [name, id] of Object.entries(choices)) {
-		result[toHalfWidth(name)] = id;
+		result.push([toHalfWidth(name), id]);
 	}
 	return result;
 }
 
-function lowercase_table(choices) {
-	const result = Object.create(null);
+function lowercase_entries(choices) {
+	const result = [];
 	for (const [name, id] of Object.entries(choices)) {
-		result[name.toLowerCase()] = id;
+		result.push([name.toLowerCase(), id]);
 	}
 	return result;
 }
@@ -72,15 +75,15 @@ function lowercase_table(choices) {
 /**
  * filter_choice()
  * @param {AutocompleteInteraction} interaction 
- * @param {Object} choice_filter 
+ * @param {[string, number][]} entries 
  * @returns id list
  */
-function filter_choice(interaction, choice_filter) {
+function filter_choice(interaction, entries) {
 	const focused = interaction.options.getFocused();
 	const starts_with = [];
 	const other = [];
 	const keyword = toHalfWidth(focused);
-	const result = Object.entries(choice_filter).filter(([choice, id]) => choice.includes(keyword));
+	const result = entries.filter(([choice, id]) => choice.includes(keyword));
 	for (const [choice, id] of result) {
 		if (choice.startsWith(keyword))
 			starts_with.push(id);
@@ -105,13 +108,13 @@ export async function autocomplete_jp(interaction) {
 		await interaction.respond([]);
 		return;
 	}
-	let ret = filter_choice(interaction, choice_filter_table['ja']);
+	let ret = filter_choice(interaction, choice_entries['ja']);
 	if (ret.length < MAX_CHOICE) {
 		const ruby_max_length = MAX_CHOICE - ret.length;
 		const starts_with = [];
 		const other = [];
 		const id_set = new Set(ret);
-		const ruby_result = Object.entries(choice_ruby).filter(([ruby, id]) => !id_set.has(id) && ruby.includes(focused));
+		const ruby_result = ruby_entries.filter(([ruby, id]) => !id_set.has(id) && ruby.includes(focused));
 		for (const [ruby, id] of ruby_result) {
 			if (ruby.startsWith(focused))
 				starts_with.push(id);
@@ -215,7 +218,6 @@ export async function autocomplete_default(interaction, request_locale) {
 	}
 	const starts_with = [];
 	const other = [];
-	const choice_filter = choice_filter_table[request_locale];
 	let keyword = '';
 	switch (request_locale) {
 		case 'en':
@@ -228,7 +230,7 @@ export async function autocomplete_default(interaction, request_locale) {
 			await interaction.respond([]);
 			return;
 	}
-	let result = Object.entries(choice_filter).filter(([choice, id]) => choice.includes(keyword));
+	let result = choice_entries[request_locale].filter(([choice, id]) => choice.includes(keyword));
 	for (const [choice, id] of result) {
 		if (choice.startsWith(keyword))
 			starts_with.push(id);
