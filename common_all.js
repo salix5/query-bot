@@ -5,12 +5,6 @@ import choice_ruby from './commands_data/choices_ruby.json' assert { type: 'json
 
 const MAX_CHOICE = 25;
 
-// option name -> id
-const choice_table = Object.create(null);
-choice_table['en'] = create_choice('en');
-choice_table['ja'] = create_choice('ja');
-choice_table['ko'] = create_choice('ko');
-
 const choices_tc = Object.create(null);
 for (const [name, cid] of Object.entries(name_to_cid)) {
 	if (cid_inverse[cid])
@@ -20,11 +14,21 @@ for (const [name, cid] of Object.entries(name_to_cid)) {
 }
 const choices_tc_full = Object.assign(Object.create(null), choices_tc, create_choice_prerelease());
 
+// option name -> id
+const choice_table = Object.create(null);
+choice_table['en'] = create_choice('en');
+choice_table['ja'] = create_choice('ja');
+choice_table['ko'] = create_choice('ko');
+choice_table['tc'] = choices_tc;
+choice_table['full'] = choices_tc_full;
+
+const ruby_entries = Object.entries(choice_ruby);
 const choice_entries = Object.create(null);
 choice_entries['en'] = Object.entries(choice_table['en']);
 choice_entries['ja'] = half_width_entries(choice_table['ja']);
 choice_entries['ko'] = Object.entries(choice_table['ko']);
-const ruby_entries = Object.entries(choice_ruby);
+choice_entries['tc'] = Object.entries(choice_table['tc']);
+choice_entries['full'] = Object.entries(choice_table['full']);
 
 export { choice_table, choices_tc, choices_tc_full };
 
@@ -209,17 +213,9 @@ export async function autocomplete_prerelease(interaction) {
  */
 export async function autocomplete_default(interaction, request_locale) {
 	const focused = interaction.options.getFocused();
-	if (!focused) {
+	if (!focused || !choice_table[request_locale]) {
 		await interaction.respond([]);
 		return;
-	}
-	switch (request_locale) {
-		case 'en':
-		case 'ko':
-			break;
-		default:
-			await interaction.respond([]);
-			return;
 	}
 	const starts_with = [];
 	const other = [];
