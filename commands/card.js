@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from 'discord.js';
-import { choices_tc_full } from '../common_all.js';
+import { autocomplete_default, choices_tc_full } from '../common_all.js';
 import { query_command } from '../common_query.js';
 
 export const data = new SlashCommandBuilder()
@@ -11,7 +11,9 @@ export const data = new SlashCommandBuilder()
 		.setMaxLength(50)
 		.setAutocomplete(true)
 	);
-export { autocomplete_prerelease as autocomplete } from '../common_all.js';
+export async function autocomplete(interaction) {
+	await autocomplete_default(interaction, 'full');
+}
 export async function execute(interaction) {
 	const input = interaction.options.getString('input');
 	const id = choices_tc_full[input];
