@@ -201,7 +201,7 @@ const ID_TYLER_THE_GREAT_WARRIOR = 68811206;
 const ID_BLACK_LUSTER_SOLDIER = 5405695;
 const CID_BLACK_LUSTER_SOLDIER = 19092;
 
-const select_all = `SELECT datas.id, ot, alias, type, atk, def, level, attribute, race, name, desc FROM datas, texts WHERE datas.id == texts.id`;
+const select_all = `SELECT datas.id, ot, alias, setcode, type, atk, def, level, attribute, race, name, desc FROM datas, texts WHERE datas.id == texts.id`;
 const select_id = `SELECT datas.id FROM datas, texts WHERE datas.id == texts.id`;
 
 const base_filter = ` AND datas.id != ${ID_TYLER_THE_GREAT_WARRIOR} AND NOT type & ${TYPE_TOKEN}`;
@@ -257,12 +257,41 @@ db_list.push(new SQL.Database(new Uint8Array(buf1)));
 db_list.push(new SQL.Database(new Uint8Array(buf2)));
 
 /**
+ * @typedef {Object} Card
+ * @property {number} id
+ * @property {number} ot
+ * @property {number} alias
+ * @property {number} setcode
+ * @property {number} real_id - The id of real card
+ * 
+ * @property {number} type
+ * @property {number} color - Card color for sorting
+ * @property {number} atk
+ * @property {number} def
+ * @property {number} level
+ * @property {number} scale
+ * @property {number} race
+ * @property {number} attribute
+ * 
+ * @property {string} tw_name
+ * @property {string} desc
+ * 
+ * @property {number} [cid]
+ * @property {string} [en_name]
+ * @property {string} [jp_name]
+ * @property {string} [kr_name]
+ * @property {string} [md_name]
+ * @property {string} [md_name_en]
+ * @property {string} [md_name_jp]
+ */
+
+/**
  * Query cards from `db` using statement `qstr` and binding object `arg`, and put the results in `ret`.
  * scale = level >> 24
  * @param {initSqlJs.Database} db 
  * @param {string} qstr 
  * @param {Object} arg 
- * @param {Object[]} ret  
+ * @param {Card[]} ret  
  */
 function query_db(db, qstr, arg, ret) {
 	if (!db)
@@ -487,6 +516,11 @@ export function create_choice_prerelease() {
 	return Object.fromEntries(Object.entries(inverse_table).sort((a, b) => collator.compare(a[0], b[0])));
 }
 
+/**
+ * is_alternative() - Check if the card is an alternative artwork card.
+ * @param {Card} card
+ * @returns 
+ */
 export function is_alternative(card) {
 	if (card.id === ID_BLACK_LUSTER_SOLDIER)
 		return false;
@@ -494,6 +528,11 @@ export function is_alternative(card) {
 		return Math.abs(card.id - card.alias) < 10;
 }
 
+/**
+ * is_released() - Check if the card has an official card name.
+ * @param {Card} card
+ * @returns
+ */
 export function is_released(card) {
 	return !!(card.jp_name || card.en_name);
 }
@@ -517,7 +556,7 @@ export function setcode_condition(setcode) {
  * The results are put in `ret`.
  * @param {string} qstr 
  * @param {Object} arg 
- * @param {Object[]} ret 
+ * @param {Card[]} ret 
  */
 export function query(qstr, arg, ret) {
 	ret.length = 0;
@@ -530,7 +569,7 @@ export function query(qstr, arg, ret) {
  * Query card from all databases with `alias`.
  * The results are put in `ret`.
  * @param {number} alias 
- * @param {Object[]} ret 
+ * @param {Card[]} ret 
  */
 export function query_alias(alias, ret) {
 	let qstr = `${stmt_default} AND alias == $alias;`;
@@ -545,7 +584,7 @@ export function query_alias(alias, ret) {
 /**
  * Get a card with `id` from all databases.
  * @param {number} id 
- * @returns {Object}
+ * @returns {Card}
  */
 export function get_card(id) {
 	let qstr = `SELECT datas.id, ot, alias, type, atk, def, level, attribute, race, name, desc FROM datas, texts WHERE datas.id == $id AND datas.id == texts.id;`;
@@ -576,7 +615,7 @@ export function get_name(id, locale) {
 
 /**
  * Get the request_locale of `card` in region `locale`.
- * @param {Object} card 
+ * @param {Card} card 
  * @param {string} locale 
  * @returns {string}
  */
@@ -606,7 +645,7 @@ export function print_ad(x) {
 
 /**
  * Print the stat of `card` in language `locale`, using newline char `newline`.
- * @param {Object} card 
+ * @param {Card} card 
  * @param {string} newline 
  * @param {string} locale 
  * @returns {string}
@@ -743,7 +782,7 @@ export function print_data(card, newline, locale) {
 
 /**
  * Print `card` in language `locale`.
- * @param {object} card 
+ * @param {Card} card 
  * @param {string} locale 
  * @returns {string}
  */
