@@ -39,21 +39,24 @@ client.once(Events.ClientReady, c => {
 });
 
 client.on(Events.MessageCreate, async msg => {
+	if (msg.author.id === msg.client.user.id)
+		return;
 	if (msg.channel.type === ChannelType.DM) {
-		if (msg.author.id != msg.client.user.id) {
-			console.log(msg.author.id);
-			console.log(msg.content.substring(0, 20));
-		}
+		console.log(msg.author.id);
+		console.log(msg.content.substring(0, 20));
 		if (msg.content === "d!") {
 			let history = await msg.channel.messages.fetch();
-			let list_delete = [];
 			history.each((message) => {
-				if (message.type === MessageType.ChatInputCommand)
-					list_delete.push(message);
+				if (message.type === MessageType.ChatInputCommand) {
+					try {
+						message.delete();
+					}
+					catch (error) {
+						console.error('delete DM');
+						console.error(error);
+					}
+				}
 			});
-			for (const message of list_delete) {
-				await message.delete();
-			}
 		}
 	}
 	else if (msg.channel.type === ChannelType.GuildText) {
@@ -124,7 +127,7 @@ client.on(Events.InteractionCreate, async interaction => {
 			await command.autocomplete(interaction);
 		}
 		catch (error) {
-			console.error(interaction.commandName, interaction.options.getFocused());
+			console.error('autocomplete in', interaction.commandName, interaction.options.getFocused());
 			console.error(error);
 		}
 	}
