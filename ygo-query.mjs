@@ -587,7 +587,7 @@ export function query_alias(alias, ret) {
  * @returns {Card}
  */
 export function get_card(id) {
-	let qstr = `SELECT datas.id, ot, alias, type, atk, def, level, attribute, race, name, desc FROM datas, texts WHERE datas.id == $id AND datas.id == texts.id;`;
+	let qstr = `${select_all} AND datas.id == $id;`;
 	let arg = new Object();
 	arg.$id = id;
 	let ret = [];
