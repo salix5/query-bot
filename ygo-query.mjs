@@ -788,20 +788,18 @@ export function print_data(card, newline, locale) {
  */
 export function print_card(card, locale) {
 	let lfstr = '';
-	let lfstr_main = '';
+	let lfstr_ocg = '';
+	let lfstr_tcg = '';
 	let lfstr_md = '';
-	let seperator = '';
 
 	let strings = lang[locale];
 	let card_name = 'null';
 	let other_name = '';
 	let desc = '';
-	let ltable = null;
 
 	switch (locale) {
 		case 'zh-tw':
 			card_name = card.tw_name;
-
 			if (card.jp_name)
 				other_name += `${card.jp_name}\n`;
 			else if (card.md_name_jp)
@@ -814,7 +812,6 @@ export function print_card(card, locale) {
 			if (card.md_name)
 				other_name += `MD：${card.md_name}\n`;
 			desc = `${card.desc}\n--`;
-			ltable = ltable_ocg;
 			break;
 		case 'ja':
 			if (card.jp_name)
@@ -830,7 +827,6 @@ export function print_card(card, locale) {
 				other_name += `MD：:white_check_mark:\n`;
 			if (card.db_desc)
 				desc = card.db_desc;
-			ltable = ltable_ocg;
 			break;
 		case 'ko':
 			if (card.kr_name)
@@ -844,7 +840,6 @@ export function print_card(card, locale) {
 				other_name += `MD：:white_check_mark:\n`;
 			if (card.db_desc)
 				desc = card.db_desc;
-			ltable = ltable_ocg;
 			break;
 		case 'en':
 			if (card.en_name)
@@ -860,21 +855,25 @@ export function print_card(card, locale) {
 				other_name += `MD：:white_check_mark:\n`;
 			if (card.db_desc)
 				desc = card.db_desc;
-			ltable = ltable_tcg;
 			break;
 		default:
 			break;
 	}
 
-	if (ltable[card.real_id] !== undefined)
-		lfstr_main = `${strings.limit_name['region']}：${strings.limit_name[ltable[card.real_id]]}`;
-	if (ltable_md[card.real_id] !== undefined) {
+	if (ltable_ocg[card.real_id] !== undefined)
+		lfstr_ocg = `OCG：${strings.limit_name[ltable_ocg[card.real_id]]}`;
+	else
+		lfstr_ocg = `OCG：-`;
+	if (ltable_tcg[card.real_id] !== undefined)
+		lfstr_tcg = `TCG：${strings.limit_name[ltable_tcg[card.real_id]]}`;
+	else
+		lfstr_tcg = `TCG：-`;
+	if (ltable_md[card.real_id] !== undefined)
 		lfstr_md = `MD：${strings.limit_name[ltable_md[card.real_id]]}`;
-	}
-	if (lfstr_main && lfstr_md)
-		seperator = ' / ';
-	if (lfstr_main || lfstr_md)
-		lfstr = `(${lfstr_main}${seperator}${lfstr_md})\n`;
+	else
+		lfstr_md = `MD：-`;
+	if (ltable_ocg[card.real_id] !== undefined || ltable_tcg[card.real_id] !== undefined || ltable_md[card.real_id] !== undefined)
+		lfstr = `(${lfstr_ocg} / ${lfstr_tcg} / ${lfstr_md})\n`;
 
 	let card_text = `**${card_name}**\n${other_name}${lfstr}${print_data(card, '\n', locale)}${desc}\n`;
 	return card_text;
