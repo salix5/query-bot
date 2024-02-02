@@ -6,7 +6,7 @@ import { readdirSync } from 'node:fs';
 const re_wildcard = /(^|[^\$])[%_]/;
 
 const client = new Client({
-	intents: [GatewayIntentBits.Guilds, GatewayIntentBits.DirectMessages],
+	intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.DirectMessages],
 	partials: [Partials.Channel]
 });
 
@@ -54,6 +54,11 @@ client.on(Events.MessageCreate, async msg => {
 			for (const message of list_delete) {
 				await message.delete();
 			}
+		}
+	}
+	else if (msg.channel.type === ChannelType.GuildText) {
+		if (msg.content) {
+			msg.react('🤖');
 		}
 	}
 });
