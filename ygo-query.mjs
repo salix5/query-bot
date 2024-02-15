@@ -256,12 +256,16 @@ const db_list = [];
 db_list.push(new SQL.Database(new Uint8Array(buf1)));
 db_list.push(new SQL.Database(new Uint8Array(buf2)));
 
+const extra_setcode = {
+	8512558: [0x8f, 0x54, 0x59, 0x82, 0x13a],
+};
+
 /**
  * @typedef {Object} Card
  * @property {number} id
  * @property {number} ot
  * @property {number} alias
- * @property {number} setcode
+ * @property {number[]} setcode
  * @property {number} real_id - The id of real card
  * 
  * @property {number} type
@@ -286,6 +290,36 @@ db_list.push(new SQL.Database(new Uint8Array(buf2)));
  */
 
 /**
+ * Set `card.setcode` from int64.
+ * @param {Card} card 
+ * @param {bigint} setcode 
+ */
+function set_setcode(card, setcode) {
+	while (setcode) {
+		if (setcode & 0xffffn) {
+			card.setcode.push(Number(setcode & 0xffffn));
+		}
+		setcode = setcode >> 16n;
+	}
+}
+
+/**
+ * Check if `card.setode` contains `value`.
+ * @param {Card} card 
+ * @param {number} value 
+ * @returns
+ */
+function is_setcode(card, value) {
+	let settype = value & 0x0fff;
+	let setsubtype = value & 0xf000;
+	for (const x of card.setcode) {
+		if ((x & 0x0fff) === settype && (x & 0xf000 & setsubtype) === setsubtype)
+			return true;
+	}
+	return false;
+}
+
+/**
  * Query cards from `db` using statement `qstr` and binding object `arg`, and put the results in `ret`.
  * scale = level >> 24
  * @param {initSqlJs.Database} db 
@@ -300,12 +334,25 @@ function query_db(db, qstr, arg, ret) {
 	let stmt = db.prepare(qstr);
 	stmt.bind(arg);
 	while (stmt.step()) {
-		let cdata = stmt.getAsObject();
+		let cdata = stmt.getAsObject(null, { useBigInt: true });
 		let card = Object.create(null);
 		for (const [column, value] of Object.entries(cdata)) {
 			switch (column) {
+				case 'setcode':
+					card.setcode = [];
+					if (value) {
+						if (extra_setcode[card.id]) {
+							for (const x of extra_setcode[card.id]) {
+								card.setcode.push(x);
+							}
+						}
+						else {
+							set_setcode(card, value);
+						}
+					}
+					break;
 				case 'type':
-					card[column] = value;
+					card[column] = Number(value);
 					if (card.type & TYPE_MONSTER) {
 						if (!(card.type & TYPE_EXTRA)) {
 							if (card.type & TYPE_TOKEN)
@@ -363,14 +410,14 @@ function query_db(db, qstr, arg, ret) {
 					}
 					break;
 				case 'level':
-					card.level = value & 0xff;
-					card.scale = (value >> 24) & 0xff;
+					card.level = Number(value) & 0xff;
+					card.scale = (Number(value) >>> 24) & 0xff;
 					break;
 				case 'name':
 					card.tw_name = value;
 					break;
 				default:
-					card[column] = value;
+					card[column] = Number(value);
 					break;
 			}
 		}
