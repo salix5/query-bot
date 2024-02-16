@@ -428,7 +428,7 @@ function query_db(db, qstr, arg, ret) {
 		if ('id' in card && 'alias' in card) {
 			card.real_id = is_alternative(card) ? card.alias : card.id;
 		}
-		if ('real_id' in card && typeof cid_table[card.real_id] === 'number') {
+		if ('real_id' in card && Number.isSafeInteger(cid_table[card.real_id])) {
 			card.cid = cid_table[card.real_id];
 		}
 		if ('cid' in card && 'tw_name' in card) {
@@ -639,7 +639,7 @@ export function query_alias(alias, ret) {
 export function get_card(id) {
 	if (typeof id === 'string')
 		id = parseInt(id);
-	if (typeof id !== 'number' || !id)
+	if (!Number.isSafeInteger(id))
 		return null;
 	let qstr = `${select_all} AND datas.id == $id;`;
 	let arg = new Object();
