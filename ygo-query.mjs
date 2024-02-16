@@ -633,10 +633,14 @@ export function query_alias(alias, ret) {
 
 /**
  * Get a card with `id` from all databases.
- * @param {number} id 
- * @returns {Card}
+ * @param {number|string} id 
+ * @returns {Card|null}
  */
 export function get_card(id) {
+	if (typeof id === 'string')
+		id = parseInt(id);
+	if (typeof id !== 'number' || !id)
+		return null;
 	let qstr = `${select_all} AND datas.id == $id;`;
 	let arg = new Object();
 	arg.$id = id;
