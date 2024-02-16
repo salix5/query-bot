@@ -12,6 +12,7 @@ const client = new Client({
 
 client.cooldowns = new Collection();
 client.commands = new Collection();
+client.frequency = new Collection();
 const commandsURL = new URL('commands/', import.meta.url);
 const commandFiles = readdirSync(commandsURL).filter(file => file.endsWith('.js'));
 const import_list = [];
@@ -28,6 +29,7 @@ for (let i = commands.length - 1; i >= 0; --i) {
 	const commandURL = url_list[i];
 	if ('data' in command && 'execute' in command) {
 		client.commands.set(command.data.name, command);
+		client.frequency.set(command.data.name, 0);
 	} else {
 		console.log(`[WARNING] The command at ${commandURL} is missing a required "data" or "execute" property.`);
 	}
@@ -74,11 +76,16 @@ client.on(Events.InteractionCreate, async interaction => {
 			return;
 		}
 
-		const { cooldowns } = interaction.client;
+		const { cooldowns, frequency } = interaction.client;
 		if (!cooldowns.has(command.data.name)) {
 			cooldowns.set(command.data.name, new Collection());
 			console.log('start:', command.data.name);
 		}
+		let x = frequency.get(command.data.name);
+		++x;
+		frequency.set(command.data.name, x);
+		if (x % 20 == 0)
+			console.log(`#${command.data.name}:`, x);
 
 		const defaultCooldownDuration = 0;
 		const cooldownAmount = (command.cooldown ?? defaultCooldownDuration) * 1000;
