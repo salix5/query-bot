@@ -442,7 +442,7 @@ function query_db(db, qstr, arg, ret) {
 			else if (md_name_en[card.cid])
 				card.md_name_en = md_name_en[card.cid];
 
-			if (name_table_kr && name_table_kr[card.cid])
+			if (name_table_kr[card.cid])
 				card.kr_name = name_table_kr[card.cid];
 
 			if (md_name[card.cid])
