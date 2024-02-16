@@ -23,7 +23,7 @@ for (const file of commandFiles) {
 }
 
 const commands = await Promise.all(import_list);
-for (let i = commands.length - 1; i >= 0; --i){
+for (let i = commands.length - 1; i >= 0; --i) {
 	const command = commands[i];
 	const commandURL = url_list[i];
 	if ('data' in command && 'execute' in command) {
@@ -77,7 +77,7 @@ client.on(Events.InteractionCreate, async interaction => {
 		const { cooldowns } = interaction.client;
 		if (!cooldowns.has(command.data.name)) {
 			cooldowns.set(command.data.name, new Collection());
-			console.log('start:',command.data.name);
+			console.log('start:', command.data.name);
 		}
 
 		const defaultCooldownDuration = 0;

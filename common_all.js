@@ -161,7 +161,7 @@ export async function autocomplete_default(interaction, request_locale) {
 			break;
 	}
 	let ret;
-	if (starts_with.length >= MAX_CHOICE) 
+	if (starts_with.length >= MAX_CHOICE)
 		ret = starts_with;
 	else
 		ret = starts_with.concat(other);
