@@ -84,7 +84,7 @@ client.on(Events.InteractionCreate, async interaction => {
 		let x = frequency.get(command.data.name);
 		++x;
 		frequency.set(command.data.name, x);
-		if (x % 20 == 0)
+		if (x % 10 == 0)
 			console.log(`#${command.data.name}:`, x);
 
 		const defaultCooldownDuration = 0;
