@@ -1,7 +1,7 @@
 import { AutocompleteInteraction } from "discord.js";
 import { cid_inverse, create_choice, create_choice_prerelease, option_table } from "./ygo-query.mjs";
 import name_to_cid from './commands_data/choices_tc.json' assert { type: 'json' };
-import choice_ruby from './commands_data/choices_ruby.json' assert { type: 'json' };
+import ruby_to_cid from './commands_data/choices_ruby.json' assert { type: 'json' };
 
 const MAX_CHOICE = 25;
 
@@ -14,6 +14,14 @@ for (const [name, cid] of Object.entries(name_to_cid)) {
 }
 const choices_tc_full = Object.assign(Object.create(null), choices_tc, create_choice_prerelease());
 
+const choices_ruby = Object.create(null);
+for (const [ruby, cid] of Object.entries(ruby_to_cid)) {
+	if (cid_inverse[cid])
+		choices_ruby[ruby] = cid_inverse[cid];
+	else
+		console.error('choices_ruby', `${cid}: ${ruby}`);
+}
+
 // option name -> id
 const choice_table = Object.create(null);
 choice_table['en'] = create_choice('en');
@@ -22,7 +30,7 @@ choice_table['ko'] = create_choice('ko');
 choice_table['tc'] = choices_tc;
 choice_table['full'] = choices_tc_full;
 
-const ruby_entries = Object.entries(choice_ruby);
+const ruby_entries = Object.entries(choices_ruby);
 const choice_entries = Object.create(null);
 choice_entries['en'] = Object.entries(choice_table['en']);
 choice_entries['ja'] = half_width_entries(choice_table['ja']);
@@ -96,7 +104,7 @@ function filter_choice(interaction, entries) {
 }
 
 /**
- * The autocomplete handler using `choice_ruby` for Japanese card names.
+ * The autocomplete handler for Japanese card names, which also search ruby.
  * @param {AutocompleteInteraction} interaction
  */
 export async function autocomplete_jp(interaction) {
