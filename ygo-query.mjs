@@ -417,7 +417,10 @@ function query_db(db, qstr, arg, ret) {
 					card.tw_name = value;
 					break;
 				default:
-					card[column] = Number(value);
+					if (typeof value === 'bigint')
+						card[column] = Number(value);
+					else
+						card[column] = value;
 					break;
 			}
 		}
