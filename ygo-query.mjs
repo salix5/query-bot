@@ -256,10 +256,6 @@ const db_list = [];
 db_list.push(new SQL.Database(new Uint8Array(buf1)));
 db_list.push(new SQL.Database(new Uint8Array(buf2)));
 
-const extra_setcode = {
-	8512558: [0x8f, 0x54, 0x59, 0x82, 0x13a],
-};
-
 /**
  * @typedef {Object} Card
  * @property {number} id
@@ -289,6 +285,10 @@ const extra_setcode = {
  * @property {string} [md_name_jp]
  */
 
+const extra_setcode = {
+	8512558: [0x8f, 0x54, 0x59, 0x82, 0x13a],
+};
+
 /**
  * Set `card.setcode` from int64.
  * @param {Card} card 
@@ -310,8 +310,8 @@ function set_setcode(card, setcode) {
  * @returns
  */
 function is_setcode(card, value) {
-	let settype = value & 0x0fff;
-	let setsubtype = value & 0xf000;
+	const settype = value & 0x0fff;
+	const setsubtype = value & 0xf000;
 	for (const x of card.setcode) {
 		if ((x & 0x0fff) === settype && (x & 0xf000 & setsubtype) === setsubtype)
 			return true;
@@ -331,11 +331,11 @@ function query_db(db, qstr, arg, ret) {
 	if (!db)
 		return;
 
-	let stmt = db.prepare(qstr);
+	const stmt = db.prepare(qstr);
 	stmt.bind(arg);
 	while (stmt.step()) {
-		let cdata = stmt.getAsObject(null, { useBigInt: true });
-		let card = Object.create(null);
+		const cdata = stmt.getAsObject(null, { useBigInt: true });
+		const card = Object.create(null);
 		for (const [column, value] of Object.entries(cdata)) {
 			switch (column) {
 				case 'setcode':
@@ -437,13 +437,13 @@ function query_db(db, qstr, arg, ret) {
 			else if (md_name_jp[card.cid])
 				card.md_name_jp = md_name_jp[card.cid];
 
-			if (name_table_kr[card.cid])
-				card.kr_name = name_table_kr[card.cid];
-
 			if (name_table_en[card.cid])
 				card.en_name = name_table_en[card.cid];
 			else if (md_name_en[card.cid])
 				card.md_name_en = md_name_en[card.cid];
+
+			if (name_table_kr && name_table_kr[card.cid])
+				card.kr_name = name_table_kr[card.cid];
 
 			if (md_name[card.cid])
 				card.md_name = md_name[card.cid];
