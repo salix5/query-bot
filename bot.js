@@ -124,6 +124,7 @@ client.on(Events.InteractionCreate, async interaction => {
 		}
 	}
 	else if (interaction.isAutocomplete()) {
+		const begin = Date.now();
 		const command = interaction.client.commands.get(interaction.commandName);
 		if (!command) {
 			console.error(`No command matching ${interaction.commandName} was found.`);
@@ -134,7 +135,11 @@ client.on(Events.InteractionCreate, async interaction => {
 			await command.autocomplete(interaction);
 		}
 		catch (error) {
-			console.error('autocomplete in', interaction.commandName, interaction.options.getFocused());
+			const fail_time = new Date();
+			const begin_time = new Date(begin);
+			console.error(`autocomplete in ${interaction.commandName}:`, interaction.options.getFocused());
+			console.error('begin at', begin_time.toTimeString());
+			console.error('fail at', fail_time.toTimeString());
 			console.error(error);
 		}
 	}
