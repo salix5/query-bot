@@ -104,7 +104,7 @@ function filter_choice(interaction, entries) {
 }
 
 /**
- * The autocomplete handler for Japanese card names, which also search ruby.
+ * The autocomplete handler for Japanese card names, which also searches ruby.
  * @param {AutocompleteInteraction} interaction
  */
 export async function autocomplete_jp(interaction) {
