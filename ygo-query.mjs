@@ -553,7 +553,7 @@ export function create_choice_prerelease() {
 	const re_kanji = /※.*/;
 	query(search_pre, {}, pre_list);
 	for (const card of pre_list) {
-		if (name_table_jp[cid_table[card.id]] || md_name_jp[cid_table[card.id]]) {
+		if (cid_table[card.id]) {
 			continue;
 		}
 		let res = re_kanji.exec(card.desc);
