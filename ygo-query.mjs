@@ -497,18 +497,22 @@ function create_options(request_locale) {
 
 // export
 /**
- * Create the inverse mapping of `obj`.
+ * Create the inverse mapping of `table`.
  * @param {Object} table 
+ * @param {boolean} numeric_key
  * @returns {Object}
  */
-export function inverse_mapping(table) {
+export function inverse_mapping(table, numeric_key = true) {
 	const inverse = Object.create(null);
 	for (const [key, value] of Object.entries(table)) {
 		if (inverse[value]) {
 			console.error('non-invertible', `${key}: ${value}`);
 			return Object.create(null);
 		}
-		inverse[value] = parseInt(key);
+		if (numeric_key)
+			inverse[value] = parseInt(key);
+		else
+			inverse[value] = key;
 	}
 	return inverse;
 }
