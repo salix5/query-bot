@@ -200,12 +200,13 @@ export { type, monster_type, spell_type, trap_type, race, attribute, link_marker
 const ID_TYLER_THE_GREAT_WARRIOR = 68811206;
 const ID_BLACK_LUSTER_SOLDIER = 5405695;
 const CID_BLACK_LUSTER_SOLDIER = 19092;
+const CARD_ARTWORK_VERSIONS_OFFSET = 20;
 
 const select_all = `SELECT datas.id, ot, alias, setcode, type, atk, def, level, attribute, race, name, desc FROM datas, texts WHERE datas.id == texts.id`;
-const select_id = `SELECT datas.id FROM datas, texts WHERE datas.id == texts.id`;
+const select_id = `SELECT datas.id, alias FROM datas, texts WHERE datas.id == texts.id`;
 
 const base_filter = ` AND datas.id != ${ID_TYLER_THE_GREAT_WARRIOR} AND NOT type & ${TYPE_TOKEN}`;
-const physical_filter = `${base_filter} AND (datas.id == ${ID_BLACK_LUSTER_SOLDIER} OR abs(datas.id - alias) >= 10)`;
+const physical_filter = `${base_filter} AND (datas.id == ${ID_BLACK_LUSTER_SOLDIER} OR abs(datas.id - alias) >= ${CARD_ARTWORK_VERSIONS_OFFSET})`;
 const effect_filter = ` AND (NOT type & ${TYPE_NORMAL} OR type & ${TYPE_PENDULUM})`;
 
 const stmt_default = `${select_all}${physical_filter}`;
@@ -579,7 +580,7 @@ export function is_alternative(card) {
 	if (card.id === ID_BLACK_LUSTER_SOLDIER)
 		return false;
 	else
-		return Math.abs(card.id - card.alias) < 10;
+		return Math.abs(card.id - card.alias) < CARD_ARTWORK_VERSIONS_OFFSET;
 }
 
 /**
