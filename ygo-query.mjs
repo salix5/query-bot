@@ -205,16 +205,23 @@ const CARD_ARTWORK_VERSIONS_OFFSET = 20;
 const select_all = `SELECT datas.id, ot, alias, setcode, type, atk, def, level, attribute, race, name, desc FROM datas, texts WHERE datas.id == texts.id`;
 const select_id = `SELECT datas.id, alias FROM datas, texts WHERE datas.id == texts.id`;
 
-const base_filter = ` AND datas.id != ${ID_TYLER_THE_GREAT_WARRIOR} AND NOT type & ${TYPE_TOKEN}`;
-const physical_filter = `${base_filter} AND (datas.id == ${ID_BLACK_LUSTER_SOLDIER} OR abs(datas.id - alias) >= ${CARD_ARTWORK_VERSIONS_OFFSET})`;
-const effect_filter = ` AND (NOT type & ${TYPE_NORMAL} OR type & ${TYPE_PENDULUM})`;
+const base_filter = ` AND datas.id != $tyler AND NOT type & $token`;
+const physical_filter = `${base_filter} AND (datas.id == $luster OR abs(datas.id - alias) >= $artwork_offset)`;
+const effect_filter = ` AND (NOT type & $normal OR type & $pendulum)`;
 
 const stmt_default = `${select_all}${physical_filter}`;
-const stmt_no_alias = `${select_id}${base_filter} AND alias == 0`;
+const stmt_no_alias = `${select_id}${base_filter} AND alias == $zero`;
+const arg_default = Object.create(null);
+arg_default.$tyler = ID_TYLER_THE_GREAT_WARRIOR;
+arg_default.$token = TYPE_TOKEN;
+arg_default.$luster = ID_BLACK_LUSTER_SOLDIER;
+arg_default.$artwork_offset = CARD_ARTWORK_VERSIONS_OFFSET;
+arg_default.$zero = 0;
+arg_default.$ub = 99999999;
 
 export {
 	ID_TYLER_THE_GREAT_WARRIOR, ID_BLACK_LUSTER_SOLDIER, CID_BLACK_LUSTER_SOLDIER,
-	select_all, select_id, base_filter, physical_filter, effect_filter, stmt_default, stmt_no_alias
+	select_all, select_id, base_filter, physical_filter, effect_filter, stmt_default, stmt_no_alias, arg_default
 };
 
 
@@ -556,9 +563,10 @@ export function create_choice(request_locale) {
  */
 export function create_choice_prerelease() {
 	const inverse_table = Object.create(null);
-	const search_pre = `${select_all} AND datas.id > 99999999${physical_filter}`;
+	const cmd_pre = `${select_all} AND datas.id > $ub${physical_filter}`;
+	const arg = Object.assign(Object.create(null), arg_default);
 	const re_kanji = /※.*/;
-	const pre_list = query(search_pre, {});
+	const pre_list = query(cmd_pre, arg);
 	for (const card of pre_list) {
 		if (cid_table[card.id]) {
 			continue;
@@ -635,18 +643,18 @@ export function query(qstr, arg) {
 
 /**
  * Query card from all databases with `alias`.
- * The results are put in `ret`.
  * @param {number} alias 
- * @param {Card[]} ret 
+ * @returns {Card[]}
  */
-export function query_alias(alias, ret) {
+export function query_alias(alias) {
+	const ret = [];
 	const qstr = `${stmt_default} AND alias == $alias;`;
-	const arg = new Object();
+	const arg = Object.assign(Object.create(null), arg_default);
 	arg.$alias = alias;
-	ret.length = 0;
 	for (const db of db_list) {
 		query_db(db, qstr, arg, ret);
 	}
+	return ret;
 }
 
 /**
