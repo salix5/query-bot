@@ -598,6 +598,26 @@ export function create_name_table() {
 }
 
 /**
+ * Check if the card name is unique.
+ * @param {Uint8Array} buffer 
+ * @returns 
+ */
+export function check_uniqueness(buffer) {
+	const db = new SQL.Database(buffer);
+	const cards = [];
+	query_db(db, stmt_default, arg_default, cards);
+	const table1 = Object.create(null);
+	const postfix = "N";
+	for (const card of cards) {
+		table1[card.id] = card.tw_name;
+	}
+	if (table1[ID_BLACK_LUSTER_SOLDIER])
+		table1[ID_BLACK_LUSTER_SOLDIER] = `${table1[ID_BLACK_LUSTER_SOLDIER]}${postfix}`;
+	const inv1 = inverse_mapping(table1);
+	return Object.keys(inv1).length !== 0;
+}
+
+/**
  * Check if the card is an alternative artwork card.
  * @param {Card} card
  * @returns 
