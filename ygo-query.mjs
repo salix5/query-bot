@@ -331,7 +331,7 @@ function set_setcode(card, setcode) {
 		if (setcode & 0xffffn) {
 			card.setcode.push(Number(setcode & 0xffffn));
 		}
-		setcode = setcode >> 16n;
+		setcode = (setcode >> 16n) & 0xffffffffffffn;
 	}
 }
 
@@ -353,7 +353,6 @@ function is_setcode(card, value) {
 
 /**
  * Query cards from `db` using statement `qstr` and binding object `arg`, and put the results in `ret`.
- * scale = level >> 24
  * @param {initSqlJs.Database} db 
  * @param {string} qstr 
  * @param {Object} arg 
@@ -443,7 +442,7 @@ function query_db(db, qstr, arg, ret) {
 					break;
 				case 'level':
 					card.level = Number(value) & 0xff;
-					card.scale = (Number(value) >>> 24) & 0xff;
+					card.scale = (Number(value) >> 24) & 0xff;
 					break;
 				case 'name':
 					card.tw_name = value;
