@@ -600,15 +600,22 @@ export function is_released(card) {
 
 /**
  * The sqlite condition of checking setcode.
- * @param {string} setcode 
+ * @param {number} setcode
+ * @param {Object} arg
  * @returns {string}
  */
-export function setcode_condition(setcode) {
-	const setcode_str1 = `(setcode & 0xfff) == (${setcode} & 0xfff) AND (setcode & (${setcode} & 0xf000)) == (${setcode} & 0xf000)`;
-	const setcode_str2 = `(setcode >> 16 & 0xfff) == (${setcode} & 0xfff) AND (setcode >> 16 & (${setcode} & 0xf000)) == (${setcode} & 0xf000)`;
-	const setcode_str3 = `(setcode >> 32 & 0xfff) == (${setcode} & 0xfff) AND (setcode >> 32 & (${setcode} & 0xf000)) == (${setcode} & 0xf000)`;
-	const setcode_str4 = `(setcode >> 48 & 0xfff) == (${setcode} & 0xfff) AND (setcode >> 48 & (${setcode} & 0xf000)) == (${setcode} & 0xf000)`;
+export function setcode_condition(setcode, arg) {
+	const setcode_str1 = `(setcode & $mask12) == $setname AND (setcode & $settype) == $settype`;
+	const setcode_str2 = `(setcode >> $sec1 & $mask12) == $setname AND (setcode >> $sec1 & $settype) == $settype`;
+	const setcode_str3 = `(setcode >> $sec2 & $mask12) == $setname AND (setcode >> $sec2 & $settype) == $settype`;
+	const setcode_str4 = `(setcode >> $sec3 & $mask12) == $setname AND (setcode >> $sec3 & $settype) == $settype`;
 	const ret = `(${setcode_str1} OR ${setcode_str2} OR ${setcode_str3} OR ${setcode_str4})`;
+	arg.$setname = setcode & 0x0fff;
+	arg.$settype = setcode & 0xf000;
+	arg.$mask12 = 0x0fff;
+	arg.$sec1 = 16;
+	arg.$sec2 = 32;
+	arg.$sec3 = 48;
 	return ret;
 }
 
