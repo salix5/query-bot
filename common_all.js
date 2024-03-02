@@ -41,7 +41,6 @@ choice_entries['full'] = Object.entries(choice_table['full']);
 export { choice_table, choices_tc, choices_tc_full };
 
 /**
- * toHalfWidth()
  * @param {string} str
  * @returns
  */
@@ -50,7 +49,6 @@ function toHalfWidth(str) {
 }
 
 /**
- * toFullWidth()
  * @param {string} str
  * @returns 
  */
@@ -77,7 +75,6 @@ function half_width_entries(choices) {
 }
 
 /**
- * filter_choice()
  * @param {AutocompleteInteraction} interaction 
  * @param {[string, number][]} entries 
  * @returns id list

@@ -572,7 +572,7 @@ export function create_choice_prerelease() {
 }
 
 /**
- * is_alternative() - Check if the card is an alternative artwork card.
+ * Check if the card is an alternative artwork card.
  * @param {Card} card
  * @returns 
  */
@@ -584,7 +584,7 @@ export function is_alternative(card) {
 }
 
 /**
- * is_released() - Check if the card has an official card name.
+ * Check if the card has an official card name.
  * @param {Card} card
  * @returns
  */
