@@ -585,6 +585,18 @@ export function create_choice_prerelease() {
 	return Object.fromEntries(Object.entries(inverse_table).sort((a, b) => collator.compare(a[0], b[0])));
 }
 
+export function create_tc_table() {
+	const cards = query(stmt_default, arg_default);
+	const table1 = Object.create(null);
+	const postfix = "（通常怪獸）";
+	for (const card of cards) {
+		if (card.cid)
+			table1[card.cid] = card.tw_name;
+	}
+	table1[CID_BLACK_LUSTER_SOLDIER] = `${table1[CID_BLACK_LUSTER_SOLDIER]}${postfix}`;
+	return table1;
+}
+
 /**
  * Check if the card is an alternative artwork card.
  * @param {Card} card
