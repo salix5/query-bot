@@ -601,7 +601,7 @@ export function setcode_condition(setcode) {
 	const setcode_str2 = `(setcode >> 16 & 0xfff) == (${setcode} & 0xfff) AND (setcode >> 16 & (${setcode} & 0xf000)) == (${setcode} & 0xf000)`;
 	const setcode_str3 = `(setcode >> 32 & 0xfff) == (${setcode} & 0xfff) AND (setcode >> 32 & (${setcode} & 0xf000)) == (${setcode} & 0xf000)`;
 	const setcode_str4 = `(setcode >> 48 & 0xfff) == (${setcode} & 0xfff) AND (setcode >> 48 & (${setcode} & 0xf000)) == (${setcode} & 0xf000)`;
-	let ret = `(${setcode_str1} OR ${setcode_str2} OR ${setcode_str3} OR ${setcode_str4})`;
+	const ret = `(${setcode_str1} OR ${setcode_str2} OR ${setcode_str3} OR ${setcode_str4})`;
 	return ret;
 }
 
@@ -626,8 +626,8 @@ export function query(qstr, arg) {
  * @param {Card[]} ret 
  */
 export function query_alias(alias, ret) {
-	let qstr = `${stmt_default} AND alias == $alias;`;
-	let arg = new Object();
+	const qstr = `${stmt_default} AND alias == $alias;`;
+	const arg = new Object();
 	arg.$alias = alias;
 	ret.length = 0;
 	for (const db of db_list) {
@@ -645,10 +645,10 @@ export function get_card(id) {
 		id = Number.parseInt(id);
 	if (!Number.isSafeInteger(id))
 		return null;
-	let qstr = `${select_all} AND datas.id == $id;`;
-	let arg = new Object();
+	const qstr = `${select_all} AND datas.id == $id;`;
+	const arg = new Object();
 	arg.$id = id;
-	let ret = [];
+	const ret = [];
 	for (const db of db_list) {
 		query_db(db, qstr, arg, ret);
 		if (ret.length)
@@ -756,8 +756,7 @@ export function print_data(card, newline, locale) {
 			subtype += `/${strings.type_name[TYPE_EFFECT]}`;
 		data = `[${mtype}${subtype}]${newline}`;
 
-		let lv = card.level;
-		data += `${lvstr}${lv == 0 ? '?' : lv}`;
+		data += `${lvstr}${card.level === 0 ? '?' : card.level}`;
 		if (card.attribute)
 			data += `/${strings.attribute_name[card.attribute]}`;
 		else
@@ -933,7 +932,7 @@ export function print_card(card, locale) {
 	if (ltable_ocg[card.real_id] !== undefined || ltable_tcg[card.real_id] !== undefined || ltable_md[card.real_id] !== undefined)
 		lfstr = `(${lfstr_ocg} / ${lfstr_tcg} / ${lfstr_md})\n`;
 
-	let card_text = `**${card_name}**\n${other_name}${lfstr}${print_data(card, '\n', locale)}${desc}\n`;
+	const card_text = `**${card_name}**\n${other_name}${lfstr}${print_data(card, '\n', locale)}${desc}\n`;
 	return card_text;
 }
 
