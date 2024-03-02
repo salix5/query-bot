@@ -288,12 +288,12 @@ option_table['ko'] = create_options('ko');
 export { lang, official_name, cid_table, name_table, md_table, name_mapping, cid_inverse, option_table };
 
 const domain = 'https://salix5.github.io/cdb';
-const fetch_db = fetch(`${domain}/cards.cdb`).then(response => response.arrayBuffer());
-const fetch_db2 = fetch(`${domain}/expansions/pre-release.cdb`).then(response => response.arrayBuffer());
+const fetch_db = fetch(`${domain}/cards.cdb`).then(response => response.arrayBuffer()).then(buf => new Uint8Array(buf));
+const fetch_db2 = fetch(`${domain}/expansions/pre-release.cdb`).then(response => response.arrayBuffer()).then(buf => new Uint8Array(buf));
 const [SQL, buf1, buf2] = await Promise.all([initSqlJs(), fetch_db, fetch_db2]);
 const db_list = [];
-db_list.push(new SQL.Database(new Uint8Array(buf1)));
-db_list.push(new SQL.Database(new Uint8Array(buf2)));
+db_list.push(new SQL.Database(buf1));
+db_list.push(new SQL.Database(buf2));
 
 /**
  * @typedef {Object} Card
@@ -585,7 +585,7 @@ export function create_choice_prerelease() {
 	return Object.fromEntries(Object.entries(inverse_table).sort((a, b) => collator.compare(a[0], b[0])));
 }
 
-export function create_tc_table() {
+export function create_name_table() {
 	const cards = query(stmt_default, arg_default);
 	const table1 = Object.create(null);
 	const postfix = "（通常怪獸）";
