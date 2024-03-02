@@ -549,16 +549,15 @@ export function create_choice(request_locale) {
  */
 export function create_choice_prerelease() {
 	const inverse_table = Object.create(null);
-	const pre_list = [];
-	const search_pre = `SELECT datas.id, name, desc FROM datas, texts WHERE datas.id == texts.id AND (ot == 2 OR datas.id > 99999999)${physical_filter}`;
+	const search_pre = `${select_all} AND datas.id > 99999999${physical_filter}`;
 	const re_kanji = /※.*/;
-	query(search_pre, {}, pre_list);
+	const pre_list = query(search_pre, {});
 	for (const card of pre_list) {
 		if (cid_table[card.id]) {
 			continue;
 		}
-		let res = re_kanji.exec(card.desc);
-		let kanji = res ? res[0] : '';
+		const res = card.desc.match(re_kanji);
+		const kanji = res ? res[0] : '';
 		if (inverse_table[card.tw_name] || (kanji && inverse_table[kanji])) {
 			console.error('choice_prerelease', card.id);
 			return Object.create(null);
@@ -608,16 +607,16 @@ export function setcode_condition(setcode) {
 
 /**
  * Query card from all databases using statement `qstr` and binding object `arg`.
- * The results are put in `ret`.
  * @param {string} qstr 
  * @param {Object} arg 
- * @param {Card[]} ret 
+ * @returns {Card[]}
  */
-export function query(qstr, arg, ret) {
-	ret.length = 0;
+export function query(qstr, arg) {
+	const ret = [];
 	for (const db of db_list) {
 		query_db(db, qstr, arg, ret);
 	}
+	return ret;
 }
 
 /**
