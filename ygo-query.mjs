@@ -511,7 +511,7 @@ export function inverse_mapping(table, numeric_key = true) {
 			return Object.create(null);
 		}
 		if (numeric_key)
-			inverse[value] = parseInt(key);
+			inverse[value] = Number.parseInt(key);
 		else
 			inverse[value] = key;
 	}
@@ -643,7 +643,7 @@ export function query_alias(alias, ret) {
  */
 export function get_card(id) {
 	if (typeof id === 'string')
-		id = parseInt(id);
+		id = Number.parseInt(id);
 	if (!Number.isSafeInteger(id))
 		return null;
 	let qstr = `${select_all} AND datas.id == $id;`;
