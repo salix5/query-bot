@@ -239,15 +239,46 @@ const md_table = Object.create(null);
 md_table['en'] = md_name_en;
 md_table['ja'] = md_name_jp;
 
+const name_mapping = Object.create(null);
+for (const key of Object.keys(official_name)) {
+	let postfix = '';
+	switch (key) {
+		case 'en':
+			postfix = ' (Normal)';
+			break;
+		case 'ja':
+			postfix = '（通常モンスター）';
+			break;
+		case 'ko':
+			postfix = ' (일반)';
+			break;
+		default:
+			continue;
+	}
+	const table1 = Object.create(null);
+	Object.assign(table1, name_table[key]);
+	if (table1[CID_BLACK_LUSTER_SOLDIER])
+		table1[CID_BLACK_LUSTER_SOLDIER] = `${table1[CID_BLACK_LUSTER_SOLDIER]}${postfix}`;
+	if (md_table[key]) {
+		for (const [cid, name] of Object.entries(md_table[key])) {
+			if (table1[cid]) {
+				console.error(`duplicate cid: md_table[${key}]`, cid);
+				continue;
+			}
+			table1[cid] = name;
+		}
+	}
+	name_mapping[key] = table1;
+}
 const cid_inverse = inverse_mapping(cid_table);
 
-// id -> option name
+// [id, name] mapping
 const option_table = Object.create(null);
 option_table['en'] = create_options('en');
 option_table['ja'] = create_options('ja');
 option_table['ko'] = create_options('ko');
 
-export { lang, official_name, cid_table, name_table, md_table, cid_inverse, option_table };
+export { lang, official_name, cid_table, name_table, md_table, name_mapping, cid_inverse, option_table };
 
 const domain = 'https://salix5.github.io/cdb';
 const fetch_db = fetch(`${domain}/cards.cdb`).then(response => response.arrayBuffer());
@@ -454,44 +485,21 @@ function query_db(db, qstr, arg, ret) {
 	stmt.free();
 }
 
+/**
+ * Create the [id, name] mapping.
+ * @param {string} request_locale 
+ * @returns 
+ */
 function create_options(request_locale) {
-	let postfix = '';
-	switch (request_locale) {
-		case 'en':
-			postfix = ' (Normal)';
-			break;
-		case 'ja':
-			postfix = '（通常モンスター）';
-			break;
-		case 'ko':
-			postfix = ' (일반)';
-			break;
-		default:
-			return Object.create(null);
-	}
 	const options = Object.create(null);
-	for (const [cid, name] of Object.entries(name_table[request_locale])) {
+	if (!name_mapping[request_locale])
+		return options;
+	for (const [cid, name] of Object.entries(name_mapping[request_locale])) {
 		if (!cid_inverse[cid]) {
 			console.error(`unknown cid:`, cid);
 			continue;
 		}
-		if (cid == CID_BLACK_LUSTER_SOLDIER)
-			options[cid_inverse[cid]] = `${name}${postfix}`;
-		else
-			options[cid_inverse[cid]] = name;
-	}
-	if (md_table[request_locale]) {
-		for (const [cid, name] of Object.entries(md_table[request_locale])) {
-			if (!cid_inverse[cid]) {
-				console.error(`unknown cid:`, cid);
-				continue;
-			}
-			if (options[cid_inverse[cid]]) {
-				console.error(`duplicate cid: md_table[${request_locale}]`, cid);
-				continue;
-			}
-			options[cid_inverse[cid]] = name;
-		}
+		options[cid_inverse[cid]] = name;
 	}
 	return options;
 }
