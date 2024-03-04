@@ -1005,3 +1005,11 @@ export function print_qa_link(cid) {
 export function print_history_link(cid) {
 	return `https://github.com/salix5/ygodb/commits/master/${cid}.txt`;
 }
+
+/**
+ * @param {string} string 
+ * @returns 
+ */
+export function escape_regexp(string) {
+	return string.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&');
+}
