@@ -1,5 +1,5 @@
 import { AutocompleteInteraction } from "discord.js";
-import { cid_inverse, create_choice, create_choice_prerelease, option_table } from "./ygo-query.mjs";
+import { cid_inverse, create_choice, create_choice_prerelease, escape_regexp, option_table } from "./ygo-query.mjs";
 import name_to_cid from './commands_data/choices_tc.json' assert { type: 'json' };
 import ruby_to_cid from './commands_data/choices_ruby.json' assert { type: 'json' };
 
@@ -83,7 +83,7 @@ function filter_choice(interaction, entries) {
 	const focused = interaction.options.getFocused();
 	const starts_with = [];
 	const other = [];
-	const keyword = toHalfWidth(focused).replace(/[|\\{}()[\]^$+*?.]/g, '\\$&');
+	const keyword = escape_regexp(toHalfWidth(focused));
 	const start = new RegExp(`^${keyword}`);
 	const include = new RegExp(`${keyword}`);
 	for (const [choice, id] of entries) {
@@ -116,7 +116,7 @@ export async function autocomplete_jp(interaction) {
 		const starts_with = [];
 		const other = [];
 		const id_set = new Set(ret);
-		let keyword = focused.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&');
+		const keyword = escape_regexp(focused);
 		const start = new RegExp(`^${keyword}`);
 		const include = new RegExp(`${keyword}`);
 		for (const [ruby, id] of ruby_entries) {
@@ -154,7 +154,7 @@ export async function autocomplete_default(interaction, request_locale) {
 	}
 	const starts_with = [];
 	const other = [];
-	let keyword = focused.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&');
+	const keyword = escape_regexp(focused);
 	const start = new RegExp(`^${keyword}`, 'i');
 	const include = new RegExp(`${keyword}`, 'i');
 	for (const [choice, id] of choice_entries[request_locale]) {
