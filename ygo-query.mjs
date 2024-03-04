@@ -202,7 +202,7 @@ const ID_BLACK_LUSTER_SOLDIER = 5405695;
 const CID_BLACK_LUSTER_SOLDIER = 19092;
 const CARD_ARTWORK_VERSIONS_OFFSET = 20;
 
-const select_all = `SELECT datas.id, ot, alias, setcode, type, atk, def, level, attribute, race, name, desc FROM datas, texts WHERE datas.id == texts.id`;
+const select_all = `SELECT datas.id, ot, alias, setcode, type, atk, def, level, attribute, race, name, "desc" FROM datas, texts WHERE datas.id == texts.id`;
 const select_id = `SELECT datas.id, alias FROM datas, texts WHERE datas.id == texts.id`;
 
 const base_filter = ` AND datas.id != $tyler AND NOT type & $token`;
