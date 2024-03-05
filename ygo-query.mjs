@@ -304,13 +304,13 @@ db_list.push(new SQL.Database(buf2));
  * @property {number} real_id - The id of real card
  * 
  * @property {number} type
- * @property {number} color - Card color for sorting
  * @property {number} atk
  * @property {number} def
  * @property {number} level
  * @property {number} scale
  * @property {number} race
  * @property {number} attribute
+ * @property {number} color - Card color for sorting
  * 
  * @property {string} tw_name
  * @property {string} desc
@@ -369,7 +369,8 @@ export function query_db(db, qstr, arg, ret) {
 	if (!db)
 		return;
 
-	const stmt = db.prepare(qstr, arg);
+	const stmt = db.prepare(qstr);
+	stmt.bind(arg);
 	while (stmt.step()) {
 		const cdata = stmt.getAsObject(null, { useBigInt: true });
 		const card = Object.create(null);
@@ -480,7 +481,7 @@ function finalize(card) {
 		else if (md_name_en[card.cid])
 			card.md_name_en = md_name_en[card.cid];
 
-		if (name_table_kr[card.cid])
+		if (name_table_kr && name_table_kr[card.cid])
 			card.kr_name = name_table_kr[card.cid];
 
 		if (md_name[card.cid])
@@ -555,7 +556,7 @@ export function create_choice(request_locale) {
 }
 
 /**
- * Create the name to id table for cards not released in Japan.
+ * Create the name to id table for pre-release cards.
  * @returns {Object}
  */
 export function create_choice_prerelease() {
