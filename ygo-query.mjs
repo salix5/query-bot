@@ -203,7 +203,7 @@ const CID_BLACK_LUSTER_SOLDIER = 19092;
 const CARD_ARTWORK_VERSIONS_OFFSET = 20;
 
 const select_all = `SELECT datas.id, ot, alias, setcode, type, atk, def, level, attribute, race, name, "desc" FROM datas, texts WHERE datas.id == texts.id`;
-const select_id = `SELECT datas.id, alias FROM datas, texts WHERE datas.id == texts.id`;
+const select_id = `SELECT datas.id FROM datas, texts WHERE datas.id == texts.id`;
 
 const base_filter = ` AND datas.id != $tyler AND NOT type & $token`;
 const physical_filter = `${base_filter} AND (datas.id == $luster OR abs(datas.id - alias) >= $artwork_offset)`;
@@ -221,7 +221,9 @@ arg_default.$ub = 99999999;
 
 export {
 	ID_TYLER_THE_GREAT_WARRIOR, ID_BLACK_LUSTER_SOLDIER, CID_BLACK_LUSTER_SOLDIER,
-	select_all, select_id, base_filter, physical_filter, effect_filter, stmt_default, stmt_no_alias, arg_default
+	select_all, select_id, base_filter, physical_filter, effect_filter,
+	stmt_default, stmt_no_alias,
+	arg_default,
 };
 
 
@@ -285,7 +287,10 @@ option_table['en'] = create_options('en');
 option_table['ja'] = create_options('ja');
 option_table['ko'] = create_options('ko');
 
-export { lang, official_name, cid_table, name_table, md_table, name_mapping, cid_inverse, option_table };
+export {
+	lang, official_name, cid_table, name_table, md_table,
+	name_mapping, cid_inverse, option_table,
+};
 
 const domain = 'https://salix5.github.io/cdb';
 const fetch_db = fetch(`${domain}/cards.cdb`).then(response => response.arrayBuffer()).then(buf => new Uint8Array(buf));
