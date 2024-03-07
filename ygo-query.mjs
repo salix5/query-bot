@@ -204,6 +204,7 @@ const CARD_ARTWORK_VERSIONS_OFFSET = 20;
 
 const select_all = `SELECT datas.id, ot, alias, setcode, type, atk, def, level, attribute, race, name, "desc" FROM datas, texts WHERE datas.id == texts.id`;
 const select_id = `SELECT datas.id FROM datas, texts WHERE datas.id == texts.id`;
+const select_name = `SELECT datas.id, name FROM datas, texts WHERE datas.id == texts.id`;
 
 const base_filter = ` AND datas.id != $tyler AND NOT type & $token`;
 const physical_filter = `${base_filter} AND (datas.id == $luster OR abs(datas.id - alias) >= $artwork_offset)`;
@@ -606,9 +607,11 @@ export function create_name_table() {
  * @returns 
  */
 export function check_uniqueness(buffer) {
+	const condition = ` AND (NOT type & $token OR alias == $zero) AND (type & $token OR datas.id == $luster OR abs(datas.id - alias) >= $artwork_offset)`;
+	const cmd = `${select_name}${condition}`
 	const db = new SQL.Database(buffer);
 	const cards = [];
-	query_db(db, stmt_default, arg_default, cards);
+	query_db(db, cmd, arg_default, cards);
 	db.close();
 	console.log(cards.length);
 	const table1 = Object.create(null);
