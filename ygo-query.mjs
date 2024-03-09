@@ -249,7 +249,7 @@ const md_table = Object.create(null);
 md_table['en'] = md_name_en;
 md_table['ja'] = md_name_jp;
 
-const name_mapping = Object.create(null);
+const complete_name_table = Object.create(null);
 for (const key of Object.keys(official_name)) {
 	let postfix = '';
 	switch (key) {
@@ -278,7 +278,7 @@ for (const key of Object.keys(official_name)) {
 			table1[cid] = name;
 		}
 	}
-	name_mapping[key] = table1;
+	complete_name_table[key] = table1;
 }
 const cid_inverse = inverse_mapping(cid_table);
 
@@ -290,7 +290,7 @@ option_table['ko'] = create_options('ko');
 
 export {
 	lang, official_name, cid_table, name_table, md_table,
-	name_mapping, cid_inverse, option_table,
+	complete_name_table, cid_inverse, option_table,
 };
 
 const domain = 'https://salix5.github.io/cdb';
@@ -486,9 +486,9 @@ function finalize(card) {
  */
 function create_options(request_locale) {
 	const options = Object.create(null);
-	if (!name_mapping[request_locale])
+	if (!complete_name_table[request_locale])
 		return options;
-	for (const [cid, name] of Object.entries(name_mapping[request_locale])) {
+	for (const [cid, name] of Object.entries(complete_name_table[request_locale])) {
 		if (!cid_inverse[cid]) {
 			console.error(`unknown cid:`, cid);
 			continue;
