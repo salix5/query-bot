@@ -349,29 +349,13 @@ function set_setcode(card, setcode) {
 }
 
 /**
- * Check if `card.setode` contains `value`.
- * @param {Card} card 
- * @param {number} value 
- * @returns
- */
-function is_setcode(card, value) {
-	const settype = value & 0x0fff;
-	const setsubtype = value & 0xf000;
-	for (const x of card.setcode) {
-		if ((x & 0x0fff) === settype && (x & 0xf000 & setsubtype) === setsubtype)
-			return true;
-	}
-	return false;
-}
-
-/**
- * Query cards from `db` using statement `qstr` and binding object `arg`, and put the results in `ret`.
+ * Query cards from `db` with statement `qstr` and binding object `arg` and put them in `ret`.
  * @param {initSqlJs.Database} db 
  * @param {string} qstr 
  * @param {Object} arg 
  * @param {Object[]} ret  
  */
-export function query_db(db, qstr, arg, ret) {
+function query_db(db, qstr, arg, ret) {
 	if (!db)
 		return;
 
@@ -537,6 +521,21 @@ export function inverse_mapping(table, numeric_key = true) {
 }
 
 /**
+ * Get cards from databases file `buffer` with statement `qstr` and binding object `arg`.
+ * @param {Uint8Array} buffer
+ * @param {string} qstr 
+ * @param {Object} arg 
+ * @returns {Object[]}
+ */
+export function load_db(buffer, qstr, arg) {
+	const db = new SQL.Database(buffer);
+	const ret = [];
+	query_db(db, qstr, arg, ret);
+	db.close();
+	return ret;
+}
+
+/**
  * Create the option to id table of region `request_locale`
  * @param {string} request_locale 
  * @returns {Object}
@@ -592,7 +591,7 @@ export function create_choice_prerelease() {
 export function create_name_table() {
 	const cards = query(stmt_default, arg_default);
 	const table1 = Object.create(null);
-	const postfix = "（通常怪獸）";
+	const postfix = '（通常怪獸）';
 	for (const card of cards) {
 		if (card.cid)
 			table1[card.cid] = card.tw_name;
@@ -608,14 +607,11 @@ export function create_name_table() {
  */
 export function check_uniqueness(buffer) {
 	const condition = ` AND (NOT type & $token OR alias == $zero) AND (type & $token OR datas.id == $luster OR abs(datas.id - alias) >= $artwork_offset)`;
-	const cmd = `${select_name}${condition}`
-	const db = new SQL.Database(buffer);
-	const cards = [];
-	query_db(db, cmd, arg_default, cards);
-	db.close();
-	console.log(cards.length);
+	const stmt1 = `${select_name}${condition}`
+	const cards = load_db(buffer, stmt1, arg_default);
+	console.log('total:', cards.length);
 	const table1 = Object.create(null);
-	const postfix = "N";
+	const postfix = 'N';
 	for (const card of cards) {
 		table1[card.id] = card.name;
 	}
@@ -647,6 +643,22 @@ export function is_released(card) {
 }
 
 /**
+ * Check if `card.setode` contains `value`.
+ * @param {Card} card 
+ * @param {number} value 
+ * @returns
+ */
+export function is_setcode(card, value) {
+	const settype = value & 0x0fff;
+	const setsubtype = value & 0xf000;
+	for (const x of card.setcode) {
+		if ((x & 0x0fff) === settype && (x & 0xf000 & setsubtype) === setsubtype)
+			return true;
+	}
+	return false;
+}
+
+/**
  * The sqlite condition of checking setcode.
  * @param {number} setcode
  * @param {Object} arg
@@ -668,7 +680,7 @@ export function setcode_condition(setcode, arg) {
 }
 
 /**
- * Query card from all databases using statement `qstr` and binding object `arg`.
+ * Query card from all databases with statement `qstr` and binding object `arg`.
  * @param {string} qstr 
  * @param {Object} arg 
  * @returns {Card[]}
