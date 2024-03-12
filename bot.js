@@ -37,9 +37,9 @@ for (let i = commands.length - 1; i >= 0; --i) {
 
 client.once(Events.ClientReady, c => {
 	let currentDate = new Date();
-	console.log(`[${currentDate.toUTCString()}] Ready! Logged in as ${c.user.tag} (total: ${Object.keys(name_table['ja']).length})`);
+	console.log(`[${currentDate.toUTCString()}] Ready! Logged in as ${c.user.tag} (total: ${name_table['ja'].size})`);
 	const name_table_tw = create_name_table();
-	console.log('name_table_tw:', Object.keys(name_table_tw).length === Object.keys(cid_table).length);
+	console.log('name_table_tw:', Object.keys(name_table_tw).length === cid_table.size);
 	inverse_mapping(name_table_tw);
 });
 
