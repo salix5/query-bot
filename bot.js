@@ -38,9 +38,9 @@ for (let i = commands.length - 1; i >= 0; --i) {
 client.once(Events.ClientReady, c => {
 	let currentDate = new Date();
 	console.log(`[${currentDate.toUTCString()}] Ready! Logged in as ${c.user.tag} (total: ${name_table['ja'].size})`);
-	const name_table_tw = create_name_table();
-	console.log('name_table_tw:', Object.keys(name_table_tw).length === cid_table.size);
-	inverse_mapping(name_table_tw);
+	const test_table = create_name_table();
+	console.log('name_table_tw:', test_table.size === cid_table.size);
+	inverse_mapping(test_table);
 });
 
 client.on(Events.MessageCreate, async msg => {
