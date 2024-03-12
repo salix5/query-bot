@@ -3,9 +3,9 @@ import ltable_ocg from './data/lflist.json' assert { type: 'json' };
 import ltable_tcg from './data/lflist_tcg.json' assert { type: 'json' };
 import ltable_md from './data/lflist_md.json' assert { type: 'json' };
 
-import cid_entry from './data/cid.json' assert { type: 'json' };
+import cid_entry from './data/cid_table.json' assert { type: 'json' };
 import name_table_en from './data/name_table_en.json' assert { type: 'json' };
-import name_table_jp from './data/name_table.json' assert { type: 'json' };
+import name_table_jp from './data/name_table_jp.json' assert { type: 'json' };
 import name_table_kr from './data/name_table_kr.json' assert { type: 'json' };
 import md_name from './data/md_name.json' assert { type: 'json' };
 import md_name_en from './data/md_name_en.json' assert { type: 'json' };
@@ -244,6 +244,8 @@ game_name['en'] = 'md_name_en';
 game_name['ja'] = 'md_name_jp';
 
 const cid_table = new Map(cid_entry);
+const cid_inverse = inverse_mapping(cid_table);
+
 const name_table = Object.create(null);
 name_table['en'] = new Map(name_table_en);
 name_table['ja'] = new Map(name_table_jp);
@@ -257,37 +259,20 @@ md_table['ja'] = new Map(md_name_jp);
 const complete_name_table = Object.create(null);
 const option_table = Object.create(null);	// [id, name] mapping
 
-for (const key of Object.keys(official_name)) {
-	let postfix = '';
-	switch (key) {
-		case 'en':
-			postfix = ' (Normal)';
-			break;
-		case 'ja':
-			postfix = '（通常モンスター）';
-			break;
-		case 'ko':
-			postfix = ' (일반)';
-			break;
-		default:
-			continue;
-	}
-	const table1 = new Map(name_table[key].entries());
-	if (table1.has(CID_BLACK_LUSTER_SOLDIER))
-		table1.set(CID_BLACK_LUSTER_SOLDIER, `${table1.get(CID_BLACK_LUSTER_SOLDIER)}${postfix}`);
-	if (md_table[key]) {
-		for (const [cid, name] of md_table[key]) {
+for (const locale of Object.keys(official_name)) {
+	const table1 = new Map(name_table[locale].entries());
+	if (md_table[locale]) {
+		for (const [cid, name] of md_table[locale]) {
 			if (table1.has(cid)) {
-				console.error(`duplicate cid: md_table[${key}]`, cid);
+				console.error(`duplicate cid: md_table[${locale}]`, cid);
 				continue;
 			}
 			table1.set(cid, name);
 		}
 	}
-	complete_name_table[key] = table1;
-	option_table[key] = create_options(key);
+	complete_name_table[locale] = table1;
+	option_table[locale] = create_options(locale);
 }
-const cid_inverse = inverse_mapping(cid_table);
 
 export {
 	lang, official_name, cid_table, name_table, md_table,
@@ -464,7 +449,7 @@ function finalize(card) {
 	if (card.cid) {
 		for (const [locale, prop] of Object.entries(official_name)) {
 			if (name_table[locale].has(card.cid))
-				card[prop] = name_table[locale].get(cid);
+				card[prop] = name_table[locale].get(card.cid);
 			else if (md_table[locale] && md_table[locale].has(card.cid))
 				card[game_name[locale]] = md_table[locale].get(card.cid);
 		}
@@ -479,37 +464,49 @@ function finalize(card) {
  * @returns 
  */
 function create_options(request_locale) {
-	const options = Object.create(null);
+	const options = new Map();
 	if (!complete_name_table[request_locale])
 		return options;
-	for (const [cid, name] of Object.entries(complete_name_table[request_locale])) {
-		if (!cid_inverse[cid]) {
+	let postfix = '';
+	switch (request_locale) {
+		case 'en':
+			postfix = ' (Normal)';
+			break;
+		case 'ja':
+			postfix = '（通常モンスター）';
+			break;
+		case 'ko':
+			postfix = ' (일반)';
+			break;
+		default:
+			break;
+	}
+	for (const [cid, name] of complete_name_table[request_locale]) {
+		if (!cid_inverse.has(cid)) {
 			console.error(`unknown cid:`, cid);
 			continue;
 		}
-		options[cid_inverse[cid]] = name;
+		options.set(cid_inverse.get(cid), name);
 	}
+	if (options.has(ID_BLACK_LUSTER_SOLDIER))
+		options.set(ID_BLACK_LUSTER_SOLDIER, `${options.get(ID_BLACK_LUSTER_SOLDIER)}${postfix}`);
 	return options;
 }
 
 // export
 /**
  * Create the inverse mapping of `table`.
- * @param {Object} table 
- * @param {boolean} numeric_key
- * @returns {Object}
+ * @param {Map} table 
+ * @returns 
  */
-export function inverse_mapping(table, numeric_key = true) {
-	const inverse = Object.create(null);
-	for (const [key, value] of Object.entries(table)) {
-		if (inverse[value]) {
+function inverse_mapping(table) {
+	const inverse = new Map();
+	for (const [key, value] of table) {
+		if (inverse.has(value)) {
 			console.error('non-invertible', `${key}: ${value}`);
-			return Object.create(null);
+			return (new Map());
 		}
-		if (numeric_key)
-			inverse[value] = Number.parseInt(key);
-		else
-			inverse[value] = key;
+		inverse.set(value, key);
 	}
 	return inverse;
 }
@@ -530,9 +527,9 @@ export function load_db(buffer, qstr, arg) {
 }
 
 /**
- * Create the option to id table of region `request_locale`
+ * Create the [name, id] table of region `request_locale`
  * @param {string} request_locale 
- * @returns {Object}
+ * @returns 
  */
 export function create_choice(request_locale) {
 	let locale = '';
@@ -547,19 +544,22 @@ export function create_choice(request_locale) {
 			locale = 'ko-KR';
 			break;
 		default:
-			return Object.create(null);
+			return (new Map());
 	}
 	const inverse = inverse_mapping(option_table[request_locale]);
 	const collator = new Intl.Collator(locale);
-	return Object.assign(Object.create(null), Object.fromEntries(Object.entries(inverse).sort((a, b) => collator.compare(a[0], b[0]))));
+	const inverse_entries = Array.from(inverse.entries());
+	inverse_entries.sort((a, b) => collator.compare(a[0], b[0]));
+	const result = new Map(inverse_entries);
+	return result;
 }
 
 /**
- * Create the name to id table for pre-release cards.
- * @returns {Object}
+ * Create the [name, id] table for pre-release cards.
+ * @returns 
  */
 export function create_choice_prerelease() {
-	const inverse_table = Object.create(null);
+	const inverse_table = new Map();
 	const cmd_pre = `${select_all} AND datas.id > $ub${physical_filter}`;
 	const arg = Object.assign(Object.create(null), arg_default);
 	const re_kanji = /※.*/;
@@ -570,27 +570,30 @@ export function create_choice_prerelease() {
 		}
 		const res = card.desc.match(re_kanji);
 		const kanji = res ? res[0] : '';
-		if (inverse_table[card.tw_name] || (kanji && inverse_table[kanji])) {
+		if (inverse_table.has(card.tw_name) || kanji && inverse_table.has(kanji)) {
 			console.error('choice_prerelease', card.id);
-			return Object.create(null);
+			return (new Map());
 		}
-		inverse_table[card.tw_name] = card.id;
+		inverse_table.set(card.tw_name, card.id);
 		if (kanji)
-			inverse_table[kanji] = card.id;
+			inverse_table.set(kanji, card.id);
 	}
 	const collator = Intl.Collator('zh-Hant');
-	return Object.fromEntries(Object.entries(inverse_table).sort((a, b) => collator.compare(a[0], b[0])));
+	const inverse_entries = Array.from(inverse_table.entries());
+	inverse_entries.sort((a, b) => collator.compare(a[0], b[0]));
+	const result = new Map(inverse_entries);
+	return result;
 }
 
 export function create_name_table() {
 	const cards = query(stmt_default, arg_default);
-	const table1 = Object.create(null);
+	const table1 = new Map();
 	const postfix = '（通常怪獸）';
 	for (const card of cards) {
 		if (card.cid)
-			table1[card.cid] = card.tw_name;
+			table1.set(card.cid, card.tw_name);
 	}
-	table1[CID_BLACK_LUSTER_SOLDIER] = `${table1[CID_BLACK_LUSTER_SOLDIER]}${postfix}`;
+	table1.set(CID_BLACK_LUSTER_SOLDIER, `${table1.get(CID_BLACK_LUSTER_SOLDIER)}${postfix}`);
 	return table1;
 }
 
@@ -733,9 +736,19 @@ export function get_card(id) {
  * @returns {string}
  */
 export function get_name(id, locale) {
+	if (!cid_table.has(id))
+		return '';
+	let table = null;
+	if (locale === 'md')
+		table = name_table['md'];
+	else if (complete_name_table[locale])
+		table = complete_name_table[locale];
+	else
+		return '';
+
 	const cid = cid_table.get(id);
-	if (name_table[locale] && cid && name_table[locale][cid])
-		return name_table[locale][cid];
+	if (table.has(cid))
+		return table.get(cid);
 	else
 		return '';
 }
