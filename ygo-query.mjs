@@ -1,9 +1,9 @@
 import initSqlJs from 'sql.js';
-import cid_table from './data/cid.json' assert { type: 'json' };
 import ltable_ocg from './data/lflist.json' assert { type: 'json' };
 import ltable_tcg from './data/lflist_tcg.json' assert { type: 'json' };
 import ltable_md from './data/lflist_md.json' assert { type: 'json' };
 
+import cid_entry from './data/cid.json' assert { type: 'json' };
 import name_table_en from './data/name_table_en.json' assert { type: 'json' };
 import name_table_jp from './data/name_table.json' assert { type: 'json' };
 import name_table_kr from './data/name_table_kr.json' assert { type: 'json' };
@@ -239,17 +239,24 @@ official_name['en'] = 'en_name';
 official_name['ja'] = 'jp_name';
 official_name['ko'] = 'kr_name';
 
+const game_name = Object.create(null);
+game_name['en'] = 'md_name_en';
+game_name['ja'] = 'md_name_jp';
+
+const cid_table = new Map(cid_entry);
 const name_table = Object.create(null);
-name_table['en'] = name_table_en;
-name_table['ja'] = name_table_jp;
-name_table['ko'] = name_table_kr;
-name_table['md'] = md_name;
+name_table['en'] = new Map(name_table_en);
+name_table['ja'] = new Map(name_table_jp);
+name_table['ko'] = new Map(name_table_kr);
+name_table['md'] = new Map(md_name);
 
 const md_table = Object.create(null);
-md_table['en'] = md_name_en;
-md_table['ja'] = md_name_jp;
+md_table['en'] = new Map(md_name_en);
+md_table['ja'] = new Map(md_name_jp);
 
 const complete_name_table = Object.create(null);
+const option_table = Object.create(null);	// [id, name] mapping
+
 for (const key of Object.keys(official_name)) {
 	let postfix = '';
 	switch (key) {
@@ -265,28 +272,22 @@ for (const key of Object.keys(official_name)) {
 		default:
 			continue;
 	}
-	const table1 = Object.create(null);
-	Object.assign(table1, name_table[key]);
-	if (table1[CID_BLACK_LUSTER_SOLDIER])
-		table1[CID_BLACK_LUSTER_SOLDIER] = `${table1[CID_BLACK_LUSTER_SOLDIER]}${postfix}`;
+	const table1 = new Map(name_table[key].entries());
+	if (table1.has(CID_BLACK_LUSTER_SOLDIER))
+		table1.set(CID_BLACK_LUSTER_SOLDIER, `${table1.get(CID_BLACK_LUSTER_SOLDIER)}${postfix}`);
 	if (md_table[key]) {
-		for (const [cid, name] of Object.entries(md_table[key])) {
-			if (table1[cid]) {
+		for (const [cid, name] of md_table[key]) {
+			if (table1.has(cid)) {
 				console.error(`duplicate cid: md_table[${key}]`, cid);
 				continue;
 			}
-			table1[cid] = name;
+			table1.set(cid, name);
 		}
 	}
 	complete_name_table[key] = table1;
+	option_table[key] = create_options(key);
 }
 const cid_inverse = inverse_mapping(cid_table);
-
-// [id, name] mapping
-const option_table = Object.create(null);
-option_table['en'] = create_options('en');
-option_table['ja'] = create_options('ja');
-option_table['ko'] = create_options('ko');
 
 export {
 	lang, official_name, cid_table, name_table, md_table,
@@ -394,8 +395,8 @@ function query_db(db, qstr, arg, ret) {
 		if ('id' in card && 'alias' in card) {
 			card.real_id = is_alternative(card) ? card.alias : card.id;
 		}
-		if ('real_id' in card && Number.isSafeInteger(cid_table[card.real_id])) {
-			card.cid = cid_table[card.real_id];
+		if ('real_id' in card && cid_table.has(card.real_id)) {
+			card.cid = cid_table.get(card.real_id);
 		}
 		ret.push(card);
 	}
@@ -461,21 +462,14 @@ function finalize(card) {
 	card.tw_name = card.name;
 	delete card.name;
 	if (card.cid) {
-		if (name_table_jp[card.cid])
-			card.jp_name = name_table_jp[card.cid];
-		else if (md_name_jp[card.cid])
-			card.md_name_jp = md_name_jp[card.cid];
-
-		if (name_table_en[card.cid])
-			card.en_name = name_table_en[card.cid];
-		else if (md_name_en[card.cid])
-			card.md_name_en = md_name_en[card.cid];
-
-		if (name_table_kr && name_table_kr[card.cid])
-			card.kr_name = name_table_kr[card.cid];
-
-		if (md_name[card.cid])
-			card.md_name = md_name[card.cid];
+		for (const [locale, prop] of Object.entries(official_name)) {
+			if (name_table[locale].has(card.cid))
+				card[prop] = name_table[locale].get(cid);
+			else if (md_table[locale] && md_table[locale].has(card.cid))
+				card[game_name[locale]] = md_table[locale].get(card.cid);
+		}
+		if (name_table['md'].has(card.cid))
+			card.md_name = name_table['md'].get(card.cid);
 	}
 }
 
@@ -571,7 +565,7 @@ export function create_choice_prerelease() {
 	const re_kanji = /※.*/;
 	const pre_list = query(cmd_pre, arg);
 	for (const card of pre_list) {
-		if (cid_table[card.id]) {
+		if (cid_table.has(card.id)) {
 			continue;
 		}
 		const res = card.desc.match(re_kanji);
@@ -739,8 +733,8 @@ export function get_card(id) {
  * @returns {string}
  */
 export function get_name(id, locale) {
-	const cid = cid_table[id];
-	if (name_table[locale] && name_table[locale][cid])
+	const cid = cid_table.get(id);
+	if (name_table[locale] && cid && name_table[locale][cid])
 		return name_table[locale][cid];
 	else
 		return '';

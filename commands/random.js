@@ -9,8 +9,8 @@ export const data = new SlashCommandBuilder()
 	.setName('random')
 	.setDescription('從OCG卡池隨機抽一張卡');
 export async function execute(interaction) {
-	const keys = Object.keys(name_table['ja']);
-	const id = cid_inverse[keys[await rand(keys.length)]];
+	const keys = Array.from(name_table['ja'].keys());
+	const id = cid_inverse.get(keys[await rand(keys.length)]);
 	const card = get_card(id);
 	if (card) {
 		await interaction.reply(create_reply(card, 'zh-tw'));
