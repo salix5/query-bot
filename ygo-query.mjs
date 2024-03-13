@@ -499,7 +499,7 @@ function create_options(request_locale) {
  * @param {Map} table 
  * @returns 
  */
-function inverse_mapping(table) {
+export function inverse_mapping(table) {
 	const inverse = new Map();
 	for (const [key, value] of table) {
 		if (inverse.has(value)) {

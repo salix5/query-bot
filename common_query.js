@@ -1,5 +1,6 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, CommandInteraction } from 'discord.js';
 import * as ygo from './ygo-query.mjs';
+import { choice_table } from './common_all.js';
 
 const response = {
 	'zh-tw': {
@@ -88,28 +89,30 @@ export function create_reply(card, locale) {
 /**
  * The handler of query slash command.
  * @param {CommandInteraction} interaction 
- * @param {number} id 
- * @param {string} locale 
+ * @param {string} input_locale 
+ * @param {string} output_locale 
  */
-export async function query_command(interaction, id, locale) {
-	if (id) {
+export async function query_command(interaction, input_locale, output_locale) {
+	const input = interaction.options.getString('input');
+	if (choice_table[input_locale] && choice_table[input_locale].has(input)) {
+		const id = choice_table[input_locale].get(input);
 		const card = ygo.get_card(id);
 		if (card) {
-			if (locale === 'zh-tw') {
-				await interaction.reply(create_reply(card, locale));
+			if (output_locale === 'zh-tw') {
+				await interaction.reply(create_reply(card, output_locale));
 			}
 			else {
 				await interaction.deferReply();
-				card.db_desc = await fetch_desc(card, ygo.get_request_locale(card, locale));
-				await interaction.editReply(create_reply(card, locale));
+				card.db_desc = await fetch_desc(card, ygo.get_request_locale(card, output_locale));
+				await interaction.editReply(create_reply(card, output_locale));
 			}
 		}
 		else {
-			await interaction.reply(response[locale].none);
-			console.error('Error card id', id);
+			await interaction.reply(response[output_locale].none);
+			console.error('Invalid card id', id);
 		}
 	}
 	else {
-		await interaction.reply(response[locale].none);
+		await interaction.reply(response[output_locale].none);
 	}
 }

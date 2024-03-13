@@ -1,5 +1,4 @@
 import { SlashCommandBuilder } from 'discord.js';
-import { choice_table } from '../common_all.js';
 import { query_command } from '../common_query.js';
 
 export const data = new SlashCommandBuilder()
@@ -13,7 +12,5 @@ export const data = new SlashCommandBuilder()
 	);
 export { autocomplete_jp as autocomplete } from '../common_all.js';
 export async function execute(interaction) {
-	const input = interaction.options.getString('input');
-	const id = choice_table['ja'][input];
-	await query_command(interaction, id, 'zh-tw');
+	await query_command(interaction, 'ja', 'zh-tw');
 }
