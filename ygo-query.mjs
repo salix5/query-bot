@@ -16,6 +16,10 @@ import lang_ja from './lang/ja.json' assert { type: 'json' };
 import lang_ko from './lang/ko.json' assert { type: 'json' };
 import lang_zhtw from './lang/zh-tw.json' assert { type: 'json' };
 
+const domain = 'https://salix5.github.io/cdb';
+const fetch_db = fetch(`${domain}/cards.cdb`).then(response => response.arrayBuffer()).then(buf => new Uint8Array(buf));
+const fetch_db2 = fetch(`${domain}/expansions/pre-release.cdb`).then(response => response.arrayBuffer()).then(buf => new Uint8Array(buf));
+
 // type
 const TYPE_MONSTER = 0x1;
 const TYPE_SPELL = 0x2;
@@ -279,9 +283,6 @@ export {
 	complete_name_table, cid_inverse, option_table,
 };
 
-const domain = 'https://salix5.github.io/cdb';
-const fetch_db = fetch(`${domain}/cards.cdb`).then(response => response.arrayBuffer()).then(buf => new Uint8Array(buf));
-const fetch_db2 = fetch(`${domain}/expansions/pre-release.cdb`).then(response => response.arrayBuffer()).then(buf => new Uint8Array(buf));
 const [SQL, buf1, buf2] = await Promise.all([initSqlJs(), fetch_db, fetch_db2]);
 const db_list = [];
 db_list.push(new SQL.Database(buf1));
