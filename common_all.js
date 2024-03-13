@@ -6,7 +6,7 @@ import ruby_to_cid from './commands_data/choices_ruby.json' assert { type: 'json
 const MAX_CHOICE = 25;
 
 const choices_tc = new Map();
-for (const [name, cid] of Object.entries(name_to_cid)) {
+for (const [name, cid] of name_to_cid) {
 	if (!cid_inverse.has(cid)) {
 		console.error('choices_tc', `${name}: ${cid}`);
 		continue;
