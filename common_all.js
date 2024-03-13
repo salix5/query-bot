@@ -28,7 +28,7 @@ const choice_table = Object.create(null);
 for (const locale of Object.keys(official_name)) {
 	choice_table[locale] = create_choice(locale);
 }
-choice_table['tc'] = choices_tc;
+choice_table['zh-tw'] = choices_tc;
 choice_table['full'] = choices_tc_full;
 
 const jp_entries = half_width_entries(choice_table['ja']);
@@ -41,7 +41,7 @@ for (const [ruby, cid] of Object.entries(ruby_to_cid)) {
 	ruby_entries.push([ruby, cid_inverse.get(cid)]);
 }
 
-export { choice_table, choices_tc, choices_tc_full };
+export { choice_table };
 
 /**
  * @param {string} str
