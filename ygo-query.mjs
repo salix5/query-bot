@@ -264,7 +264,7 @@ const complete_name_table = Object.create(null);
 const option_table = Object.create(null);	// [id, name] mapping
 
 for (const locale of Object.keys(official_name)) {
-	const table1 = new Map(name_table[locale].entries());
+	const table1 = new Map(name_table[locale]);
 	if (md_table[locale]) {
 		for (const [cid, name] of md_table[locale]) {
 			if (table1.has(cid)) {
@@ -549,7 +549,7 @@ export function create_choice(request_locale) {
 	}
 	const inverse = inverse_mapping(option_table[request_locale]);
 	const collator = new Intl.Collator(locale);
-	const inverse_entries = Array.from(inverse.entries());
+	const inverse_entries = Array.from(inverse);
 	inverse_entries.sort((a, b) => collator.compare(a[0], b[0]));
 	const result = new Map(inverse_entries);
 	return result;
@@ -580,7 +580,7 @@ export function create_choice_prerelease() {
 			inverse_table.set(kanji, card.id);
 	}
 	const collator = Intl.Collator('zh-Hant');
-	const inverse_entries = Array.from(inverse_table.entries());
+	const inverse_entries = Array.from(inverse_table);
 	inverse_entries.sort((a, b) => collator.compare(a[0], b[0]));
 	const result = new Map(inverse_entries);
 	return result;

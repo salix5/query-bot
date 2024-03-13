@@ -14,7 +14,7 @@ for (const [name, cid] of Object.entries(name_to_cid)) {
 	choices_tc.set(name, cid_inverse.get(cid));
 }
 
-const choices_tc_full = new Map(choices_tc.entries());
+const choices_tc_full = new Map(choices_tc);
 const choices_pre = create_choice_prerelease();
 for (const [name, id] of choices_pre) {
 	if (choices_tc.has(name)) {
