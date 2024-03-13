@@ -33,7 +33,7 @@ choice_table['full'] = choices_tc_full;
 
 const jp_entries = half_width_entries(choice_table['ja']);
 const ruby_entries = [];
-for (const [ruby, cid] of Object.entries(ruby_to_cid)) {
+for (const [ruby, cid] of ruby_to_cid) {
 	if (!cid_inverse.has(cid)) {
 		console.error('ruby_entries', `${ruby}: ${cid}`);
 		continue;
