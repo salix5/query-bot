@@ -513,6 +513,14 @@ export function inverse_mapping(table) {
 }
 
 /**
+ * @param {Map} table 
+ * @param {Function} compare 
+ */
+export function table_stringify(table, compare) {
+	return JSON.stringify(Array.from(table).sort(compare), null, 1);
+}
+
+/**
  * Get cards from databases file `buffer` with statement `qstr` and binding object `arg`.
  * @param {Uint8Array} buffer
  * @param {string} qstr 
