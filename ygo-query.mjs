@@ -3,7 +3,7 @@ import { ltable_ocg } from './json-loader.mjs';
 import { ltable_tcg } from './json-loader.mjs';
 import { ltable_md } from './json-loader.mjs';
 import { cid_table } from './json-loader.mjs';
-import { lang, official_name, game_name, bls_postfix } from './json-loader.mjs';
+import { lang, collator_locale, bls_postfix, official_name, game_name } from './json-loader.mjs';
 import { name_table, md_table } from './json-loader.mjs';
 
 const domain = 'https://salix5.github.io/cdb';
@@ -503,22 +503,10 @@ export function load_db(buffer, qstr, arg) {
  * @returns 
  */
 export function create_choice(request_locale) {
-	let locale = '';
-	switch (request_locale) {
-		case 'en':
-			locale = 'en-US';
-			break;
-		case 'ja':
-			locale = 'ja-JP';
-			break;
-		case 'ko':
-			locale = 'ko-KR';
-			break;
-		default:
-			return (new Map());
-	}
+	if (!collator_locale[request_locale])
+		return (new Map());
 	const inverse = inverse_mapping(option_table[request_locale]);
-	const collator = new Intl.Collator(locale);
+	const collator = new Intl.Collator(collator_locale[request_locale]);
 	const inverse_entries = Array.from(inverse);
 	inverse_entries.sort((a, b) => collator.compare(a[0], b[0]));
 	const result = new Map(inverse_entries);
@@ -549,7 +537,7 @@ export function create_choice_prerelease() {
 		if (kanji)
 			inverse_table.set(kanji, card.id);
 	}
-	const collator = Intl.Collator('zh-Hant');
+	const collator = Intl.Collator(collator_locale['zh-tw']);
 	const inverse_entries = Array.from(inverse_table);
 	inverse_entries.sort((a, b) => collator.compare(a[0], b[0]));
 	const result = new Map(inverse_entries);

@@ -29,6 +29,12 @@ lang['ja'] = lang_ja;
 lang['ko'] = lang_ko;
 lang['zh-tw'] = lang_zhtw;
 
+const collator_locale = Object.create(null);
+collator_locale['en'] = 'en-US';
+collator_locale['ja'] = 'ja-JP';
+collator_locale['ko'] = 'ko-KR';
+collator_locale['zh-tw'] = 'zh-Hant';
+
 const bls_postfix = Object.create(null);
 bls_postfix['en'] = ' (Normal)';
 bls_postfix['ja'] = '（通常モンスター）';
@@ -60,6 +66,7 @@ export {
 	name_table_en, name_table_jp, name_table_kr,
 	md_name, md_name_en, md_name_jp,
 	lang,
+	collator_locale,
 	bls_postfix,
 	official_name,
 	game_name,
