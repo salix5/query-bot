@@ -3,8 +3,8 @@ import { ltable_ocg } from './json-loader.mjs';
 import { ltable_tcg } from './json-loader.mjs';
 import { ltable_md } from './json-loader.mjs';
 import { cid_table } from './json-loader.mjs';
-import { lang, official_name, game_name } from './json-loader.mjs';
-import { name_table, md_table, complete_name_table } from './json-loader.mjs';
+import { lang, official_name, game_name, bls_postfix } from './json-loader.mjs';
+import { name_table, md_table } from './json-loader.mjs';
 
 const domain = 'https://salix5.github.io/cdb';
 const fetch_db = fetch(`${domain}/cards.cdb`).then(response => response.arrayBuffer()).then(buf => new Uint8Array(buf));
@@ -222,9 +222,56 @@ export {
 };
 
 const cid_inverse = inverse_mapping(cid_table);
+const complete_name_table = Object.create(null);
 const option_table = Object.create(null);	// [id, name] mapping
 for (const locale of Object.keys(official_name)) {
-	option_table[locale] = create_options(locale);
+	if (!cid_inverse.size) {
+		complete_name_table[locale] = new Map();
+		option_table[locale] = new Map();
+		continue;
+	}
+	const table1 = new Map(name_table[locale]);
+	let valid = true;
+	if (md_table[locale]) {
+		for (const [cid, name] of md_table[locale]) {
+			if (table1.has(cid)) {
+				console.error(`duplicate cid: md_table[${locale}]`, cid);
+				valid = false;
+				break;
+			}
+			table1.set(cid, name);
+		}
+		if (!valid) {
+			complete_name_table[locale] = new Map();
+			option_table[locale] = new Map();
+			continue;
+		}
+	}
+	if (table1.has(CID_BLACK_LUSTER_SOLDIER))
+		table1.set(CID_BLACK_LUSTER_SOLDIER, `${table1.get(CID_BLACK_LUSTER_SOLDIER)}${bls_postfix[locale]}`);
+	const options = new Map();
+	const inv1 = new Map();
+	for (const [cid, name] of table1) {
+		if (!cid_inverse.has(cid)) {
+			console.error(`unknown cid:`, cid);
+			valid = false;
+			break;
+		}
+		if (inv1.has(name)) {
+			console.error(`duplicate name:`, name);
+			valid = false;
+			break;
+		}
+		inv1.set(name, cid);
+		options.set(cid_inverse.get(cid), name);
+	}
+	if (!valid) {
+		complete_name_table[locale] = new Map();
+		option_table[locale] = new Map();
+		continue;
+	}
+	complete_name_table[locale] = table1;
+	option_table[locale] = options;
 }
 
 export {
@@ -408,40 +455,6 @@ function finalize(card) {
 	}
 }
 
-/**
- * Create the [id, name] mapping.
- * @param {string} request_locale 
- * @returns 
- */
-function create_options(request_locale) {
-	const options = new Map();
-	if (!complete_name_table[request_locale])
-		return options;
-	let postfix = '';
-	switch (request_locale) {
-		case 'en':
-			postfix = ' (Normal)';
-			break;
-		case 'ja':
-			postfix = '（通常モンスター）';
-			break;
-		case 'ko':
-			postfix = ' (일반)';
-			break;
-		default:
-			break;
-	}
-	for (const [cid, name] of complete_name_table[request_locale]) {
-		if (!cid_inverse.has(cid)) {
-			console.error(`unknown cid:`, cid);
-			continue;
-		}
-		options.set(cid_inverse.get(cid), name);
-	}
-	if (options.has(ID_BLACK_LUSTER_SOLDIER))
-		options.set(ID_BLACK_LUSTER_SOLDIER, `${options.get(ID_BLACK_LUSTER_SOLDIER)}${postfix}`);
-	return options;
-}
 
 // export
 /**
@@ -546,12 +559,11 @@ export function create_choice_prerelease() {
 export function create_name_table() {
 	const cards = query(stmt_default, arg_default);
 	const table1 = new Map();
-	const postfix = '（通常怪獸）';
 	for (const card of cards) {
 		if (card.cid)
 			table1.set(card.cid, card.tw_name);
 	}
-	table1.set(CID_BLACK_LUSTER_SOLDIER, `${table1.get(CID_BLACK_LUSTER_SOLDIER)}${postfix}`);
+	table1.set(CID_BLACK_LUSTER_SOLDIER, `${table1.get(CID_BLACK_LUSTER_SOLDIER)}${bls_postfix['zh-tw']}`);
 	return table1;
 }
 
