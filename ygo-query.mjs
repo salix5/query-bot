@@ -577,15 +577,15 @@ export function check_uniqueness(buffer) {
 	const stmt1 = `${select_name}${condition}`
 	const cards = load_db(buffer, stmt1, arg_default);
 	console.log('total:', cards.length);
-	const table1 = Object.create(null);
+	const table1 = new Map();
 	const postfix = 'N';
 	for (const card of cards) {
-		table1[card.id] = card.name;
+		table1.set(card.id, card.name)
 	}
-	if (table1[ID_BLACK_LUSTER_SOLDIER])
-		table1[ID_BLACK_LUSTER_SOLDIER] = `${table1[ID_BLACK_LUSTER_SOLDIER]}${postfix}`;
+	if (table1.has(ID_BLACK_LUSTER_SOLDIER))
+		table1.set(ID_BLACK_LUSTER_SOLDIER, `${table1.get(ID_BLACK_LUSTER_SOLDIER)}${postfix}`);
 	const inv1 = inverse_mapping(table1);
-	return Object.keys(inv1).length === cards.length;
+	return inv1.size === cards.length;
 }
 
 /**
