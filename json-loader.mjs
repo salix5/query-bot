@@ -23,10 +23,55 @@ const md_name = new Map(md_entry);
 const md_name_en = new Map(md_en_entry);
 const md_name_jp = new Map(md_jp_entry);
 
+const lang = Object.create(null);
+lang['en'] = lang_en;
+lang['ja'] = lang_ja;
+lang['ko'] = lang_ko;
+lang['zh-tw'] = lang_zhtw;
+
+const official_name = Object.create(null);
+official_name['en'] = 'en_name';
+official_name['ja'] = 'jp_name';
+official_name['ko'] = 'kr_name';
+
+const game_name = Object.create(null);
+game_name['en'] = 'md_name_en';
+game_name['ja'] = 'md_name_jp';
+
+const name_table = Object.create(null);
+name_table['en'] = name_table_en;
+name_table['ja'] = name_table_jp;
+name_table['ko'] = name_table_kr;
+name_table['md'] = md_name;
+
+const md_table = Object.create(null);
+md_table['en'] = md_name_en;
+md_table['ja'] = md_name_jp;
+
+const complete_name_table = Object.create(null);
+for (const locale of Object.keys(official_name)) {
+	const table1 = new Map(name_table[locale]);
+	if (md_table[locale]) {
+		for (const [cid, name] of md_table[locale]) {
+			if (table1.has(cid)) {
+				console.error(`duplicate cid: md_table[${locale}]`, cid);
+				continue;
+			}
+			table1.set(cid, name);
+		}
+	}
+	complete_name_table[locale] = table1;
+}
+
 export {
 	ltable_ocg, ltable_tcg, ltable_md,
 	cid_table,
 	name_table_en, name_table_jp, name_table_kr,
 	md_name, md_name_en, md_name_jp,
-	lang_en, lang_ja, lang_ko, lang_zhtw,
+	lang,
+	official_name,
+	game_name,
+	name_table,
+	md_table,
+	complete_name_table,
 }

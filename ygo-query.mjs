@@ -2,19 +2,9 @@ import initSqlJs from 'sql.js';
 import { ltable_ocg } from './json-loader.mjs';
 import { ltable_tcg } from './json-loader.mjs';
 import { ltable_md } from './json-loader.mjs';
-
 import { cid_table } from './json-loader.mjs';
-import { name_table_en } from './json-loader.mjs';
-import { name_table_jp } from './json-loader.mjs';
-import { name_table_kr } from './json-loader.mjs';
-import { md_name } from './json-loader.mjs';
-import { md_name_en } from './json-loader.mjs';
-import { md_name_jp } from './json-loader.mjs';
-
-import { lang_en } from './json-loader.mjs';
-import { lang_ja } from './json-loader.mjs';
-import { lang_ko } from './json-loader.mjs';
-import { lang_zhtw } from './json-loader.mjs';
+import { lang, official_name, game_name } from './json-loader.mjs';
+import { name_table, md_table, complete_name_table } from './json-loader.mjs';
 
 const domain = 'https://salix5.github.io/cdb';
 const fetch_db = fetch(`${domain}/cards.cdb`).then(response => response.arrayBuffer()).then(buf => new Uint8Array(buf));
@@ -231,48 +221,9 @@ export {
 	arg_default,
 };
 
-
-const lang = Object.create(null);
-lang['en'] = lang_en;
-lang['ja'] = lang_ja;
-lang['ko'] = lang_ko;
-lang['zh-tw'] = lang_zhtw;
-
-const official_name = Object.create(null);
-official_name['en'] = 'en_name';
-official_name['ja'] = 'jp_name';
-official_name['ko'] = 'kr_name';
-
-const game_name = Object.create(null);
-game_name['en'] = 'md_name_en';
-game_name['ja'] = 'md_name_jp';
-
-const name_table = Object.create(null);
-name_table['en'] = name_table_en;
-name_table['ja'] = name_table_jp;
-name_table['ko'] = name_table_kr;
-name_table['md'] = md_name;
-
-const md_table = Object.create(null);
-md_table['en'] = md_name_en;
-md_table['ja'] = md_name_jp;
-
 const cid_inverse = inverse_mapping(cid_table);
-const complete_name_table = Object.create(null);
 const option_table = Object.create(null);	// [id, name] mapping
-
 for (const locale of Object.keys(official_name)) {
-	const table1 = new Map(name_table[locale]);
-	if (md_table[locale]) {
-		for (const [cid, name] of md_table[locale]) {
-			if (table1.has(cid)) {
-				console.error(`duplicate cid: md_table[${locale}]`, cid);
-				continue;
-			}
-			table1.set(cid, name);
-		}
-	}
-	complete_name_table[locale] = table1;
 	option_table[locale] = create_options(locale);
 }
 
