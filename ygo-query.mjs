@@ -3,7 +3,7 @@ import { ltable_ocg } from './json-loader.mjs';
 import { ltable_tcg } from './json-loader.mjs';
 import { ltable_md } from './json-loader.mjs';
 
-import { cid_entry } from './json-loader.mjs';
+import { cid_table } from './json-loader.mjs';
 import { name_table_en } from './json-loader.mjs';
 import { name_table_jp } from './json-loader.mjs';
 import { name_table_kr } from './json-loader.mjs';
@@ -247,19 +247,17 @@ const game_name = Object.create(null);
 game_name['en'] = 'md_name_en';
 game_name['ja'] = 'md_name_jp';
 
-const cid_table = new Map(cid_entry);
-const cid_inverse = inverse_mapping(cid_table);
-
 const name_table = Object.create(null);
-name_table['en'] = new Map(name_table_en);
-name_table['ja'] = new Map(name_table_jp);
-name_table['ko'] = new Map(name_table_kr);
-name_table['md'] = new Map(md_name);
+name_table['en'] = name_table_en;
+name_table['ja'] = name_table_jp;
+name_table['ko'] = name_table_kr;
+name_table['md'] = md_name;
 
 const md_table = Object.create(null);
-md_table['en'] = new Map(md_name_en);
-md_table['ja'] = new Map(md_name_jp);
+md_table['en'] = md_name_en;
+md_table['ja'] = md_name_jp;
 
+const cid_inverse = inverse_mapping(cid_table);
 const complete_name_table = Object.create(null);
 const option_table = Object.create(null);	// [id, name] mapping
 
