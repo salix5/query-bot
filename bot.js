@@ -3,7 +3,8 @@ import { cid_table, create_name_table, inverse_mapping, name_table } from './ygo
 import { readdirSync } from 'node:fs';
 //import 'dotenv/config';
 
-const re_wildcard = /(^|[^\$])[%_]/;
+// eslint-disable-next-line no-unused-vars
+const re_wildcard = /(^|[^$])[%_]/;
 
 const client = new Client({
 	intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.DirectMessages],
@@ -123,7 +124,7 @@ client.on(Events.InteractionCreate, async interaction => {
 			try {
 				await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
 			}
-			catch { }
+			catch { /* empty */ }
 		}
 	}
 	else if (interaction.isAutocomplete()) {
