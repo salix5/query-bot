@@ -456,7 +456,7 @@ function finalize(card) {
 }
 
 
-// export
+//query
 /**
  * Create the inverse mapping of `table`.
  * @param {Map} table 
@@ -472,108 +472,6 @@ export function inverse_mapping(table) {
 		inverse.set(value, key);
 	}
 	return inverse;
-}
-
-/**
- * @param {Map} table 
- * @param {Function} compare 
- */
-export function table_stringify(table, compare) {
-	return JSON.stringify(Array.from(table).sort(compare), null, 1);
-}
-
-/**
- * Get cards from databases file `buffer` with statement `qstr` and binding object `arg`.
- * @param {Uint8Array} buffer
- * @param {string} qstr 
- * @param {Object} arg 
- * @returns {Object[]}
- */
-export function load_db(buffer, qstr, arg) {
-	const db = new SQL.Database(buffer);
-	const ret = [];
-	query_db(db, qstr, arg, ret);
-	db.close();
-	return ret;
-}
-
-/**
- * Create the [name, id] table of region `request_locale`
- * @param {string} request_locale 
- * @returns 
- */
-export function create_choice(request_locale) {
-	if (!collator_locale[request_locale])
-		return (new Map());
-	const inverse = inverse_mapping(option_table[request_locale]);
-	const collator = new Intl.Collator(collator_locale[request_locale]);
-	const inverse_entries = Array.from(inverse);
-	inverse_entries.sort((a, b) => collator.compare(a[0], b[0]));
-	const result = new Map(inverse_entries);
-	return result;
-}
-
-/**
- * Create the [name, id] table for pre-release cards.
- * @returns 
- */
-export function create_choice_prerelease() {
-	const inverse_table = new Map();
-	const cmd_pre = `${select_all} AND datas.id > $ub${physical_filter}`;
-	const arg = Object.assign(Object.create(null), arg_default);
-	const re_kanji = /※.*/;
-	const pre_list = query(cmd_pre, arg);
-	for (const card of pre_list) {
-		if (cid_table.has(card.id)) {
-			continue;
-		}
-		const res = card.desc.match(re_kanji);
-		const kanji = res ? res[0] : '';
-		if (inverse_table.has(card.tw_name) || kanji && inverse_table.has(kanji)) {
-			console.error('choice_prerelease', card.id);
-			return (new Map());
-		}
-		inverse_table.set(card.tw_name, card.id);
-		if (kanji)
-			inverse_table.set(kanji, card.id);
-	}
-	const collator = Intl.Collator(collator_locale['zh-tw']);
-	const inverse_entries = Array.from(inverse_table);
-	inverse_entries.sort((a, b) => collator.compare(a[0], b[0]));
-	const result = new Map(inverse_entries);
-	return result;
-}
-
-export function create_name_table() {
-	const cards = query(stmt_default, arg_default);
-	const table1 = new Map();
-	for (const card of cards) {
-		if (card.cid)
-			table1.set(card.cid, card.tw_name);
-	}
-	table1.set(CID_BLACK_LUSTER_SOLDIER, `${table1.get(CID_BLACK_LUSTER_SOLDIER)}${bls_postfix['zh-tw']}`);
-	return table1;
-}
-
-/**
- * Check if the card name is unique.
- * @param {Uint8Array} buffer 
- * @returns 
- */
-export function check_uniqueness(buffer) {
-	const condition = ` AND (NOT type & $token OR alias == $zero) AND (type & $token OR datas.id == $luster OR abs(datas.id - alias) >= $artwork_offset)`;
-	const stmt1 = `${select_name}${condition}`
-	const cards = load_db(buffer, stmt1, arg_default);
-	console.log('total:', cards.length);
-	const table1 = new Map();
-	const postfix = 'N';
-	for (const card of cards) {
-		table1.set(card.id, card.name)
-	}
-	if (table1.has(ID_BLACK_LUSTER_SOLDIER))
-		table1.set(ID_BLACK_LUSTER_SOLDIER, `${table1.get(ID_BLACK_LUSTER_SOLDIER)}${postfix}`);
-	const inv1 = inverse_mapping(table1);
-	return inv1.size === cards.length;
 }
 
 /**
@@ -976,26 +874,102 @@ export function print_card(card, locale) {
 	return card_text;
 }
 
-export function print_db_link(cid, request_locale) {
-	return `https://www.db.yugioh-card.com/yugiohdb/card_search.action?ope=2&cid=${cid}&request_locale=${request_locale}`;
-}
 
-export function print_yp_link(id) {
-	return `https://yugipedia.com/wiki/${id.toString().padStart(8, '0')}`;
-}
-
-export function print_qa_link(cid) {
-	return `https://www.db.yugioh-card.com/yugiohdb/faq_search.action?ope=4&cid=${cid}&request_locale=ja`;
-}
-
-export function print_history_link(cid) {
-	return `https://github.com/salix5/ygodb/commits/master/${cid}.txt`;
+//database file
+/**
+ * Get cards from databases file `buffer` with statement `qstr` and binding object `arg`.
+ * @param {Uint8Array} buffer
+ * @param {string} qstr 
+ * @param {Object} arg 
+ * @returns {Object[]}
+ */
+export function load_db(buffer, qstr, arg) {
+	const db = new SQL.Database(buffer);
+	const ret = [];
+	query_db(db, qstr, arg, ret);
+	db.close();
+	return ret;
 }
 
 /**
- * @param {string} string 
+ * Check if the card name is unique in database file.
+ * @param {Uint8Array} buffer 
  * @returns 
  */
-export function escape_regexp(string) {
-	return string.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&');
+export function check_uniqueness(buffer) {
+	const condition = ` AND (NOT type & $token OR alias == $zero) AND (type & $token OR datas.id == $luster OR abs(datas.id - alias) >= $artwork_offset)`;
+	const stmt1 = `${select_name}${condition}`
+	const cards = load_db(buffer, stmt1, arg_default);
+	console.log('total:', cards.length);
+	const table1 = new Map();
+	const postfix = 'N';
+	for (const card of cards) {
+		table1.set(card.id, card.name)
+	}
+	if (table1.has(ID_BLACK_LUSTER_SOLDIER))
+		table1.set(ID_BLACK_LUSTER_SOLDIER, `${table1.get(ID_BLACK_LUSTER_SOLDIER)}${postfix}`);
+	const inv1 = inverse_mapping(table1);
+	return inv1.size === cards.length;
 }
+
+
+//table
+/**
+ * Create the [name, id] table of region `request_locale`
+ * @param {string} request_locale 
+ * @returns 
+ */
+export function create_choice(request_locale) {
+	if (!collator_locale[request_locale])
+		return (new Map());
+	const inverse = inverse_mapping(option_table[request_locale]);
+	const collator = new Intl.Collator(collator_locale[request_locale]);
+	const inverse_entries = Array.from(inverse);
+	inverse_entries.sort((a, b) => collator.compare(a[0], b[0]));
+	const result = new Map(inverse_entries);
+	return result;
+}
+
+/**
+ * Create the [name, id] table for pre-release cards.
+ * @returns 
+ */
+export function create_choice_prerelease() {
+	const inverse_table = new Map();
+	const cmd_pre = `${select_all} AND datas.id > $ub${physical_filter}`;
+	const arg = Object.assign(Object.create(null), arg_default);
+	const re_kanji = /※.*/;
+	const pre_list = query(cmd_pre, arg);
+	for (const card of pre_list) {
+		if (cid_table.has(card.id)) {
+			continue;
+		}
+		const res = card.desc.match(re_kanji);
+		const kanji = res ? res[0] : '';
+		if (inverse_table.has(card.tw_name) || kanji && inverse_table.has(kanji)) {
+			console.error('choice_prerelease', card.id);
+			return (new Map());
+		}
+		inverse_table.set(card.tw_name, card.id);
+		if (kanji)
+			inverse_table.set(kanji, card.id);
+	}
+	const collator = Intl.Collator(collator_locale['zh-tw']);
+	const inverse_entries = Array.from(inverse_table);
+	inverse_entries.sort((a, b) => collator.compare(a[0], b[0]));
+	const result = new Map(inverse_entries);
+	return result;
+}
+
+export function create_name_table() {
+	const cards = query(stmt_default, arg_default);
+	const table1 = new Map();
+	for (const card of cards) {
+		if (card.cid)
+			table1.set(card.cid, card.tw_name);
+	}
+	table1.set(CID_BLACK_LUSTER_SOLDIER, `${table1.get(CID_BLACK_LUSTER_SOLDIER)}${bls_postfix['zh-tw']}`);
+	return table1;
+}
+
+export { print_db_link, print_yp_link, print_qa_link, print_history_link, escape_regexp, table_stringify } from './ygo-utility.mjs';
