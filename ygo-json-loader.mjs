@@ -23,6 +23,13 @@ const md_name = new Map(md_entry);
 const md_name_en = new Map(md_en_entry);
 const md_name_jp = new Map(md_jp_entry);
 
+for (const [id, cid] of cid_table) {
+	if (!name_table_en.has(cid) && !name_table_jp.has(cid)) {
+		console.error('cid_table: invalid cid', cid);
+		cid_table.delete(id);
+	}
+}
+
 const lang = Object.create(null);
 lang['en'] = lang_en;
 lang['ja'] = lang_ja;
