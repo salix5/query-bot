@@ -924,8 +924,7 @@ export function create_choice(request_locale) {
 		return (new Map());
 	const inverse = inverse_mapping(option_table[request_locale]);
 	const collator = new Intl.Collator(collator_locale[request_locale]);
-	const inverse_entries = Array.from(inverse);
-	inverse_entries.sort((a, b) => collator.compare(a[0], b[0]));
+	const inverse_entries = [...inverse].sort((a, b) => collator.compare(a[0], b[0]));
 	const result = new Map(inverse_entries);
 	return result;
 }
@@ -955,8 +954,7 @@ export function create_choice_prerelease() {
 			inverse_table.set(kanji, card.id);
 	}
 	const collator = Intl.Collator(collator_locale['zh-tw']);
-	const inverse_entries = Array.from(inverse_table);
-	inverse_entries.sort((a, b) => collator.compare(a[0], b[0]));
+	const inverse_entries = [...inverse_table].sort((a, b) => collator.compare(a[0], b[0]));
 	const result = new Map(inverse_entries);
 	return result;
 }
@@ -972,4 +970,7 @@ export function create_name_table() {
 	return table1;
 }
 
-export { print_db_link, print_yp_link, print_qa_link, print_history_link, escape_regexp, table_stringify } from './ygo-utility.mjs';
+export {
+	print_db_link, print_yp_link, print_qa_link, print_history_link,
+	escape_regexp, map_stringify, table_stringify
+} from './ygo-utility.mjs';
