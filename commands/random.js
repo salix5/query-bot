@@ -9,7 +9,7 @@ export const data = new SlashCommandBuilder()
 	.setName('random')
 	.setDescription('從OCG卡池隨機抽一張卡');
 export async function execute(interaction) {
-	const keys = Array.from(name_table['ja'].keys());
+	const keys = [...name_table['ja'].keys()];
 	const id = cid_inverse.get(keys[await rand(keys.length)]);
 	const card = get_card(id);
 	if (card) {

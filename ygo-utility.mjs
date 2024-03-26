@@ -23,10 +23,18 @@ export function escape_regexp(string) {
 }
 
 /**
- * @param {Map} table 
+ * @param {Map} map 
  * @param {Function} compare 
  * @returns
  */
-export function table_stringify(table, compare) {
-	return JSON.stringify(Array.from(table).sort(compare), null, 1);
+export function map_stringify(map, compare) {
+	return JSON.stringify([...map].sort(compare), null, 1);
+}
+
+/**
+ * @param {Map} map 
+ * @returns 
+ */
+export function table_stringify(map) {
+	return map_stringify(map, (a, b) => a[0] - b[0]);
 }
