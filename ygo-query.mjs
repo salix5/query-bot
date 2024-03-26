@@ -803,9 +803,6 @@ export function print_card(card, locale) {
 				other_name += `${card.en_name}\n`;
 			else if (card.md_name_en)
 				other_name += `${card.md_name_en}    (MD)\n`;
-
-			if (card.md_name)
-				other_name += `MD：${card.md_name}\n`;
 			desc = `${card.desc}\n--`;
 			break;
 		case 'ja':
@@ -818,8 +815,6 @@ export function print_card(card, locale) {
 				other_name = `${card.en_name}\n`;
 			else if (card.md_name_en)
 				other_name = `${card.md_name_en}    (MD)\n`;
-			if (card.md_name)
-				other_name += `MD：:white_check_mark:\n`;
 			if (card.db_desc)
 				desc = card.db_desc;
 			break;
@@ -831,8 +826,6 @@ export function print_card(card, locale) {
 				other_name = `${card.en_name}\n`;
 			else if (card.md_name_en)
 				other_name = `${card.md_name_en}    (MD)\n`;
-			if (card.md_name)
-				other_name += `MD：:white_check_mark:\n`;
 			if (card.db_desc)
 				desc = card.db_desc;
 			break;
@@ -846,8 +839,6 @@ export function print_card(card, locale) {
 				other_name = `${card.jp_name}\n`;
 			else if (card.md_name_jp)
 				other_name = `${card.md_name_jp}    (MD)\n`;
-			if (card.md_name)
-				other_name += `MD：:white_check_mark:\n`;
 			if (card.db_desc)
 				desc = card.db_desc;
 			break;
@@ -855,6 +846,8 @@ export function print_card(card, locale) {
 			break;
 	}
 
+	if (card.md_name)
+		other_name += `MD：:white_check_mark:\n`;
 	if (ltable_ocg[card.real_id] !== undefined)
 		lfstr_ocg = `OCG：${strings.limit_name[ltable_ocg[card.real_id]]}`;
 	else
