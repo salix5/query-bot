@@ -2,6 +2,7 @@ import initSqlJs from 'sql.js';
 import { ltable_ocg } from './ygo-json-loader.mjs';
 import { ltable_tcg } from './ygo-json-loader.mjs';
 import { ltable_md } from './ygo-json-loader.mjs';
+import { md_card_list } from './ygo-json-loader.mjs';
 import { cid_table } from './ygo-json-loader.mjs';
 import { lang, collator_locale, bls_postfix, official_name, game_name } from './ygo-json-loader.mjs';
 import { name_table, md_table } from './ygo-json-loader.mjs';
@@ -305,10 +306,10 @@ db_list.push(new SQL.Database(buf2));
  * @property {string} desc
  * 
  * @property {number} [cid]
+ * @property {number} [md_rarity]
  * @property {string} [en_name]
  * @property {string} [jp_name]
  * @property {string} [kr_name]
- * @property {string} [md_name]
  * @property {string} [md_name_en]
  * @property {string} [md_name_jp]
  */
@@ -450,8 +451,8 @@ function finalize(card) {
 			else if (md_table[locale] && md_table[locale].has(card.cid))
 				card[game_name[locale]] = md_table[locale].get(card.cid);
 		}
-		if (name_table['md'].has(card.cid))
-			card.md_name = name_table['md'].get(card.cid);
+		if (md_card_list[card.cid])
+			card.md_rarity = md_card_list[card.cid];
 	}
 }
 
@@ -592,19 +593,11 @@ export function get_card(id) {
  * @returns {string}
  */
 export function get_name(id, locale) {
-	if (!cid_table.has(id))
+	if (!cid_table.has(id) || !complete_name_table[locale])
 		return '';
-	let table = null;
-	if (locale === 'md')
-		table = name_table['md'];
-	else if (complete_name_table[locale])
-		table = complete_name_table[locale];
-	else
-		return '';
-
 	const cid = cid_table.get(id);
-	if (table.has(cid))
-		return table.get(cid);
+	if (complete_name_table[locale].has(cid))
+		return complete_name_table[locale].get(cid);
 	else
 		return '';
 }
@@ -846,7 +839,7 @@ export function print_card(card, locale) {
 			break;
 	}
 
-	if (card.md_name)
+	if (card.md_rarity)
 		other_name += `MD：:white_check_mark:\n`;
 	if (ltable_ocg[card.real_id] !== undefined)
 		lfstr_ocg = `OCG：${strings.limit_name[ltable_ocg[card.real_id]]}`;
