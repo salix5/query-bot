@@ -189,6 +189,13 @@ const link_marker = {
 	LINK_MARKER_TOP_RIGHT,
 };
 
+const rarity = {
+	1: 'N',
+	2: 'R',
+	3: 'SR',
+	4: 'UR',
+}
+
 export { type, monster_type, spell_type, trap_type, race, attribute, link_marker };
 
 // special ID
@@ -840,7 +847,7 @@ export function print_card(card, locale) {
 	}
 
 	if (card.md_rarity)
-		other_name += `MD：:white_check_mark:\n`;
+		other_name += `MD：${rarity[card.md_rarity]}\n`;
 	if (ltable_ocg[card.real_id] !== undefined)
 		lfstr_ocg = `OCG：${strings.limit_name[ltable_ocg[card.real_id]]}`;
 	else
