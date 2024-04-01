@@ -231,13 +231,7 @@ export {
 
 const cid_inverse = inverse_mapping(cid_table);
 const complete_name_table = Object.create(null);
-const option_table = Object.create(null);	// [id, name] mapping
 for (const locale of Object.keys(official_name)) {
-	if (!cid_inverse.size) {
-		complete_name_table[locale] = new Map();
-		option_table[locale] = new Map();
-		continue;
-	}
 	const table1 = new Map(name_table[locale]);
 	let valid = true;
 	if (md_table[locale]) {
@@ -251,40 +245,18 @@ for (const locale of Object.keys(official_name)) {
 		}
 		if (!valid) {
 			complete_name_table[locale] = new Map();
-			option_table[locale] = new Map();
 			continue;
 		}
 	}
 	if (table1.has(CID_BLACK_LUSTER_SOLDIER))
 		table1.set(CID_BLACK_LUSTER_SOLDIER, `${table1.get(CID_BLACK_LUSTER_SOLDIER)}${bls_postfix[locale]}`);
-	const options = new Map();
-	const inv1 = new Map();
-	for (const [cid, name] of table1) {
-		if (!cid_inverse.has(cid)) {
-			console.error(`unknown cid:`, cid);
-			valid = false;
-			break;
-		}
-		if (inv1.has(name)) {
-			console.error(`duplicate name:`, name);
-			valid = false;
-			break;
-		}
-		inv1.set(name, cid);
-		options.set(cid_inverse.get(cid), name);
-	}
-	if (!valid) {
-		complete_name_table[locale] = new Map();
-		option_table[locale] = new Map();
-		continue;
-	}
 	complete_name_table[locale] = table1;
-	option_table[locale] = options;
 }
 
 export {
-	lang, official_name, cid_table, name_table, md_table,
-	complete_name_table, cid_inverse, option_table,
+	lang, official_name,
+	cid_table, name_table, md_table,
+	complete_name_table, cid_inverse,
 };
 
 const [SQL, buf1, buf2] = await Promise.all([initSqlJs(), fetch_db, fetch_db2]);
@@ -570,15 +542,16 @@ export function query_alias(alias) {
 }
 
 /**
- * Get a card with `id` from all databases.
- * @param {number|string} id 
+ * Get a card with cid or temp id from all databases.
+ * @param {number|string} cid 
  * @returns {Card|null}
  */
-export function get_card(id) {
-	if (typeof id === 'string')
-		id = Number.parseInt(id);
-	if (!Number.isSafeInteger(id))
+export function get_card(cid) {
+	if (typeof cid === 'string')
+		cid = Number.parseInt(cid);
+	if (!Number.isSafeInteger(cid))
 		return null;
+	const id = (cid > 99999999) ? cid : cid_inverse.get(cid);
 	const qstr = `${select_all} AND datas.id == $id;`;
 	const arg = Object.create(null);
 	arg.$id = id;
@@ -595,16 +568,23 @@ export function get_card(id) {
 
 /**
  * Get the card name of `id` in the region `locale`.
- * @param {number} id 
+ * @param {number} cid 
  * @param {string} locale 
  * @returns {string}
  */
-export function get_name(id, locale) {
-	if (!cid_table.has(id) || !complete_name_table[locale])
+export function get_name(cid, locale) {
+	if (!complete_name_table[locale])
 		return '';
-	const cid = cid_table.get(id);
-	if (complete_name_table[locale].has(cid))
-		return complete_name_table[locale].get(cid);
+	if (complete_name_table[locale].has(cid)) {
+		if (cid === CID_BLACK_LUSTER_SOLDIER) {
+			if (complete_name_table[locale].has(4370))
+				return complete_name_table[locale].get(4370);
+			else
+				return complete_name_table[locale].get(cid);
+		}
+		else
+			return complete_name_table[locale].get(cid);
+	}
 	else
 		return '';
 }
@@ -915,7 +895,7 @@ export function check_uniqueness(buffer) {
 export function create_choice(request_locale) {
 	if (!collator_locale[request_locale])
 		return (new Map());
-	const inverse = inverse_mapping(option_table[request_locale]);
+	const inverse = inverse_mapping(complete_name_table[request_locale]);
 	const collator = new Intl.Collator(collator_locale[request_locale]);
 	const inverse_entries = [...inverse].sort((a, b) => collator.compare(a[0], b[0]));
 	const result = new Map(inverse_entries);
