@@ -16,9 +16,10 @@ export async function autocomplete(interaction) {
 }
 export async function execute(interaction) {
 	const input = interaction.options.getString('input');
-	const id = choice_table['zh-tw'].get(input);
-	if (id && get_name(id, 'ja')) {
-		await interaction.reply(get_name(id, 'ja'));
+	const cid = choice_table['zh-tw'].get(input);
+	const jp_name = cid ? get_name(cid, 'ja') : '';
+	if (jp_name) {
+		await interaction.reply(jp_name);
 	}
 	else {
 		await interaction.reply('沒有符合條件的卡片。');

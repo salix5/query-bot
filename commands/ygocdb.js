@@ -1,5 +1,6 @@
 import { SlashCommandBuilder } from 'discord.js';
 import { autocomplete_default, choice_table } from '../common_all.js';
+import { cid_inverse } from '../ygo-query.mjs';
 
 export const data = new SlashCommandBuilder()
 	.setName('ygocdb')
@@ -15,7 +16,8 @@ export async function autocomplete(interaction) {
 }
 export async function execute(interaction) {
 	const input = interaction.options.getString('input');
-	const id = choice_table['zh-tw'].get(input);
+	const cid = choice_table['zh-tw'].get(input);
+	const id = cid_inverse.get(cid);
 	if (id) {
 		await interaction.reply(`https://ygocdb.com/card/${id}`);
 	}

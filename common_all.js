@@ -1,20 +1,12 @@
 /* eslint-disable no-unused-vars */
 import { AutocompleteInteraction } from "discord.js";
-import { cid_inverse, create_choice, create_choice_prerelease, escape_regexp, official_name, option_table } from "./ygo-query.mjs";
-import { name_to_cid } from './common-json-loader.mjs';
-import { ruby_to_cid } from './common-json-loader.mjs';
+import { complete_name_table, create_choice, create_choice_prerelease, escape_regexp, official_name } from "./ygo-query.mjs";
+import { tc_entries } from './common-json-loader.mjs';
+import { ruby_entries } from './common-json-loader.mjs';
 
 const MAX_CHOICE = 25;
 
-const choices_tc = new Map();
-for (const [name, cid] of name_to_cid) {
-	if (!cid_inverse.has(cid)) {
-		console.error('choices_tc', `${name}: ${cid}`);
-		continue;
-	}
-	choices_tc.set(name, cid_inverse.get(cid));
-}
-
+const choices_tc = new Map(tc_entries);
 const choices_tc_full = new Map(choices_tc);
 const choices_pre = create_choice_prerelease();
 for (const [name, id] of choices_pre) {
@@ -33,14 +25,6 @@ choice_table['zh-tw'] = choices_tc;
 choice_table['full'] = choices_tc_full;
 
 const jp_entries = half_width_entries(choice_table['ja']);
-const ruby_entries = [];
-for (const [ruby, cid] of ruby_to_cid) {
-	if (!cid_inverse.has(cid)) {
-		console.error('ruby_entries', `${ruby}: ${cid}`);
-		continue;
-	}
-	ruby_entries.push([ruby, cid_inverse.get(cid)]);
-}
 
 export { choice_table };
 
@@ -72,8 +56,8 @@ function is_equal(a, b) {
 
 function half_width_entries(choices) {
 	const result = [];
-	for (const [name, id] of choices) {
-		result.push([toHalfWidth(name), id]);
+	for (const [name, cid] of choices) {
+		result.push([toHalfWidth(name), cid]);
 	}
 	return result;
 }
@@ -90,11 +74,11 @@ function filter_choice(interaction, entries) {
 	const keyword = escape_regexp(toHalfWidth(focused));
 	const start = new RegExp(`^${keyword}`);
 	const include = new RegExp(`${keyword}`);
-	for (const [choice, id] of entries) {
+	for (const [choice, cid] of entries) {
 		if (start.test(choice))
-			starts_with.push(id);
+			starts_with.push(cid);
 		else if (include.test(choice))
-			other.push(id);
+			other.push(cid);
 		if (starts_with.length >= MAX_CHOICE)
 			return starts_with;
 	}
@@ -119,17 +103,17 @@ export async function autocomplete_jp(interaction) {
 		const ruby_max_length = MAX_CHOICE - ret.length;
 		const starts_with = [];
 		const other = [];
-		const id_set = new Set(ret);
+		const cid_set = new Set(ret);
 		const keyword = escape_regexp(focused);
 		const start = new RegExp(`^${keyword}`);
 		const include = new RegExp(`${keyword}`);
-		for (const [ruby, id] of ruby_entries) {
-			if (id_set.has(id))
+		for (const [ruby, cid] of ruby_entries) {
+			if (cid_set.has(cid))
 				continue;
 			if (start.test(ruby))
-				starts_with.push(id);
+				starts_with.push(cid);
 			else if (include.test(ruby))
-				other.push(id);
+				other.push(cid);
 			if (starts_with.length >= ruby_max_length)
 				break;
 		}
@@ -139,9 +123,9 @@ export async function autocomplete_jp(interaction) {
 		if (ret.length > MAX_CHOICE)
 			ret.length = MAX_CHOICE;
 	}
-	const option_table_jp = option_table['ja'];
+	const name_jp = complete_name_table['ja'];
 	await interaction.respond(
-		ret.map(id => ({ name: option_table_jp.get(id), value: option_table_jp.get(id) }))
+		ret.map(cid => ({ name: name_jp.get(cid), value: name_jp.get(cid) }))
 	);
 }
 
@@ -162,7 +146,7 @@ export async function autocomplete_default(interaction, request_locale) {
 	const keyword = escape_regexp(focused);
 	const start = new RegExp(`^${keyword}`, 'i');
 	const include = new RegExp(`${keyword}`, 'i');
-	for (const [choice, id] of choice_table[request_locale]) {
+	for (const [choice, cid] of choice_table[request_locale]) {
 		if (start.test(choice))
 			starts_with.push(choice);
 		else if (include.test(choice))
