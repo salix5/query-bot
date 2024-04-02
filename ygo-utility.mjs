@@ -28,7 +28,7 @@ export function escape_regexp(string) {
  * @returns
  */
 export function map_stringify(map, compare) {
-	return JSON.stringify([...map].sort(compare), null, 1);
+	return JSON.stringify(Object.fromEntries([...map].sort(compare)), null, 1);
 }
 
 /**
@@ -36,5 +36,5 @@ export function map_stringify(map, compare) {
  * @returns 
  */
 export function table_stringify(map) {
-	return map_stringify(map, (a, b) => a[0] - b[0]);
+	return JSON.stringify(Object.fromEntries(map), null, 1);
 }
