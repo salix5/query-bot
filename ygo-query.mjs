@@ -229,7 +229,7 @@ export {
 	arg_default,
 };
 
-const cid_inverse = inverse_mapping(cid_table);
+const id_to_cid = inverse_mapping(cid_table);
 const complete_name_table = Object.create(null);
 for (const locale of Object.keys(official_name)) {
 	const table1 = new Map(name_table[locale]);
@@ -256,7 +256,7 @@ for (const locale of Object.keys(official_name)) {
 export {
 	lang, official_name,
 	cid_table, name_table, md_table,
-	complete_name_table, cid_inverse,
+	complete_name_table, id_to_cid,
 };
 
 const [SQL, buf1, buf2] = await Promise.all([initSqlJs(), fetch_db, fetch_db2]);
@@ -357,8 +357,8 @@ function query_db(db, qstr, arg, ret) {
 		if ('id' in card && 'alias' in card) {
 			card.real_id = is_alternative(card) ? card.alias : card.id;
 		}
-		if ('real_id' in card && cid_table.has(card.real_id)) {
-			card.cid = cid_table.get(card.real_id);
+		if ('real_id' in card && id_to_cid.has(card.real_id)) {
+			card.cid = id_to_cid.get(card.real_id);
 		}
 		ret.push(card);
 	}
@@ -551,7 +551,7 @@ export function get_card(cid) {
 		cid = Number.parseInt(cid);
 	if (!Number.isSafeInteger(cid))
 		return null;
-	const id = (cid > 99999999) ? cid : cid_inverse.get(cid);
+	const id = (cid > 99999999) ? cid : cid_table.get(cid);
 	const qstr = `${select_all} AND datas.id == $id;`;
 	const arg = Object.create(null);
 	arg.$id = id;
@@ -913,7 +913,7 @@ export function create_choice_prerelease() {
 	const re_kanji = /※.*/;
 	const pre_list = query(cmd_pre, arg);
 	for (const card of pre_list) {
-		if (cid_table.has(card.id)) {
+		if (id_to_cid.has(card.id)) {
 			continue;
 		}
 		const res = card.desc.match(re_kanji);

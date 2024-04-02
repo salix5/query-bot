@@ -3,7 +3,7 @@ import ltable_tcg from './data/lflist_tcg.json' assert { type: 'json' };
 import ltable_md from './data/lflist_md.json' assert { type: 'json' };
 import md_card_list from './data/CardList.json' assert { type: 'json' };
 
-import cid_entry from './data/cid_table.json' assert { type: 'json' };
+import cid_json from './data/cid_table.json' assert { type: 'json' };
 import en_table from './data/name_table_en.json' assert { type: 'json' };
 import jp_table from './data/name_table_jp.json' assert { type: 'json' };
 import kr_table from './data/name_table_kr.json' assert { type: 'json' };
@@ -22,14 +22,14 @@ function object_to_map(obj) {
 	return map;
 }
 
-const cid_table = new Map(cid_entry);
+const cid_table = object_to_map(cid_json);
 const name_table_en = object_to_map(en_table);
 const name_table_jp = object_to_map(jp_table);
 const name_table_kr = object_to_map(kr_table);
 const md_name_en = object_to_map(md_en_table);
 const md_name_jp = object_to_map(md_jp_table);
 
-for (const [id, cid] of cid_table) {
+for (const [cid, id] of cid_table) {
 	if (!name_table_en.has(cid) && !name_table_jp.has(cid)) {
 		console.error('cid_table: invalid cid', cid);
 		cid_table.delete(id);
