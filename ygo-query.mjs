@@ -286,6 +286,7 @@ db_list.push(new SQL.Database(buf2));
  * 
  * @property {number} [cid]
  * @property {number} [md_rarity]
+ * @property {string} [ae_name]
  * @property {string} [en_name]
  * @property {string} [jp_name]
  * @property {string} [kr_name]
@@ -784,6 +785,16 @@ export function print_card(card, locale) {
 			else if (card.md_name_en)
 				other_name += `${card.md_name_en}    (MD)\n`;
 			desc = `${card.desc}\n--`;
+			break;
+		case 'ae':
+			card_name = card.ae_name;
+
+			if (card.jp_name)
+				other_name = `${card.jp_name}\n`;
+			else if (card.md_name_jp)
+				other_name = `${card.md_name_jp}    (MD)\n`;
+			if (card.db_desc)
+				desc = card.db_desc;
 			break;
 		case 'ja':
 			if (card.jp_name)

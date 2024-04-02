@@ -1,13 +1,13 @@
 import { SlashCommandBuilder } from 'discord.js';
 import { autocomplete_default } from '../common_all.js';
 import { query_command } from '../common_query.js';
-const request_locale = 'ko';
+const request_locale = 'ae';
 
 export const data = new SlashCommandBuilder()
-	.setName('ocg-kr')
-	.setDescription('카드를 검색합니다.')
+	.setName('ocg-ae')
+	.setDescription('Find a card by name.')
 	.addStringOption(option => option.setName('input')
-		.setDescription('카드명을')
+		.setDescription('Card name')
 		.setRequired(true)
 		.setMaxLength(100)
 		.setAutocomplete(true)
