@@ -4,23 +4,30 @@ import ltable_md from './data/lflist_md.json' assert { type: 'json' };
 import md_card_list from './data/CardList.json' assert { type: 'json' };
 
 import cid_entry from './data/cid_table.json' assert { type: 'json' };
-import en_entry from './data/name_table_en.json' assert { type: 'json' };
-import jp_entry from './data/name_table_jp.json' assert { type: 'json' };
-import kr_entry from './data/name_table_kr.json' assert { type: 'json' };
-import md_en_entry from './data/md_name_en.json' assert { type: 'json' };
-import md_jp_entry from './data/md_name_jp.json' assert { type: 'json' };
+import en_table from './data/name_table_en.json' assert { type: 'json' };
+import jp_table from './data/name_table_jp.json' assert { type: 'json' };
+import kr_table from './data/name_table_kr.json' assert { type: 'json' };
+import md_en_table from './data/md_name_en.json' assert { type: 'json' };
+import md_jp_table from './data/md_name_jp.json' assert { type: 'json' };
 
 import lang_en from './lang/en.json' assert { type: 'json' };
 import lang_ja from './lang/ja.json' assert { type: 'json' };
 import lang_ko from './lang/ko.json' assert { type: 'json' };
 import lang_zhtw from './lang/zh-tw.json' assert { type: 'json' };
 
+function object_to_map(obj) {
+	const map = new Map();
+	for (const [key, value] of Object.entries(obj))
+		map.set(Number.parseInt(key), value);
+	return map;
+}
+
 const cid_table = new Map(cid_entry);
-const name_table_en = new Map(en_entry);
-const name_table_jp = new Map(jp_entry);
-const name_table_kr = new Map(kr_entry);
-const md_name_en = new Map(md_en_entry);
-const md_name_jp = new Map(md_jp_entry);
+const name_table_en = object_to_map(en_table);
+const name_table_jp = object_to_map(jp_table);
+const name_table_kr = object_to_map(kr_table);
+const md_name_en = object_to_map(md_en_table);
+const md_name_jp = object_to_map(md_jp_table);
 
 for (const [id, cid] of cid_table) {
 	if (!name_table_en.has(cid) && !name_table_jp.has(cid)) {
