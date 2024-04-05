@@ -5,7 +5,7 @@ import { ltable_md } from './ygo-json-loader.mjs';
 import { md_card_list } from './ygo-json-loader.mjs';
 import { cid_table } from './ygo-json-loader.mjs';
 import { lang, collator_locale, bls_postfix, official_name, game_name } from './ygo-json-loader.mjs';
-import { name_table, md_table } from './ygo-json-loader.mjs';
+import { name_table, md_table, md_table_sc } from './ygo-json-loader.mjs';
 
 const domain = 'https://salix5.github.io/cdb';
 const fetch_db = fetch(`${domain}/cards.cdb`).then(response => response.arrayBuffer()).then(buf => new Uint8Array(buf));
@@ -574,6 +574,12 @@ export function get_card(cid) {
  * @returns {string}
  */
 export function get_name(cid, locale) {
+	if (locale === 'md') {
+		if (md_table_sc.has(cid))
+			return md_table_sc.get(cid);
+		else
+			return '';
+	}
 	if (!complete_name_table[locale])
 		return '';
 	if (complete_name_table[locale].has(cid)) {
