@@ -30,8 +30,8 @@ const name_table_ae = object_to_map(ae_table);
 const name_table_en = object_to_map(en_table);
 const name_table_jp = object_to_map(jp_table);
 const name_table_kr = object_to_map(kr_table);
-const md_name_en = object_to_map(md_en_table);
-const md_name_jp = object_to_map(md_jp_table);
+const md_table_en = object_to_map(md_en_table);
+const md_table_jp = object_to_map(md_jp_table);
 const md_table_sc = object_to_map(md_sc);
 
 for (const [cid, id] of cid_table) {
@@ -79,15 +79,13 @@ name_table['ja'] = name_table_jp;
 name_table['ko'] = name_table_kr;
 
 const md_table = Object.create(null);
-md_table['en'] = md_name_en;
-md_table['ja'] = md_name_jp;
+md_table['en'] = md_table_en;
+md_table['ja'] = md_table_jp;
 
 export {
 	ltable_ocg, ltable_tcg, ltable_md,
 	md_card_list,
 	cid_table,
-	name_table_en, name_table_jp, name_table_kr,
-	md_name_en, md_name_jp,
 	lang,
 	collator_locale,
 	bls_postfix,
