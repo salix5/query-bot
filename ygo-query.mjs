@@ -317,7 +317,7 @@ function set_setcode(card, setcode) {
  * Query cards from `db` with statement `qstr` and binding object `arg` and put them in `ret`.
  * @param {initSqlJs.Database} db 
  * @param {string} qstr 
- * @param {?Object.<string, number>} arg 
+ * @param {initSqlJs.BindParams} arg 
  * @param {Object[]} ret  
  */
 function query_db(db, qstr, arg, ret) {
@@ -517,7 +517,7 @@ export function setcode_condition(setcode, arg) {
 /**
  * Query card from all databases with statement `qstr` and binding object `arg`.
  * @param {string} qstr 
- * @param {?Object.<string, number>} arg 
+ * @param {initSqlJs.BindParams} arg 
  * @returns {Card[]}
  */
 export function query(qstr, arg) {
@@ -888,7 +888,7 @@ export function print_card(card, locale) {
  * Get cards from databases file `buffer` with statement `qstr` and binding object `arg`.
  * @param {Uint8Array} buffer
  * @param {string} qstr 
- * @param {?Object.<string, number>} arg 
+ * @param {initSqlJs.BindParams} arg 
  * @returns {Record[]}
  */
 export function load_db(buffer, qstr, arg) {
