@@ -214,13 +214,14 @@ const effect_filter = ` AND (NOT type & $normal OR type & $pendulum)`;
 
 const stmt_default = `${select_all}${physical_filter}`;
 const stmt_no_alias = `${select_id}${base_filter} AND alias == $zero`;
-const arg_default = Object.create(null);
-arg_default.$tyler = ID_TYLER_THE_GREAT_WARRIOR;
-arg_default.$token = TYPE_TOKEN;
-arg_default.$luster = ID_BLACK_LUSTER_SOLDIER;
-arg_default.$artwork_offset = CARD_ARTWORK_VERSIONS_OFFSET;
-arg_default.$zero = 0;
-arg_default.$ub = 99999999;
+const arg_default = {
+	$tyler: ID_TYLER_THE_GREAT_WARRIOR,
+	$token: TYPE_TOKEN,
+	$luster: ID_BLACK_LUSTER_SOLDIER,
+	$artwork_offset: CARD_ARTWORK_VERSIONS_OFFSET,
+	$zero: 0,
+	$ub: 99999999,
+};
 
 export {
 	ID_TYLER_THE_GREAT_WARRIOR, ID_BLACK_LUSTER_SOLDIER, CID_BLACK_LUSTER_SOLDIER,
@@ -316,7 +317,7 @@ function set_setcode(card, setcode) {
  * Query cards from `db` with statement `qstr` and binding object `arg` and put them in `ret`.
  * @param {initSqlJs.Database} db 
  * @param {string} qstr 
- * @param {Object} arg 
+ * @param {?Object.<string, number>} arg 
  * @param {Object[]} ret  
  */
 function query_db(db, qstr, arg, ret) {
@@ -516,7 +517,7 @@ export function setcode_condition(setcode, arg) {
 /**
  * Query card from all databases with statement `qstr` and binding object `arg`.
  * @param {string} qstr 
- * @param {Object} arg 
+ * @param {?Object.<string, number>} arg 
  * @returns {Card[]}
  */
 export function query(qstr, arg) {
@@ -545,7 +546,7 @@ export function query_alias(alias) {
 /**
  * Get a card with cid or temp id from all databases.
  * @param {number|string} cid 
- * @returns {Card|null}
+ * @returns {?Card}
  */
 export function get_card(cid) {
 	if (typeof cid === 'string')
@@ -865,13 +866,30 @@ export function print_card(card, locale) {
 }
 
 
+/**
+ * @typedef {Object} Record
+ * @property {number} id
+ * @property {number} ot
+ * @property {number} alias
+ * @property {bigint} setcode
+ * @property {number} type
+ * @property {number} atk
+ * @property {number} def
+ * @property {number} level
+ * @property {number} race
+ * @property {number} attribute
+ * 
+ * @property {string} name
+ * @property {string} desc
+ */
+
 //database file
 /**
  * Get cards from databases file `buffer` with statement `qstr` and binding object `arg`.
  * @param {Uint8Array} buffer
  * @param {string} qstr 
- * @param {Object} arg 
- * @returns {Object[]}
+ * @param {?Object.<string, number>} arg 
+ * @returns {Record[]}
  */
 export function load_db(buffer, qstr, arg) {
 	const db = new SQL.Database(buffer);
