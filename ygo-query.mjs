@@ -258,6 +258,7 @@ export {
 	lang, official_name,
 	cid_table, name_table, md_table,
 	complete_name_table, id_to_cid,
+	md_card_list,
 };
 
 const [SQL, buf1, buf2] = await Promise.all([initSqlJs(), fetch_db, fetch_db2]);
@@ -918,6 +919,18 @@ export function check_uniqueness(buffer) {
 		table1.set(ID_BLACK_LUSTER_SOLDIER, `${table1.get(ID_BLACK_LUSTER_SOLDIER)}${postfix}`);
 	const inv1 = inverse_mapping(table1);
 	return inv1.size === cards.length;
+}
+
+/**
+ * @param {number} id 
+ * @returns 
+ */
+export function get_source_cid(id) {
+	for (let i = id; i > id - CARD_ARTWORK_VERSIONS_OFFSET; --i) {
+		if (id_to_cid.has(i))
+			return id_to_cid.get(i);
+	}
+	return 0;
 }
 
 
