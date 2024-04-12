@@ -950,6 +950,28 @@ export function create_choice(request_locale) {
 	return result;
 }
 
+const zh_collator = new Intl.Collator(collator_locale['zh-tw']);
+/**
+ * @param {[string, number]} a 
+ * @param {[string, number]} b 
+ */
+export function zh_compare(a, b) {
+	const a0 = a[0].substring(0, 1);
+	const b0 = b[0].substring(0, 1);
+	if (a0 === '※') {
+		if (b0 === '※')
+			return zh_collator.compare(a[0].substring(1), b[0].substring(1));
+		else
+			return 1;
+	}
+	else {
+		if (b0 === '※')
+			return -1;
+		else
+			return zh_collator.compare(a[0], b[0]);
+	}
+}
+
 /**
  * Create the [name, id] table for pre-release cards.
  * @returns 
@@ -974,8 +996,7 @@ export function create_choice_prerelease() {
 		if (kanji)
 			inverse_table.set(kanji, card.id);
 	}
-	const collator = Intl.Collator(collator_locale['zh-tw']);
-	const inverse_entries = [...inverse_table].sort((a, b) => collator.compare(a[0], b[0]));
+	const inverse_entries = [...inverse_table].sort(zh_compare);
 	const result = new Map(inverse_entries);
 	return result;
 }
