@@ -68,7 +68,7 @@ function half_width_entries(choices) {
  * @returns id list
  */
 function filter_choice(interaction, entries) {
-	const focused = interaction.options.getFocused();
+	const focused = interaction.options.getFocused().trim();
 	const starts_with = [];
 	const other = [];
 	const keyword = escape_regexp(toHalfWidth(focused));
@@ -93,7 +93,7 @@ function filter_choice(interaction, entries) {
  * @param {AutocompleteInteraction} interaction
  */
 export async function autocomplete_jp(interaction) {
-	const focused = interaction.options.getFocused();
+	const focused = interaction.options.getFocused().trim();
 	if (!focused) {
 		await interaction.respond([]);
 		return;
@@ -136,7 +136,7 @@ export async function autocomplete_jp(interaction) {
  * @returns 
  */
 export async function autocomplete_default(interaction, request_locale) {
-	const focused = interaction.options.getFocused();
+	const focused = interaction.options.getFocused().trim();
 	if (!focused || !choice_table[request_locale]) {
 		await interaction.respond([]);
 		return;
