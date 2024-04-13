@@ -15,6 +15,23 @@ export function print_history_link(cid) {
 }
 
 /**
+ * Create the inverse mapping of `table`.
+ * @param {Map} table 
+ * @returns 
+ */
+export function inverse_mapping(table) {
+	const inverse = new Map();
+	for (const [key, value] of table) {
+		if (inverse.has(value)) {
+			console.error('non-invertible', `${key}: ${value}`);
+			return (new Map());
+		}
+		inverse.set(value, key);
+	}
+	return inverse;
+}
+
+/**
  * @param {string} string 
  * @returns 
  */
