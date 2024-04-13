@@ -1,5 +1,5 @@
 import { Client, Collection, Events, GatewayIntentBits, ChannelType, MessageType, Partials } from 'discord.js';
-import { name_table, create_name_table, inverse_mapping } from './ygo-query.mjs';
+import { name_table, create_name_table, inverse_mapping, refresh_db } from './ygo-query.mjs';
 import { readdirSync } from 'node:fs';
 //import 'dotenv/config';
 
@@ -46,11 +46,12 @@ client.on(Events.MessageCreate, async msg => {
 		console.log(msg.author.id);
 		console.log(msg.content.substring(0, 20));
 		if (msg.content === 'd!') {
-			let history = await msg.channel.messages.fetch();
+			const history = await msg.channel.messages.fetch();
+			const delete_list = [];
 			history.each((message) => {
 				if (message.type === MessageType.ChatInputCommand) {
 					try {
-						message.delete();
+						delete_list.push(message.delete());
 					}
 					catch (error) {
 						console.error('delete DM');
@@ -58,11 +59,18 @@ client.on(Events.MessageCreate, async msg => {
 					}
 				}
 			});
+			await Promise.all(delete_list);
+		}
+		else if (msg.content === 'r!') {
+			if (msg.author.id !== process.env.ADMIN)
+				return;
+			await refresh_db();
+			await msg.channel.send('🤖');
 		}
 	}
 	else if (msg.channel.type === ChannelType.GuildText) {
 		if (msg.content) {
-			msg.react('🤖');
+			await msg.react('🤖');
 		}
 	}
 });
