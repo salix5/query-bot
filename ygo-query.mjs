@@ -305,6 +305,7 @@ db_list.push(new SQL.Database(buf2));
  * 
  * @property {string} tw_name
  * @property {string} desc
+ * @property {string} [db_desc]
  * 
  * @property {number} [cid]
  * @property {number} [md_rarity]
