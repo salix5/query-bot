@@ -2,6 +2,7 @@ import { SlashCommandBuilder } from 'discord.js';
 import { get_name } from '../ygo-query.mjs';
 import { autocomplete_default, choice_table } from '../common_all.js';
 
+export const url = import.meta.url;
 export const data = new SlashCommandBuilder()
 	.setName('md-name')
 	.setDescription('中文卡名轉換成MD簡中譯名')

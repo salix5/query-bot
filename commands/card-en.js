@@ -2,6 +2,7 @@ import { SlashCommandBuilder } from 'discord.js';
 import { autocomplete_default } from '../common_all.js';
 import { query_command } from '../common_query.js';
 
+export const url = import.meta.url;
 export const data = new SlashCommandBuilder()
 	.setName('card-en')
 	.setDescription('以英文卡名搜尋卡片')

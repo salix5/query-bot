@@ -3,6 +3,7 @@ import { autocomplete_default } from '../common_all.js';
 import { query_command } from '../common_query.js';
 const request_locale = 'en';
 
+export const url = import.meta.url;
 export const data = new SlashCommandBuilder()
 	.setName('tcg-en')
 	.setDescription('Find a card by name.')
