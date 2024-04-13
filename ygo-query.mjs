@@ -6,6 +6,7 @@ import { md_card_list } from './ygo-json-loader.mjs';
 import { cid_table } from './ygo-json-loader.mjs';
 import { lang, collator_locale, bls_postfix, official_name, game_name } from './ygo-json-loader.mjs';
 import { name_table, md_table, md_table_sc } from './ygo-json-loader.mjs';
+import { inverse_mapping } from './ygo-utility.mjs';
 
 const domain = 'https://salix5.github.io/cdb';
 const fetch_db = fetch(`${domain}/cards.cdb`).then(response => response.arrayBuffer()).then(buf => new Uint8Array(buf));
@@ -462,23 +463,6 @@ function edit_card(card) {
 
 //query
 /**
- * Create the inverse mapping of `table`.
- * @param {Map} table 
- * @returns 
- */
-export function inverse_mapping(table) {
-	const inverse = new Map();
-	for (const [key, value] of table) {
-		if (inverse.has(value)) {
-			console.error('non-invertible', `${key}: ${value}`);
-			return (new Map());
-		}
-		inverse.set(value, key);
-	}
-	return inverse;
-}
-
-/**
  * Check if the card is an alternative artwork card.
  * @param {Card} card
  * @returns 
@@ -518,7 +502,7 @@ export function is_setcode(card, value) {
 /**
  * The sqlite condition of checking setcode.
  * @param {number} setcode
- * @param {Object} arg
+ * @param {initSqlJs.BindParams} arg
  * @returns {string}
  */
 export function setcode_condition(setcode, arg) {
@@ -1015,6 +999,7 @@ export function create_name_table() {
 }
 
 export {
+	inverse_mapping,
 	print_db_link, print_yp_link, print_qa_link, print_history_link,
 	escape_regexp, map_stringify, table_stringify
 } from './ygo-utility.mjs';
