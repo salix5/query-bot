@@ -338,12 +338,13 @@ function set_setcode(card, setcode) {
  * @param {initSqlJs.Database} db 
  * @param {string} qstr 
  * @param {initSqlJs.BindParams} arg 
- * @param {Record[]} ret  
+ * @returns {Record[]}
  */
-function query_db(db, qstr, arg, ret) {
+function query_db(db, qstr, arg) {
 	if (!db)
-		return;
+		return [];
 
+	const ret = [];
 	const stmt = db.prepare(qstr);
 	stmt.bind(arg);
 	while (stmt.step()) {
@@ -385,6 +386,7 @@ function query_db(db, qstr, arg, ret) {
 		ret.push(card);
 	}
 	stmt.free();
+	return ret;
 }
 
 function edit_card(card) {
@@ -541,10 +543,11 @@ export function setcode_condition(setcode, arg) {
  * @returns {Card[]}
  */
 export function query(qstr, arg) {
-	const ret = [];
+	const cards = [];
 	for (const db of db_list) {
-		query_db(db, qstr, arg, ret);
+		cards.push(query_db(db, qstr, arg));
 	}
+	const ret = [].concat(...cards);
 	for (const card of ret) {
 		edit_card(card);
 	}
@@ -577,9 +580,8 @@ export function get_card(cid) {
 	const qstr = `${select_all} AND datas.id == $id;`;
 	const arg = Object.create(null);
 	arg.$id = id;
-	const ret = [];
 	for (const db of db_list) {
-		query_db(db, qstr, arg, ret);
+		const ret = query_db(db, qstr, arg);
 		if (ret.length) {
 			edit_card(ret[0]);
 			return ret[0];
@@ -891,12 +893,11 @@ export function print_card(card, locale) {
  * @param {Uint8Array} buffer
  * @param {string} qstr 
  * @param {initSqlJs.BindParams} arg 
- * @returns {Record[]}
+ * @returns 
  */
 export function load_db(buffer, qstr, arg) {
 	const db = new SQL.Database(buffer);
-	const ret = [];
-	query_db(db, qstr, arg, ret);
+	const ret = query_db(db, qstr, arg);
 	db.close();
 	return ret;
 }
