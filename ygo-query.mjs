@@ -996,6 +996,8 @@ export function create_name_table() {
 			table1.set(card.cid, card.tw_name);
 	}
 	table1.set(CID_BLACK_LUSTER_SOLDIER, `${table1.get(CID_BLACK_LUSTER_SOLDIER)}${bls_postfix['zh-tw']}`);
+	if (table1.size !== cid_table.size)
+		console.error('invalid name_table_tw:', cid_table.size, table1.size);
 	return table1;
 }
 

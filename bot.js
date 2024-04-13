@@ -1,5 +1,5 @@
 import { Client, Collection, Events, GatewayIntentBits, ChannelType, MessageType, Partials } from 'discord.js';
-import { cid_table, create_name_table, inverse_mapping, name_table } from './ygo-query.mjs';
+import { name_table, create_name_table, inverse_mapping } from './ygo-query.mjs';
 import { readdirSync } from 'node:fs';
 //import 'dotenv/config';
 
@@ -36,7 +36,6 @@ client.once(Events.ClientReady, c => {
 	let currentDate = new Date();
 	console.log(`[${currentDate.toUTCString()}] Ready! Logged in as ${c.user.tag} (total: ${name_table['ja'].size})`);
 	const test_table = create_name_table();
-	console.log('name_table_tw:', test_table.size === cid_table.size);
 	inverse_mapping(test_table);
 });
 
@@ -46,7 +45,7 @@ client.on(Events.MessageCreate, async msg => {
 	if (msg.channel.type === ChannelType.DM) {
 		console.log(msg.author.id);
 		console.log(msg.content.substring(0, 20));
-		if (msg.content === "d!") {
+		if (msg.content === 'd!') {
 			let history = await msg.channel.messages.fetch();
 			history.each((message) => {
 				if (message.type === MessageType.ChatInputCommand) {
