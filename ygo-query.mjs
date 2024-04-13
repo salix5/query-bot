@@ -267,6 +267,25 @@ db_list.push(new SQL.Database(buf1));
 db_list.push(new SQL.Database(buf2));
 
 /**
+ * @typedef {Object} Record
+ * @property {number} id
+ * @property {number} ot
+ * @property {number} alias
+ * @property {bigint} setcode
+ * @property {number} type
+ * @property {number} atk
+ * @property {number} def
+ * @property {number} level
+ * @property {number} race
+ * @property {number} attribute
+ * @property {number} real_id
+ * @property {number} [cid]
+ * 
+ * @property {string} name
+ * @property {string} desc
+ */
+
+/**
  * @typedef {Object} Card
  * @property {number} id
  * @property {number} ot
@@ -319,7 +338,7 @@ function set_setcode(card, setcode) {
  * @param {initSqlJs.Database} db 
  * @param {string} qstr 
  * @param {initSqlJs.BindParams} arg 
- * @param {Object[]} ret  
+ * @param {Record[]} ret  
  */
 function query_db(db, qstr, arg, ret) {
 	if (!db)
@@ -368,7 +387,7 @@ function query_db(db, qstr, arg, ret) {
 	stmt.free();
 }
 
-function finalize(card) {
+function edit_card(card) {
 	if (card.type & TYPE_MONSTER) {
 		if (!(card.type & TYPE_EXTRA)) {
 			if (card.type & TYPE_TOKEN)
@@ -527,7 +546,7 @@ export function query(qstr, arg) {
 		query_db(db, qstr, arg, ret);
 	}
 	for (const card of ret) {
-		finalize(card);
+		edit_card(card);
 	}
 	return ret;
 }
@@ -562,7 +581,7 @@ export function get_card(cid) {
 	for (const db of db_list) {
 		query_db(db, qstr, arg, ret);
 		if (ret.length) {
-			finalize(ret[0]);
+			edit_card(ret[0]);
 			return ret[0];
 		}
 	}
@@ -865,24 +884,6 @@ export function print_card(card, locale) {
 	const card_text = `**${card_name}**\n${other_name}${lfstr}${print_data(card, '\n', locale)}${desc}\n`;
 	return card_text;
 }
-
-
-/**
- * @typedef {Object} Record
- * @property {number} id
- * @property {number} ot
- * @property {number} alias
- * @property {bigint} setcode
- * @property {number} type
- * @property {number} atk
- * @property {number} def
- * @property {number} level
- * @property {number} race
- * @property {number} attribute
- * 
- * @property {string} name
- * @property {string} desc
- */
 
 //database file
 /**
