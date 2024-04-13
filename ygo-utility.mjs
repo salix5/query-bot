@@ -32,6 +32,7 @@ export function map_stringify(map, compare) {
 }
 
 /**
+ * Stringify `map` with numeric keys.
  * @param {Map} map 
  * @returns 
  */
