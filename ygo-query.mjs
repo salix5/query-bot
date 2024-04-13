@@ -7,10 +7,7 @@ import { cid_table } from './ygo-json-loader.mjs';
 import { lang, collator_locale, bls_postfix, official_name, game_name } from './ygo-json-loader.mjs';
 import { name_table, md_table, md_table_sc } from './ygo-json-loader.mjs';
 import { inverse_mapping } from './ygo-utility.mjs';
-
-const domain = 'https://salix5.github.io/cdb';
-const fetch_db = fetch(`${domain}/cards.cdb`).then(response => response.arrayBuffer()).then(buf => new Uint8Array(buf));
-const fetch_db2 = fetch(`${domain}/expansions/pre-release.cdb`).then(response => response.arrayBuffer()).then(buf => new Uint8Array(buf));
+import { db_url1, db_url2, fetch_db } from './ygo-fetch.mjs';
 
 // type
 const TYPE_MONSTER = 0x1;
@@ -262,10 +259,13 @@ export {
 	md_card_list,
 };
 
-const [SQL, buf1, buf2] = await Promise.all([initSqlJs(), fetch_db, fetch_db2]);
+/**
+ * @type {initSqlJs.Database[]}
+ */
 const db_list = [];
-db_list.push(new SQL.Database(buf1));
-db_list.push(new SQL.Database(buf2));
+
+const SQL = await initSqlJs();
+await refresh_db();
 
 /**
  * @typedef {Object} Record
@@ -463,6 +463,16 @@ function edit_card(card) {
 
 
 //query
+export async function refresh_db() {
+	const [buf1, buf2] = await Promise.all([fetch_db(db_url1), fetch_db(db_url2)]);
+	for (const db of db_list) {
+		db.close();
+	}
+	db_list.length = 0;
+	db_list.push(new SQL.Database(buf1));
+	db_list.push(new SQL.Database(buf2));
+}
+
 /**
  * Check if the card is an alternative artwork card.
  * @param {Card} card
@@ -871,6 +881,7 @@ export function print_card(card, locale) {
 	const card_text = `**${card_name}**\n${other_name}${lfstr}${print_data(card, '\n', locale)}${desc}\n`;
 	return card_text;
 }
+
 
 //database file
 /**
