@@ -3,6 +3,7 @@ import { randomInt } from 'node:crypto';
 import { promisify } from 'node:util';
 const rand = promisify(randomInt);
 
+export const url = import.meta.url;
 export const data = new SlashCommandBuilder()
 	.setName('dice')
 	.setDescription('擲一個N面骰')

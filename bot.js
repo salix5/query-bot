@@ -17,22 +17,18 @@ client.frequency = new Collection();
 const commandsURL = new URL('commands/', import.meta.url);
 const commandFiles = readdirSync(commandsURL).filter(file => file.endsWith('.js'));
 const import_list = [];
-const url_list = [];
 for (const file of commandFiles) {
 	const fileURL = new URL(file, commandsURL);
 	import_list.push(import(fileURL));
-	url_list.push(fileURL.href);
 }
 
 const commands = await Promise.all(import_list);
-for (let i = commands.length - 1; i >= 0; --i) {
-	const command = commands[i];
-	const commandURL = url_list[i];
+for (const command of commands) {
 	if ('data' in command && 'execute' in command) {
 		client.commands.set(command.data.name, command);
 		client.frequency.set(command.data.name, 0);
 	} else {
-		console.log(`[WARNING] The command at ${commandURL} is missing a required "data" or "execute" property.`);
+		console.log(`[WARNING] The command at ${command.url} is missing a required "data" or "execute" property.`);
 	}
 }
 

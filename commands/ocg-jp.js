@@ -1,6 +1,7 @@
 import { SlashCommandBuilder } from 'discord.js';
 import { query_command } from '../common_query.js';
 
+export const url = import.meta.url;
 export const data = new SlashCommandBuilder()
 	.setName('ocg-jp')
 	.setDescription('カードを検索します。')
