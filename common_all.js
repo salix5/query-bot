@@ -7,22 +7,12 @@ import { ruby_entries } from './common-json-loader.mjs';
 const MAX_CHOICE = 25;
 
 const choices_tc = new Map(tc_entries);
-const choices_tc_full = new Map(choices_tc);
-const choices_pre = create_choice_prerelease();
-for (const [name, id] of choices_pre) {
-	if (choices_tc.has(name)) {
-		console.error('duplicate tc name', `${name}: ${id}`);
-		continue;
-	}
-	choices_tc_full.set(name, id);
-}
-
 const choice_table = Object.create(null);
 for (const locale of Object.keys(official_name)) {
 	choice_table[locale] = create_choice(locale);
 }
 choice_table['zh-tw'] = choices_tc;
-choice_table['full'] = choices_tc_full;
+refresh_choice_table();
 
 const jp_entries = half_width_entries(choice_table['ja']);
 
@@ -60,6 +50,21 @@ function half_width_entries(choices) {
 		result.push([toHalfWidth(name), cid]);
 	}
 	return result;
+}
+
+
+export function refresh_choice_table() {
+	const choices_tc_full = new Map(choices_tc);
+	const choices_pre = create_choice_prerelease();
+	for (const [name, id] of choices_pre) {
+		if (choices_tc.has(name)) {
+			console.error('duplicate tc name', `${name}: ${id}`);
+			continue;
+		}
+		choices_tc_full.set(name, id);
+	}
+	delete choice_table['full'];
+	choice_table['full'] = choices_tc_full;
 }
 
 /**
