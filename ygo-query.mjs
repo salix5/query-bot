@@ -538,11 +538,11 @@ export function setcode_condition(setcode, arg) {
  * @returns {Card[]}
  */
 export function query(qstr, arg) {
-	const cards = [];
+	const ret = [];
 	for (const db of db_list) {
-		cards.push(query_db(db, qstr, arg));
+		const result = query_db(db, qstr, arg);
+		ret.push(...result);
 	}
-	const ret = [].concat(...cards);
 	for (const card of ret) {
 		edit_card(card);
 	}
