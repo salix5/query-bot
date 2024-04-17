@@ -87,7 +87,7 @@ function filter_choice(interaction, entries) {
 		if (starts_with.length >= MAX_CHOICE)
 			return starts_with;
 	}
-	let ret = starts_with.concat(other);
+	const ret = starts_with.concat(other);
 	if (ret.length > MAX_CHOICE)
 		ret.length = MAX_CHOICE;
 	return ret;
@@ -103,7 +103,7 @@ export async function autocomplete_jp(interaction) {
 		await interaction.respond([]);
 		return;
 	}
-	let ret = filter_choice(interaction, jp_entries);
+	const ret = filter_choice(interaction, jp_entries);
 	if (ret.length < MAX_CHOICE) {
 		const ruby_max_length = MAX_CHOICE - ret.length;
 		const starts_with = [];
@@ -122,9 +122,9 @@ export async function autocomplete_jp(interaction) {
 			if (starts_with.length >= ruby_max_length)
 				break;
 		}
-		ret = ret.concat(starts_with);
+		ret.push(...starts_with);
 		if (ret.length < MAX_CHOICE)
-			ret = ret.concat(other);
+			ret.push(...other);
 		if (ret.length > MAX_CHOICE)
 			ret.length = MAX_CHOICE;
 	}
