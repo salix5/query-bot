@@ -1,6 +1,7 @@
+import { readdirSync } from 'node:fs';
 import { Client, Collection, Events, GatewayIntentBits, ChannelType, MessageType, Partials } from 'discord.js';
 import { name_table, create_name_table, inverse_mapping, refresh_db } from './ygo-query.mjs';
-import { readdirSync } from 'node:fs';
+import { refresh_choice_table } from './common_all.js';
 //import 'dotenv/config';
 
 // eslint-disable-next-line no-unused-vars
@@ -65,6 +66,7 @@ client.on(Events.MessageCreate, async msg => {
 			if (msg.author.id !== process.env.ADMIN)
 				return;
 			await refresh_db();
+			refresh_choice_table();
 			await msg.channel.send('🤖');
 		}
 	}
