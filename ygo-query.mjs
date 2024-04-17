@@ -219,6 +219,9 @@ const arg_default = {
 	$artwork_offset: CARD_ARTWORK_VERSIONS_OFFSET,
 	$zero: 0,
 	$ub: 99999999,
+	$monster: TYPE_MONSTER,
+	$spell: TYPE_SPELL,
+	$trap: TYPE_TRAP,
 };
 
 export {
