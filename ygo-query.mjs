@@ -199,6 +199,8 @@ export { type, monster_type, spell_type, trap_type, race, attribute, link_marker
 // special ID
 const ID_TYLER_THE_GREAT_WARRIOR = 68811206;
 const ID_BLACK_LUSTER_SOLDIER = 5405695;
+const ALT_POLYMERIZATION = 27847700;
+const ALT_DARK_MAGICIAN = 36996508;
 const CID_BLACK_LUSTER_SOLDIER = 19092;
 const CARD_ARTWORK_VERSIONS_OFFSET = 20;
 
@@ -225,7 +227,9 @@ const arg_default = {
 };
 
 export {
-	ID_TYLER_THE_GREAT_WARRIOR, ID_BLACK_LUSTER_SOLDIER, CID_BLACK_LUSTER_SOLDIER,
+	ID_TYLER_THE_GREAT_WARRIOR, ID_BLACK_LUSTER_SOLDIER,
+	ALT_DARK_MAGICIAN, ALT_POLYMERIZATION,
+	CID_BLACK_LUSTER_SOLDIER,
 	select_all, select_id, base_filter, physical_filter, effect_filter,
 	stmt_default, stmt_no_alias,
 	arg_default,
@@ -910,7 +914,6 @@ export function check_uniqueness(buffer) {
 	const condition = ` AND (NOT type & $token OR alias == $zero) AND (type & $token OR datas.id == $luster OR abs(datas.id - alias) >= $artwork_offset)`;
 	const stmt1 = `${select_name}${condition}`
 	const cards = load_db(buffer, stmt1, arg_default);
-	console.log('total:', cards.length);
 	const table1 = new Map();
 	const postfix = 'N';
 	for (const card of cards) {
@@ -918,8 +921,17 @@ export function check_uniqueness(buffer) {
 	}
 	if (table1.has(ID_BLACK_LUSTER_SOLDIER))
 		table1.set(ID_BLACK_LUSTER_SOLDIER, `${table1.get(ID_BLACK_LUSTER_SOLDIER)}${postfix}`);
+	if (table1.has(ALT_POLYMERIZATION)) {
+		console.log('alternative Polymerization');
+		table1.delete(ALT_POLYMERIZATION);
+	}
+	if (table1.has(ALT_DARK_MAGICIAN)) {
+		console.log('alternative Dark Magician');
+		table1.delete(ALT_DARK_MAGICIAN);
+	}
+	console.log('total:', table1.size);
 	const inv1 = inverse_mapping(table1);
-	return inv1.size === cards.length;
+	return inv1.size === table1.size;
 }
 
 /**
