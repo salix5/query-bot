@@ -546,7 +546,7 @@ export function setcode_condition(setcode, arg) {
  * @param {initSqlJs.BindParams} arg 
  * @returns {Card[]}
  */
-export function query(qstr, arg) {
+export function query(qstr = stmt_default, arg = arg_default) {
 	const ret = [];
 	for (const db of db_list) {
 		const result = query_db(db, qstr, arg);
@@ -900,7 +900,7 @@ export function print_card(card, locale) {
  * @param {initSqlJs.BindParams} arg 
  * @returns 
  */
-export function load_db(buffer, qstr, arg) {
+export function load_db(buffer, qstr = stmt_default, arg = arg_default) {
 	const db = new SQL.Database(buffer);
 	const ret = query_db(db, qstr, arg);
 	db.close();
