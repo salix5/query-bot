@@ -225,6 +225,7 @@ const arg_default = {
 	$spell: TYPE_SPELL,
 	$trap: TYPE_TRAP,
 };
+const regexp_mention = `(?<=「)[^「」]*「?[^「」]*」?[^「」]*(?=」)`;
 
 export {
 	ID_TYLER_THE_GREAT_WARRIOR, ID_BLACK_LUSTER_SOLDIER,
@@ -233,6 +234,7 @@ export {
 	select_all, select_id, base_filter, physical_filter, effect_filter,
 	stmt_default, stmt_no_alias,
 	arg_default,
+	regexp_mention,
 };
 
 const id_to_cid = inverse_mapping(cid_table);
