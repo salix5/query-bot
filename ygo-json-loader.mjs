@@ -1,22 +1,22 @@
-import ltable_ocg from './data/lflist.json' assert { type: 'json' };
-import ltable_tcg from './data/lflist_tcg.json' assert { type: 'json' };
-import ltable_md from './data/lflist_md.json' assert { type: 'json' };
-import md_card_list from './data/CardList.json' assert { type: 'json' };
+import ltable_ocg from './data/lflist.json' with { type: 'json' };
+import ltable_tcg from './data/lflist_tcg.json' with { type: 'json' };
+import ltable_md from './data/lflist_md.json' with { type: 'json' };
+import md_card_list from './data/CardList.json' with { type: 'json' };
 
-import cid_json from './data/cid_table.json' assert { type: 'json' };
-import ae_table from './data/name_table_ae.json' assert { type: 'json' };
-import en_table from './data/name_table_en.json' assert { type: 'json' };
-import jp_table from './data/name_table_jp.json' assert { type: 'json' };
-import kr_table from './data/name_table_kr.json' assert { type: 'json' };
-import md_en_table from './data/md_name_en.json' assert { type: 'json' };
-import md_jp_table from './data/md_name_jp.json' assert { type: 'json' };
-import md_sc from './data/md_name.json' assert { type: 'json' };
+import cid_json from './data/cid_table.json' with { type: 'json' };
+import ae_table from './data/name_table_ae.json' with { type: 'json' };
+import en_table from './data/name_table_en.json' with { type: 'json' };
+import jp_table from './data/name_table_jp.json' with { type: 'json' };
+import kr_table from './data/name_table_kr.json' with { type: 'json' };
+import md_en_table from './data/md_name_en.json' with { type: 'json' };
+import md_jp_table from './data/md_name_jp.json' with { type: 'json' };
+import md_sc from './data/md_name.json' with { type: 'json' };
 
-import lang_ae from './lang/ae.json' assert { type: 'json' };
-import lang_en from './lang/en.json' assert { type: 'json' };
-import lang_ja from './lang/ja.json' assert { type: 'json' };
-import lang_ko from './lang/ko.json' assert { type: 'json' };
-import lang_zhtw from './lang/zh-tw.json' assert { type: 'json' };
+import lang_ae from './lang/ae.json' with { type: 'json' };
+import lang_en from './lang/en.json' with { type: 'json' };
+import lang_ja from './lang/ja.json' with { type: 'json' };
+import lang_ko from './lang/ko.json' with { type: 'json' };
+import lang_zhtw from './lang/zh-tw.json' with { type: 'json' };
 
 function object_to_map(obj) {
 	const map = new Map();
