@@ -23,15 +23,15 @@ async function fetch_desc(card, request_locale) {
 
 	const re_ptext = /<div class="frame pen_effect">.*?<div class="item_box_text">.*?([^\r\n\t]+).*?<\/div>/s;
 	const re_text = /<div class="text_title">.*?<\/div>.*?([^\r\n\t]+).*?<\/div>/s;
-	let raw_data = await fetch(ygo.print_db_link(card.cid, request_locale)).then(response => response.text());
+	const raw_data = await fetch(ygo.print_db_link(card.cid, request_locale)).then(response => response.text());
+	const res_text = re_text.exec(raw_data);
 	let ctext = '';
-	let res_text = re_text.exec(raw_data);
 	if (res_text) {
 		ctext = res_text[1].replaceAll('<br>', '\n');
 	}
 	if (card.type & ygo.monster_type.TYPE_PENDULUM) {
 		let ptext = '';
-		let res_ptext = re_ptext.exec(raw_data);
+		const res_ptext = re_ptext.exec(raw_data);
 		if (res_ptext) {
 			if (res_ptext[1] === '</div>')
 				res_ptext[1] = '';
@@ -52,7 +52,7 @@ async function fetch_desc(card, request_locale) {
  */
 export function create_reply(card, locale) {
 	if (card.cid) {
-		let request_locale = ygo.get_request_locale(card, locale);
+		const request_locale = ygo.get_request_locale(card, locale);
 		const row1 = new ActionRowBuilder();
 		const button1 = new ButtonBuilder()
 			.setStyle(ButtonStyle.Link)

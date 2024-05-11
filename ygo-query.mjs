@@ -661,11 +661,11 @@ export function print_ad(x) {
  * @returns {string}
  */
 export function print_data(card, newline, locale) {
+	const strings = lang[locale];
 	let mtype = '';
 	let subtype = '';
 	let lvstr = '\u2605';
 	let data = '';
-	let strings = lang[locale];
 
 	if (card.type & TYPE_MONSTER) {
 		mtype = strings.type_name[TYPE_MONSTER];
@@ -796,12 +796,12 @@ export function print_data(card, newline, locale) {
  * @returns {string}
  */
 export function print_card(card, locale) {
+	const strings = lang[locale];
 	let lfstr = '';
 	let lfstr_ocg = '';
 	let lfstr_tcg = '';
 	let lfstr_md = '';
 
-	let strings = lang[locale];
 	let card_name = 'null';
 	let other_name = '';
 	let desc = '';
