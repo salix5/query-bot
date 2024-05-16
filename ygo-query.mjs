@@ -224,6 +224,7 @@ const arg_default = {
 	$monster: TYPE_MONSTER,
 	$spell: TYPE_SPELL,
 	$trap: TYPE_TRAP,
+	$extra: TYPE_EXTRA,
 };
 const regexp_mention = `(?<=「)[^「」]*「?[^「」]*」?[^「」]*(?=」)`;
 
