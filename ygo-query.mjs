@@ -95,7 +95,7 @@ const LINK_MARKER_TOP_LEFT = 0x040;		// ↖
 const LINK_MARKER_TOP = 0x080;			// ↑
 const LINK_MARKER_TOP_RIGHT = 0x100;	// ↗
 
-const type = {
+const card_type = {
 	TYPE_MONSTER,
 	TYPE_SPELL,
 	TYPE_TRAP,
@@ -135,7 +135,7 @@ const trap_type = {
 	TYPE_COUNTER,
 };
 
-const race = {
+const races = {
 	RACE_WARRIOR,
 	RACE_SPELLCASTER,
 	RACE_FAIRY,
@@ -164,7 +164,7 @@ const race = {
 	RACE_ILLUSION,
 };
 
-const attribute = {
+const attributes = {
 	ATTRIBUTE_EARTH,
 	ATTRIBUTE_WATER,
 	ATTRIBUTE_FIRE,
@@ -174,7 +174,7 @@ const attribute = {
 	ATTRIBUTE_DIVINE,
 };
 
-const link_marker = {
+const link_markers = {
 	LINK_MARKER_BOTTOM_LEFT,
 	LINK_MARKER_BOTTOM,
 	LINK_MARKER_BOTTOM_RIGHT,
@@ -194,7 +194,7 @@ const rarity = {
 	4: 'UR',
 }
 
-export { type, monster_type, spell_type, trap_type, race, attribute, link_marker };
+export { card_type, monster_type, spell_type, trap_type, races, attributes, link_markers };
 
 // special ID
 const ID_TYLER_THE_GREAT_WARRIOR = 68811206;
