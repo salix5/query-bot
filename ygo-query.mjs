@@ -689,6 +689,24 @@ export function get_request_locale(card, locale) {
 }
 
 /**
+ * Get the 101 ~ 107 number by attribute and race.
+ * @param {Card} card 
+ * @returns 
+ */
+export function get_seventh_number(card) {
+	if (!(card.type & TYPE_MONSTER) || card.type & TYPE_EXTRA)
+		return [0, 0];
+	if (!seventh_attribute.has(card.level))
+		return [0, 0];
+	let number_attr = 0, number_race = 0;
+	if (seventh_attribute.get(card.level).has(card.attribute))
+		number_attr = seventh_attribute.get(card.level).get(card.attribute);
+	if (seventh_race.get(card.level).has(card.race))
+		number_race = seventh_race.get(card.level).get(card.race);
+	return [number_attr, number_race];
+}
+
+/**
  * Print the ATK or DEF of a card.
  * @param {number} x 
  * @returns {string}
