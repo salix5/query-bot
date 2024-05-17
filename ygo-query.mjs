@@ -331,6 +331,30 @@ const extra_setcode = {
 	8512558: [0x8f, 0x54, 0x59, 0x82, 0x13a],
 };
 
+const seventh_xyz = [];
+const seventh_attribute = new Map();
+const seventh_race = new Map();
+const stmt_seventh = `${stmt_default} AND type & $xyz AND name like $no`;
+const arg_seventh = {};
+arg_seventh.$xyz = TYPE_XYZ;
+Object.assign(arg_seventh, arg_default);
+for (let i = 0; i < 7; ++i) {
+	arg_seventh.$no = `%No.${101 + i}%`;
+	seventh_xyz[i] = query(stmt_seventh, arg_seventh);
+	for (const card of seventh_xyz[i]) {
+		if (!seventh_attribute.has(card.level))
+			seventh_attribute.set(card.level, new Map());
+		if (!seventh_attribute.get(card.level).has(card.attribute))
+			seventh_attribute.get(card.level).set(card.attribute, 101 + i);
+		if (!seventh_race.has(card.level))
+			seventh_race.set(card.level, new Map());
+		if (!seventh_race.get(card.level).has(card.race))
+			seventh_race.get(card.level).set(card.race, 101 + i);
+	}
+}
+const seventh_condition = create_seventh_condition();
+export { seventh_xyz, seventh_condition };
+
 /**
  * Set `card.setcode` from int64.
  * @param {Card} card 
@@ -471,6 +495,27 @@ function edit_card(card) {
 	}
 }
 
+/**
+ * The sqlite condition of Monsters related to No.101 ~ No.107.
+ * @returns 
+ */
+function create_seventh_condition() {
+	let condition1 = 'FALSE';
+	for (const [level, map1] of seventh_attribute) {
+		let attr_value = 0;
+		for (const attribute of map1.keys()) {
+			attr_value |= attribute;
+		}
+		let race_value = 0;
+		for (const race of seventh_race.get(level).keys()) {
+			race_value |= race;
+		}
+		condition1 += ` OR level == ${level} AND (attribute & ${attr_value} OR race & ${race_value})`;
+	}
+	const ret = ` AND type & $monster AND NOT type & $extra AND (${condition1})`;
+	return ret;
+}
+
 
 //query
 export async function refresh_db() {
@@ -541,53 +586,6 @@ export function setcode_condition(setcode, arg) {
 	return ret;
 }
 
-/**
- * Get No.101 ~ No.107 Xyz Monster cards.
- * @returns 
- */
-export function get_seventh_xyz() {
-	const condition_xyz = ` AND type & $xyz`;
-	const condition_hundred = ` AND (name like $101 OR name like $102 OR name like $103 OR name like $104 OR name like $105 OR name like $106 OR name like $107)`;
-	const stmt_seventh = `${stmt_default}${condition_xyz}${condition_hundred}`;
-	const arg_seventh = {};
-	Object.assign(arg_seventh, arg_default);
-	arg_seventh.$xyz = TYPE_XYZ;
-	arg_seventh.$101 = "%No.101%";
-	arg_seventh.$102 = "%No.102%";
-	arg_seventh.$103 = "%No.103%";
-	arg_seventh.$104 = "%No.104%";
-	arg_seventh.$105 = "%No.105%";
-	arg_seventh.$106 = "%No.106%";
-	arg_seventh.$107 = "%No.107%";
-	return query(stmt_seventh, arg_seventh);
-}
-
-/**
- * The sqlite condition of Monsters related to No.101 ~ No.107.
- * @returns 
- */
-export function seventh_condition() {
-	const seventh_cards = get_seventh_xyz();
-	const seventh_attribute = new Map();
-	const seventh_race = new Map();
-	for (const card of seventh_cards) {
-		if (!seventh_attribute.has(card.level))
-			seventh_attribute.set(card.level, card.attribute);
-		else
-			seventh_attribute.set(card.level, seventh_attribute.get(card.level) | card.attribute);
-		if (!seventh_race.has(card.level))
-			seventh_race.set(card.level, card.race);
-		else
-			seventh_race.set(card.level, seventh_race.get(card.level) | card.race);
-	}
-
-	let condition1 = 'FALSE';
-	for (const [level, attribute] of seventh_attribute) {
-		condition1 += ` OR level == ${level} AND (attribute & ${attribute} OR race & ${seventh_race.get(level)})`;
-	}
-	const seventh_condition = ` AND type & $monster AND NOT type & $extra AND (${condition1})`;
-	return seventh_condition;
-}
 
 /**
  * Query card from all databases with statement `qstr` and binding object `arg`.
