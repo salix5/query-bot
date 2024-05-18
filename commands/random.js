@@ -10,6 +10,7 @@ export const url = import.meta.url;
 export const data = new SlashCommandBuilder()
 	.setName('random')
 	.setDescription('從OCG卡池隨機抽一張卡');
+data.integration_types = [0, 1];
 export async function execute(interaction) {
 	const cid = keys[await rand(keys.length)];
 	const card = get_card(cid);

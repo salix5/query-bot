@@ -11,6 +11,7 @@ export const data = new SlashCommandBuilder()
 		.setMaxLength(50)
 		.setAutocomplete(true)
 	);
+data.integration_types = [0, 1];
 export { autocomplete_jp as autocomplete } from '../common_all.js';
 export async function execute(interaction) {
 	await query_command(interaction, 'ja', 'zh-tw');

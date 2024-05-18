@@ -12,6 +12,7 @@ export const data = new SlashCommandBuilder()
 		.setMaxLength(100)
 		.setAutocomplete(true)
 	);
+data.integration_types = [0, 1];
 export async function autocomplete(interaction) {
 	await autocomplete_default(interaction, 'en');
 }
