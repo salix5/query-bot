@@ -13,6 +13,7 @@ export const data = new SlashCommandBuilder()
 		.setMinValue(2)
 		.setMaxValue(0xffffffffffff)
 	);
+data.integration_types = [0, 1];
 export async function execute(interaction) {
 	const face = interaction.options.getInteger('face');
 	if (face) {
