@@ -14,6 +14,7 @@ export const data = new SlashCommandBuilder()
 		.setAutocomplete(true)
 	);
 data.integration_types = [0, 1];
+data.contexts = [0, 1, 2];
 export const cooldown = 2;
 export async function autocomplete(interaction) {
 	await autocomplete_default(interaction, request_locale);

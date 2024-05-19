@@ -14,6 +14,7 @@ export const data = new SlashCommandBuilder()
 		.setMaxValue(0xffffffffffff)
 	);
 data.integration_types = [0, 1];
+data.contexts = [0, 1, 2];
 export async function execute(interaction) {
 	const face = interaction.options.getInteger('face');
 	if (face) {
