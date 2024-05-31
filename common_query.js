@@ -73,7 +73,6 @@ export function create_reply(card, locale) {
 			row_db.addComponents(button3);
 		}
 		components.push(row_db);
-		return { content: ygo.print_card(card, locale), components };
 	}
 	else if (card.cid === 0) {
 		const button1 = new ButtonBuilder()
@@ -82,11 +81,29 @@ export function create_reply(card, locale) {
 			.setURL(ygo.print_yp_link(card.id));
 		const row1 = new ActionRowBuilder().addComponents(button1);
 		components.push(row1);
-		return { content: ygo.print_card(card, locale), components };
 	}
-	else {
-		return { content: ygo.print_card(card, locale), components };
+	const [number_attr, number_race] = ygo.get_seventh_number(card);
+	if (number_attr || number_race) {
+		const row_seventh = new ActionRowBuilder();
+		if (number_attr) {
+			const button1 = new ButtonBuilder()
+				.setCustomId('seventh_attr')
+				.setLabel(`No.${number_attr}`)
+				.setStyle(ButtonStyle.Primary)
+				.setDisabled(true);
+			row_seventh.addComponents(button1);
+		}
+		if (number_race) {
+			const button2 = new ButtonBuilder()
+				.setCustomId('seventh_race')
+				.setLabel(`No.${number_race}`)
+				.setStyle(ButtonStyle.Primary)
+				.setDisabled(true);
+			row_seventh.addComponents(button2);
+		}
+		components.push(row_seventh);
 	}
+	return { content: ygo.print_card(card, locale), components };
 }
 
 /**
