@@ -54,25 +54,25 @@ export function create_reply(card, locale) {
 	const components = [];
 	if (card.cid) {
 		const request_locale = ygo.get_request_locale(card, locale);
-		const row1 = new ActionRowBuilder();
+		const row_db = new ActionRowBuilder();
 		const button1 = new ButtonBuilder()
 			.setStyle(ButtonStyle.Link)
 			.setURL(ygo.print_db_link(card.cid, request_locale))
 			.setLabel('DB');
-		row1.addComponents(button1);
+		row_db.addComponents(button1);
 		if (request_locale === 'ja') {
 			const button2 = new ButtonBuilder()
 				.setStyle(ButtonStyle.Link)
 				.setLabel('Q&A')
 				.setURL(ygo.print_qa_link(card.cid));
-			row1.addComponents(button2);
+			row_db.addComponents(button2);
 			const button3 = new ButtonBuilder()
 				.setStyle(ButtonStyle.Link)
 				.setLabel('History')
 				.setURL(ygo.print_history_link(card.cid));
-			row1.addComponents(button3);
+			row_db.addComponents(button3);
 		}
-		components.push(row1);
+		components.push(row_db);
 		return { content: ygo.print_card(card, locale), components };
 	}
 	else if (card.cid === 0) {
