@@ -82,7 +82,7 @@ export function create_reply(card, locale) {
 		const row1 = new ActionRowBuilder().addComponents(button1);
 		components.push(row1);
 	}
-	const [number_attr, number_race] = ygo.get_seventh_number(card);
+	/*const [number_attr, number_race] = ygo.get_seventh_number(card);
 	if (number_attr || number_race) {
 		const row_seventh = new ActionRowBuilder();
 		if (number_attr) {
@@ -102,7 +102,7 @@ export function create_reply(card, locale) {
 			row_seventh.addComponents(button2);
 		}
 		components.push(row_seventh);
-	}
+	}*/
 	return { content: ygo.print_card(card, locale), components };
 }
 
