@@ -48,9 +48,11 @@ async function fetch_desc(card, request_locale) {
  * Create the reply of `card` in region `locale`.
  * @param {Object} card 
  * @param {string} locale 
+ * @param {boolean} [seventh=false] 
  * @returns 
  */
-export function create_reply(card, locale) {
+export function create_reply(card, locale, seventh = false) {
+	let content = ygo.print_card(card, locale);
 	const components = [];
 	if (card.cid) {
 		const request_locale = ygo.get_request_locale(card, locale);
@@ -82,28 +84,28 @@ export function create_reply(card, locale) {
 		const row1 = new ActionRowBuilder().addComponents(button1);
 		components.push(row1);
 	}
-	/*const [number_attr, number_race] = ygo.get_seventh_number(card);
-	if (number_attr || number_race) {
-		const row_seventh = new ActionRowBuilder();
-		if (number_attr) {
-			const button1 = new ButtonBuilder()
-				.setCustomId('seventh_attr')
-				.setLabel(`No.${number_attr}`)
-				.setStyle(ButtonStyle.Primary)
-				.setDisabled(true);
-			row_seventh.addComponents(button1);
+	if (seventh) {
+		const [number_attr, number_race] = ygo.get_seventh_number(card);
+		if (number_attr || number_race) {
+			const row_seventh = new ActionRowBuilder();
+			if (number_attr) {
+				const button1 = new ButtonBuilder()
+					.setCustomId('seventh_attr')
+					.setLabel(`No.${number_attr}`)
+					.setStyle(ButtonStyle.Secondary);
+				row_seventh.addComponents(button1);
+			}
+			if (number_race) {
+				const button2 = new ButtonBuilder()
+					.setCustomId('seventh_race')
+					.setLabel(`No.${number_race}`)
+					.setStyle(ButtonStyle.Secondary);
+				row_seventh.addComponents(button2);
+			}
+			components.push(row_seventh);
 		}
-		if (number_race) {
-			const button2 = new ButtonBuilder()
-				.setCustomId('seventh_race')
-				.setLabel(`No.${number_race}`)
-				.setStyle(ButtonStyle.Primary)
-				.setDisabled(true);
-			row_seventh.addComponents(button2);
-		}
-		components.push(row_seventh);
-	}*/
-	return { content: ygo.print_card(card, locale), components };
+	}
+	return { content, components };
 }
 
 /**
