@@ -9,7 +9,7 @@ export const data = new SlashCommandBuilder()
 	.setDescription('擲一個N面骰')
 	.addIntegerOption(option => option.setName('face')
 		.setDescription('面數')
-		.setRequired(true)
+		.setRequired(false)
 		.setMinValue(2)
 		.setMaxValue(0xffffffffffff)
 	);
@@ -17,11 +17,8 @@ data.integration_types = [0, 1];
 data.contexts = [0, 1, 2];
 export async function execute(interaction) {
 	const face = interaction.options.getInteger('face');
-	if (face) {
-		const result = await rand(face) + 1;
-		await interaction.reply(result.toString());
-	}
-	else {
-		await interaction.reply('Error');
-	}
+	if (!face)
+		face =20;
+	const result = await rand(face) + 1;
+	await interaction.reply(result.toString());
 }
