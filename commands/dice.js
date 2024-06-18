@@ -16,7 +16,7 @@ export const data = new SlashCommandBuilder()
 data.integration_types = [0, 1];
 data.contexts = [0, 1, 2];
 export async function execute(interaction) {
-	const face = interaction.options.getInteger('face');
+	let face = interaction.options.getInteger('face');
 	if (!face)
 		face =20;
 	const result = await rand(face) + 1;
