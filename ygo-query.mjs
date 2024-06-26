@@ -203,6 +203,7 @@ const ALT_POLYMERIZATION = 27847700;
 const ALT_DARK_MAGICIAN = 36996508;
 const CID_BLACK_LUSTER_SOLDIER = 19092;
 const CARD_ARTWORK_VERSIONS_OFFSET = 20;
+const MAX_CARD_ID = 99999999;
 
 const select_all = `SELECT datas.id, ot, alias, setcode, type, atk, def, level, attribute, race, name, "desc" FROM datas, texts WHERE datas.id == texts.id`;
 const select_id = `SELECT datas.id FROM datas, texts WHERE datas.id == texts.id`;
@@ -220,7 +221,7 @@ const arg_default = {
 	$luster: ID_BLACK_LUSTER_SOLDIER,
 	$artwork_offset: CARD_ARTWORK_VERSIONS_OFFSET,
 	$zero: 0,
-	$ub: 99999999,
+	$ub: MAX_CARD_ID,
 	$monster: TYPE_MONSTER,
 	$spell: TYPE_SPELL,
 	$trap: TYPE_TRAP,
@@ -627,7 +628,13 @@ export function get_card(cid) {
 		cid = Number.parseInt(cid);
 	if (!Number.isSafeInteger(cid))
 		return null;
-	const id = (cid > 99999999) ? cid : cid_table.get(cid);
+	let id = 0;
+	if (cid > MAX_CARD_ID)
+		id = cid;
+	else if (cid_table.has(cid))
+		id = cid_table.get(cid);
+	else
+		return null;
 	const qstr = `${select_all} AND datas.id == $id;`;
 	const arg = Object.create(null);
 	arg.$id = id;
