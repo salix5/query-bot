@@ -1,34 +1,22 @@
 import { REST, Routes } from 'discord.js';
-import { readdirSync } from 'node:fs';
 
 const clientId = process.env.CLIENT_ID;
 const guildId = process.env.GUILD_ID;
 const token = process.env.TOKEN;
-const public_commands = [];
-const test_commands = [];
-
-const commandsURL = new URL('commands/', import.meta.url);
-const commandFiles = readdirSync(commandsURL).filter(file => file.endsWith('.js'));
-const import_list = [];
-for (const file of commandFiles) {
-	const fileURL = new URL(file, commandsURL);
-	import_list.push(import(fileURL));
-}
-
-// Grab the SlashCommandBuilder#toJSON() output of each command's data for deployment
-const commands = await Promise.all(import_list);
-for (const command of commands) {
-	if (command.is_test)
-		test_commands.push(command.data.toJSON());
-	else
-		public_commands.push(command.data.toJSON());
-}
 
 // Construct and prepare an instance of the REST module
 const rest = new REST({ version: '10' }).setToken(token);
 
-// and deploy your commands!
-(async () => {
+export async function deploy_command(commands) {
+	// Grab the SlashCommandBuilder#toJSON() output of each command's data for deployment
+	const public_commands = [];
+	const test_commands = [];
+	for (const command of commands) {
+		if (command.is_test)
+			test_commands.push(command.data.toJSON());
+		else
+			public_commands.push(command.data.toJSON());
+	}
 	try {
 		console.log(`Started refreshing ${public_commands.length} application (/) commands.`);
 
@@ -56,4 +44,4 @@ const rest = new REST({ version: '10' }).setToken(token);
 	} catch (error) {
 		console.error(error);
 	}
-})();
+}
