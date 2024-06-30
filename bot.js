@@ -29,7 +29,7 @@ for (const command of commands) {
 		client.commands.set(command.data.name, command);
 		client.frequency.set(command.data.name, 0);
 	} else {
-		console.log(`[WARNING] The command at ${command.url} is missing a required "data" or "execute" property.`);
+		console.error(`[WARNING] The command at ${command.url} is missing a required "data" or "execute" property.`);
 	}
 }
 
