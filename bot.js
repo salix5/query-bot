@@ -2,6 +2,7 @@ import { readdirSync } from 'node:fs';
 import { Client, Collection, Events, GatewayIntentBits, ChannelType, MessageType, Partials } from 'discord.js';
 import { name_table, create_name_table, inverse_mapping, refresh_db } from './ygo-query.mjs';
 import { refresh_choice_table } from './common_all.js';
+import { deploy_command } from './deploy-commands.js';
 //import 'dotenv/config';
 
 // eslint-disable-next-line no-unused-vars
@@ -62,12 +63,15 @@ client.on(Events.MessageCreate, async msg => {
 			});
 			await Promise.all(delete_list);
 		}
-		else if (msg.content === 'r!') {
-			if (msg.author.id !== process.env.ADMIN)
-				return;
-			await refresh_db();
-			refresh_choice_table();
-			await msg.channel.send('🤖');
+		if (msg.author.id === process.env.ADMIN) {
+			if (msg.content === 'r!') {
+				await refresh_db();
+				refresh_choice_table();
+				await msg.channel.send('🤖');
+			}
+			else if (msg.content === 'deploy!') {
+				await deploy_command(commands);
+			}
 		}
 	}
 	else if (msg.channel.type === ChannelType.GuildText) {
