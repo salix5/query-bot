@@ -50,10 +50,10 @@ client.on(Events.MessageCreate, async msg => {
 		if (msg.content === 'd!') {
 			const history = await msg.channel.messages.fetch();
 			const delete_list = [];
-			history.each((message) => {
-				if (message.type === MessageType.ChatInputCommand) {
+			history.each((old_message) => {
+				if (old_message.author.id === msg.client.user.id) {
 					try {
-						delete_list.push(message.delete());
+						delete_list.push(old_message.delete());
 					}
 					catch (error) {
 						console.error('delete DM');
