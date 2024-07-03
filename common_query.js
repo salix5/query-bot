@@ -48,7 +48,7 @@ async function fetch_desc(card, request_locale) {
  * Create the reply of `card` in region `locale`.
  * @param {Object} card 
  * @param {string} locale 
- * @param {boolean} [seventh=false] 
+ * @param {boolean} seventh
  * @returns 
  */
 export function create_reply(card, locale, seventh = false) {
@@ -113,20 +113,21 @@ export function create_reply(card, locale, seventh = false) {
  * @param {CommandInteraction} interaction 
  * @param {string} input_locale 
  * @param {string} output_locale 
+ * @param {boolean} seventh 
  */
-export async function query_command(interaction, input_locale, output_locale) {
+export async function query_command(interaction, input_locale, output_locale, seventh = false) {
 	const input = interaction.options.getString('input');
 	if (choice_table[input_locale] && choice_table[input_locale].has(input)) {
 		const cid = choice_table[input_locale].get(input);
 		const card = ygo.get_card(cid);
 		if (card) {
 			if (output_locale === 'zh-tw') {
-				await interaction.reply(create_reply(card, output_locale));
+				await interaction.reply(create_reply(card, output_locale, seventh));
 			}
 			else {
 				await interaction.deferReply();
 				card.db_desc = await fetch_desc(card, ygo.get_request_locale(card, output_locale));
-				await interaction.editReply(create_reply(card, output_locale));
+				await interaction.editReply(create_reply(card, output_locale, seventh));
 			}
 		}
 		else {
