@@ -1,8 +1,7 @@
 /* eslint-disable no-unused-vars */
 import { AutocompleteInteraction } from "discord.js";
 import { complete_name_table, create_choice, create_choice_prerelease, escape_regexp, official_name } from "./ygo-query.mjs";
-import { tc_entries } from './common-json-loader.mjs';
-import { ruby_entries } from './common-json-loader.mjs';
+import { tc_entries, ruby_entries } from './common-json-loader.js';
 
 const MAX_CHOICE = 25;
 
