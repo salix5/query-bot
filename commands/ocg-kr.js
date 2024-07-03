@@ -3,7 +3,7 @@ import { autocomplete_default } from '../common_all.js';
 import { query_command } from '../common_query.js';
 const request_locale = 'ko';
 
-export const url = import.meta.url;
+export const module_url = import.meta.url;
 export const data = new SlashCommandBuilder()
 	.setName('ocg-kr')
 	.setDescription('카드를 검색합니다.')

@@ -6,7 +6,7 @@ import { create_reply } from '../common_query.js';
 const rand = promisify(randomInt);
 const keys = [...name_table['ja'].keys()];
 
-export const url = import.meta.url;
+export const module_url = import.meta.url;
 export const data = new SlashCommandBuilder()
 	.setName('random')
 	.setDescription('從OCG卡池隨機抽一張卡');
