@@ -2,7 +2,7 @@ import { SlashCommandBuilder } from 'discord.js';
 import { autocomplete_default, choice_table } from '../common_all.js';
 import { cid_table } from '../ygo-query.mjs';
 
-export const url = import.meta.url;
+export const module_url = import.meta.url;
 export const data = new SlashCommandBuilder()
 	.setName('ygocdb')
 	.setDescription('裁定相關連結')
