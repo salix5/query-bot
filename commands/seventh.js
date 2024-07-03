@@ -12,10 +12,11 @@ export const data = new SlashCommandBuilder()
 		.setMaxLength(50)
 		.setAutocomplete(true)
 	);
+data.integration_types = [0, 1];
 data.contexts = [0, 1, 2];
 export async function autocomplete(interaction) {
 	await autocomplete_default(interaction, 'full');
 }
 export async function execute(interaction) {
-	await query_command(interaction, 'full', 'zh-tw');
+	await query_command(interaction, 'full', 'zh-tw', true);
 }
