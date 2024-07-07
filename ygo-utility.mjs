@@ -1,3 +1,8 @@
+/**
+ * @param {number} cid 
+ * @param {string} request_locale 
+ * @returns 
+ */
 export function print_db_link(cid, request_locale) {
 	return `https://www.db.yugioh-card.com/yugiohdb/card_search.action?ope=2&cid=${cid}&request_locale=${request_locale}`;
 }
