@@ -332,29 +332,41 @@ const extra_setcode = {
 	8512558: [0x8f, 0x54, 0x59, 0x82, 0x13a],
 };
 
-const seventh_xyz = [];
-const seventh_attribute = new Map();
-const seventh_race = new Map();
-const stmt_seventh = `${stmt_default} AND type & $xyz AND name like $no`;
+const zh_collator = new Intl.Collator(collator_locale['zh-tw']);
+const over_hundred = '(name like $101 OR name like $102 OR name like $103 OR name like $104 OR name like $105 OR name like $106 OR name like $107)';
+const stmt_seventh = `${stmt_default} AND type & $xyz AND ${over_hundred}`;
 const arg_seventh = {};
-arg_seventh.$xyz = TYPE_XYZ;
 Object.assign(arg_seventh, arg_default);
+arg_seventh.$xyz = TYPE_XYZ;
 for (let i = 0; i < 7; ++i) {
-	arg_seventh.$no = `%No.${101 + i}%`;
-	seventh_xyz[i] = query(stmt_seventh, arg_seventh);
-	for (const card of seventh_xyz[i]) {
-		if (!seventh_attribute.has(card.level))
-			seventh_attribute.set(card.level, new Map());
-		if (!seventh_attribute.get(card.level).has(card.attribute))
-			seventh_attribute.get(card.level).set(card.attribute, 101 + i);
-		if (!seventh_race.has(card.level))
-			seventh_race.set(card.level, new Map());
-		if (!seventh_race.get(card.level).has(card.race))
-			seventh_race.get(card.level).set(card.race, 101 + i);
-	}
+	arg_seventh[`$${101 + i}`] = `%No.${101 + i}%`;
+}
+const seventh_xyz = query(stmt_seventh, arg_seventh);
+seventh_xyz.sort((c1, c2) => zh_collator.compare(c1.tw_name, c2.tw_name));
+
+const mmap_seventh = [];
+const href_table = new Map();
+const re_number = /\w?No.10[1-7]/;
+for (const card of seventh_xyz) {
+	multimap_insert(mmap_seventh, card.level, card);
+	const match = card.tw_name.match(re_number);
+	if (card.cid && match)
+		href_table.set(card.cid, match[0]);
 }
 const seventh_condition = create_seventh_condition();
-export { seventh_xyz, seventh_condition };
+export { seventh_xyz, seventh_condition, href_table };
+
+
+/**
+ * @param {Array[]} mmap 
+ * @param {number} key 
+ * @param {Card} value 
+ */
+function multimap_insert(mmap, key, value) {
+	if (!mmap[key])
+		mmap[key] = [];
+	mmap[key].push(value);
+}
 
 /**
  * Set `card.setcode` from int64.
@@ -497,21 +509,21 @@ function edit_card(card) {
 }
 
 /**
- * The sqlite condition of Monsters related to No.101 ~ No.107.
+ * The sqlite condition of monsters related to No.101 ~ No.107.
  * @returns 
  */
 function create_seventh_condition() {
-	let condition1 = 'FALSE';
-	for (const [level, map1] of seventh_attribute) {
+	let condition1 = '0';
+	for (let i = 1; i <= 13; ++i) {
+		if (!mmap_seventh[i])
+			continue;
 		let attr_value = 0;
-		for (const attribute of map1.keys()) {
-			attr_value |= attribute;
-		}
 		let race_value = 0;
-		for (const race of seventh_race.get(level).keys()) {
-			race_value |= race;
+		for (const card of mmap_seventh[i]) {
+			attr_value |= card.attribute;
+			race_value |= card.race;
 		}
-		condition1 += ` OR level == ${level} AND (attribute & ${attr_value} OR race & ${race_value})`;
+		condition1 += ` OR level == ${i} AND (attribute & ${attr_value} OR race & ${race_value})`;
 	}
 	const ret = ` AND type & $monster AND NOT type & $extra AND (${condition1})`;
 	return ret;
@@ -696,21 +708,22 @@ export function get_request_locale(card, locale) {
 }
 
 /**
- * Get the 101 ~ 107 number by attribute and race.
+ * Get No.101 ~ No.107 Xyz Monsters with the same race or attribute.
  * @param {Card} card 
- * @returns 
+ * @returns {Card[]}
  */
-export function get_seventh_number(card) {
-	if (!(card.type & TYPE_MONSTER) || card.type & TYPE_EXTRA)
-		return [0, 0];
-	if (!seventh_attribute.has(card.level))
-		return [0, 0];
-	let number_attr = 0, number_race = 0;
-	if (seventh_attribute.get(card.level).has(card.attribute))
-		number_attr = seventh_attribute.get(card.level).get(card.attribute);
-	if (seventh_race.get(card.level).has(card.race))
-		number_race = seventh_race.get(card.level).get(card.race);
-	return [number_attr, number_race];
+export function get_seventh_xyz(card) {
+	const result = [];
+	if (!mmap_seventh[card.level])
+		return result;
+	for (const seventh of mmap_seventh[card.level]) {
+		if (!seventh.cid)
+			continue;
+		if ((seventh.race & card.race) || (seventh.attribute & card.attribute)) {
+			result.push(seventh);
+		}
+	}
+	return result;
 }
 
 /**
@@ -1037,7 +1050,6 @@ export function create_choice(request_locale) {
 	return result;
 }
 
-const zh_collator = new Intl.Collator(collator_locale['zh-tw']);
 /**
  * @param {[string, number]} a 
  * @param {[string, number]} b 

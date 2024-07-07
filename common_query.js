@@ -46,7 +46,7 @@ async function fetch_desc(card, request_locale) {
 
 /**
  * Create the reply of `card` in region `locale`.
- * @param {Object} card 
+ * @param {ygo.Card} card 
  * @param {string} locale 
  * @param {boolean} seventh
  * @returns 
@@ -85,22 +85,16 @@ export function create_reply(card, locale, seventh = false) {
 		components.push(row1);
 	}
 	if (seventh) {
-		const [number_attr, number_race] = ygo.get_seventh_number(card);
-		if (number_attr || number_race) {
+		const result = ygo.get_seventh_xyz(card);
+		if (result.length) {
 			const row_seventh = new ActionRowBuilder();
-			if (number_attr) {
+			for (const seventh of result) {
+				const db_text = ygo.href_table.has(seventh.cid) ? ygo.href_table.get(seventh.cid) : 'No.10X';
 				const button1 = new ButtonBuilder()
-					.setCustomId('seventh_attr')
-					.setLabel(`No.${number_attr}`)
-					.setStyle(ButtonStyle.Secondary);
+					.setStyle(ButtonStyle.Link)
+					.setLabel(db_text)
+					.setURL(ygo.print_db_link(seventh.cid, ygo.get_request_locale(seventh, locale)));
 				row_seventh.addComponents(button1);
-			}
-			if (number_race) {
-				const button2 = new ButtonBuilder()
-					.setCustomId('seventh_race')
-					.setLabel(`No.${number_race}`)
-					.setStyle(ButtonStyle.Secondary);
-				row_seventh.addComponents(button2);
 			}
 			components.push(row_seventh);
 		}
