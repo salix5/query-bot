@@ -6,7 +6,7 @@ const rand = promisify(randomInt);
 export const module_url = import.meta.url;
 export const data = new SlashCommandBuilder()
 	.setName('dice')
-	.setDescription('擲一個N面骰')
+	.setDescription('擲一個N面骰（預設值為20）')
 	.addIntegerOption(option => option.setName('face')
 		.setDescription('面數')
 		.setRequired(false)
