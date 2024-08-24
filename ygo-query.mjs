@@ -283,13 +283,14 @@ await refresh_db();
  * @property {number} id
  * @property {number} ot
  * @property {number} alias
- * @property {bigint} setcode
+ * @property {number[]} setcode
  * @property {number} type
  * @property {number} atk
  * @property {number} def
  * @property {number} level
  * @property {number} race
  * @property {number} attribute
+ * @property {number} scale
  * @property {number} real_id
  * @property {number} [cid]
  * 
@@ -309,9 +310,9 @@ await refresh_db();
  * @property {number} atk
  * @property {number} def
  * @property {number} level
- * @property {number} scale
  * @property {number} race
  * @property {number} attribute
+ * @property {number} scale
  * @property {number} color - Card color for sorting
  * 
  * @property {string} tw_name
