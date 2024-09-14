@@ -271,7 +271,7 @@ export {
 };
 
 /**
- * @type {initSqlJs.Database[]}
+ * @type {Database[]}
  */
 const db_list = [];
 
@@ -385,9 +385,9 @@ function set_setcode(card, setcode) {
 
 /**
  * Query cards from `db` with statement `qstr` and binding object `arg` and put them in `ret`.
- * @param {initSqlJs.Database} db 
+ * @param {Database} db 
  * @param {string} qstr 
- * @param {initSqlJs.BindParams} arg 
+ * @param {Object} arg 
  * @returns {Record[]}
  */
 function query_db(db, qstr, arg) {
@@ -582,7 +582,7 @@ export function is_setcode(card, value) {
 /**
  * The sqlite condition of checking setcode.
  * @param {number} setcode
- * @param {initSqlJs.BindParams} arg
+ * @param {Object} arg
  * @returns {string}
  */
 export function setcode_condition(setcode, arg) {
@@ -604,7 +604,7 @@ export function setcode_condition(setcode, arg) {
 /**
  * Query card from all databases with statement `qstr` and binding object `arg`.
  * @param {string} qstr 
- * @param {initSqlJs.BindParams} arg 
+ * @param {Object} arg 
  * @returns {Card[]}
  */
 export function query(qstr = stmt_default, arg = arg_default) {
@@ -983,7 +983,7 @@ export function print_card(card, locale) {
  * Get cards from databases file `buffer` with statement `qstr` and binding object `arg`.
  * @param {Uint8Array} buffer
  * @param {string} qstr 
- * @param {initSqlJs.BindParams} arg 
+ * @param {Object} arg 
  * @returns 
  */
 export function load_db(buffer, qstr = stmt_default, arg = arg_default) {
