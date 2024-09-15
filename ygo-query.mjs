@@ -986,7 +986,7 @@ export function print_card(card, locale) {
  * @param {Object} arg 
  * @returns 
  */
-export function load_db(buffer, qstr = stmt_default, arg = arg_default) {
+export function read_db(buffer, qstr = stmt_default, arg = arg_default) {
 	const db = new SQL.Database(buffer);
 	const ret = query_db(db, qstr, arg);
 	db.close();
@@ -1001,7 +1001,7 @@ export function load_db(buffer, qstr = stmt_default, arg = arg_default) {
 export function check_uniqueness(buffer) {
 	const condition = ` AND (NOT type & $token OR alias == $zero) AND (type & $token OR datas.id == $luster OR abs(datas.id - alias) >= $artwork_offset)`;
 	const stmt1 = `${select_name}${condition}`
-	const cards = load_db(buffer, stmt1, arg_default);
+	const cards = read_db(buffer, stmt1, arg_default);
 	const table1 = new Map();
 	const postfix = 'N';
 	for (const card of cards) {
