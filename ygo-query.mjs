@@ -276,7 +276,7 @@ export {
 const db_list = [];
 
 const SQL = await initSqlJs();
-await refresh_db();
+await reload_db();
 
 /**
  * @typedef {Object} Record
@@ -532,14 +532,19 @@ function create_seventh_condition() {
 
 
 //query
-export async function refresh_db() {
-	const [buf1, buf2] = await Promise.all([fetch_db(db_url1), fetch_db(db_url2)]);
+/**
+ * @param {Uint8Array[]} [files] 
+ */
+export async function reload_db(files) {
+	if (!files)
+		files = await Promise.all([fetch_db(db_url1), fetch_db(db_url2)]);
 	for (const db of db_list) {
 		db.close();
 	}
 	db_list.length = 0;
-	db_list.push(new SQL.Database(buf1));
-	db_list.push(new SQL.Database(buf2));
+	for (const file of files) {
+		db_list.push(new SQL.Database(file));
+	}
 }
 
 /**
