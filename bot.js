@@ -1,6 +1,6 @@
 import { readdirSync } from 'node:fs';
 import { Client, Collection, Events, GatewayIntentBits, ChannelType, Partials } from 'discord.js';
-import { name_table, create_name_table, inverse_mapping, refresh_db } from './ygo-query.mjs';
+import { name_table, create_name_table, inverse_mapping, reload_db } from './ygo-query.mjs';
 import { refresh_choice_table } from './common_all.js';
 import { deploy_command } from './deploy-commands.js';
 //import 'dotenv/config';
@@ -65,7 +65,7 @@ client.on(Events.MessageCreate, async msg => {
 		}
 		if (msg.author.id === process.env.ADMIN) {
 			if (msg.content === 'r!') {
-				await refresh_db();
+				await reload_db();
 				refresh_choice_table();
 				await msg.channel.send('🤖');
 			}
