@@ -354,8 +354,7 @@ for (const card of seventh_xyz) {
 	if (card.cid && match)
 		href_table.set(card.cid, match[0]);
 }
-const seventh_condition = create_seventh_condition();
-export { seventh_xyz, seventh_condition, href_table };
+export { seventh_xyz, href_table };
 
 
 /**
