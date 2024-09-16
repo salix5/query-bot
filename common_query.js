@@ -87,9 +87,11 @@ export function create_reply(card, locale, seventh = false) {
 	if (seventh) {
 		const result = ygo.get_seventh_xyz(card);
 		if (result.length) {
+			const re_number = /\w?No.10[1-7]/;
 			const row_seventh = new ActionRowBuilder();
 			for (const seventh of result) {
-				const db_text = ygo.href_table.has(seventh.cid) ? ygo.href_table.get(seventh.cid) : 'No.10X';
+				const match = seventh.tw_name.match(re_number);
+				const db_text = match ? match[0] : 'No.10X';
 				const button1 = new ButtonBuilder()
 					.setStyle(ButtonStyle.Link)
 					.setLabel(db_text)
