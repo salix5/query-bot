@@ -216,8 +216,8 @@ const effect_filter = ` AND (NOT type & $normal OR type & $pendulum)`;
 const stmt_default = `${select_all}${physical_filter}`;
 const stmt_no_alias = `${select_id}${base_filter} AND alias == $zero`;
 const arg_default = {
+	__proto__: null,
 	$tyler: ID_TYLER_THE_GREAT_WARRIOR,
-	$token: TYPE_TOKEN,
 	$luster: ID_BLACK_LUSTER_SOLDIER,
 	$artwork_offset: CARD_ARTWORK_VERSIONS_OFFSET,
 	$zero: 0,
@@ -226,6 +226,8 @@ const arg_default = {
 	$spell: TYPE_SPELL,
 	$trap: TYPE_TRAP,
 	$extra: TYPE_EXTRA,
+	$token: TYPE_TOKEN,
+	$xyz: TYPE_XYZ,
 };
 const regexp_mention = `(?<=「)[^「」]*「?[^「」]*」?[^「」]*(?=」)`;
 
@@ -336,9 +338,7 @@ const extra_setcode = {
 const zh_collator = new Intl.Collator(collator_locale['zh-tw']);
 const over_hundred = '(name like $101 OR name like $102 OR name like $103 OR name like $104 OR name like $105 OR name like $106 OR name like $107)';
 const stmt_seventh = `${stmt_default} AND type & $xyz AND ${over_hundred}`;
-const arg_seventh = {};
-Object.assign(arg_seventh, arg_default);
-arg_seventh.$xyz = TYPE_XYZ;
+const arg_seventh = Object.assign(Object.create(null), arg_default);
 for (let i = 0; i < 7; ++i) {
 	arg_seventh[`$${101 + i}`] = `%No.${101 + i}%`;
 }
