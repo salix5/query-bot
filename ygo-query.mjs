@@ -342,14 +342,9 @@ const arg_seventh = Object.assign(Object.create(null), arg_default);
 for (let i = 0; i < 7; ++i) {
 	arg_seventh[`$${101 + i}`] = `%No.${101 + i}%`;
 }
-const seventh_xyz = query(stmt_seventh, arg_seventh);
-seventh_xyz.sort((c1, c2) => zh_collator.compare(c1.tw_name, c2.tw_name));
-
 const mmap_seventh = [];
-for (const card of seventh_xyz) {
-	multimap_insert(mmap_seventh, card.level, card);
-}
-export { seventh_xyz };
+
+export { };
 
 
 /**
@@ -539,6 +534,12 @@ export async function reload_db(files) {
 	db_list.length = 0;
 	for (const file of files) {
 		db_list.push(new SQL.Database(file));
+	}
+	const seventh_cards = query(stmt_seventh, arg_seventh);
+	seventh_cards.sort((c1, c2) => zh_collator.compare(c1.tw_name, c2.tw_name));
+	mmap_seventh.length = 0;
+	for (const card of seventh_cards) {
+		multimap_insert(mmap_seventh, card.level, card);
 	}
 }
 
