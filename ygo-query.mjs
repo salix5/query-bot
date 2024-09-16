@@ -346,15 +346,10 @@ const seventh_xyz = query(stmt_seventh, arg_seventh);
 seventh_xyz.sort((c1, c2) => zh_collator.compare(c1.tw_name, c2.tw_name));
 
 const mmap_seventh = [];
-const href_table = new Map();
-const re_number = /\w?No.10[1-7]/;
 for (const card of seventh_xyz) {
 	multimap_insert(mmap_seventh, card.level, card);
-	const match = card.tw_name.match(re_number);
-	if (card.cid && match)
-		href_table.set(card.cid, match[0]);
 }
-export { seventh_xyz, href_table };
+export { seventh_xyz };
 
 
 /**
@@ -512,6 +507,7 @@ function edit_card(card) {
  * The sqlite condition of monsters related to No.101 ~ No.107.
  * @returns 
  */
+// eslint-disable-next-line no-unused-vars
 function create_seventh_condition() {
 	let condition1 = '0';
 	for (let i = 1; i <= 13; ++i) {
