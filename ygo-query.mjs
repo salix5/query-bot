@@ -276,9 +276,7 @@ export {
  * @type {Database[]}
  */
 const db_list = [];
-
 const SQL = await initSqlJs();
-await reload_db();
 
 /**
  * @typedef {Object} Record
@@ -345,6 +343,8 @@ for (let i = 0; i < 7; ++i) {
 const mmap_seventh = [];
 
 export { stmt_seventh, arg_seventh };
+
+await reload_db();
 
 
 /**
