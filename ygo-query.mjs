@@ -344,7 +344,7 @@ for (let i = 0; i < 7; ++i) {
 }
 const mmap_seventh = [];
 
-export { };
+export { stmt_seventh, arg_seventh };
 
 
 /**
