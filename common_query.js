@@ -2,7 +2,7 @@ import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 import * as ygo from './ygo-query.mjs';
 import { choice_table } from './common_all.js';
 
-const response = {
+export const reply_text = {
 	'zh-tw': {
 		none: '沒有符合條件的卡片。',
 	},
@@ -127,11 +127,11 @@ export async function query_command(interaction, input_locale, output_locale, se
 			}
 		}
 		else {
-			await interaction.reply(response[output_locale].none);
+			await interaction.reply(reply_text[output_locale].none);
 			console.error('Invalid card cid', cid);
 		}
 	}
 	else {
-		await interaction.reply(response[output_locale].none);
+		await interaction.reply(reply_text[output_locale].none);
 	}
 }
