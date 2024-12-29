@@ -94,4 +94,5 @@ export {
 	name_table,
 	md_table,
 	md_table_sc,
+	jp_table,
 }
