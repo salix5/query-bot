@@ -12,7 +12,7 @@ export function print_yp_link(id) {
 }
 
 export function print_qa_link(cid) {
-	return `https://www.db.yugioh-card.com/yugiohdb/faq_search.action?ope=4&cid=${cid}&request_locale=ja`;
+	return `https://www.db.yugioh-card.com/yugiohdb/faq_search.action?ope=4&cid=${cid}&sort=2&request_locale=ja`;
 }
 
 export function print_history_link(cid) {
