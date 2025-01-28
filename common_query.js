@@ -56,11 +56,12 @@ export function create_reply(card, locale, seventh = false) {
 	const components = [];
 	if (card.cid) {
 		const request_locale = ygo.get_request_locale(card, locale);
+		const db_text = request_locale === 'en' ? 'DB (TCG)' : 'DB';
 		const row_db = new ActionRowBuilder();
 		const button1 = new ButtonBuilder()
 			.setStyle(ButtonStyle.Link)
 			.setURL(ygo.print_db_link(card.cid, request_locale))
-			.setLabel('DB');
+			.setLabel(db_text);
 		row_db.addComponents(button1);
 		if (request_locale === 'ja') {
 			const button2 = new ButtonBuilder()
