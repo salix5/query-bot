@@ -341,6 +341,7 @@ for (let i = 0; i < 7; ++i) {
 	arg_seventh[`$${101 + i}`] = `%No.${101 + i}%`;
 }
 const mmap_seventh = [];
+const query_table = new Map();
 
 export { stmt_seventh, arg_seventh };
 
@@ -541,6 +542,9 @@ export async function reload_db(files) {
 	for (const card of seventh_cards) {
 		multimap_insert(mmap_seventh, card.level, card);
 	}
+	for (const card of query()) {
+		query_table.set(card.id, card);
+	}
 }
 
 /**
@@ -649,16 +653,8 @@ export function get_card(cid) {
 		id = cid_table.get(cid);
 	else
 		return null;
-	const qstr = `${select_all} AND datas.id == $id;`;
-	const arg = Object.create(null);
-	arg.$id = id;
-	for (const db of db_list) {
-		const ret = query_db(db, qstr, arg);
-		if (ret.length) {
-			edit_card(ret[0]);
-			return ret[0];
-		}
-	}
+	if (query_table.has(id))
+		return query_table.get(id);
 	return null;
 }
 
