@@ -291,8 +291,6 @@ const SQL = await initSqlJs();
  * @property {number} race
  * @property {number} attribute
  * @property {number} scale
- * @property {number} real_id
- * @property {number} [cid]
  * 
  * @property {string} name
  * @property {string} desc
@@ -303,8 +301,8 @@ const SQL = await initSqlJs();
  * @property {number} id
  * @property {number} ot
  * @property {number} alias
+ * @property {number} artid
  * @property {number[]} setcode
- * @property {number} real_id - The id of real card
  * 
  * @property {number} type
  * @property {number} atk
@@ -312,7 +310,7 @@ const SQL = await initSqlJs();
  * @property {number} level
  * @property {number} race
  * @property {number} attribute
- * @property {number} scale
+ * @property {number} [scale]
  * @property {number} color - Card color for sorting
  * 
  * @property {string} tw_name
@@ -416,13 +414,6 @@ function query_db(db, qstr, arg) {
 					break;
 			}
 		}
-		// extra column
-		if ('id' in card && 'alias' in card) {
-			card.real_id = is_alternative(card) ? card.alias : card.id;
-		}
-		if ('real_id' in card && id_to_cid.has(card.real_id)) {
-			card.cid = id_to_cid.get(card.real_id);
-		}
 		ret.push(card);
 	}
 	stmt.free();
@@ -485,6 +476,18 @@ function edit_card(card) {
 	else {
 		card.color = -1;
 	}
+	if (is_alternative(card)) {
+		card.artid = card.id;
+		card.id = card.alias;
+		card.alias = 0;
+	}
+	else {
+		card.artid = 0;
+	}
+	if (id_to_cid.has(card.id))
+		card.cid = id_to_cid.get(card.id);
+	if (!(card.type & TYPE_PENDULUM))
+		delete card.scale;
 	card.tw_name = card.name;
 	delete card.name;
 	if (card.cid) {
@@ -549,14 +552,14 @@ export async function reload_db(files) {
 
 /**
  * Check if the card is an alternative artwork card.
- * @param {Card} card
+ * @param {Record} record
  * @returns 
  */
-export function is_alternative(card) {
-	if (card.id === ID_BLACK_LUSTER_SOLDIER)
+export function is_alternative(record) {
+	if (record.id === ID_BLACK_LUSTER_SOLDIER)
 		return false;
 	else
-		return Math.abs(card.id - card.alias) < CARD_ARTWORK_VERSIONS_OFFSET;
+		return Math.abs(record.id - record.alias) < CARD_ARTWORK_VERSIONS_OFFSET;
 }
 
 /**
@@ -955,19 +958,29 @@ export function print_card(card, locale) {
 
 	if (card.md_rarity)
 		other_name += `MD：${rarity[card.md_rarity]}\n`;
-	if (ltable_ocg[card.real_id] !== undefined)
-		lfstr_ocg = `OCG：${strings.limit_name[ltable_ocg[card.real_id]]}`;
-	else
+	let show_lflist = false;
+	if (Number.isSafeInteger(ltable_ocg[card.id])) {
+		lfstr_ocg = `OCG：${strings.limit_name[ltable_ocg[card.id]]}`;
+		show_lflist = true;
+	}
+	else {
 		lfstr_ocg = `OCG：-`;
-	if (ltable_tcg[card.real_id] !== undefined)
-		lfstr_tcg = `TCG：${strings.limit_name[ltable_tcg[card.real_id]]}`;
-	else
+	}
+	if (Number.isSafeInteger(ltable_tcg[card.id])) {
+		lfstr_tcg = `TCG：${strings.limit_name[ltable_tcg[card.id]]}`;
+		show_lflist = true;
+	}
+	else {
 		lfstr_tcg = `TCG：-`;
-	if (ltable_md[card.real_id] !== undefined)
-		lfstr_md = `MD：${strings.limit_name[ltable_md[card.real_id]]}`;
-	else
+	}
+	if (Number.isSafeInteger(ltable_md[card.id])) {
+		lfstr_md = `MD：${strings.limit_name[ltable_md[card.id]]}`;
+		show_lflist = true;
+	}
+	else {
 		lfstr_md = `MD：-`;
-	if (ltable_ocg[card.real_id] !== undefined || ltable_tcg[card.real_id] !== undefined || ltable_md[card.real_id] !== undefined)
+	}
+	if (show_lflist)
 		lfstr = `(${lfstr_ocg} / ${lfstr_tcg} / ${lfstr_md})\n`;
 
 	const card_text = `**${card_name}**\n${other_name}${lfstr}${print_data(card, '\n', locale)}${desc}\n`;
