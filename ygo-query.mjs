@@ -297,6 +297,12 @@ const SQL = await initSqlJs();
  */
 
 /**
+ * @typedef {Object} CardText
+ * @property {string} desc
+ * @property {string} [db_desc]
+ */
+
+/**
  * @typedef {Object} Card
  * @property {number} id
  * @property {number} ot
@@ -314,8 +320,7 @@ const SQL = await initSqlJs();
  * @property {number} color - Card color for sorting
  * 
  * @property {string} tw_name
- * @property {string} desc
- * @property {string} [db_desc]
+ * @property {CardText} text
  * 
  * @property {number} [cid]
  * @property {number} [md_rarity]
@@ -490,6 +495,9 @@ function edit_card(card) {
 		delete card.scale;
 	card.tw_name = card.name;
 	delete card.name;
+	card.text = Object.create(null);
+	card.text.desc = card.desc;
+	delete card.desc;
 	if (card.cid) {
 		for (const [locale, prop] of Object.entries(official_name)) {
 			if (name_table[locale].has(card.cid))
@@ -903,7 +911,7 @@ export function print_card(card, locale) {
 				other_name += `${card.en_name}\n`;
 			else if (card.md_name_en)
 				other_name += `${card.md_name_en}    (MD)\n`;
-			desc = `${card.desc}\n--`;
+			desc = `${card.text.desc}\n--`;
 			break;
 		case 'ae':
 			card_name = card.ae_name;
@@ -912,8 +920,7 @@ export function print_card(card, locale) {
 				other_name = `${card.jp_name}\n`;
 			else if (card.md_name_jp)
 				other_name = `${card.md_name_jp}    (MD)\n`;
-			if (card.db_desc)
-				desc = card.db_desc;
+			desc = card.text.db_desc ?? '';
 			break;
 		case 'ja':
 			if (card.jp_name)
@@ -925,8 +932,7 @@ export function print_card(card, locale) {
 				other_name = `${card.en_name}\n`;
 			else if (card.md_name_en)
 				other_name = `${card.md_name_en}    (MD)\n`;
-			if (card.db_desc)
-				desc = card.db_desc;
+			desc = card.text.db_desc ?? '';
 			break;
 		case 'ko':
 			if (card.kr_name)
@@ -936,8 +942,7 @@ export function print_card(card, locale) {
 				other_name = `${card.en_name}\n`;
 			else if (card.md_name_en)
 				other_name = `${card.md_name_en}    (MD)\n`;
-			if (card.db_desc)
-				desc = card.db_desc;
+			desc = card.text.db_desc ?? '';
 			break;
 		case 'en':
 			if (card.en_name)
@@ -949,8 +954,7 @@ export function print_card(card, locale) {
 				other_name = `${card.jp_name}\n`;
 			else if (card.md_name_jp)
 				other_name = `${card.md_name_jp}    (MD)\n`;
-			if (card.db_desc)
-				desc = card.db_desc;
+			desc = card.text.db_desc ?? '';
 			break;
 		default:
 			break;
@@ -1088,10 +1092,10 @@ export function zh_compare(a, b) {
  */
 export function create_choice_prerelease() {
 	const inverse_table = new Map();
-	const cmd_pre = `${select_all} AND datas.id > $ub${physical_filter}`;
+	const stmt_pre = `${select_all} AND datas.id > $ub${physical_filter}`;
 	const arg = Object.assign(Object.create(null), arg_default);
 	const re_kanji = /※.*/;
-	const pre_list = query(cmd_pre, arg);
+	const pre_list = query_db(db_list[1], stmt_pre, arg);
 	for (const card of pre_list) {
 		if (id_to_cid.has(card.id)) {
 			continue;
