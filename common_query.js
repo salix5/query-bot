@@ -123,7 +123,7 @@ export async function query_command(interaction, input_locale, output_locale, se
 			}
 			else {
 				await interaction.deferReply();
-				card.db_desc = await fetch_desc(card, ygo.get_request_locale(card, output_locale));
+				card.text.db_desc = await fetch_desc(card, ygo.get_request_locale(card, output_locale));
 				await interaction.editReply(create_reply(card, output_locale, seventh));
 			}
 		}
