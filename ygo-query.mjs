@@ -1092,15 +1092,14 @@ export function zh_compare(a, b) {
  */
 export function create_choice_prerelease() {
 	const inverse_table = new Map();
-	const stmt_pre = `${select_all} AND datas.id > $ub${physical_filter}`;
-	const arg = Object.assign(Object.create(null), arg_default);
+	const stmt_pre = `${stmt_default} AND datas.id > $ub`;
 	const re_kanji = /※.*/;
-	const pre_list = query_db(db_list[1], stmt_pre, arg);
+	const pre_list = query(stmt_pre);
 	for (const card of pre_list) {
-		if (id_to_cid.has(card.id)) {
+		if (card.cid) {
 			continue;
 		}
-		const res = card.desc.match(re_kanji);
+		const res = card.text.desc.match(re_kanji);
 		const kanji = res ? res[0] : '';
 		if (inverse_table.has(card.tw_name) || kanji && inverse_table.has(kanji)) {
 			console.error('choice_prerelease', card.id);
