@@ -339,7 +339,7 @@ const extra_setcode = {
 const zh_collator = new Intl.Collator(collator_locale['zh-tw']);
 const over_hundred = '(name like $101 OR name like $102 OR name like $103 OR name like $104 OR name like $105 OR name like $106 OR name like $107)';
 const stmt_seventh = `${stmt_default} AND type & $xyz AND ${over_hundred}`;
-const arg_seventh = Object.assign(Object.create(null), arg_default);
+const arg_seventh = { __proto__: null, ...arg_default };
 for (let i = 0; i < 7; ++i) {
 	arg_seventh[`$${101 + i}`] = `%No.${101 + i}%`;
 }
@@ -642,7 +642,7 @@ export function query(qstr = stmt_default, arg = arg_default) {
  */
 export function query_alias(alias) {
 	const qstr = `${stmt_default} AND alias == $alias;`;
-	const arg = Object.assign(Object.create(null), arg_default);
+	const arg = { __proto__: null, ...arg_default };
 	arg.$alias = alias;
 	return query(qstr, arg);
 }
