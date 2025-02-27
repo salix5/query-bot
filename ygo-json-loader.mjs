@@ -20,8 +20,18 @@ import lang_zhtw from './lang/zh-tw.json' with { type: 'json' };
 
 function object_to_map(obj) {
 	const map = new Map();
-	for (const [key, value] of Object.entries(obj))
-		map.set(Number.parseInt(key), value);
+	for (const [key, value] of Object.entries(obj)) {
+		const id = Number.parseInt(key, 10);
+		if (!Number.isSafeInteger(id)) {
+			console.error('object_to_map: invalid id', key);
+			continue;
+		}
+		if (map.has(id)) {
+			console.error('object_to_map: duplicate id', key);
+			continue;
+		}
+		map.set(id, value);
+	}
 	return map;
 }
 

@@ -654,7 +654,7 @@ export function query_alias(alias) {
  */
 export function get_card(cid) {
 	if (typeof cid === 'string')
-		cid = Number.parseInt(cid);
+		cid = Number.parseInt(cid, 10);
 	if (!Number.isSafeInteger(cid))
 		return null;
 	let id = 0;
