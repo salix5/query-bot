@@ -723,6 +723,10 @@ export function get_request_locale(card, locale) {
  */
 export function get_seventh_xyz(card) {
 	const result = [];
+	if (!(card.type & TYPE_MONSTER))
+		return result;
+	if (card.type & TYPE_EXTRA)
+		return result;
 	if (!mmap_seventh[card.level])
 		return result;
 	for (const seventh of mmap_seventh[card.level]) {
