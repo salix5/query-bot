@@ -52,8 +52,9 @@ async function fetch_desc(card, request_locale) {
  * @returns 
  */
 export function create_reply(card, locale) {
-	let content = ygo.print_card(card, locale);
-	const components = [];
+	const msg = Object.create(null);
+	msg.content = ygo.print_card(card, locale);
+	msg.components = [];
 	if (card.cid) {
 		const request_locale = ygo.get_request_locale(card, locale);
 		const db_text = request_locale === 'en' ? 'DB (TCG)' : 'DB';
@@ -78,7 +79,7 @@ export function create_reply(card, locale) {
 				.setCustomId(`${request_locale}${card.cid ?? card.id}`);
 			row_db.addComponents(button3);
 		}
-		components.push(row_db);
+		msg.components.push(row_db);
 	}
 	else if (card.cid === 0) {
 		const button1 = new ButtonBuilder()
@@ -86,9 +87,9 @@ export function create_reply(card, locale) {
 			.setLabel('Yugipedia')
 			.setURL(ygo.print_yp_link(card.id));
 		const row1 = new ActionRowBuilder().addComponents(button1);
-		components.push(row1);
+		msg.components.push(row1);
 	}
-	return { content, components };
+	return msg;
 }
 
 /**
