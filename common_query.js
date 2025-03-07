@@ -71,8 +71,7 @@ export function create_reply(card, locale) {
 				.setURL(ygo.print_qa_link(card.cid));
 			row_db.addComponents(button2);
 		}
-		const seventh_list = ygo.get_seventh_xyz(card);
-		if (seventh_list.length) {
+		if (ygo.get_seventh_xyz(card).length) {
 			const button3 = new ButtonBuilder()
 				.setStyle(ButtonStyle.Primary)
 				.setLabel('七皇')
