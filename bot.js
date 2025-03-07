@@ -1,5 +1,5 @@
 import { readdirSync } from 'node:fs';
-import { Client, Collection, Events, GatewayIntentBits, ChannelType, Partials } from 'discord.js';
+import { Client, Collection, Events, GatewayIntentBits, ChannelType, Partials, MessageFlags } from 'discord.js';
 import { name_table, create_name_table, inverse_mapping, reload_db } from './ygo-query.mjs';
 import { refresh_choice_table } from './common_all.js';
 import { deploy_command } from './deploy-commands.js';
@@ -26,7 +26,7 @@ for (const file of commandFiles) {
 
 const commands = await Promise.all(import_list);
 for (const command of commands) {
-	if ('data' in command && 'execute' in command) {
+	if (Object.hasOwn(command, 'data') && Object.hasOwn(command, 'execute')) {
 		client.commands.set(command.data.name, command);
 		client.frequency.set(command.data.name, 0);
 	} else {
@@ -110,7 +110,7 @@ client.on(Events.InteractionCreate, async interaction => {
 				if (now < expirationTime) {
 					const expiredTimestamp = Math.round(expirationTime / 1000);
 					try {
-						await interaction.reply({ content: `CD: <t:${expiredTimestamp}:R>`, ephemeral: true });
+						await interaction.reply({ content: `CD: <t:${expiredTimestamp}:R>`, flags: MessageFlags.Ephemeral });
 					}
 					catch (error) {
 						console.error(interaction.user.id);
@@ -131,7 +131,12 @@ client.on(Events.InteractionCreate, async interaction => {
 			console.error(interaction.commandName);
 			console.error(error);
 			try {
-				await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
+				if (interaction.replied || interaction.deferred) {
+					await interaction.followUp({ content: 'There was an error while executing this command!', flags: MessageFlags.Ephemeral });
+				}
+				else {
+					await interaction.reply({ content: 'There was an error while executing this command!', flags: MessageFlags.Ephemeral });
+				}
 			}
 			catch { /* empty */ }
 		}
