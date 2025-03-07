@@ -84,12 +84,12 @@ client.on(Events.MessageCreate, async msg => {
 
 client.on(Events.InteractionCreate, async interaction => {
 	const command = interaction.client.commands.get(interaction.commandName);
-	if (!command) {
-		console.error(`No command matching ${interaction.commandName} was found.`);
-		return;
-	}
 	const { cooldowns, frequency } = interaction.client;
 	if (interaction.isChatInputCommand()) {
+		if (!command) {
+			console.error(`No command matching ${interaction.commandName} was found.`);
+			return;
+		}
 		if (!cooldowns.has(command.data.name)) {
 			cooldowns.set(command.data.name, new Collection());
 			console.log('start:', command.data.name);
@@ -142,6 +142,10 @@ client.on(Events.InteractionCreate, async interaction => {
 		}
 	}
 	else if (interaction.isAutocomplete()) {
+		if (!command) {
+			console.error(`No command matching ${interaction.commandName} was found.`);
+			return;
+		}
 		const begin = Date.now();
 		try {
 			await command.autocomplete(interaction);
@@ -155,15 +159,11 @@ client.on(Events.InteractionCreate, async interaction => {
 			console.error(error);
 		}
 	}
-	else if (interaction.isButton()) {
-		try {
-			await seventh_handler(interaction);
-		}
-		catch (error) {
-			console.error(error);
-		}
-	}
 	else if (interaction.isMessageContextMenuCommand()) {
+		if (!command) {
+			console.error(`No command matching ${interaction.commandName} was found.`);
+			return;
+		}
 		let x = frequency.get(command.data.name);
 		++x;
 		frequency.set(command.data.name, x);
@@ -175,6 +175,14 @@ client.on(Events.InteractionCreate, async interaction => {
 		catch (error) {
 			console.error(interaction.user.id);
 			console.error(interaction.commandName);
+			console.error(error);
+		}
+	}
+	else if (interaction.isButton()) {
+		try {
+			await seventh_handler(interaction);
+		}
+		catch (error) {
 			console.error(error);
 		}
 	}
