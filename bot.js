@@ -2,6 +2,7 @@ import { readdirSync } from 'node:fs';
 import { Client, Collection, Events, GatewayIntentBits, ChannelType, Partials, MessageFlags } from 'discord.js';
 import { name_table, create_name_table, inverse_mapping, reload_db } from './ygo-query.mjs';
 import { refresh_choice_table } from './common_all.js';
+import { seventh_handler } from './common_query.js';
 import { deploy_command } from './deploy-commands.js';
 //import 'dotenv/config';
 
@@ -158,6 +159,14 @@ client.on(Events.InteractionCreate, async interaction => {
 			console.error(`autocomplete in ${interaction.commandName}:`, interaction.options.getFocused());
 			console.error('begin at', begin_time.toTimeString());
 			console.error('fail at', fail_time.toTimeString());
+			console.error(error);
+		}
+	}
+	else if (interaction.isButton()) {
+		try {
+			await seventh_handler(interaction);
+		}
+		catch (error) {
 			console.error(error);
 		}
 	}
