@@ -88,8 +88,8 @@ client.on(Events.InteractionCreate, async interaction => {
 		console.error(`No command matching ${interaction.commandName} was found.`);
 		return;
 	}
+	const { cooldowns, frequency } = interaction.client;
 	if (interaction.isChatInputCommand()) {
-		const { cooldowns, frequency } = interaction.client;
 		if (!cooldowns.has(command.data.name)) {
 			cooldowns.set(command.data.name, new Collection());
 			console.log('start:', command.data.name);
@@ -164,6 +164,11 @@ client.on(Events.InteractionCreate, async interaction => {
 		}
 	}
 	else if (interaction.isMessageContextMenuCommand()) {
+		let x = frequency.get(command.data.name);
+		++x;
+		frequency.set(command.data.name, x);
+		if (x % 10 === 0)
+			console.log(`#${command.data.name}:`, x);
 		try {
 			await command.execute(interaction);
 		}
