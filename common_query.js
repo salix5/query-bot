@@ -1,4 +1,4 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, MessageFlags } from 'discord.js';
 import * as ygo from './ygo-query.mjs';
 import { choice_table } from './common_all.js';
 
@@ -51,7 +51,7 @@ async function fetch_desc(card, request_locale) {
  * @param {boolean} seventh
  * @returns 
  */
-export function create_reply(card, locale, seventh = false) {
+export function create_reply(card, locale) {
 	let content = ygo.print_card(card, locale);
 	const components = [];
 	if (card.cid) {
@@ -69,10 +69,13 @@ export function create_reply(card, locale, seventh = false) {
 				.setLabel('Q&A')
 				.setURL(ygo.print_qa_link(card.cid));
 			row_db.addComponents(button2);
+		}
+		const seventh_list = ygo.get_seventh_xyz(card);
+		if (seventh_list.length) {
 			const button3 = new ButtonBuilder()
-				.setStyle(ButtonStyle.Link)
-				.setLabel('History')
-				.setURL(ygo.print_history_link(card.cid));
+				.setStyle(ButtonStyle.Primary)
+				.setLabel('七皇')
+				.setCustomId(`${request_locale}${card.cid ?? card.id}`);
 			row_db.addComponents(button3);
 		}
 		components.push(row_db);
@@ -85,54 +88,70 @@ export function create_reply(card, locale, seventh = false) {
 		const row1 = new ActionRowBuilder().addComponents(button1);
 		components.push(row1);
 	}
-	if (seventh) {
-		const result = ygo.get_seventh_xyz(card);
-		if (result.length) {
-			const re_number = /\w?No.10[1-7]/;
-			const row_seventh = new ActionRowBuilder();
-			for (const seventh of result) {
-				const match = seventh.tw_name.match(re_number);
-				const db_text = match ? match[0] : 'No.10X';
-				const button1 = new ButtonBuilder()
-					.setStyle(ButtonStyle.Link)
-					.setLabel(db_text)
-					.setURL(ygo.print_db_link(seventh.cid, ygo.get_request_locale(seventh, locale)));
-				row_seventh.addComponents(button1);
-			}
-			components.push(row_seventh);
-		}
-	}
 	return { content, components };
 }
 
 /**
  * The handler of query slash command.
- * @param {CommandInteraction} interaction 
+ * @param {ChatInputCommandInteraction} interaction 
  * @param {string} input_locale 
  * @param {string} output_locale 
- * @param {boolean} seventh 
  */
-export async function query_command(interaction, input_locale, output_locale, seventh = false) {
+export async function query_command(interaction, input_locale, output_locale) {
 	const input = interaction.options.getString('input');
 	if (choice_table[input_locale] && choice_table[input_locale].has(input)) {
 		const cid = choice_table[input_locale].get(input);
 		const card = ygo.get_card(cid);
 		if (card) {
 			if (output_locale === 'zh-tw') {
-				await interaction.reply(create_reply(card, output_locale, seventh));
+				await interaction.reply(create_reply(card, output_locale));
 			}
 			else {
 				await interaction.deferReply();
 				card.text.db_desc = await fetch_desc(card, ygo.get_request_locale(card, output_locale));
-				await interaction.editReply(create_reply(card, output_locale, seventh));
+				await interaction.editReply(create_reply(card, output_locale));
 			}
 		}
 		else {
+			console.error('invalid card cid', cid);
 			await interaction.reply(reply_text[output_locale].none);
-			console.error('Invalid card cid', cid);
 		}
 	}
 	else {
 		await interaction.reply(reply_text[output_locale].none);
 	}
+}
+
+/**
+ * Seventh button handler
+ * @param {ButtonInteraction} interaction 
+ */
+export async function seventh_handler(interaction) {
+	const msg = Object.create(null);
+	msg.flags = MessageFlags.Ephemeral;
+	const re_number = /\w?No.10[1-7]/;
+	const request_locale = interaction.customId.substring(0, 2);
+	const id = interaction.customId.substring(2);
+	const card = ygo.get_card(id);
+	if (!card) {
+		console.error('invalid customId', interaction.customId);
+		msg.content = 'invalid button';
+		await interaction.reply(msg);
+		return;
+	}
+	const seventh_list = ygo.get_seventh_xyz(card);
+	const row_seventh = new ActionRowBuilder();
+	for (const seventh of seventh_list) {
+		const match = seventh.tw_name.match(re_number);
+		const label = match ? match[0] : 'No.10X';
+		const button1 = new ButtonBuilder()
+			.setStyle(ButtonStyle.Link)
+			.setLabel(label)
+			.setURL(ygo.print_db_link(seventh.cid, request_locale));
+		row_seventh.addComponents(button1);
+	}
+	msg.content = '時空の七皇\nSeventh Tachyon';
+	msg.components = [];
+	msg.components.push(row_seventh);
+	await interaction.reply(msg);
 }
