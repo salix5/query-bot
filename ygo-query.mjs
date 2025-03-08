@@ -210,10 +210,11 @@ const select_id = `SELECT datas.id FROM datas, texts WHERE datas.id == texts.id`
 const select_name = `SELECT datas.id, name FROM datas, texts WHERE datas.id == texts.id`;
 
 const base_filter = ` AND datas.id != $tyler AND NOT type & $token`;
-const physical_filter = `${base_filter} AND (datas.id == $luster OR abs(datas.id - alias) >= $artwork_offset)`;
+const no_alt_filter = ` AND (datas.id == $luster OR abs(datas.id - alias) >= $artwork_offset)`;
+const default_filter = `${base_filter}${no_alt_filter}`;
 const effect_filter = ` AND (NOT type & $normal OR type & $pendulum)`;
 
-const stmt_default = `${select_all}${physical_filter}`;
+const stmt_default = `${select_all}${default_filter}`;
 const stmt_no_alias = `${select_id}${base_filter} AND alias == $zero`;
 const arg_default = {
 	__proto__: null,
@@ -235,7 +236,8 @@ export {
 	ID_TYLER_THE_GREAT_WARRIOR, ID_BLACK_LUSTER_SOLDIER,
 	ALT_DARK_MAGICIAN, ALT_POLYMERIZATION,
 	CID_BLACK_LUSTER_SOLDIER,
-	select_all, select_id, base_filter, physical_filter, effect_filter,
+	select_all, select_id, select_name,
+	base_filter, no_alt_filter, default_filter, effect_filter,
 	stmt_default, stmt_no_alias,
 	arg_default,
 	regexp_mention,
