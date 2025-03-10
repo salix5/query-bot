@@ -281,7 +281,7 @@ const db_list = [];
 const SQL = await initSqlJs();
 
 /**
- * @typedef {Object} Record
+ * @typedef {Object} Entry
  * @property {number} id
  * @property {number} ot
  * @property {number} alias
@@ -381,7 +381,7 @@ function set_setcode(card, setcode) {
  * @param {Database} db 
  * @param {string} qstr 
  * @param {Object} arg 
- * @returns {Record[]}
+ * @returns {Entry[]}
  */
 function query_db(db, qstr, arg) {
 	if (!db)
@@ -561,7 +561,7 @@ export async function init_query(files) {
 
 /**
  * Check if the card is an alternative artwork card.
- * @param {Record} record
+ * @param {Entry} record
  * @returns 
  */
 export function is_alternative(record) {
