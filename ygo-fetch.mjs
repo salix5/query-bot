@@ -9,7 +9,5 @@ export { db_url1, db_url2 };
  * @returns 
  */
 export async function fetch_db(url) {
-	const response = await fetch(url);
-	const buf = await response.arrayBuffer();
-	return new Uint8Array(buf);
+	return (await fetch(url)).bytes();
 }

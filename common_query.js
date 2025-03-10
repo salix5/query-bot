@@ -23,7 +23,7 @@ async function fetch_desc(card, request_locale) {
 
 	const re_ptext = /<div class="frame pen_effect">.*?<div class="item_box_text">.*?([^\r\n\t]+).*?<\/div>/s;
 	const re_text = /<div class="text_title">.*?<\/div>.*?([^\r\n\t]+).*?<\/div>/s;
-	const raw_data = await fetch(ygo.print_db_link(card.cid, request_locale)).then(response => response.text());
+	const raw_data = (await fetch(ygo.print_db_link(card.cid, request_locale))).text();
 	const res_text = re_text.exec(raw_data);
 	let ctext = '';
 	if (res_text) {

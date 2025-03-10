@@ -350,8 +350,6 @@ const query_table = new Map();
 
 export { stmt_seventh, arg_seventh };
 
-await reload_db();
-
 
 /**
  * @param {Array[]} mmap 
@@ -539,19 +537,20 @@ function create_seventh_condition() {
 /**
  * @param {Uint8Array[]} [files] 
  */
-export async function reload_db(files) {
+export async function init_query(files) {
 	if (!files)
 		files = await Promise.all([fetch_db(db_url1), fetch_db(db_url2)]);
 	for (const db of db_list) {
 		db.close();
 	}
 	db_list.length = 0;
+	mmap_seventh.length = 0;
+	query_table.clear();
 	for (const file of files) {
 		db_list.push(new SQL.Database(file));
 	}
 	const seventh_cards = query(stmt_seventh, arg_seventh);
 	seventh_cards.sort((c1, c2) => zh_collator.compare(c1.tw_name, c2.tw_name));
-	mmap_seventh.length = 0;
 	for (const card of seventh_cards) {
 		multimap_insert(mmap_seventh, card.level, card);
 	}
