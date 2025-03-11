@@ -1,10 +1,10 @@
-import { SlashCommandBuilder } from 'discord.js';
+import { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 import { autocomplete_default, choice_table } from '../common_all.js';
-import { cid_table } from '../ygo-query.mjs';
+import { cid_table, print_history_link } from '../ygo-query.mjs';
 
 export const module_url = import.meta.url;
 export const data = new SlashCommandBuilder()
-	.setName('ygocdb')
+	.setName('link')
 	.setDescription('裁定相關連結')
 	.addStringOption(option => option.setName('input')
 		.setDescription('卡名')
@@ -20,9 +20,20 @@ export async function autocomplete(interaction) {
 export async function execute(interaction) {
 	const input = interaction.options.getString('input');
 	const cid = choice_table['zh-tw'].get(input);
-	const id = cid_table.get(cid);
-	if (id) {
-		await interaction.reply(`https://ygocdb.com/card/${id}`);
+	if (cid) {
+		const id = cid_table.get(cid);
+		const row1 = new ActionRowBuilder();
+		const button1 = new ButtonBuilder()
+			.setStyle(ButtonStyle.Link)
+			.setURL(`https://ygocdb.com/card/${id}`)
+			.setLabel('百鴿');
+		row1.addComponents(button1);
+		const button2 = new ButtonBuilder()
+			.setStyle(ButtonStyle.Link)
+			.setURL(`${print_history_link(cid)}`)
+			.setLabel('DB歷史');
+		row1.addComponents(button2);
+		await interaction.reply({ content: '', components: [row1] });
 	}
 	else {
 		await interaction.reply('沒有符合條件的卡片。');
