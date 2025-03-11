@@ -97,7 +97,7 @@ client.on(Events.InteractionCreate, async interaction => {
 			console.log('start:', command.data.name);
 		}
 		let x = frequency.get(command.data.name);
-		++x;
+		x++;
 		frequency.set(command.data.name, x);
 		if (x % 10 === 0)
 			console.log(`#${command.data.name}:`, x);

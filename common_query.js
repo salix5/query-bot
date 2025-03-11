@@ -1,8 +1,8 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, MessageFlags } from 'discord.js';
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Collection, MessageFlags } from 'discord.js';
 import * as ygo from './ygo-query.mjs';
 import { choice_table } from './common_all.js';
 
-export const reply_text = {
+const reply_text = {
 	'zh-tw': {
 		none: '沒有符合條件的卡片。',
 	},
@@ -16,6 +16,9 @@ export const reply_text = {
 		none: 'No cards were found.',
 	},
 };
+const search_count = new Collection();
+
+export { reply_text, search_count };
 
 async function fetch_desc(card, request_locale) {
 	if (!card.cid || !ygo.official_name[request_locale])
@@ -103,6 +106,9 @@ export async function query_command(interaction, input_locale, output_locale) {
 		const cid = choice_table[input_locale].get(input);
 		const card = ygo.get_card(cid);
 		if (card) {
+			let count = search_count.ensure(card.id, () => 0);
+			count++;
+			search_count.set(card.id, count);
 			if (output_locale === 'zh-tw') {
 				await interaction.reply(create_reply(card, output_locale));
 			}
