@@ -92,20 +92,18 @@ client.on(Events.InteractionCreate, async interaction => {
 			console.error(`No command matching ${interaction.commandName} was found.`);
 			return;
 		}
-		if (!cooldowns.has(command.data.name)) {
-			cooldowns.set(command.data.name, new Collection());
-			console.log('start:', command.data.name);
-		}
 		let x = frequency.get(command.data.name);
 		x++;
 		frequency.set(command.data.name, x);
-		if (x % 10 === 0)
+		if (x == 1)
+			console.log('start:', command.data.name);
+		else if (x % 10 === 0)
 			console.log(`#${command.data.name}:`, x);
 
 		const defaultCooldownDuration = 0;
 		const cooldownAmount = (command.cooldown ?? defaultCooldownDuration) * 1000;
 		if (cooldownAmount) {
-			const timestamps = cooldowns.get(command.data.name);
+			const timestamps = cooldowns.ensure(command.data.name, () => new Collection());
 			const now = Date.now();
 			if (timestamps.has(interaction.user.id)) {
 				const expirationTime = timestamps.get(interaction.user.id) + cooldownAmount;
@@ -169,7 +167,9 @@ client.on(Events.InteractionCreate, async interaction => {
 		let x = frequency.get(command.data.name);
 		++x;
 		frequency.set(command.data.name, x);
-		if (x % 10 === 0)
+		if (x == 1)
+			console.log('start:', command.data.name);
+		else if (x % 10 === 0)
 			console.log(`#${command.data.name}:`, x);
 		try {
 			await command.execute(interaction);
