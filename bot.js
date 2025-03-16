@@ -35,8 +35,6 @@ for (const command of commands) {
 	}
 }
 
-await init_query();
-
 client.once(Events.ClientReady, c => {
 	const currentDate = new Date();
 	console.log(`[${currentDate.toUTCString()}] Ready! Logged in as ${c.user.tag} (total: ${name_table['ja'].size})`);

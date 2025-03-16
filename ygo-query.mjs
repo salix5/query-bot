@@ -350,6 +350,8 @@ const query_table = new Map();
 
 export { stmt_seventh, arg_seventh };
 
+//workwround
+await init_query();
 
 /**
  * @param {Array[]} mmap 
