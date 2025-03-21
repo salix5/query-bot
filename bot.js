@@ -163,7 +163,7 @@ client.on(Events.InteractionCreate, async interaction => {
 			return;
 		}
 		let x = frequency.get(command.data.name);
-		++x;
+		x++;
 		frequency.set(command.data.name, x);
 		if (x == 1)
 			console.log('start:', command.data.name);
@@ -184,6 +184,15 @@ client.on(Events.InteractionCreate, async interaction => {
 		}
 		catch (error) {
 			console.error(error);
+			try {
+				if (interaction.replied) {
+					await interaction.followUp({ content: '無法刪除不能檢視的頻道。', flags: MessageFlags.Ephemeral });
+				}
+				else {
+					await interaction.reply({ content: '無法刪除不能檢視的頻道。', flags: MessageFlags.Ephemeral });
+				}
+			}
+			catch { /* empty */ }
 		}
 	}
 });
