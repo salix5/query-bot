@@ -1,0 +1,3 @@
+[submodule "cdb"]
+	path = cdb
+	url = https://github.com/salix5/cdb.git
