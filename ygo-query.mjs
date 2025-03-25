@@ -215,20 +215,18 @@ const default_filter = `${base_filter}${no_alt_filter}`;
 const effect_filter = ` AND (NOT type & $normal OR type & $pendulum)`;
 
 const stmt_default = `${select_all}${default_filter}`;
-const stmt_no_alias = `${select_id}${base_filter} AND alias == $zero`;
 const arg_default = {
-	__proto__: null,
 	$tyler: ID_TYLER_THE_GREAT_WARRIOR,
 	$luster: ID_BLACK_LUSTER_SOLDIER,
 	$artwork_offset: CARD_ARTWORK_VERSIONS_OFFSET,
-	$zero: 0,
-	$ub: MAX_CARD_ID,
-	$monster: TYPE_MONSTER,
-	$spell: TYPE_SPELL,
-	$trap: TYPE_TRAP,
-	$extra: TYPE_EXTRA,
 	$token: TYPE_TOKEN,
-	$xyz: TYPE_XYZ,
+};
+
+const stmt_no_alias = `${select_id}${base_filter} AND alias == $none`;
+const arg_no_alias = {
+	$tyler: ID_TYLER_THE_GREAT_WARRIOR,
+	$token: TYPE_TOKEN,
+	$none: 0,
 };
 const regexp_mention = `(?<=「)[^「」]*「?[^「」]*」?[^「」]*(?=」)`;
 
@@ -239,7 +237,7 @@ export {
 	select_all, select_id, select_name,
 	base_filter, no_alt_filter, default_filter, effect_filter,
 	stmt_default, stmt_no_alias,
-	arg_default,
+	arg_default, arg_no_alias,
 	regexp_mention,
 };
 
@@ -341,7 +339,10 @@ const extra_setcode = {
 const zh_collator = new Intl.Collator(collator_locale['zh-tw']);
 const over_hundred = '(name like $101 OR name like $102 OR name like $103 OR name like $104 OR name like $105 OR name like $106 OR name like $107)';
 const stmt_seventh = `${stmt_default} AND type & $xyz AND ${over_hundred}`;
-const arg_seventh = { __proto__: null, ...arg_default };
+const arg_seventh = {
+	...arg_default,
+	$xyz: TYPE_XYZ,
+};
 for (let i = 0; i < 7; ++i) {
 	arg_seventh[`$${101 + i}`] = `%No.${101 + i}%`;
 }
@@ -386,9 +387,6 @@ function set_setcode(card, setcode) {
  * @returns {Entry[]}
  */
 function query_db(db, qstr, arg) {
-	if (!db)
-		return [];
-
 	const ret = [];
 	const stmt = db.prepare(qstr);
 	stmt.bind(arg);
@@ -645,8 +643,10 @@ export function query(qstr = stmt_default, arg = arg_default) {
  */
 export function query_alias(alias) {
 	const qstr = `${stmt_default} AND alias == $alias;`;
-	const arg = { __proto__: null, ...arg_default };
-	arg.$alias = alias;
+	const arg = {
+		...arg_default,
+		$alias: alias,
+	};
 	return query(qstr, arg);
 }
 
@@ -1020,9 +1020,15 @@ export function read_db(buffer, qstr = stmt_default, arg = arg_default) {
  * @returns 
  */
 export function check_uniqueness(buffer) {
-	const condition = ` AND (NOT type & $token OR alias == $zero) AND (type & $token OR datas.id == $luster OR abs(datas.id - alias) >= $artwork_offset)`;
-	const stmt1 = `${select_name}${condition}`
-	const cards = read_db(buffer, stmt1, arg_default);
+	const condition = ` AND (NOT type & $token OR alias == $none) AND (type & $token OR datas.id == $luster OR abs(datas.id - alias) >= $artwork_offset)`;
+	const stmt1 = `${select_name}${condition}`;
+	const arg1 = {
+		$token: arg_default.$token,
+		$luster: arg_default.$luster,
+		$artwork_offset: arg_default.$artwork_offset,
+		$none: 0,
+	};
+	const cards = read_db(buffer, stmt1, arg1);
 	const table1 = new Map();
 	const postfix = 'N';
 	for (const card of cards) {
@@ -1100,8 +1106,12 @@ export function zh_compare(a, b) {
 export function create_choice_prerelease() {
 	const inverse_table = new Map();
 	const stmt_pre = `${stmt_default} AND datas.id > $ub`;
+	const arg_pre = {
+		...arg_default,
+		$ub: MAX_CARD_ID,
+	};
 	const re_kanji = /※.*/;
-	const pre_list = query(stmt_pre);
+	const pre_list = query(stmt_pre, arg_pre);
 	for (const card of pre_list) {
 		if (card.cid) {
 			continue;
