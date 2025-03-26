@@ -1,4 +1,5 @@
-import { readFile, writeFile } from 'node:fs/promises';
+import { writeFile } from 'node:fs/promises';
+import { DatabaseSync } from 'node:sqlite';
 import initSqlJs from 'sql.js';
 import { ltable_ocg } from './ygo-json-loader.mjs';
 import { ltable_tcg } from './ygo-json-loader.mjs';
@@ -10,6 +11,8 @@ import { name_table, md_table, md_table_sc } from './ygo-json-loader.mjs';
 import { inverse_mapping } from './ygo-utility.mjs';
 import { db_url1, db_url2, fetch_db } from './ygo-fetch.mjs';
 
+const path1 = `${import.meta.dirname}/cdb/cards.cdb`;
+const path2 = `${import.meta.dirname}/cdb/expansions/pre-release.cdb`;
 // type
 const TYPE_MONSTER = 0x1;
 const TYPE_SPELL = 0x2;
@@ -274,7 +277,7 @@ export {
 };
 
 /**
- * @type {Database[]}
+ * @type {DatabaseSync[]}
  */
 const db_list = [];
 const SQL = await initSqlJs();
@@ -353,7 +356,7 @@ const query_table = new Map();
 export { stmt_seventh, arg_seventh };
 
 //workwround
-await init_query();
+await init_query([path1, path2]);
 
 /**
  * @param {Array[]} mmap 
@@ -382,7 +385,7 @@ function set_setcode(card, setcode) {
 
 /**
  * Query cards from `db` with statement `qstr` and binding object `arg` and put them in `ret`.
- * @param {Database} db 
+ * @param {DatabaseSync} db 
  * @param {string} qstr 
  * @param {Object} arg 
  * @returns {Entry[]}
@@ -390,9 +393,9 @@ function set_setcode(card, setcode) {
 function query_db(db, qstr, arg) {
 	const ret = [];
 	const stmt = db.prepare(qstr);
-	stmt.bind(arg);
-	while (stmt.step()) {
-		const cdata = stmt.getAsObject(null, { useBigInt: true });
+	stmt.setReadBigInts(true);
+	const result = stmt.all(arg);
+	for (const cdata of result) {
 		const card = Object.create(null);
 		for (const [column, value] of Object.entries(cdata)) {
 			switch (column) {
@@ -422,7 +425,6 @@ function query_db(db, qstr, arg) {
 		}
 		ret.push(card);
 	}
-	stmt.free();
 	return ret;
 }
 
@@ -552,7 +554,7 @@ export async function init_query(files) {
 	mmap_seventh.length = 0;
 	query_table.clear();
 	for (const file of files) {
-		db_list.push(new SQL.Database(await readFile(file)));
+		db_list.push(new DatabaseSync(file));
 	}
 	const seventh_cards = query(stmt_seventh, arg_seventh);
 	seventh_cards.sort((c1, c2) => zh_collator.compare(c1.tw_name, c2.tw_name));
