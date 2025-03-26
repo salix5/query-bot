@@ -1,3 +1,4 @@
+import { readFile, writeFile } from 'node:fs/promises';
 import initSqlJs from 'sql.js';
 import { ltable_ocg } from './ygo-json-loader.mjs';
 import { ltable_tcg } from './ygo-json-loader.mjs';
@@ -535,11 +536,15 @@ function create_seventh_condition() {
 
 //query
 /**
- * @param {Uint8Array[]} [files] 
+ * @param {string[]} [files] 
  */
 export async function init_query(files) {
-	if (!files)
-		files = await Promise.all([fetch_db(db_url1), fetch_db(db_url2)]);
+	if (!files) {
+		const temp1 = `${import.meta.dirname}/temp/db1.cdb`;
+		const temp2 = `${import.meta.dirname}/temp/db2.cdb`;
+		await Promise.all([writeFile(temp1, await fetch_db(db_url1)), writeFile(temp2, await fetch_db(db_url2))]);
+		files = [temp1, temp2];
+	}
 	for (const db of db_list) {
 		db.close();
 	}
@@ -547,7 +552,7 @@ export async function init_query(files) {
 	mmap_seventh.length = 0;
 	query_table.clear();
 	for (const file of files) {
-		db_list.push(new SQL.Database(file));
+		db_list.push(new SQL.Database(await readFile(file)));
 	}
 	const seventh_cards = query(stmt_seventh, arg_seventh);
 	seventh_cards.sort((c1, c2) => zh_collator.compare(c1.tw_name, c2.tw_name));
