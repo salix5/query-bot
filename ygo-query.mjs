@@ -1,6 +1,5 @@
 import { writeFile } from 'node:fs/promises';
 import { DatabaseSync } from 'node:sqlite';
-import initSqlJs from 'sql.js';
 import { ltable_ocg } from './ygo-json-loader.mjs';
 import { ltable_tcg } from './ygo-json-loader.mjs';
 import { ltable_md } from './ygo-json-loader.mjs';
@@ -280,7 +279,6 @@ export {
  * @type {DatabaseSync[]}
  */
 const db_list = [];
-const SQL = await initSqlJs();
 
 /**
  * @typedef {Object} Entry
@@ -1009,13 +1007,13 @@ export function print_card(card, locale) {
 //database file
 /**
  * Get cards from databases file `buffer` with statement `qstr` and binding object `arg`.
- * @param {Uint8Array} buffer
+ * @param {string} path
  * @param {string} qstr 
  * @param {Object} arg 
  * @returns 
  */
-export function read_db(buffer, qstr = stmt_default, arg = arg_default) {
-	const db = new SQL.Database(buffer);
+export function read_db(path, qstr = stmt_default, arg = arg_default) {
+	const db = new DatabaseSync(path);
 	const ret = query_db(db, qstr, arg);
 	db.close();
 	return ret;
