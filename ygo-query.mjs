@@ -9,6 +9,7 @@ import { lang, collator_locale, bls_postfix, official_name, game_name } from './
 import { name_table, md_table, md_table_sc } from './ygo-json-loader.mjs';
 import { inverse_mapping } from './ygo-utility.mjs';
 import { db_url1, db_url2, fetch_db } from './ygo-fetch.mjs';
+import { validate_params } from './ygo-interface.mjs';
 
 // type
 const TYPE_MONSTER = 0x1;
@@ -496,9 +497,6 @@ function edit_card(card) {
 		delete card.scale;
 	card.tw_name = card.name;
 	delete card.name;
-	card.text = Object.create(null);
-	card.text.desc = card.desc;
-	delete card.desc;
 	if (card.cid) {
 		for (const [locale, prop] of Object.entries(official_name)) {
 			if (name_table[locale].has(card.cid))
@@ -509,6 +507,9 @@ function edit_card(card) {
 		if (md_card_list[card.cid])
 			card.md_rarity = md_card_list[card.cid];
 	}
+	card.text = Object.create(null);
+	card.text.desc = card.desc;
+	delete card.desc;
 }
 
 /**
@@ -1147,6 +1148,209 @@ export function create_name_table() {
 	if (table1.size !== cid_table.size)
 		console.error('invalid name_table_tw:', cid_table.size, table1.size);
 	return table1;
+}
+
+/**
+ * Parse param into sqlite statement condition.
+ * @param {URLSearchParams} params 
+ * @returns {[string, Object]}
+ */
+export function param_to_condition(params) {
+	let qstr = "";
+	const arg = { ...arg_default };
+	// id, primary key
+	const id = Number.parseInt(params.get("code"));
+	if (id) {
+		qstr += " AND datas.id == $id";
+		arg.$id = id;
+		return [qstr, arg];
+	}
+	const cid = Number.parseInt(params.get("cid"));
+	if (cid_table.has(cid)) {
+		qstr += " AND datas.id == $id";
+		arg.$id = cid_table.get(cid);
+		return [qstr, arg];
+	}
+
+	// type
+	arg.$ctype = 0;
+	if (params.has("ctype")) {
+		qstr += ' AND type & $ctype';
+		arg.$ctype = Number.parseInt(params.get("ctype"));
+	}
+	if (params.has("subtype")) {
+		if (params.has("subtype_operator", "1"))
+			qstr += ' AND type & $subtype == $subtype';
+		else
+			qstr += ' AND type & $subtype';
+		arg.$subtype = Number.parseInt(params.get("subtype"));
+	}
+	if (params.has("exclude")) {
+		qstr += ' AND type & $exclude';
+		arg.$exclude = Number.parseInt(params.get("exclude"));
+	}
+	if (arg.$ctype === 0 || arg.$ctype === TYPE_MONSTER) {
+		// mat
+		const mat = params.get("mat");
+		if (mat) {
+			qstr += ` AND ("desc" LIKE $mat1 ESCAPE '$' OR "desc" LIKE $mat2 ESCAPE '$' OR "desc" LIKE $mat3 ESCAPE '$')`;
+			arg.$mat1 = `%${mat}+%`;
+			arg.$mat2 = `%+${mat}%`;
+			arg.$mat3 = `%${mat}×%`;
+			arg.$ctype |= TYPE_MONSTER;
+		}
+
+		// atk
+		if (params.has("atk1")) {
+			const atk1 = Number.parseInt(params.get("atk1"));
+			arg.$ctype |= TYPE_MONSTER;
+			if (atk1 === -1) {
+				qstr += " AND atk == $unknown";
+				arg.$unknown = -2;
+			}
+			else {
+				qstr += " AND atk >= $atk1";
+				arg.$atk1 = atk1;
+			}
+		}
+		if (params.has("atk2")) {
+			const atk2 = Number.parseInt(params.get("atk2"));
+			arg.$ctype |= TYPE_MONSTER;
+			qstr += " AND atk >= $zero AND atk <= $atk2";
+			arg.$zero = 0;
+			arg.$atk2 = atk2;
+		}
+
+		// def, exclude link monsters
+		if (params.has("def1") || params.has("def2") || params.has("sum")) {
+			qstr += " AND NOT type & $link";
+			arg.$link = TYPE_LINK;
+			arg.$ctype |= TYPE_MONSTER;
+		}
+		if (params.has("def1")) {
+			const def1 = Number.parseInt(params.get("def1"));
+			if (def1 === -1) {
+				qstr += " AND def == $unknown";
+				arg.$unknown = -2;
+			}
+			else if (def1 === -2) {
+				qstr += " AND def == atk AND def >= $zero";
+				arg.$zero = 0;
+			}
+			else {
+				qstr += " AND def >= $def1";
+				arg.$def1 = def1;
+			}
+		}
+		if (params.has("def2")) {
+			const def2 = Number.parseInt(params.get("def2"));
+			qstr += " AND def >= $zero AND def <= $def2";
+			arg.$zero = 0;
+			arg.$def2 = def2;
+		}
+		if (params.has("sum")) {
+			const sum = Number.parseInt(params.get("sum"));
+			qstr += " AND atk != $unknown AND def != $unknown AND atk + def == $sum";
+			arg.$unknown = -2;
+			arg.$sum = sum;
+		}
+
+		// lv, rank, link
+		if (params.has("level") || params.has("lv1") || params.has("lv2")) {
+			arg.$ctype |= TYPE_MONSTER;
+		}
+		if (params.has("level")) {
+			let level_condtion = "0";
+			let index = 0;
+			for (const value of params.getAll("level")) {
+				level_condtion += ` OR (level & $mask) == $level${index}`;
+				arg[`$level${index}`] = Number.parseInt(value);
+				index++;
+			}
+			qstr += ` AND (${level_condtion})`;
+			arg.$mask = 0xff;
+		}
+		if (params.has("lv1")) {
+			const lv1 = Number.parseInt(params.get("lv1"));
+			qstr += " AND (level & $mask) >= $lv1";
+			arg.$mask = 0xff;
+			arg.$lv1 = lv1;
+		}
+		if (params.has("lv2")) {
+			const lv2 = Number.parseInt(params.get("lv2"));
+			qstr += " AND (level & $mask) <= $lv2";
+			arg.$mask = 0xff;
+			arg.$lv2 = lv2;
+		}
+
+		// scale, pendulum monster only
+		if (params.has("scale") || params.has("sc1") || params.has("sc2")) {
+			qstr += " AND type & $pendulum";
+			arg.$pendulum = TYPE_PENDULUM;
+			arg.$ctype |= TYPE_MONSTER;
+		}
+		if (params.has("scale")) {
+			let scale_condtion = "0";
+			let index = 0;
+			for (const value of params.getAll("scale")) {
+				scale_condtion += ` OR (level >> $offset & $mask) == $scale${index}`;
+				arg[`$scale${index}`] = Number.parseInt(value);
+				index++;
+			}
+			qstr += ` AND (${scale_condtion})`;
+			arg.$offset = 24;
+			arg.$mask = 0xff;
+		}
+		if (params.has("sc1")) {
+			qstr += " AND (level >> $offset & $mask) >= $scacle_from";
+			arg.$offset = 24;
+			arg.$mask = 0xff;
+			arg.$scacle_from = Number.parseInt(params.get("sc1"));
+		}
+		if (params.has("sc2")) {
+			qstr += " AND (level >> $offset & $mask) <= $scacle_to";
+			arg.$offset = 24;
+			arg.$mask = 0xff;
+			arg.$scacle_to = Number.parseInt(params.get("sc1"));
+		}
+
+		// attr, race
+		if (params.has("attr")) {
+			qstr += " AND attribute & $attr";
+			arg.$attr = Number.parseInt(params.get("attr"))
+			arg.$ctype |= TYPE_MONSTER;
+		}
+		if (params.has("race")) {
+			qstr += " AND race & $race";
+			arg.$race = Number.parseInt(params.get("race"))
+			arg.$ctype |= TYPE_MONSTER;
+		}
+		// marker
+		if (params.has("marker")) {
+			qstr += " AND type & $link";
+			arg.$link = TYPE_LINK;
+			if (params.has("marker_operator", "1"))
+				qstr += " AND def & $marker == $marker";
+			else
+				qstr += " AND def & $marker";
+			arg.$marker = Number.parseInt(params.get("marker"))
+			arg.$ctype |= TYPE_MONSTER;
+		}
+		if (arg.$ctype === TYPE_MONSTER) {
+			qstr += " AND type & $ctype";
+		}
+	}
+	return [qstr, arg];
+}
+
+export function respond_json(params) {
+	const [condition, arg1] = param_to_condition(validate_params(params));
+	const stmt1 = `${stmt_default}${condition}`;
+	const cards = query(stmt1, arg1);
+	const ret = {
+		result: cards
+	};
+	return JSON.stringify(ret);
 }
 
 export {
