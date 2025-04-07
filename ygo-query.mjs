@@ -307,11 +307,20 @@ const SQL = await initSqlJs();
 /**
  * @typedef {Object} Card
  * @property {number} id
- * @property {number} ot
  * @property {number} alias
  * @property {number} artid
- * @property {number[]} setcode
+ * @property {string} tw_name
+ * @property {number} [cid]
+ * @property {number} [md_rarity]
+ * @property {string} [ae_name]
+ * @property {string} [en_name]
+ * @property {string} [jp_name]
+ * @property {string} [kr_name]
+ * @property {string} [md_name_en]
+ * @property {string} [md_name_jp]
  * 
+ * @property {number} ot
+ * @property {number[]} setcode
  * @property {number} type
  * @property {number} atk
  * @property {number} def
@@ -321,17 +330,8 @@ const SQL = await initSqlJs();
  * @property {number} [scale]
  * @property {number} color - Card color for sorting
  * 
- * @property {string} tw_name
  * @property {CardText} text
  * 
- * @property {number} [cid]
- * @property {number} [md_rarity]
- * @property {string} [ae_name]
- * @property {string} [en_name]
- * @property {string} [jp_name]
- * @property {string} [kr_name]
- * @property {string} [md_name_en]
- * @property {string} [md_name_jp]
  */
 
 const extra_setcode = {
