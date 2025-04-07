@@ -4,7 +4,7 @@ const re_negative = /^-?\d{1,10}$/;
 const re_value = /^\d{1,2}$/;
 
 const interface_type = {
-	"ctype": 1,
+	"cardtype": 1,
 	"subtype": 1,
 	"subtype_operator": 1,
 	"exclude": 1,
@@ -97,12 +97,12 @@ export function validate_params(params) {
 		result.set("cid", params.get("cid"));
 		return result;
 	}
-	check_number(params, "ctype");
-	const ctype = params.has("ctype") ? Number.parseInt(params.get("ctype")) : 0;
-	if (!ctype || (ctype & ~0x7)) {
-		params.delete("ctype");
+	check_number(params, "cardtype");
+	const cardtype = params.has("cardtype") ? Number.parseInt(params.get("cardtype")) : 0;
+	if (!cardtype || (cardtype & ~0x7)) {
+		params.delete("cardtype");
 	}
-	if (params.has("ctype")) {
+	if (params.has("cardtype")) {
 		check_number(params, "subtype");
 		check_number(params, "exclude");
 		if (params.has("subtype") && params.has("subtype_operator", "1"))
@@ -115,7 +115,7 @@ export function validate_params(params) {
 		params.delete("exclude");
 		params.delete("subtype_operator");
 	}
-	if (!params.has("ctype") || params.has("ctype", "1")) {
+	if (!params.has("cardtype") || params.has("cardtype", "1")) {
 		check_number(params, "attribute");
 		check_number(params, "race");
 		check_checkbox(params, "level");

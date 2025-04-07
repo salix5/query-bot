@@ -1173,10 +1173,10 @@ export function param_to_condition(params) {
 	}
 
 	// type
-	arg.$ctype = 0;
-	if (params.has("ctype")) {
-		qstr += ' AND type & $ctype';
-		arg.$ctype = Number.parseInt(params.get("ctype"));
+	arg.$cardtype = 0;
+	if (params.has("cardtype")) {
+		qstr += ' AND type & $cardtype';
+		arg.$cardtype = Number.parseInt(params.get("cardtype"));
 	}
 	if (params.has("subtype")) {
 		if (params.has("subtype_operator", "1"))
@@ -1189,7 +1189,7 @@ export function param_to_condition(params) {
 		qstr += ' AND NOT type & $exclude';
 		arg.$exclude = Number.parseInt(params.get("exclude"));
 	}
-	if (arg.$ctype === 0 || arg.$ctype === TYPE_MONSTER) {
+	if (arg.$cardtype === 0 || arg.$cardtype === TYPE_MONSTER) {
 		// material
 		const material = params.get("material");
 		if (material) {
@@ -1197,13 +1197,13 @@ export function param_to_condition(params) {
 			arg.$mat1 = `%${material}+%`;
 			arg.$mat2 = `%+${material}%`;
 			arg.$mat3 = `%${material}×%`;
-			arg.$ctype |= TYPE_MONSTER;
+			arg.$cardtype |= TYPE_MONSTER;
 		}
 
 		// atk
 		if (params.has("atk1")) {
 			const atk1 = Number.parseInt(params.get("atk1"));
-			arg.$ctype |= TYPE_MONSTER;
+			arg.$cardtype |= TYPE_MONSTER;
 			if (atk1 === -1) {
 				qstr += " AND atk == $unknown";
 				arg.$unknown = -2;
@@ -1215,7 +1215,7 @@ export function param_to_condition(params) {
 		}
 		if (params.has("atk2")) {
 			const atk2 = Number.parseInt(params.get("atk2"));
-			arg.$ctype |= TYPE_MONSTER;
+			arg.$cardtype |= TYPE_MONSTER;
 			qstr += " AND atk >= $zero AND atk <= $atk2";
 			arg.$zero = 0;
 			arg.$atk2 = atk2;
@@ -1225,7 +1225,7 @@ export function param_to_condition(params) {
 		if (params.has("def1") || params.has("def2") || params.has("sum")) {
 			qstr += " AND NOT type & $link";
 			arg.$link = TYPE_LINK;
-			arg.$ctype |= TYPE_MONSTER;
+			arg.$cardtype |= TYPE_MONSTER;
 		}
 		if (params.has("def1")) {
 			const def1 = Number.parseInt(params.get("def1"));
@@ -1257,7 +1257,7 @@ export function param_to_condition(params) {
 
 		// lv, rank, link
 		if (params.has("level") || params.has("lv1") || params.has("lv2")) {
-			arg.$ctype |= TYPE_MONSTER;
+			arg.$cardtype |= TYPE_MONSTER;
 		}
 		if (params.has("level")) {
 			let level_condtion = "0";
@@ -1285,7 +1285,7 @@ export function param_to_condition(params) {
 		if (params.has("scale") || params.has("sc1") || params.has("sc2")) {
 			qstr += " AND type & $pendulum";
 			arg.$pendulum = TYPE_PENDULUM;
-			arg.$ctype |= TYPE_MONSTER;
+			arg.$cardtype |= TYPE_MONSTER;
 		}
 		if (params.has("scale")) {
 			let scale_condtion = "0";
@@ -1316,12 +1316,12 @@ export function param_to_condition(params) {
 		if (params.has("attribute")) {
 			qstr += " AND attribute & $attribute";
 			arg.$attribute = Number.parseInt(params.get("attribute"))
-			arg.$ctype |= TYPE_MONSTER;
+			arg.$cardtype |= TYPE_MONSTER;
 		}
 		if (params.has("race")) {
 			qstr += " AND race & $race";
 			arg.$race = Number.parseInt(params.get("race"))
-			arg.$ctype |= TYPE_MONSTER;
+			arg.$cardtype |= TYPE_MONSTER;
 		}
 		// marker
 		if (params.has("marker")) {
@@ -1332,10 +1332,10 @@ export function param_to_condition(params) {
 			else
 				qstr += " AND def & $marker";
 			arg.$marker = Number.parseInt(params.get("marker"))
-			arg.$ctype |= TYPE_MONSTER;
+			arg.$cardtype |= TYPE_MONSTER;
 		}
-		if (arg.$ctype === TYPE_MONSTER) {
-			qstr += " AND type & $ctype";
+		if (arg.$cardtype === TYPE_MONSTER) {
+			qstr += " AND type & $cardtype";
 		}
 	}
 	return [qstr, arg];
