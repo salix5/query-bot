@@ -9,7 +9,7 @@ const interface_type = {
 	"subtype_operator": 1,
 	"exclude": 1,
 	
-	"attr": 2,
+	"attribute": 2,
 	"race": 2,
 	"level": 2,
 	"lv1": 2,
@@ -23,7 +23,7 @@ const interface_type = {
 	"def2": 2,
 	"sum": 2,
 
-	"mat": 3,
+	"material": 3,
 	"marker": 3,
 	"marker_operator": 3,
 }
@@ -116,7 +116,7 @@ export function validate_params(params) {
 		params.delete("subtype_operator");
 	}
 	if (!params.has("ctype") || params.has("ctype", "1")) {
-		check_number(params, "attr");
+		check_number(params, "attribute");
 		check_number(params, "race");
 		check_checkbox(params, "level");
 		check_checkbox(params, "scale");

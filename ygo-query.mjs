@@ -1190,13 +1190,13 @@ export function param_to_condition(params) {
 		arg.$exclude = Number.parseInt(params.get("exclude"));
 	}
 	if (arg.$ctype === 0 || arg.$ctype === TYPE_MONSTER) {
-		// mat
-		const mat = params.get("mat");
-		if (mat) {
+		// material
+		const material = params.get("material");
+		if (material) {
 			qstr += ` AND ("desc" LIKE $mat1 ESCAPE '$' OR "desc" LIKE $mat2 ESCAPE '$' OR "desc" LIKE $mat3 ESCAPE '$')`;
-			arg.$mat1 = `%${mat}+%`;
-			arg.$mat2 = `%+${mat}%`;
-			arg.$mat3 = `%${mat}×%`;
+			arg.$mat1 = `%${material}+%`;
+			arg.$mat2 = `%+${material}%`;
+			arg.$mat3 = `%${material}×%`;
 			arg.$ctype |= TYPE_MONSTER;
 		}
 
@@ -1312,10 +1312,10 @@ export function param_to_condition(params) {
 			arg.$scacle_to = Number.parseInt(params.get("sc1"));
 		}
 
-		// attr, race
-		if (params.has("attr")) {
-			qstr += " AND attribute & $attr";
-			arg.$attr = Number.parseInt(params.get("attr"))
+		// attribute, race
+		if (params.has("attribute")) {
+			qstr += " AND attribute & $attribute";
+			arg.$attribute = Number.parseInt(params.get("attribute"))
 			arg.$ctype |= TYPE_MONSTER;
 		}
 		if (params.has("race")) {
