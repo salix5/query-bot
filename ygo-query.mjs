@@ -1186,7 +1186,7 @@ export function param_to_condition(params) {
 		arg.$subtype = Number.parseInt(params.get("subtype"));
 	}
 	if (params.has("exclude")) {
-		qstr += ' AND type & $exclude';
+		qstr += ' AND NOT type & $exclude';
 		arg.$exclude = Number.parseInt(params.get("exclude"));
 	}
 	if (arg.$ctype === 0 || arg.$ctype === TYPE_MONSTER) {
@@ -1250,8 +1250,8 @@ export function param_to_condition(params) {
 		}
 		if (params.has("sum")) {
 			const sum = Number.parseInt(params.get("sum"));
-			qstr += " AND atk != $unknown AND def != $unknown AND atk + def == $sum";
-			arg.$unknown = -2;
+			qstr += " AND atk >= $zero AND def >= $zero AND atk + def == $sum";
+			arg.$zero = 0;
 			arg.$sum = sum;
 		}
 
@@ -1271,16 +1271,14 @@ export function param_to_condition(params) {
 			arg.$mask = 0xff;
 		}
 		if (params.has("lv1")) {
-			const lv1 = Number.parseInt(params.get("lv1"));
-			qstr += " AND (level & $mask) >= $lv1";
+			qstr += " AND (level & $mask) >= $level_from";
 			arg.$mask = 0xff;
-			arg.$lv1 = lv1;
+			arg.$level_from = Number.parseInt(params.get("lv1"));
 		}
 		if (params.has("lv2")) {
-			const lv2 = Number.parseInt(params.get("lv2"));
-			qstr += " AND (level & $mask) <= $lv2";
+			qstr += " AND (level & $mask) <= $level_to";
 			arg.$mask = 0xff;
-			arg.$lv2 = lv2;
+			arg.$level_to = Number.parseInt(params.get("lv2"));
 		}
 
 		// scale, pendulum monster only
