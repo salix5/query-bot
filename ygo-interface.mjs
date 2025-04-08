@@ -19,8 +19,8 @@ const interface_type = {
 	"scale_to": 2,
 	"atk_from": 2,
 	"atk_to": 2,
-	"def1": 2,
-	"def2": 2,
+	"def_from": 2,
+	"def_to": 2,
 	"sum": 2,
 
 	"material": 3,
@@ -153,16 +153,16 @@ export function validate_params(params) {
 		}
 		check_number(params, "atk_to");
 
-		check_negative(params, "def1");
-		const def1 = params.has("def1") ? Number.parseInt(params.get("def1")) : -10;
-		if (def1 < -2) {
-			params.delete("def1");
+		check_negative(params, "def_from");
+		const def_from = params.has("def_from") ? Number.parseInt(params.get("def_from")) : -10;
+		if (def_from < -2) {
+			params.delete("def_from");
 		}
-		else if (def1 < 0) {
-			params.delete("def2");
+		else if (def_from < 0) {
+			params.delete("def_to");
 			params.delete("sum");
 		}
-		check_number(params, "def2");
+		check_number(params, "def_to");
 		check_number(params, "sum");
 	}
 	for (const key of Object.keys(interface_type)) {
