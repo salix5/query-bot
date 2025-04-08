@@ -1190,13 +1190,13 @@ export function param_to_condition(params) {
 		arg.$exclude = Number.parseInt(params.get("exclude"));
 	}
 	if (arg.$cardtype === 0 || arg.$cardtype === TYPE_MONSTER) {
-		// material
-		const material = params.get("material");
-		if (material) {
+		const matid = Number.parseInt(params.get("material"));
+		if (matid && query_table.has(matid)) {
+			const material = query_table.get(matid).tw_name;
 			qstr += ` AND ("desc" LIKE $mat1 ESCAPE '$' OR "desc" LIKE $mat2 ESCAPE '$' OR "desc" LIKE $mat3 ESCAPE '$')`;
-			arg.$mat1 = `%${material}+%`;
-			arg.$mat2 = `%+${material}%`;
-			arg.$mat3 = `%${material}×%`;
+			arg.$mat1 = `「${material}」%+%`;
+			arg.$mat2 = `%+「${material}」%`;
+			arg.$mat3 = `%「${material}」×%`;
 			arg.$cardtype |= TYPE_MONSTER;
 		}
 
@@ -1341,6 +1341,10 @@ export function param_to_condition(params) {
 	return [qstr, arg];
 }
 
+/**
+ * @param {URLSearchParams} params 
+ * @returns 
+ */
 export function respond_json(params) {
 	const [condition, arg1] = param_to_condition(validate_params(params));
 	const stmt1 = `${stmt_default}${condition}`;

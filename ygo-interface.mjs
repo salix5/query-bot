@@ -116,6 +116,7 @@ export function validate_params(params) {
 		params.delete("subtype_operator");
 	}
 	if (!params.has("cardtype") || params.has("cardtype", "1")) {
+		check_number(params, "material");
 		check_number(params, "attribute");
 		check_number(params, "race");
 		check_checkbox(params, "level");
