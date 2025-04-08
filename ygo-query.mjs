@@ -196,6 +196,8 @@ const rarity = {
 	4: 'UR',
 }
 
+const MAX_JSON_LENGTH = 300;
+
 export { card_type, monster_type, spell_type, trap_type, races, attributes, link_markers };
 
 // special ID
@@ -1349,8 +1351,12 @@ export function respond_json(params) {
 	const [condition, arg1] = param_to_condition(validate_params(params));
 	const stmt1 = `${stmt_default}${condition}`;
 	const cards = query(stmt1, arg1);
+	const length = cards.length;
+	if (length > MAX_JSON_LENGTH)
+		cards.length = MAX_JSON_LENGTH;
 	const ret = {
-		result: cards
+		result: cards,
+		length,
 	};
 	return JSON.stringify(ret);
 }
