@@ -12,8 +12,8 @@ const interface_type = {
 	"attribute": 2,
 	"race": 2,
 	"level": 2,
-	"lv1": 2,
-	"lv2": 2,
+	"level_from": 2,
+	"level_to": 2,
 	"scale": 2,
 	"scale_from": 2,
 	"scale_to": 2,
@@ -122,12 +122,12 @@ export function validate_params(params) {
 		check_checkbox(params, "level");
 		check_checkbox(params, "scale");
 		if (params.has("level")) {
-			params.delete("lv1");
-			params.delete("lv2");
+			params.delete("level_from");
+			params.delete("level_to");
 		}
 		else {
-			check_number(params, "lv1");
-			check_number(params, "lv2");
+			check_number(params, "level_from");
+			check_number(params, "level_to");
 		}
 		if (params.has("scale")) {
 			params.delete("scale_from");
