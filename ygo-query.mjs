@@ -1258,7 +1258,7 @@ export function param_to_condition(params) {
 		}
 
 		// lv, rank, link
-		if (params.has("level") || params.has("lv1") || params.has("lv2")) {
+		if (params.has("level") || params.has("level_from") || params.has("level_to")) {
 			arg.$cardtype |= TYPE_MONSTER;
 		}
 		if (params.has("level")) {
@@ -1272,15 +1272,15 @@ export function param_to_condition(params) {
 			qstr += ` AND (${level_condtion})`;
 			arg.$mask = 0xff;
 		}
-		if (params.has("lv1")) {
+		if (params.has("level_from")) {
 			qstr += " AND (level & $mask) >= $level_from";
 			arg.$mask = 0xff;
-			arg.$level_from = Number.parseInt(params.get("lv1"));
+			arg.$level_from = Number.parseInt(params.get("level_from"));
 		}
-		if (params.has("lv2")) {
+		if (params.has("level_to")) {
 			qstr += " AND (level & $mask) <= $level_to";
 			arg.$mask = 0xff;
-			arg.$level_to = Number.parseInt(params.get("lv2"));
+			arg.$level_to = Number.parseInt(params.get("level_to"));
 		}
 
 		// scale, pendulum monster only
