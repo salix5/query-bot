@@ -1284,7 +1284,7 @@ export function param_to_condition(params) {
 		}
 
 		// scale, pendulum monster only
-		if (params.has("scale") || params.has("sc1") || params.has("sc2")) {
+		if (params.has("scale") || params.has("scale_from") || params.has("scale_to")) {
 			qstr += " AND type & $pendulum";
 			arg.$pendulum = TYPE_PENDULUM;
 			arg.$cardtype |= TYPE_MONSTER;
@@ -1301,17 +1301,17 @@ export function param_to_condition(params) {
 			arg.$offset = 24;
 			arg.$mask = 0xff;
 		}
-		if (params.has("sc1")) {
+		if (params.has("scale_from")) {
 			qstr += " AND (level >> $offset & $mask) >= $scacle_from";
 			arg.$offset = 24;
 			arg.$mask = 0xff;
-			arg.$scacle_from = Number.parseInt(params.get("sc1"));
+			arg.$scacle_from = Number.parseInt(params.get("scale_from"));
 		}
-		if (params.has("sc2")) {
+		if (params.has("scale_to")) {
 			qstr += " AND (level >> $offset & $mask) <= $scacle_to";
 			arg.$offset = 24;
 			arg.$mask = 0xff;
-			arg.$scacle_to = Number.parseInt(params.get("sc1"));
+			arg.$scacle_to = Number.parseInt(params.get("scale_from"));
 		}
 
 		// attribute, race

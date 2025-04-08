@@ -8,15 +8,15 @@ const interface_type = {
 	"subtype": 1,
 	"subtype_operator": 1,
 	"exclude": 1,
-	
+
 	"attribute": 2,
 	"race": 2,
 	"level": 2,
 	"lv1": 2,
 	"lv2": 2,
 	"scale": 2,
-	"sc1": 2,
-	"sc2": 2,
+	"scale_from": 2,
+	"scale_to": 2,
 	"atk1": 2,
 	"atk2": 2,
 	"def1": 2,
@@ -130,12 +130,12 @@ export function validate_params(params) {
 			check_number(params, "lv2");
 		}
 		if (params.has("scale")) {
-			params.delete("sc1");
-			params.delete("sc2");
+			params.delete("scale_from");
+			params.delete("scale_to");
 		}
 		else {
-			check_number(params, "sc1");
-			check_number(params, "sc2");
+			check_number(params, "scale_from");
+			check_number(params, "scale_to");
 		}
 		check_number(params, "marker");
 		if (params.has("marker") && params.has("marker_operator", "1"))
