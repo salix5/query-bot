@@ -1203,24 +1203,24 @@ export function param_to_condition(params) {
 		}
 
 		// atk
-		if (params.has("atk1")) {
-			const atk1 = Number.parseInt(params.get("atk1"));
+		if (params.has("atk_from")) {
+			const atk_from = Number.parseInt(params.get("atk_from"));
 			arg.$cardtype |= TYPE_MONSTER;
-			if (atk1 === -1) {
+			if (atk_from === -1) {
 				qstr += " AND atk == $unknown";
 				arg.$unknown = -2;
 			}
 			else {
-				qstr += " AND atk >= $atk1";
-				arg.$atk1 = atk1;
+				qstr += " AND atk >= $atk_from";
+				arg.$atk_from = atk_from;
 			}
 		}
-		if (params.has("atk2")) {
-			const atk2 = Number.parseInt(params.get("atk2"));
+		if (params.has("atk_to")) {
+			const atk_to = Number.parseInt(params.get("atk_to"));
 			arg.$cardtype |= TYPE_MONSTER;
-			qstr += " AND atk >= $zero AND atk <= $atk2";
+			qstr += " AND atk >= $zero AND atk <= $atk_to";
 			arg.$zero = 0;
-			arg.$atk2 = atk2;
+			arg.$atk_to = atk_to;
 		}
 
 		// def, exclude link monsters

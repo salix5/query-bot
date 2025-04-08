@@ -17,8 +17,8 @@ const interface_type = {
 	"scale": 2,
 	"scale_from": 2,
 	"scale_to": 2,
-	"atk1": 2,
-	"atk2": 2,
+	"atk_from": 2,
+	"atk_to": 2,
 	"def1": 2,
 	"def2": 2,
 	"sum": 2,
@@ -142,16 +142,16 @@ export function validate_params(params) {
 			params.set("marker_operator", "1");
 		else
 			params.delete("marker_operator");
-		check_negative(params, "atk1");
-		const atk1 = params.has("atk1") ? Number.parseInt(params.get("atk1")) : -10;
-		if (atk1 < -1) {
-			params.delete("atk1");
+		check_negative(params, "atk_from");
+		const atk_from = params.has("atk_from") ? Number.parseInt(params.get("atk_from")) : -10;
+		if (atk_from < -1) {
+			params.delete("atk_from");
 		}
-		else if (atk1 < 0) {
-			params.delete("atk2");
+		else if (atk_from < 0) {
+			params.delete("atk_to");
 			params.delete("sum");
 		}
-		check_number(params, "atk2");
+		check_number(params, "atk_to");
 
 		check_negative(params, "def1");
 		const def1 = params.has("def1") ? Number.parseInt(params.get("def1")) : -10;
