@@ -1224,31 +1224,31 @@ export function param_to_condition(params) {
 		}
 
 		// def, exclude link monsters
-		if (params.has("def1") || params.has("def2") || params.has("sum")) {
+		if (params.has("def_from") || params.has("def_to") || params.has("sum")) {
 			qstr += " AND NOT type & $link";
 			arg.$link = TYPE_LINK;
 			arg.$cardtype |= TYPE_MONSTER;
 		}
-		if (params.has("def1")) {
-			const def1 = Number.parseInt(params.get("def1"));
-			if (def1 === -1) {
+		if (params.has("def_from")) {
+			const def_from = Number.parseInt(params.get("def_from"));
+			if (def_from === -1) {
 				qstr += " AND def == $unknown";
 				arg.$unknown = -2;
 			}
-			else if (def1 === -2) {
+			else if (def_from === -2) {
 				qstr += " AND def == atk AND def >= $zero";
 				arg.$zero = 0;
 			}
 			else {
-				qstr += " AND def >= $def1";
-				arg.$def1 = def1;
+				qstr += " AND def >= $def_from";
+				arg.$def_from = def_from;
 			}
 		}
-		if (params.has("def2")) {
-			const def2 = Number.parseInt(params.get("def2"));
-			qstr += " AND def >= $zero AND def <= $def2";
+		if (params.has("def_to")) {
+			const def_to = Number.parseInt(params.get("def_to"));
+			qstr += " AND def >= $zero AND def <= $def_to";
 			arg.$zero = 0;
-			arg.$def2 = def2;
+			arg.$def_to = def_to;
 		}
 		if (params.has("sum")) {
 			const sum = Number.parseInt(params.get("sum"));
