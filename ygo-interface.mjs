@@ -89,8 +89,8 @@ function check_checkbox(params, name) {
  */
 export function validate_params(params) {
 	const result = new URLSearchParams();
-	if (params.has("code") && re_id.test(params.get("code"))) {
-		result.set("code", params.get("code"));
+	if (params.has("id") && re_id.test(params.get("id"))) {
+		result.set("id", params.get("id"));
 		return result;
 	}
 	if (params.has("cid") && re_id.test(params.get("cid"))) {

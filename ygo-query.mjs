@@ -1162,7 +1162,7 @@ export function param_to_condition(params) {
 	const arg = { ...arg_default };
 	// id, primary key
 	if (params.has("id")) {
-		const id = Number.parseInt(params.get("code"));
+		const id = Number.parseInt(params.get("id"));
 		qstr += " AND datas.id == $id";
 		arg.$id = id;
 		return [qstr, arg];
