@@ -1347,7 +1347,7 @@ export function param_to_condition(params) {
  * @param {URLSearchParams} params 
  * @returns 
  */
-export function respond_json(params) {
+export function server_respond(params) {
 	const [condition, arg1] = param_to_condition(validate_params(params));
 	if (!condition) {
 		return JSON.stringify({
