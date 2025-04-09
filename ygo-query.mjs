@@ -308,12 +308,9 @@ const SQL = await initSqlJs();
 
 /**
  * @typedef {Object} Card
- * @property {number} id
- * @property {number} alias
- * @property {number} artid
- * @property {string} tw_name
  * @property {number} [cid]
- * @property {number} [md_rarity]
+ * @property {number} id
+ * @property {string} tw_name
  * @property {string} [ae_name]
  * @property {string} [en_name]
  * @property {string} [jp_name]
@@ -322,6 +319,7 @@ const SQL = await initSqlJs();
  * @property {string} [md_name_jp]
  * 
  * @property {number} ot
+ * @property {number} alias
  * @property {number[]} setcode
  * @property {number} type
  * @property {number} atk
@@ -330,10 +328,11 @@ const SQL = await initSqlJs();
  * @property {number} race
  * @property {number} attribute
  * @property {number} [scale]
- * @property {number} color - Card color for sorting
- * 
+ * @property {number} [md_rarity]
  * @property {CardText} text
  * 
+ * @property {number} artid
+ * @property {number} color - Card color for sorting
  */
 
 const extra_setcode = {
@@ -429,7 +428,45 @@ function query_db(db, qstr, arg) {
 	return ret;
 }
 
-function edit_card(card) {
+function generate_card(cdata) {
+	let artid = 0;
+	if (is_alternative(cdata)) {
+		artid = cdata.id;
+		cdata.id = cdata.alias;
+		cdata.alias = 0;
+	}
+	const card = Object.create(null);
+	if (id_to_cid.has(cdata.id))
+		card.cid = id_to_cid.get(cdata.id);
+	card.id = cdata.id;
+	card.tw_name = cdata.name;
+	if (card.cid) {
+		for (const [locale, prop] of Object.entries(official_name)) {
+			if (name_table[locale].has(card.cid))
+				card[prop] = name_table[locale].get(card.cid);
+			else if (md_table[locale] && md_table[locale].has(card.cid))
+				card[game_name[locale]] = md_table[locale].get(card.cid);
+		}
+	}
+	for (const [column, value] of Object.entries(cdata)) {
+		switch (column) {
+			case "id":
+			case "name":
+			case "desc":
+				continue;
+			default:
+				card[column] = value;
+				break;
+		}
+	}
+	if (card.cid && md_card_list[card.cid])
+		card.md_rarity = md_card_list[card.cid];
+	card.text = Object.create(null);
+	card.text.desc = cdata.desc;
+	if (!(card.type & TYPE_PENDULUM))
+		delete card.scale;
+	card.artid = artid;
+	// color
 	if (card.type & TYPE_MONSTER) {
 		if (!(card.type & TYPE_EXTRA)) {
 			if (card.type & TYPE_TOKEN)
@@ -485,33 +522,7 @@ function edit_card(card) {
 	else {
 		card.color = -1;
 	}
-	if (is_alternative(card)) {
-		card.artid = card.id;
-		card.id = card.alias;
-		card.alias = 0;
-	}
-	else {
-		card.artid = 0;
-	}
-	if (id_to_cid.has(card.id))
-		card.cid = id_to_cid.get(card.id);
-	if (!(card.type & TYPE_PENDULUM))
-		delete card.scale;
-	card.tw_name = card.name;
-	delete card.name;
-	if (card.cid) {
-		for (const [locale, prop] of Object.entries(official_name)) {
-			if (name_table[locale].has(card.cid))
-				card[prop] = name_table[locale].get(card.cid);
-			else if (md_table[locale] && md_table[locale].has(card.cid))
-				card[game_name[locale]] = md_table[locale].get(card.cid);
-		}
-		if (md_card_list[card.cid])
-			card.md_rarity = md_card_list[card.cid];
-	}
-	card.text = Object.create(null);
-	card.text.desc = card.desc;
-	delete card.desc;
+	return card;
 }
 
 /**
@@ -575,8 +586,7 @@ export async function init_query(files) {
 export function is_alternative(record) {
 	if (record.id === ID_BLACK_LUSTER_SOLDIER)
 		return false;
-	else
-		return Math.abs(record.id - record.alias) < CARD_ARTWORK_VERSIONS_OFFSET;
+	return Math.abs(record.id - record.alias) < CARD_ARTWORK_VERSIONS_OFFSET;
 }
 
 /**
@@ -635,11 +645,9 @@ export function setcode_condition(setcode, arg) {
 export function query(qstr = stmt_default, arg = arg_default) {
 	const ret = [];
 	for (const db of db_list) {
-		const result = query_db(db, qstr, arg);
-		ret.push(...result);
-	}
-	for (const card of ret) {
-		edit_card(card);
+		for (const cdata of query_db(db, qstr, arg)) {
+			ret.push(generate_card(cdata));
+		}
 	}
 	return ret;
 }
