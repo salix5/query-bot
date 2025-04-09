@@ -454,6 +454,10 @@ function generate_card(cdata) {
 			case "name":
 			case "desc":
 				continue;
+			case "scale":
+				if (cdata.type & TYPE_PENDULUM)
+					card[column] = value;
+				break;
 			default:
 				card[column] = value;
 				break;
@@ -463,8 +467,6 @@ function generate_card(cdata) {
 		card.md_rarity = md_card_list[card.cid];
 	card.text = Object.create(null);
 	card.text.desc = cdata.desc;
-	if (!(card.type & TYPE_PENDULUM))
-		delete card.scale;
 	card.artid = artid;
 	// color
 	if (card.type & TYPE_MONSTER) {
