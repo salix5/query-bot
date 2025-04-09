@@ -1349,16 +1349,21 @@ export function param_to_condition(params) {
  */
 export function respond_json(params) {
 	const [condition, arg1] = param_to_condition(validate_params(params));
+	if (!condition) {
+		return JSON.stringify({
+			result: [],
+			length: 0,
+		});
+	}
 	const stmt1 = `${stmt_default}${condition}`;
 	const cards = query(stmt1, arg1);
 	const length = cards.length;
 	if (length > MAX_JSON_LENGTH)
 		cards.length = MAX_JSON_LENGTH;
-	const ret = {
+	return JSON.stringify({
 		result: cards,
 		length,
-	};
-	return JSON.stringify(ret);
+	});
 }
 
 export {
