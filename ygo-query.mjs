@@ -1161,16 +1161,16 @@ export function param_to_condition(params) {
 	let qstr = "";
 	const arg = { ...arg_default };
 	// id, primary key
-	const id = Number.parseInt(params.get("code"));
-	if (id) {
+	if (params.has("id")) {
+		const id = Number.parseInt(params.get("code"));
 		qstr += " AND datas.id == $id";
 		arg.$id = id;
 		return [qstr, arg];
 	}
-	const cid = Number.parseInt(params.get("cid"));
-	if (cid_table.has(cid)) {
+	if (params.has("cid")) {
+		const cid = Number.parseInt(params.get("cid"));
 		qstr += " AND datas.id == $id";
-		arg.$id = cid_table.get(cid);
+		arg.$id = cid_table.get(cid) ?? 0;
 		return [qstr, arg];
 	}
 
