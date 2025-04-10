@@ -226,6 +226,12 @@ const arg_default = {
 	$token: TYPE_TOKEN,
 };
 
+const stmt_base = `${select_all}${base_filter}`;
+const arg_base = {
+	$tyler: ID_TYLER_THE_GREAT_WARRIOR,
+	$token: TYPE_TOKEN,
+};
+
 const stmt_no_alias = `${select_id}${base_filter} AND alias == $none`;
 const arg_no_alias = {
 	$tyler: ID_TYLER_THE_GREAT_WARRIOR,
@@ -240,8 +246,8 @@ export {
 	CID_BLACK_LUSTER_SOLDIER,
 	select_all, select_id, select_name,
 	base_filter, no_alt_filter, default_filter, effect_filter,
-	stmt_default, stmt_no_alias,
-	arg_default, arg_no_alias,
+	stmt_default, stmt_base, stmt_no_alias,
+	arg_default, arg_base, arg_no_alias,
 	regexp_mention,
 };
 
