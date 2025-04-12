@@ -10,195 +10,9 @@ import { name_table, md_table, md_table_sc } from './ygo-json-loader.mjs';
 import { inverse_mapping } from './ygo-utility.mjs';
 import { db_url1, db_url2, fetch_db } from './ygo-fetch.mjs';
 import { validate_params } from './ygo-interface.mjs';
-
-// type
-const TYPE_MONSTER = 0x1;
-const TYPE_SPELL = 0x2;
-const TYPE_TRAP = 0x4;
-
-// color type
-const TYPE_NORMAL = 0x10;
-const TYPE_EFFECT = 0x20;
-const TYPE_FUSION = 0x40;
-const TYPE_RITUAL = 0x80;
-const TYPE_SYNCHRO = 0x2000;
-const TYPE_XYZ = 0x800000;
-const TYPE_PENDULUM = 0x1000000;
-const TYPE_LINK = 0x4000000;
-const TYPE_EXTRA = TYPE_FUSION | TYPE_SYNCHRO | TYPE_XYZ | TYPE_LINK;
-
-// extype
-const TYPE_SPIRIT = 0x200;
-const TYPE_UNION = 0x400;
-const TYPE_DUAL = 0x800;
-const TYPE_TUNER = 0x1000;
-const TYPE_TOKEN = 0x4000;
-const TYPE_FLIP = 0x200000;
-const TYPE_TOON = 0x400000;
-const TYPE_SPSUMMON = 0x2000000;
-
-// spell type
-const TYPE_QUICKPLAY = 0x10000;
-const TYPE_CONTINUOUS = 0x20000;
-const TYPE_EQUIP = 0x40000;
-//const TYPE_RITUAL
-const TYPE_FIELD = 0x80000;
-
-// trap type
-//const TYPE_CONTINUOUS
-const TYPE_COUNTER = 0x100000;
-
-// race
-const RACE_WARRIOR = 0x1;
-const RACE_SPELLCASTER = 0x2;
-const RACE_FAIRY = 0x4;
-const RACE_FIEND = 0x8;
-const RACE_ZOMBIE = 0x10;
-const RACE_MACHINE = 0x20;
-const RACE_AQUA = 0x40;
-const RACE_PYRO = 0x80;
-const RACE_ROCK = 0x100;
-const RACE_WINDBEAST = 0x200;
-const RACE_PLANT = 0x400;
-const RACE_INSECT = 0x800;
-const RACE_THUNDER = 0x1000;
-const RACE_DRAGON = 0x2000;
-const RACE_BEAST = 0x4000;
-const RACE_BEASTWARRIOR = 0x8000;
-const RACE_DINOSAUR = 0x10000;
-const RACE_FISH = 0x20000;
-const RACE_SEASERPENT = 0x40000;
-const RACE_REPTILE = 0x80000;
-const RACE_PSYCHO = 0x100000;
-const RACE_DIVINE = 0x200000;
-const RACE_CREATORGOD = 0x400000;
-const RACE_WYRM = 0x800000;
-const RACE_CYBERSE = 0x1000000;
-const RACE_ILLUSION = 0x2000000;
-
-// attribute
-const ATTRIBUTE_EARTH = 0x01;
-const ATTRIBUTE_WATER = 0x02;
-const ATTRIBUTE_FIRE = 0x04;
-const ATTRIBUTE_WIND = 0x08;
-const ATTRIBUTE_LIGHT = 0x10;
-const ATTRIBUTE_DARK = 0x20;
-const ATTRIBUTE_DIVINE = 0x40;
-
-// Link Marker
-const LINK_MARKER_BOTTOM_LEFT = 0x001;	// ↙
-const LINK_MARKER_BOTTOM = 0x002;		// ↓
-const LINK_MARKER_BOTTOM_RIGHT = 0x004;	// ↘
-
-const LINK_MARKER_LEFT = 0x008;			// ←
-const LINK_MARKER_RIGHT = 0x020;		// →
-
-const LINK_MARKER_TOP_LEFT = 0x040;		// ↖
-const LINK_MARKER_TOP = 0x080;			// ↑
-const LINK_MARKER_TOP_RIGHT = 0x100;	// ↗
-
-const card_type = {
-	TYPE_MONSTER,
-	TYPE_SPELL,
-	TYPE_TRAP,
-};
-
-const monster_type = {
-	TYPE_NORMAL,
-	TYPE_EFFECT,
-	TYPE_FUSION,
-	TYPE_RITUAL,
-	TYPE_SYNCHRO,
-	TYPE_XYZ,
-	TYPE_PENDULUM,
-	TYPE_LINK,
-	TYPE_EXTRA,
-
-	TYPE_SPIRIT,
-	TYPE_UNION,
-	TYPE_DUAL,
-	TYPE_TUNER,
-	TYPE_TOKEN,
-	TYPE_FLIP,
-	TYPE_TOON,
-	TYPE_SPSUMMON,
-};
-
-const spell_type = {
-	TYPE_QUICKPLAY,
-	TYPE_CONTINUOUS,
-	TYPE_EQUIP,
-	TYPE_RITUAL,
-	TYPE_FIELD,
-};
-
-const trap_type = {
-	TYPE_CONTINUOUS,
-	TYPE_COUNTER,
-};
-
-const races = {
-	RACE_WARRIOR,
-	RACE_SPELLCASTER,
-	RACE_FAIRY,
-	RACE_FIEND,
-	RACE_ZOMBIE,
-	RACE_MACHINE,
-	RACE_AQUA,
-	RACE_PYRO,
-	RACE_ROCK,
-	RACE_WINDBEAST,
-	RACE_PLANT,
-	RACE_INSECT,
-	RACE_THUNDER,
-	RACE_DRAGON,
-	RACE_BEAST,
-	RACE_BEASTWARRIOR,
-	RACE_DINOSAUR,
-	RACE_FISH,
-	RACE_SEASERPENT,
-	RACE_REPTILE,
-	RACE_PSYCHO,
-	RACE_DIVINE,
-	RACE_CREATORGOD,
-	RACE_WYRM,
-	RACE_CYBERSE,
-	RACE_ILLUSION,
-};
-
-const attributes = {
-	ATTRIBUTE_EARTH,
-	ATTRIBUTE_WATER,
-	ATTRIBUTE_FIRE,
-	ATTRIBUTE_WIND,
-	ATTRIBUTE_LIGHT,
-	ATTRIBUTE_DARK,
-	ATTRIBUTE_DIVINE,
-};
-
-const link_markers = {
-	LINK_MARKER_BOTTOM_LEFT,
-	LINK_MARKER_BOTTOM,
-	LINK_MARKER_BOTTOM_RIGHT,
-
-	LINK_MARKER_LEFT,
-	LINK_MARKER_RIGHT,
-
-	LINK_MARKER_TOP_LEFT,
-	LINK_MARKER_TOP,
-	LINK_MARKER_TOP_RIGHT,
-};
-
-const rarity = {
-	1: 'N',
-	2: 'R',
-	3: 'SR',
-	4: 'UR',
-}
+import { card_types, monster_types, spell_types, trap_types, races, attributes, link_markers, rarity } from "./ygo-constant.mjs";
 
 const MAX_JSON_LENGTH = 300;
-
-export { card_type, monster_type, spell_type, trap_type, races, attributes, link_markers };
 
 // special ID
 const ID_TYLER_THE_GREAT_WARRIOR = 68811206;
@@ -223,19 +37,19 @@ const arg_default = {
 	$tyler: ID_TYLER_THE_GREAT_WARRIOR,
 	$luster: ID_BLACK_LUSTER_SOLDIER,
 	$artwork_offset: CARD_ARTWORK_VERSIONS_OFFSET,
-	$token: TYPE_TOKEN,
+	$token: monster_types.TYPE_TOKEN,
 };
 
 const stmt_base = `${select_all}${base_filter}`;
 const arg_base = {
 	$tyler: ID_TYLER_THE_GREAT_WARRIOR,
-	$token: TYPE_TOKEN,
+	$token: monster_types.TYPE_TOKEN,
 };
 
 const stmt_no_alias = `${select_id}${base_filter} AND alias == $none`;
 const arg_no_alias = {
 	$tyler: ID_TYLER_THE_GREAT_WARRIOR,
-	$token: TYPE_TOKEN,
+	$token: monster_types.TYPE_TOKEN,
 	$none: 0,
 };
 const regexp_mention = `(?<=「)[^「」]*「?[^「」]*」?[^「」]*(?=」)`;
@@ -250,6 +64,8 @@ export {
 	arg_default, arg_base, arg_no_alias,
 	regexp_mention,
 };
+	
+export { card_types, monster_types, spell_types, trap_types, races, attributes, link_markers };
 
 const id_to_cid = inverse_mapping(cid_table);
 const complete_name_table = Object.create(null);
@@ -350,7 +166,7 @@ const over_hundred = '(name like $101 OR name like $102 OR name like $103 OR nam
 const stmt_seventh = `${stmt_default} AND type & $xyz AND ${over_hundred}`;
 const arg_seventh = {
 	...arg_default,
-	$xyz: TYPE_XYZ,
+	$xyz: monster_types.TYPE_XYZ,
 };
 for (let i = 0; i < 7; ++i) {
 	arg_seventh[`$${101 + i}`] = `%No.${101 + i}%`;
@@ -461,7 +277,7 @@ function generate_card(cdata) {
 			case "desc":
 				continue;
 			case "scale":
-				if (cdata.type & TYPE_PENDULUM)
+				if (cdata.type & monster_types.TYPE_PENDULUM)
 					card[column] = value;
 				break;
 			default:
@@ -475,54 +291,54 @@ function generate_card(cdata) {
 	card.text.desc = cdata.desc;
 	card.artid = artid;
 	// color
-	if (card.type & TYPE_MONSTER) {
-		if (!(card.type & TYPE_EXTRA)) {
-			if (card.type & TYPE_TOKEN)
+	if (card.type & card_types.TYPE_MONSTER) {
+		if (!(card.type & monster_types.TYPE_EXTRA)) {
+			if (card.type & monster_types.TYPE_TOKEN)
 				card.color = 0;
-			else if (card.type & TYPE_NORMAL)
+			else if (card.type & monster_types.TYPE_NORMAL)
 				card.color = 1;
-			else if (card.type & TYPE_RITUAL)
+			else if (card.type & monster_types.TYPE_RITUAL)
 				card.color = 3;
-			else if (card.type & TYPE_EFFECT)
+			else if (card.type & monster_types.TYPE_EFFECT)
 				card.color = 2;
 			else
 				card.color = -1;
 		}
 		else {
-			if (card.type & TYPE_FUSION)
+			if (card.type & monster_types.TYPE_FUSION)
 				card.color = 4;
-			else if (card.type & TYPE_SYNCHRO)
+			else if (card.type & monster_types.TYPE_SYNCHRO)
 				card.color = 5;
-			else if (card.type & TYPE_XYZ)
+			else if (card.type & monster_types.TYPE_XYZ)
 				card.color = 6;
-			else if (card.type & TYPE_LINK)
+			else if (card.type & monster_types.TYPE_LINK)
 				card.color = 7;
 			else
 				card.color = -1;
 		}
 	}
-	else if (card.type & TYPE_SPELL) {
-		if (card.type === TYPE_SPELL)
+	else if (card.type & card_types.TYPE_SPELL) {
+		if (card.type === card_types.TYPE_SPELL)
 			card.color = 10;
-		else if (card.type & TYPE_QUICKPLAY)
+		else if (card.type & spell_types.TYPE_QUICKPLAY)
 			card.color = 11;
-		else if (card.type & TYPE_CONTINUOUS)
+		else if (card.type & spell_types.TYPE_CONTINUOUS)
 			card.color = 12;
-		else if (card.type & TYPE_EQUIP)
+		else if (card.type & spell_types.TYPE_EQUIP)
 			card.color = 13;
-		else if (card.type & TYPE_RITUAL)
+		else if (card.type & spell_types.TYPE_RITUAL)
 			card.color = 14;
-		else if (card.type & TYPE_FIELD)
+		else if (card.type & spell_types.TYPE_FIELD)
 			card.color = 15;
 		else
 			card.color = -1;
 	}
-	else if (card.type & TYPE_TRAP) {
-		if (card.type === TYPE_TRAP)
+	else if (card.type & card_types.TYPE_TRAP) {
+		if (card.type === card_types.TYPE_TRAP)
 			card.color = 20;
-		else if (card.type & TYPE_CONTINUOUS)
+		else if (card.type & trap_types.TYPE_CONTINUOUS)
 			card.color = 21;
-		else if (card.type & TYPE_COUNTER)
+		else if (card.type & trap_types.TYPE_COUNTER)
 			card.color = 22;
 		else
 			card.color = -1;
@@ -750,9 +566,9 @@ export function get_request_locale(card, locale) {
  */
 export function get_seventh_xyz(card) {
 	const result = [];
-	if (!(card.type & TYPE_MONSTER))
+	if (!(card.type & card_types.TYPE_MONSTER))
 		return result;
-	if (card.type & TYPE_EXTRA)
+	if (card.type & monster_types.TYPE_EXTRA)
 		return result;
 	if (!mmap_seventh[card.level])
 		return result;
@@ -792,45 +608,45 @@ export function print_data(card, newline, locale) {
 	let lvstr = '\u2605';
 	let data = '';
 
-	if (card.type & TYPE_MONSTER) {
-		mtype = strings.type_name[TYPE_MONSTER];
-		if (card.type & TYPE_RITUAL)
-			subtype = `/${strings.type_name[TYPE_RITUAL]}`;
-		else if (card.type & TYPE_FUSION)
-			subtype = `/${strings.type_name[TYPE_FUSION]}`;
-		else if (card.type & TYPE_SYNCHRO)
-			subtype = `/${strings.type_name[TYPE_SYNCHRO]}`;
-		else if (card.type & TYPE_XYZ) {
-			subtype = `/${strings.type_name[TYPE_XYZ]}`;
+	if (card.type & card_types.TYPE_MONSTER) {
+		mtype = strings.type_name[card_types.TYPE_MONSTER];
+		if (card.type & monster_types.TYPE_RITUAL)
+			subtype = `/${strings.type_name[monster_types.TYPE_RITUAL]}`;
+		else if (card.type & monster_types.TYPE_FUSION)
+			subtype = `/${strings.type_name[monster_types.TYPE_FUSION]}`;
+		else if (card.type & monster_types.TYPE_SYNCHRO)
+			subtype = `/${strings.type_name[monster_types.TYPE_SYNCHRO]}`;
+		else if (card.type & monster_types.TYPE_XYZ) {
+			subtype = `/${strings.type_name[monster_types.TYPE_XYZ]}`;
 			lvstr = `\u2606`;
 		}
-		else if (card.type & TYPE_LINK) {
-			subtype = `/${strings.type_name[TYPE_LINK]}`;
+		else if (card.type & monster_types.TYPE_LINK) {
+			subtype = `/${strings.type_name[monster_types.TYPE_LINK]}`;
 			lvstr = `LINK-`;
 		}
-		if (card.type & TYPE_PENDULUM) {
-			subtype += `/${strings.type_name[TYPE_PENDULUM]}`;
+		if (card.type & monster_types.TYPE_PENDULUM) {
+			subtype += `/${strings.type_name[monster_types.TYPE_PENDULUM]}`;
 		}
 
 		// extype
-		if (card.type & TYPE_NORMAL)
-			subtype += `/${strings.type_name[TYPE_NORMAL]}`;
-		if (card.type & TYPE_SPIRIT)
-			subtype += `/${strings.type_name[TYPE_SPIRIT]}`;
-		if (card.type & TYPE_UNION)
-			subtype += `/${strings.type_name[TYPE_UNION]}`;
-		if (card.type & TYPE_DUAL)
-			subtype += `/${strings.type_name[TYPE_DUAL]}`;
-		if (card.type & TYPE_TUNER)
-			subtype += `/${strings.type_name[TYPE_TUNER]}`;
-		if (card.type & TYPE_FLIP)
-			subtype += `/${strings.type_name[TYPE_FLIP]}`;
-		if (card.type & TYPE_TOON)
-			subtype += `/${strings.type_name[TYPE_TOON]}`;
-		if (card.type & TYPE_SPSUMMON)
-			subtype += `/${strings.type_name[TYPE_SPSUMMON]}`;
-		if (card.type & TYPE_EFFECT)
-			subtype += `/${strings.type_name[TYPE_EFFECT]}`;
+		if (card.type & monster_types.TYPE_NORMAL)
+			subtype += `/${strings.type_name[monster_types.TYPE_NORMAL]}`;
+		if (card.type & monster_types.TYPE_SPIRIT)
+			subtype += `/${strings.type_name[monster_types.TYPE_SPIRIT]}`;
+		if (card.type & monster_types.TYPE_UNION)
+			subtype += `/${strings.type_name[monster_types.TYPE_UNION]}`;
+		if (card.type & monster_types.TYPE_DUAL)
+			subtype += `/${strings.type_name[monster_types.TYPE_DUAL]}`;
+		if (card.type & monster_types.TYPE_TUNER)
+			subtype += `/${strings.type_name[monster_types.TYPE_TUNER]}`;
+		if (card.type & monster_types.TYPE_FLIP)
+			subtype += `/${strings.type_name[monster_types.TYPE_FLIP]}`;
+		if (card.type & monster_types.TYPE_TOON)
+			subtype += `/${strings.type_name[monster_types.TYPE_TOON]}`;
+		if (card.type & monster_types.TYPE_SPSUMMON)
+			subtype += `/${strings.type_name[monster_types.TYPE_SPSUMMON]}`;
+		if (card.type & monster_types.TYPE_EFFECT)
+			subtype += `/${strings.type_name[monster_types.TYPE_EFFECT]}`;
 		data = `[${mtype}${subtype}]${newline}`;
 
 		data += `${lvstr}${card.level === 0 ? '?' : card.level}`;
@@ -843,17 +659,17 @@ export function print_data(card, newline, locale) {
 		else
 			data += `/${strings.race_name['unknown']}`;
 		data += `/${strings.value_name['atk']}${print_ad(card.atk)}`;
-		if (!(card.type & TYPE_LINK)) {
+		if (!(card.type & monster_types.TYPE_LINK)) {
 			data += `/${strings.value_name['def']}${print_ad(card.def)}`;
 		}
 		data += newline;
 
-		if (card.type & TYPE_PENDULUM) {
+		if (card.type & monster_types.TYPE_PENDULUM) {
 			data += `【${strings.value_name['scale']}：${card.scale}】${newline}`;
 		}
-		if (card.type & TYPE_LINK) {
+		if (card.type & monster_types.TYPE_LINK) {
 			let marker_text = '';
-			for (let marker = LINK_MARKER_TOP_LEFT; marker <= LINK_MARKER_TOP_RIGHT; marker <<= 1) {
+			for (let marker = link_markers.LINK_MARKER_TOP_LEFT; marker <= link_markers.LINK_MARKER_TOP_RIGHT; marker <<= 1) {
 				if (card.def & marker)
 					marker_text += strings.marker_char[marker];
 				else
@@ -861,21 +677,21 @@ export function print_data(card, newline, locale) {
 			}
 			marker_text += newline;
 
-			if (card.def & LINK_MARKER_LEFT)
-				marker_text += strings.marker_char[LINK_MARKER_LEFT];
+			if (card.def & link_markers.LINK_MARKER_LEFT)
+				marker_text += strings.marker_char[link_markers.LINK_MARKER_LEFT];
 			else
 				marker_text += strings.marker_char['default'];
 
 			marker_text += strings.marker_char['default'];
 
-			if (card.def & LINK_MARKER_RIGHT)
-				marker_text += strings.marker_char[LINK_MARKER_RIGHT];
+			if (card.def & link_markers.LINK_MARKER_RIGHT)
+				marker_text += strings.marker_char[link_markers.LINK_MARKER_RIGHT];
 			else
 				marker_text += strings.marker_char['default'];
 
 			marker_text += newline;
 
-			for (let marker = LINK_MARKER_BOTTOM_LEFT; marker <= LINK_MARKER_BOTTOM_RIGHT; marker <<= 1) {
+			for (let marker = link_markers.LINK_MARKER_BOTTOM_LEFT; marker <= link_markers.LINK_MARKER_BOTTOM_RIGHT; marker <<= 1) {
 				if (card.def & marker)
 					marker_text += strings.marker_char[marker];
 				else
@@ -885,30 +701,30 @@ export function print_data(card, newline, locale) {
 			data += marker_text;
 		}
 	}
-	else if (card.type & TYPE_SPELL) {
-		mtype = `${strings.type_name[TYPE_SPELL]}`;
-		if (card.type & TYPE_QUICKPLAY)
-			subtype = `/${strings.type_name[TYPE_QUICKPLAY]}`;
-		else if (card.type & TYPE_CONTINUOUS)
-			subtype = `/${strings.type_name[TYPE_CONTINUOUS]}`;
-		else if (card.type & TYPE_EQUIP)
-			subtype = `/${strings.type_name[TYPE_EQUIP]}`;
-		else if (card.type & TYPE_RITUAL)
-			subtype = `/${strings.type_name[TYPE_RITUAL]}`;
-		else if (card.type & TYPE_FIELD)
-			subtype = `/${strings.type_name[TYPE_FIELD]}`;
+	else if (card.type & card_types.TYPE_SPELL) {
+		mtype = `${strings.type_name[card_types.TYPE_SPELL]}`;
+		if (card.type & spell_types.TYPE_QUICKPLAY)
+			subtype = `/${strings.type_name[spell_types.TYPE_QUICKPLAY]}`;
+		else if (card.type & spell_types.TYPE_CONTINUOUS)
+			subtype = `/${strings.type_name[spell_types.TYPE_CONTINUOUS]}`;
+		else if (card.type & spell_types.TYPE_EQUIP)
+			subtype = `/${strings.type_name[spell_types.TYPE_EQUIP]}`;
+		else if (card.type & spell_types.TYPE_RITUAL)
+			subtype = `/${strings.type_name[spell_types.TYPE_RITUAL]}`;
+		else if (card.type & spell_types.TYPE_FIELD)
+			subtype = `/${strings.type_name[spell_types.TYPE_FIELD]}`;
 		else
-			subtype = `/${strings.type_name[TYPE_NORMAL]}`;
+			subtype = `/${strings.type_name[monster_types.TYPE_NORMAL]}`;
 		data = `[${mtype}${subtype}]${newline}`;
 	}
-	else if (card.type & TYPE_TRAP) {
-		mtype = `${strings.type_name[TYPE_TRAP]}`;
-		if (card.type & TYPE_CONTINUOUS)
-			subtype = `/${strings.type_name[TYPE_CONTINUOUS]}`;
-		else if (card.type & TYPE_COUNTER)
-			subtype = `/${strings.type_name[TYPE_COUNTER]}`;
+	else if (card.type & card_types.TYPE_TRAP) {
+		mtype = `${strings.type_name[card_types.TYPE_TRAP]}`;
+		if (card.type & trap_types.TYPE_CONTINUOUS)
+			subtype = `/${strings.type_name[trap_types.TYPE_CONTINUOUS]}`;
+		else if (card.type & trap_types.TYPE_COUNTER)
+			subtype = `/${strings.type_name[trap_types.TYPE_COUNTER]}`;
 		else
-			subtype = `/${strings.type_name[TYPE_NORMAL]}`;
+			subtype = `/${strings.type_name[monster_types.TYPE_NORMAL]}`;
 		data = `[${mtype}${subtype}]${newline}`;
 	}
 	return data;
@@ -1207,7 +1023,7 @@ export function param_to_condition(params) {
 		qstr += ' AND NOT type & $exclude';
 		arg.$exclude = Number.parseInt(params.get("exclude"));
 	}
-	if (arg.$cardtype === 0 || arg.$cardtype === TYPE_MONSTER) {
+	if (arg.$cardtype === 0 || arg.$cardtype === card_types.TYPE_MONSTER) {
 		const matid = Number.parseInt(params.get("material"));
 		if (matid && query_table.has(matid)) {
 			const material = query_table.get(matid).tw_name;
@@ -1215,13 +1031,13 @@ export function param_to_condition(params) {
 			arg.$mat1 = `「${material}」%+%`;
 			arg.$mat2 = `%+「${material}」%`;
 			arg.$mat3 = `%「${material}」×%`;
-			arg.$cardtype |= TYPE_MONSTER;
+			arg.$cardtype |= card_types.TYPE_MONSTER;
 		}
 
 		// atk
 		if (params.has("atk_from")) {
 			const atk_from = Number.parseInt(params.get("atk_from"));
-			arg.$cardtype |= TYPE_MONSTER;
+			arg.$cardtype |= card_types.TYPE_MONSTER;
 			if (atk_from === -1) {
 				qstr += " AND atk == $unknown";
 				arg.$unknown = -2;
@@ -1233,7 +1049,7 @@ export function param_to_condition(params) {
 		}
 		if (params.has("atk_to")) {
 			const atk_to = Number.parseInt(params.get("atk_to"));
-			arg.$cardtype |= TYPE_MONSTER;
+			arg.$cardtype |= card_types.TYPE_MONSTER;
 			qstr += " AND atk >= $zero AND atk <= $atk_to";
 			arg.$zero = 0;
 			arg.$atk_to = atk_to;
@@ -1242,8 +1058,8 @@ export function param_to_condition(params) {
 		// def, exclude link monsters
 		if (params.has("def_from") || params.has("def_to") || params.has("sum")) {
 			qstr += " AND NOT type & $link";
-			arg.$link = TYPE_LINK;
-			arg.$cardtype |= TYPE_MONSTER;
+			arg.$link = monster_types.TYPE_LINK;
+			arg.$cardtype |= card_types.TYPE_MONSTER;
 		}
 		if (params.has("def_from")) {
 			const def_from = Number.parseInt(params.get("def_from"));
@@ -1275,7 +1091,7 @@ export function param_to_condition(params) {
 
 		// lv, rank, link
 		if (params.has("level") || params.has("level_from") || params.has("level_to")) {
-			arg.$cardtype |= TYPE_MONSTER;
+			arg.$cardtype |= card_types.TYPE_MONSTER;
 		}
 		if (params.has("level")) {
 			let level_condtion = "0";
@@ -1302,8 +1118,8 @@ export function param_to_condition(params) {
 		// scale, pendulum monster only
 		if (params.has("scale") || params.has("scale_from") || params.has("scale_to")) {
 			qstr += " AND type & $pendulum";
-			arg.$pendulum = TYPE_PENDULUM;
-			arg.$cardtype |= TYPE_MONSTER;
+			arg.$pendulum = monster_types.TYPE_PENDULUM;
+			arg.$cardtype |= card_types.TYPE_MONSTER;
 		}
 		if (params.has("scale")) {
 			let scale_condtion = "0";
@@ -1334,25 +1150,25 @@ export function param_to_condition(params) {
 		if (params.has("attribute")) {
 			qstr += " AND attribute & $attribute";
 			arg.$attribute = Number.parseInt(params.get("attribute"))
-			arg.$cardtype |= TYPE_MONSTER;
+			arg.$cardtype |= card_types.TYPE_MONSTER;
 		}
 		if (params.has("race")) {
 			qstr += " AND race & $race";
 			arg.$race = Number.parseInt(params.get("race"))
-			arg.$cardtype |= TYPE_MONSTER;
+			arg.$cardtype |= card_types.TYPE_MONSTER;
 		}
 		// marker
 		if (params.has("marker")) {
 			qstr += " AND type & $link";
-			arg.$link = TYPE_LINK;
+			arg.$link = monster_types.TYPE_LINK;
 			if (params.has("marker_operator", "1"))
 				qstr += " AND def & $marker == $marker";
 			else
 				qstr += " AND def & $marker";
 			arg.$marker = Number.parseInt(params.get("marker"))
-			arg.$cardtype |= TYPE_MONSTER;
+			arg.$cardtype |= card_types.TYPE_MONSTER;
 		}
-		if (arg.$cardtype === TYPE_MONSTER) {
+		if (arg.$cardtype === card_types.TYPE_MONSTER) {
 			qstr += " AND type & $cardtype";
 		}
 	}
