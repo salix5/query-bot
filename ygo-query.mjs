@@ -65,7 +65,10 @@ export {
 	regexp_mention,
 };
 	
-export { card_types, monster_types, spell_types, trap_types, races, attributes, link_markers };
+export {
+	card_types, monster_types, spell_types, trap_types,
+	races, attributes, link_markers
+};
 
 const id_to_cid = inverse_mapping(cid_table);
 const complete_name_table = Object.create(null);
@@ -603,13 +606,12 @@ export function print_ad(x) {
  */
 export function print_data(card, newline, locale) {
 	const strings = lang[locale];
-	let mtype = '';
-	let subtype = '';
-	let lvstr = '\u2605';
 	let data = '';
 
 	if (card.type & card_types.TYPE_MONSTER) {
-		mtype = strings.type_name[card_types.TYPE_MONSTER];
+		const mtype = strings.type_name[card_types.TYPE_MONSTER];
+		let subtype = '';
+		let lvstr = '\u2605';
 		if (card.type & monster_types.TYPE_RITUAL)
 			subtype = `/${strings.type_name[monster_types.TYPE_RITUAL]}`;
 		else if (card.type & monster_types.TYPE_FUSION)
@@ -702,29 +704,23 @@ export function print_data(card, newline, locale) {
 		}
 	}
 	else if (card.type & card_types.TYPE_SPELL) {
-		mtype = `${strings.type_name[card_types.TYPE_SPELL]}`;
-		if (card.type & spell_types.TYPE_QUICKPLAY)
-			subtype = `/${strings.type_name[spell_types.TYPE_QUICKPLAY]}`;
-		else if (card.type & spell_types.TYPE_CONTINUOUS)
-			subtype = `/${strings.type_name[spell_types.TYPE_CONTINUOUS]}`;
-		else if (card.type & spell_types.TYPE_EQUIP)
-			subtype = `/${strings.type_name[spell_types.TYPE_EQUIP]}`;
-		else if (card.type & spell_types.TYPE_RITUAL)
-			subtype = `/${strings.type_name[spell_types.TYPE_RITUAL]}`;
-		else if (card.type & spell_types.TYPE_FIELD)
-			subtype = `/${strings.type_name[spell_types.TYPE_FIELD]}`;
+		const extype = card.type & ~card_types.TYPE_SPELL;
+		const mtype = `${strings.type_name[card_types.TYPE_SPELL]}`;
+		let subtype = '';
+		if (Object.values(spell_types).includes(extype))
+			subtype = `/${strings.type_name[extype]}`;
 		else
-			subtype = `/${strings.type_name[monster_types.TYPE_NORMAL]}`;
+			subtype = `/???`;
 		data = `[${mtype}${subtype}]${newline}`;
 	}
 	else if (card.type & card_types.TYPE_TRAP) {
-		mtype = `${strings.type_name[card_types.TYPE_TRAP]}`;
-		if (card.type & trap_types.TYPE_CONTINUOUS)
-			subtype = `/${strings.type_name[trap_types.TYPE_CONTINUOUS]}`;
-		else if (card.type & trap_types.TYPE_COUNTER)
-			subtype = `/${strings.type_name[trap_types.TYPE_COUNTER]}`;
+		const extype = card.type & ~card_types.TYPE_TRAP;
+		const mtype = `${strings.type_name[card_types.TYPE_TRAP]}`;
+		let subtype = '';
+		if (Object.values(trap_types).includes(extype))
+			subtype = `/${strings.type_name[extype]}`;
 		else
-			subtype = `/${strings.type_name[monster_types.TYPE_NORMAL]}`;
+			subtype = `/???`;
 		data = `[${mtype}${subtype}]${newline}`;
 	}
 	return data;

@@ -112,6 +112,7 @@ export const monster_types = {
 };
 
 export const spell_types = {
+	none: 0,
 	TYPE_QUICKPLAY,
 	TYPE_CONTINUOUS,
 	TYPE_EQUIP,
@@ -120,6 +121,7 @@ export const spell_types = {
 };
 
 export const trap_types = {
+	none: 0,
 	TYPE_CONTINUOUS,
 	TYPE_COUNTER,
 };
