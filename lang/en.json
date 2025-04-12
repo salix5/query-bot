@@ -39,6 +39,7 @@
         "unknown": "???"
     },
     "type_name": {
+        "0": "Normal",
         "1": "Monster",
         "2": "Spell",
         "4": "Trap",
