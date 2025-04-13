@@ -822,55 +822,6 @@ export function print_card(card, locale) {
 
 //database file
 /**
- * Get cards from databases file `buffer` with statement `qstr` and binding object `arg`.
- * @param {Uint8Array} buffer
- * @param {string} qstr 
- * @param {Object} arg 
- * @returns 
- */
-export function read_db(buffer, qstr = stmt_default, arg = arg_default) {
-	const db = new SQL.Database(buffer);
-	const ret = query_db(db, qstr, arg);
-	db.close();
-	return ret;
-}
-
-/**
- * Check if the card name is unique in database file.
- * @param {Uint8Array} buffer 
- * @returns 
- */
-export function check_uniqueness(buffer) {
-	const condition = ` AND (NOT type & $token OR alias == $none) AND (type & $token OR datas.id == $luster OR abs(datas.id - alias) >= $artwork_offset)`;
-	const stmt1 = `${select_name}${condition}`;
-	const arg1 = {
-		$token: arg_default.$token,
-		$luster: arg_default.$luster,
-		$artwork_offset: arg_default.$artwork_offset,
-		$none: 0,
-	};
-	const cards = read_db(buffer, stmt1, arg1);
-	const table1 = new Map();
-	const postfix = 'N';
-	for (const card of cards) {
-		table1.set(card.id, card.name)
-	}
-	if (table1.has(ID_BLACK_LUSTER_SOLDIER))
-		table1.set(ID_BLACK_LUSTER_SOLDIER, `${table1.get(ID_BLACK_LUSTER_SOLDIER)}${postfix}`);
-	if (table1.has(ALT_POLYMERIZATION)) {
-		console.log('alternative Polymerization');
-		table1.delete(ALT_POLYMERIZATION);
-	}
-	if (table1.has(ALT_DARK_MAGICIAN)) {
-		console.log('alternative Dark Magician');
-		table1.delete(ALT_DARK_MAGICIAN);
-	}
-	console.log('total:', table1.size);
-	const inv1 = inverse_mapping(table1);
-	return inv1.size === table1.size;
-}
-
-/**
  * @param {number} id 
  * @returns 
  */
