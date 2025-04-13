@@ -17,6 +17,7 @@ import lang_en from './lang/en.json' with { type: 'json' };
 import lang_ja from './lang/ja.json' with { type: 'json' };
 import lang_ko from './lang/ko.json' with { type: 'json' };
 import lang_zhtw from './lang/zh-tw.json' with { type: 'json' };
+import { inverse_mapping } from './ygo-utility.mjs';
 
 function object_to_map(obj) {
 	const map = new Map();
@@ -50,6 +51,7 @@ for (const [cid, id] of cid_table) {
 		cid_table.delete(id);
 	}
 }
+const id_to_cid = inverse_mapping(cid_table);
 
 const official_name = Object.create(null);
 official_name['ae'] = 'ae_name';
@@ -96,6 +98,7 @@ export {
 	ltable_ocg, ltable_tcg, ltable_md,
 	md_card_list,
 	cid_table,
+	id_to_cid,
 	lang,
 	collator_locale,
 	bls_postfix,
