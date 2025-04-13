@@ -126,6 +126,21 @@ export const trap_types = {
 	TYPE_COUNTER,
 };
 
+export const spell_colors = {
+	0: 10,
+	[TYPE_QUICKPLAY]: 11,
+	[TYPE_CONTINUOUS]: 12,
+	[TYPE_EQUIP]: 13,
+	[TYPE_RITUAL]: 14,
+	[TYPE_FIELD]: 15,
+};
+
+export const trap_colors = {
+	0: 20,
+	[TYPE_CONTINUOUS]: 21,
+	[TYPE_COUNTER]: 22,
+};
+
 export const races = {
 	RACE_WARRIOR,
 	RACE_SPELLCASTER,
