@@ -10,7 +10,7 @@ import { name_table, md_table, md_table_sc } from './ygo-json-loader.mjs';
 import { inverse_mapping } from './ygo-utility.mjs';
 import { db_url1, db_url2, fetch_db } from './ygo-fetch.mjs';
 import { validate_params } from './ygo-interface.mjs';
-import { card_types, monster_types, spell_types, trap_types, races, attributes, link_markers, rarity } from "./ygo-constant.mjs";
+import { card_types, monster_types, link_markers, rarity, spell_colors, trap_colors } from "./ygo-constant.mjs";
 
 const MAX_JSON_LENGTH = 300;
 
@@ -64,7 +64,7 @@ export {
 	arg_default, arg_base, arg_no_alias,
 	regexp_mention,
 };
-	
+
 export {
 	card_types, monster_types, spell_types, trap_types,
 	races, attributes, link_markers
@@ -321,28 +321,16 @@ function generate_card(cdata) {
 		}
 	}
 	else if (card.type & card_types.TYPE_SPELL) {
-		if (card.type === card_types.TYPE_SPELL)
-			card.color = 10;
-		else if (card.type & spell_types.TYPE_QUICKPLAY)
-			card.color = 11;
-		else if (card.type & spell_types.TYPE_CONTINUOUS)
-			card.color = 12;
-		else if (card.type & spell_types.TYPE_EQUIP)
-			card.color = 13;
-		else if (card.type & spell_types.TYPE_RITUAL)
-			card.color = 14;
-		else if (card.type & spell_types.TYPE_FIELD)
-			card.color = 15;
+		const extype = card.type & ~card_types.TYPE_SPELL;
+		if (spell_colors[extype])
+			card.color = spell_colors[extype];
 		else
 			card.color = -1;
 	}
 	else if (card.type & card_types.TYPE_TRAP) {
-		if (card.type === card_types.TYPE_TRAP)
-			card.color = 20;
-		else if (card.type & trap_types.TYPE_CONTINUOUS)
-			card.color = 21;
-		else if (card.type & trap_types.TYPE_COUNTER)
-			card.color = 22;
+		const extype = card.type & ~card_types.TYPE_TRAP;
+		if (trap_colors[extype])
+			card.color = trap_colors[extype];
 		else
 			card.color = -1;
 	}
@@ -707,7 +695,7 @@ export function print_data(card, newline, locale) {
 		const extype = card.type & ~card_types.TYPE_SPELL;
 		const mtype = `${strings.type_name[card_types.TYPE_SPELL]}`;
 		let subtype = '';
-		if (Object.values(spell_types).includes(extype))
+		if (spell_colors[extype])
 			subtype = `/${strings.type_name[extype]}`;
 		else
 			subtype = `/???`;
@@ -717,7 +705,7 @@ export function print_data(card, newline, locale) {
 		const extype = card.type & ~card_types.TYPE_TRAP;
 		const mtype = `${strings.type_name[card_types.TYPE_TRAP]}`;
 		let subtype = '';
-		if (Object.values(trap_types).includes(extype))
+		if (trap_colors[extype])
 			subtype = `/${strings.type_name[extype]}`;
 		else
 			subtype = `/???`;
