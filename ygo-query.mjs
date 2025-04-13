@@ -1,10 +1,8 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import initSqlJs from 'sql.js';
-import { ltable_ocg } from './ygo-json-loader.mjs';
-import { ltable_tcg } from './ygo-json-loader.mjs';
-import { ltable_md } from './ygo-json-loader.mjs';
+import { ltable_ocg, ltable_tcg, ltable_md } from './ygo-json-loader.mjs';
 import { md_card_list } from './ygo-json-loader.mjs';
-import { cid_table } from './ygo-json-loader.mjs';
+import { id_to_cid, cid_table } from './ygo-json-loader.mjs';
 import { lang, collator_locale, bls_postfix, official_name, game_name } from './ygo-json-loader.mjs';
 import { name_table, md_table, md_table_sc } from './ygo-json-loader.mjs';
 import { inverse_mapping } from './ygo-utility.mjs';
@@ -70,7 +68,6 @@ export {
 	races, attributes, link_markers
 };
 
-const id_to_cid = inverse_mapping(cid_table);
 const complete_name_table = Object.create(null);
 for (const locale of Object.keys(official_name)) {
 	const table1 = new Map(name_table[locale]);
