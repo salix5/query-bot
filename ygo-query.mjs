@@ -155,7 +155,7 @@ const SQL = await initSqlJs();
  * @property {number} color - Card color for sorting
  */
 
-const extra_setcode = {
+const extra_setcodes = {
 	8512558: [0x8f, 0x54, 0x59, 0x82, 0x13a],
 };
 
@@ -221,8 +221,8 @@ function query_db(db, qstr, arg) {
 				case 'setcode':
 					card.setcode = [];
 					if (value) {
-						if (extra_setcode[card.id]) {
-							for (const x of extra_setcode[card.id])
+						if (extra_setcodes[card.id]) {
+							for (const x of extra_setcodes[card.id])
 								card.setcode.push(x);
 						}
 						else {
