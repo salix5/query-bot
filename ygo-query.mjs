@@ -63,10 +63,8 @@ export {
 	regexp_mention,
 };
 
-export {
-	card_types, monster_types, spell_types, trap_types,
-	races, attributes, link_markers
-};
+export { card_types, monster_types, link_markers, };
+export { spell_types, trap_types, races, attributes, } from './ygo-constant.mjs';
 
 const complete_name_table = Object.create(null);
 for (const locale of Object.keys(official_name)) {
