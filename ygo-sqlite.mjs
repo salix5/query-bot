@@ -43,13 +43,13 @@ function set_setcode(card, setcode) {
 /**
  * Query cards from `db` with statement `qstr` and binding object `arg` and put them in `ret`.
  * @param {DatabaseSync} db 
- * @param {string} qstr 
+ * @param {string} sql 
  * @param {Object} arg 
  * @returns 
  */
-function query_db(db, qstr, arg) {
+export function query_db(db, sql, arg) {
 	const ret = [];
-	const stmt = db.prepare(qstr);
+	const stmt = db.prepare(sql);
 	stmt.setReadBigInts(true);
 	const result = stmt.all(arg);
 	for (const cdata of result) {
@@ -88,13 +88,13 @@ function query_db(db, qstr, arg) {
 /**
  * Get cards from databases file at `path` with statement `qstr` and binding object `arg`.
  * @param {string} path
- * @param {string} qstr 
+ * @param {string} sql 
  * @param {Object} arg 
  * @returns 
  */
-export function read_db(path, qstr = stmt_default, arg = arg_default) {
+export function read_db(path, sql = stmt_default, arg = arg_default) {
 	const db = new DatabaseSync(path);
-	const ret = query_db(db, qstr, arg);
+	const ret = query_db(db, sql, arg);
 	db.close();
 	return ret;
 }
