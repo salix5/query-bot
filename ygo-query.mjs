@@ -5,7 +5,7 @@ import { md_card_list } from './ygo-json-loader.mjs';
 import { id_to_cid, cid_table } from './ygo-json-loader.mjs';
 import { lang, collator_locale, bls_postfix, official_name, game_name } from './ygo-json-loader.mjs';
 import { name_table, md_table, md_table_sc } from './ygo-json-loader.mjs';
-import { inverse_mapping } from './ygo-utility.mjs';
+import { inverse_mapping, zh_collator, zh_compare } from './ygo-utility.mjs';
 import { db_url1, db_url2, fetch_db } from './ygo-fetch.mjs';
 import { validate_params } from './ygo-interface.mjs';
 import { card_types, monster_types, link_markers, rarity, spell_colors, trap_colors } from "./ygo-constant.mjs";
@@ -156,7 +156,6 @@ const extra_setcodes = {
 	8512558: [0x8f, 0x54, 0x59, 0x82, 0x13a],
 };
 
-const zh_collator = new Intl.Collator(collator_locale['zh-tw']);
 const over_hundred = '(name like $101 OR name like $102 OR name like $103 OR name like $104 OR name like $105 OR name like $106 OR name like $107)';
 const stmt_seventh = `${stmt_default} AND type & $xyz AND ${over_hundred}`;
 const arg_seventh = {
@@ -846,27 +845,6 @@ export function create_choice(request_locale) {
 }
 
 /**
- * @param {[string, number]} a 
- * @param {[string, number]} b 
- */
-export function zh_compare(a, b) {
-	const a0 = a[0].substring(0, 1);
-	const b0 = b[0].substring(0, 1);
-	if (a0 === '※') {
-		if (b0 === '※')
-			return zh_collator.compare(a[0].substring(1), b[0].substring(1));
-		else
-			return 1;
-	}
-	else {
-		if (b0 === '※')
-			return -1;
-		else
-			return zh_collator.compare(a[0], b[0]);
-	}
-}
-
-/**
  * Create the [name, id] table for pre-release cards.
  * @returns 
  */
@@ -1128,7 +1106,8 @@ export function server_respond(params) {
 export {
 	inverse_mapping,
 	print_db_link, print_yp_link, print_qa_link, print_history_link,
-	escape_regexp, map_stringify, table_stringify
+	escape_regexp, map_stringify, table_stringify,
+	zh_compare,
 } from './ygo-utility.mjs';
 
 export {

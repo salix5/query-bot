@@ -61,3 +61,25 @@ export function map_stringify(map, compare) {
 export function table_stringify(map) {
 	return JSON.stringify(Object.fromEntries(map), null, 1);
 }
+
+export const zh_collator = new Intl.Collator('zh-Hant');
+/**
+ * @param {[string, number]} a 
+ * @param {[string, number]} b 
+ */
+export function zh_compare(a, b) {
+	const a0 = a[0].substring(0, 1);
+	const b0 = b[0].substring(0, 1);
+	if (a0 === '※') {
+		if (b0 === '※')
+			return zh_collator.compare(a[0].substring(1), b[0].substring(1));
+		else
+			return 1;
+	}
+	else {
+		if (b0 === '※')
+			return -1;
+		else
+			return zh_collator.compare(a[0], b[0]);
+	}
+}
