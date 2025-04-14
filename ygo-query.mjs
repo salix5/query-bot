@@ -1,3 +1,4 @@
+import extra_setcodes from './data/extra_setcodes.json' with { type: 'json' };
 import { readFile, writeFile } from 'node:fs/promises';
 import initSqlJs from 'sql.js';
 import { ltable_ocg, ltable_tcg, ltable_md } from './ygo-json-loader.mjs';
@@ -151,10 +152,6 @@ const SQL = await initSqlJs();
  * @property {number} artid
  * @property {number} color - Card color for sorting
  */
-
-const extra_setcodes = {
-	8512558: [0x8f, 0x54, 0x59, 0x82, 0x13a],
-};
 
 const over_hundred = '(name like $101 OR name like $102 OR name like $103 OR name like $104 OR name like $105 OR name like $106 OR name like $107)';
 const stmt_seventh = `${stmt_default} AND type & $xyz AND ${over_hundred}`;

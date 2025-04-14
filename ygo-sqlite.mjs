@@ -1,3 +1,4 @@
+import extra_setcodes from './data/extra_setcodes.json' with { type: 'json' };
 import { DatabaseSync } from "node:sqlite";
 import { monster_types } from "./ygo-constant.mjs";
 import { inverse_mapping } from "./ygo-utility.mjs";
@@ -20,10 +21,6 @@ export const arg_default = {
 	$luster: ID_BLACK_LUSTER_SOLDIER,
 	$artwork_offset: CARD_ARTWORK_VERSIONS_OFFSET,
 	$token: monster_types.TYPE_TOKEN,
-};
-
-const extra_setcodes = {
-	8512558: [0x8f, 0x54, 0x59, 0x82, 0x13a],
 };
 
 /**
