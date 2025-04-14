@@ -63,9 +63,6 @@ export {
 	regexp_mention,
 };
 
-export { card_types, monster_types, link_markers, };
-export { spell_types, trap_types, races, attributes, } from './ygo-constant.mjs';
-
 const complete_name_table = Object.create(null);
 for (const locale of Object.keys(official_name)) {
 	const table1 = new Map(name_table[locale]);
@@ -1133,3 +1130,8 @@ export {
 	print_db_link, print_yp_link, print_qa_link, print_history_link,
 	escape_regexp, map_stringify, table_stringify
 } from './ygo-utility.mjs';
+
+export {
+	card_types, monster_types, spell_types, trap_types,
+	link_markers, races, attributes,
+} from './ygo-constant.mjs';
