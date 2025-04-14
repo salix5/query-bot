@@ -47,7 +47,7 @@ function set_setcode(card, setcode) {
  * @param {Object} arg 
  * @returns 
  */
-export function query_db(db, sql, arg) {
+export function query_db(db, sql = stmt_default, arg = arg_default) {
 	const ret = [];
 	const stmt = db.prepare(sql);
 	stmt.setReadBigInts(true);
