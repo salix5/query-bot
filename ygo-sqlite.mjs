@@ -27,6 +27,20 @@ const extra_setcodes = {
 };
 
 /**
+ * Set `card.setcode` from int64.
+ * @param {Card} card 
+ * @param {bigint} setcode 
+ */
+function set_setcode(card, setcode) {
+	while (setcode) {
+		if (setcode & 0xffffn) {
+			card.setcode.push(Number(setcode & 0xffffn));
+		}
+		setcode = (setcode >> 16n) & 0xffffffffffffn;
+	}
+}
+
+/**
  * Query cards from `db` with statement `qstr` and binding object `arg` and put them in `ret`.
  * @param {DatabaseSync} db 
  * @param {string} qstr 
@@ -45,7 +59,7 @@ function query_db(db, qstr, arg) {
 				case 'setcode':
 					card.setcode = [];
 					if (value) {
-						if (extra_setcode[card.id]) {
+						if (extra_setcodes[card.id]) {
 							for (const x of extra_setcodes[card.id])
 								card.setcode.push(x);
 						}
