@@ -35,7 +35,7 @@ async function fetch_desc(card, request_locale) {
 	if (res_text) {
 		ctext = res_text[1].replaceAll('<br>', '\n');
 	}
-	if (card.type & ygo.monster_type.TYPE_PENDULUM) {
+	if (card.type & ygo.monster_types.TYPE_PENDULUM) {
 		let ptext = '';
 		const res_ptext = re_ptext.exec(raw_data);
 		if (res_ptext) {
@@ -43,7 +43,7 @@ async function fetch_desc(card, request_locale) {
 				res_ptext[1] = '';
 			ptext = res_ptext[1].replaceAll('<br>', '\n');
 		}
-		return `${ptext}\n【${ygo.lang[request_locale].type_name[ygo.monster_type.TYPE_EFFECT]}】\n${ctext}\n`;
+		return `${ptext}\n【${ygo.lang[request_locale].type_name[ygo.monster_types.TYPE_EFFECT]}】\n${ctext}\n`;
 	}
 	else {
 		return `${ctext}\n`;
