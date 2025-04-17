@@ -99,14 +99,15 @@ export function read_db(path, sql = stmt_default, arg = arg_default) {
 /**
  * Check if the card name is unique in the database file.
  * @param {string} path 
+ * @param {number} id_luster
  * @returns 
  */
-export function check_uniqueness(path) {
+export function check_uniqueness(path, id_luster = ID_BLACK_LUSTER_SOLDIER) {
 	const condition = ` AND (NOT type & $token OR alias == $none) AND (type & $token OR datas.id == $luster OR abs(datas.id - alias) >= $artwork_offset)`;
 	const stmt1 = `${select_name}${condition}`;
 	const arg1 = {
 		$token: arg_default.$token,
-		$luster: arg_default.$luster,
+		$luster: id_luster,
 		$artwork_offset: arg_default.$artwork_offset,
 		$none: 0,
 	};
@@ -116,8 +117,8 @@ export function check_uniqueness(path) {
 	for (const card of cards) {
 		table1.set(card.id, card.name)
 	}
-	if (table1.has(ID_BLACK_LUSTER_SOLDIER))
-		table1.set(ID_BLACK_LUSTER_SOLDIER, `${table1.get(ID_BLACK_LUSTER_SOLDIER)}${postfix}`);
+	if (table1.has(id_luster))
+		table1.set(id_luster, `${table1.get(id_luster)}${postfix}`);
 	if (table1.has(ALT_POLYMERIZATION)) {
 		console.log('alternative Polymerization');
 		table1.delete(ALT_POLYMERIZATION);
