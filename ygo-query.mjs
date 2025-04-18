@@ -1078,26 +1078,27 @@ export function param_to_condition(params) {
 }
 
 /**
- * @param {URLSearchParams} params 
+ * @param {string} url 
  * @returns 
  */
-export function server_respond(params) {
+export function server_respond(url) {
+	const params = new URL(`http://localhost${url}`).searchParams;
 	const [condition, arg1] = param_to_condition(validate_params(params));
 	if (!condition) {
-		return JSON.stringify({
+		return {
 			result: [],
 			length: 0,
-		});
+		};
 	}
 	const stmt1 = `${stmt_default}${condition}`;
 	const cards = query(stmt1, arg1);
 	const length = cards.length;
 	if (length > MAX_JSON_LENGTH)
 		cards.length = MAX_JSON_LENGTH;
-	return JSON.stringify({
+	return {
 		result: cards,
 		length,
-	});
+	};
 }
 
 export {
