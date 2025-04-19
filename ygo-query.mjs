@@ -162,7 +162,7 @@ const arg_seventh = {
 for (let i = 0; i < 7; ++i) {
 	arg_seventh[`$${101 + i}`] = `%No.${101 + i}%`;
 }
-const mmap_seventh = [];
+const mmap_seventh = Object.create(null);
 const query_table = new Map();
 
 export { stmt_seventh, arg_seventh };
@@ -170,15 +170,15 @@ export { stmt_seventh, arg_seventh };
 //workwround
 await init_query();
 
-/**
- * @param {Array[]} mmap 
- * @param {number} key 
- * @param {Card} value 
- */
 function multimap_insert(mmap, key, value) {
 	if (!mmap[key])
 		mmap[key] = [];
 	mmap[key].push(value);
+}
+
+function multimap_clear(mmap) {
+	for (const key of Object.keys(mmap))
+		delete mmap[key];
 }
 
 /**
@@ -366,7 +366,7 @@ export async function init_query(files) {
 		db.close();
 	}
 	db_list.length = 0;
-	mmap_seventh.length = 0;
+	multimap_clear(mmap_seventh);
 	query_table.clear();
 	for (const file of files) {
 		db_list.push(new SQL.Database(await readFile(file)));
