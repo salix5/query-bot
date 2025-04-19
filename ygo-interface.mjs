@@ -1,36 +1,9 @@
+import { interface_types } from './ygo-constant.mjs';
+
 const re_id = /^\d{1,9}$/;
 const re_positive = /^\d{1,10}$/;
 const re_negative = /^-?\d{1,10}$/;
 const re_value = /^\d{1,2}$/;
-
-const interface_type = {
-	"cardtype": 1,
-	"subtype": 1,
-	"subtype_operator": 1,
-	"exclude": 1,
-
-	"attribute": 2,
-	"race": 2,
-	"level": 2,
-	"level_from": 2,
-	"level_to": 2,
-	"scale": 2,
-	"scale_from": 2,
-	"scale_to": 2,
-	"atk_from": 2,
-	"atk_to": 2,
-	"def_from": 2,
-	"def_to": 2,
-	"sum": 2,
-
-	"material": 3,
-	"marker": 3,
-	"marker_operator": 3,
-}
-
-export {
-	interface_type,
-}
 
 /**
  * @param {URLSearchParams} params 
@@ -165,7 +138,13 @@ export function validate_params(params) {
 		check_number(params, "def_to");
 		check_number(params, "sum");
 	}
-	for (const key of Object.keys(interface_type)) {
+	else {
+		for (const [key, type] of Object.entries(interface_types)) {
+			if (type === 2 || type === 3)
+				params.delete(key);
+		}
+	}
+	for (const key of Object.keys(interface_types)) {
 		for (const value of params.getAll(key)) {
 			result.append(key, value);
 		}

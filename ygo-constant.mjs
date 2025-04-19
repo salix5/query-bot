@@ -199,3 +199,28 @@ export const rarity = {
 	3: 'SR',
 	4: 'UR',
 }
+
+export const interface_types = {
+	"cardtype": 1,
+	"subtype": 1,
+	"subtype_operator": 1,
+	"exclude": 1,
+
+	"attribute": 2,
+	"race": 2,
+	"level": 2,
+	"level_from": 2,
+	"level_to": 2,
+	"scale": 2,
+	"scale_from": 2,
+	"scale_to": 2,
+	"atk_from": 2,
+	"atk_to": 2,
+	"def_from": 2,
+	"def_to": 2,
+	"sum": 2,
+
+	"material": 3,
+	"marker": 3,
+	"marker_operator": 3,
+};
