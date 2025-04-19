@@ -163,7 +163,7 @@ for (let i = 0; i < 7; ++i) {
 	arg_seventh[`$${101 + i}`] = `%No.${101 + i}%`;
 }
 const mmap_seventh = Object.create(null);
-const query_table = new Map();
+const card_table = new Map();
 
 export { stmt_seventh, arg_seventh };
 
@@ -367,7 +367,7 @@ export async function init_query(files) {
 	}
 	db_list.length = 0;
 	multimap_clear(mmap_seventh);
-	query_table.clear();
+	card_table.clear();
 	for (const file of files) {
 		db_list.push(new SQL.Database(await readFile(file)));
 	}
@@ -377,7 +377,7 @@ export async function init_query(files) {
 		multimap_insert(mmap_seventh, card.level, card);
 	}
 	for (const card of query()) {
-		query_table.set(card.id, card);
+		card_table.set(card.id, card);
 	}
 }
 
@@ -486,8 +486,8 @@ export function get_card(cid) {
 		id = cid_table.get(cid);
 	else
 		return null;
-	if (query_table.has(id))
-		return query_table.get(id);
+	if (card_table.has(id))
+		return card_table.get(id);
 	return null;
 }
 
@@ -927,8 +927,8 @@ export function param_to_condition(params) {
 	}
 	if (arg.$cardtype === 0 || arg.$cardtype === card_types.TYPE_MONSTER) {
 		const matid = Number.parseInt(params.get("material"));
-		if (matid && query_table.has(matid)) {
-			const material = query_table.get(matid).tw_name;
+		if (matid && card_table.has(matid)) {
+			const material = card_table.get(matid).tw_name;
 			qstr += ` AND ("desc" LIKE $mat1 ESCAPE '$' OR "desc" LIKE $mat2 ESCAPE '$' OR "desc" LIKE $mat3 ESCAPE '$')`;
 			arg.$mat1 = `「${material}」%+%`;
 			arg.$mat2 = `%+「${material}」%`;
