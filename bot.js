@@ -173,9 +173,17 @@ client.on(Events.InteractionCreate, async interaction => {
 			await command.execute(interaction);
 		}
 		catch (error) {
-			console.error(interaction.user.id);
 			console.error(interaction.commandName);
 			console.error(error);
+			try {
+				if (interaction.replied) {
+					await interaction.followUp({ content: '刪除失敗，可能原因：不能檢視頻道。', flags: MessageFlags.Ephemeral });
+				}
+				else {
+					await interaction.reply({ content: '刪除失敗，可能原因：不能檢視頻道。', flags: MessageFlags.Ephemeral });
+				}
+			}
+			catch { /* empty */ }
 		}
 	}
 	else if (interaction.isButton()) {
@@ -184,15 +192,6 @@ client.on(Events.InteractionCreate, async interaction => {
 		}
 		catch (error) {
 			console.error(error);
-			try {
-				if (interaction.replied) {
-					await interaction.followUp({ content: '無法刪除不能檢視的頻道。', flags: MessageFlags.Ephemeral });
-				}
-				else {
-					await interaction.reply({ content: '無法刪除不能檢視的頻道。', flags: MessageFlags.Ephemeral });
-				}
-			}
-			catch { /* empty */ }
 		}
 	}
 });
