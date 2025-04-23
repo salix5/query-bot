@@ -90,7 +90,11 @@ export function query_db(db, sql = stmt_default, arg = arg_default) {
  * @returns 
  */
 export function read_db(path, sql = stmt_default, arg = arg_default) {
-	const db = new DatabaseSync(path);
+	const db = new DatabaseSync(path, { readOnly: true });
+	if (!db) {
+		console.error('Failed to open database:', path);
+		return [];
+	}
 	const ret = query_db(db, sql, arg);
 	db.close();
 	return ret;
