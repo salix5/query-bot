@@ -9,7 +9,7 @@ import { name_table, md_table, md_table_sc } from './ygo-json-loader.mjs';
 import { inverse_mapping, zh_collator, zh_compare } from './ygo-utility.mjs';
 import { db_url1, db_url2, fetch_db } from './ygo-fetch.mjs';
 import { validate_params } from './ygo-interface.mjs';
-import { card_types, monster_types, link_markers, rarity, spell_colors, trap_colors } from "./ygo-constant.mjs";
+import { card_types, monster_types, link_markers, md_rarity, spell_colors, trap_colors } from "./ygo-constant.mjs";
 
 const MAX_JSON_LENGTH = 300;
 
@@ -780,7 +780,7 @@ export function print_card(card, locale) {
 	}
 
 	if (card.md_rarity)
-		other_name += `MD：${rarity[card.md_rarity]}\n`;
+		other_name += `MD：${md_rarity[card.md_rarity]}\n`;
 	let show_lflist = false;
 	if (Number.isSafeInteger(ltable_ocg[card.id])) {
 		lfstr_ocg = `OCG：${strings.limit_name[ltable_ocg[card.id]]}`;
