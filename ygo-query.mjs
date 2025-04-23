@@ -9,7 +9,7 @@ import { name_table, md_table, md_table_sc } from './ygo-json-loader.mjs';
 import { inverse_mapping, zh_collator, zh_compare } from './ygo-utility.mjs';
 import { db_url1, db_url2, fetch_db } from './ygo-fetch.mjs';
 import { validate_params } from './ygo-interface.mjs';
-import { card_types, monster_types, link_markers, md_rarity, spell_colors, trap_colors } from "./ygo-constant.mjs";
+import { card_types, monster_types, link_markers, md_rarity, spell_colors, trap_colors, constant_table } from "./ygo-constant.mjs";
 
 const MAX_JSON_LENGTH = 300;
 
@@ -1083,6 +1083,8 @@ export function param_to_condition(params) {
  */
 export function server_respond(url) {
 	const params = new URL(`http://localhost${url}`).searchParams;
+	if (params.has("constant"))
+		return constant_table;
 	const [condition, arg1] = param_to_condition(validate_params(params));
 	if (!condition) {
 		return {
