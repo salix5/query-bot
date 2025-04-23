@@ -224,3 +224,14 @@ export const interface_types = {
 	"marker": 3,
 	"marker_operator": 3,
 };
+
+export const constant_table = {
+	card_types,
+	monster_types,
+	spell_types,
+	trap_types,
+	races,
+	attributes,
+	link_markers,
+	md_rarity,
+};
