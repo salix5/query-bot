@@ -234,4 +234,5 @@ export const constant_table = {
 	attributes,
 	link_markers,
 	rarity,
+	interface_types,
 };
