@@ -1077,32 +1077,6 @@ export function param_to_condition(params) {
 	return [qstr, arg];
 }
 
-/**
- * @param {string} url 
- * @returns 
- */
-export function server_respond(url) {
-	const params = new URL(`http://localhost${url}`).searchParams;
-	if (params.has("constant"))
-		return constant_table;
-	const [condition, arg1] = param_to_condition(validate_params(params));
-	if (!condition) {
-		return {
-			result: [],
-			length: 0,
-		};
-	}
-	const stmt1 = `${stmt_default}${condition}`;
-	const cards = query(stmt1, arg1);
-	const length = cards.length;
-	if (length > MAX_JSON_LENGTH)
-		cards.length = MAX_JSON_LENGTH;
-	return {
-		result: cards,
-		length,
-	};
-}
-
 export {
 	inverse_mapping,
 	print_db_link, print_yp_link, print_qa_link, print_history_link,
