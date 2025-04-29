@@ -26,7 +26,7 @@ async function fetch_desc(card, request_locale) {
 
 	const re_ptext = /<div class="frame pen_effect">.*?<div class="item_box_text">.*?([^\r\n\t]+).*?<\/div>/s;
 	const re_text = /<div class="text_title">.*?<\/div>.*?([^\r\n\t]+).*?<\/div>/s;
-	const resp = await fetch(ygo.print_db_link(card.cid, request_locale));
+	const resp = await fetch(ygo.print_db_link(card.cid, request_locale), { referrer: '' });
 	if (!resp.ok)
 		console.error('fetch_desc', card.cid, request_locale, resp.status);
 	const raw_data = await resp.text();
