@@ -47,11 +47,13 @@ function check_negative(params, key) {
 function check_checkbox(params, name) {
 	const values = params.getAll(name);
 	params.delete(name);
+	const value_set = new Set();
 	for (const value of values) {
 		if (!re_value.test(value))
 			continue;
-		if (params.has(name, value))
+		if (value_set.has(value))
 			continue;
+		value_set.add(value);
 		params.append(name, value);
 	}
 }
@@ -78,17 +80,22 @@ export function validate_params(params) {
 	if (params.has("cardtype")) {
 		check_number(params, "subtype");
 		check_number(params, "exclude");
-		if (params.has("subtype") && params.has("subtype_operator", "1"))
-			params.set("subtype_operator", "1");
-		else
+		if (params.has("subtype")) {
+			if(params.get("subtype_operator") === "1")
+				params.set("subtype_operator", "1");
+			else
+				params.set("subtype_operator", "0");
+		}
+		else {
 			params.delete("subtype_operator");
+		}
 	}
 	else {
 		params.delete("subtype");
 		params.delete("exclude");
 		params.delete("subtype_operator");
 	}
-	if (!params.has("cardtype") || params.has("cardtype", "1")) {
+	if (!params.has("cardtype") || params.get("cardtype") === "1") {
 		check_number(params, "material");
 		check_number(params, "attribute");
 		check_number(params, "race");
@@ -111,10 +118,15 @@ export function validate_params(params) {
 			check_number(params, "scale_to");
 		}
 		check_number(params, "marker");
-		if (params.has("marker") && params.has("marker_operator", "1"))
-			params.set("marker_operator", "1");
-		else
+		if (params.has("marker")) {
+			if (params.get("marker_operator") === "1")
+				params.set("marker_operator", "1");
+			else
+				params.set("marker_operator", "0");
+		}
+		else {
 			params.delete("marker_operator");
+		}
 		check_negative(params, "atk_from");
 		const atk_from = params.has("atk_from") ? Number.parseInt(params.get("atk_from")) : -10;
 		if (atk_from < -1) {
