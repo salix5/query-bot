@@ -8,8 +8,7 @@ import { lang, collator_locale, bls_postfix, official_name, game_name } from './
 import { name_table, md_table, md_table_sc } from './ygo-json-loader.mjs';
 import { inverse_mapping, zh_collator, zh_compare } from './ygo-utility.mjs';
 import { db_url1, db_url2, fetch_db } from './ygo-fetch.mjs';
-import { validate_params } from './ygo-interface.mjs';
-import { card_types, monster_types, link_markers, md_rarity, spell_colors, trap_colors, constant_table } from "./ygo-constant.mjs";
+import { card_types, monster_types, link_markers, md_rarity, spell_colors, trap_colors } from "./ygo-constant.mjs";
 
 const MAX_JSON_LENGTH = 300;
 
