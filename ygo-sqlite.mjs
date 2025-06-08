@@ -12,16 +12,34 @@ export const CARD_ARTWORK_VERSIONS_OFFSET = 20;
 export const MAX_CARD_ID = 99999999;
 
 export const select_all = `SELECT datas.id, ot, alias, setcode, type, atk, def, level, attribute, race, name, "desc" FROM datas, texts WHERE datas.id == texts.id`;
+export const select_id = `SELECT datas.id FROM datas, texts WHERE datas.id == texts.id`;
 export const select_name = `SELECT datas.id, name FROM datas, texts WHERE datas.id == texts.id`;
+
 export const base_filter = ` AND datas.id != $tyler AND NOT type & $token`;
 export const no_alt_filter = ` AND (datas.id == $luster OR abs(datas.id - alias) >= $artwork_offset)`;
-export const stmt_default = `${select_all}${base_filter}${no_alt_filter}`;
+export const default_filter = `${base_filter}${no_alt_filter}`;
+
+export const stmt_default = `${select_all}${default_filter}`;
 export const arg_default = {
 	$tyler: ID_TYLER_THE_GREAT_WARRIOR,
 	$luster: ID_BLACK_LUSTER_SOLDIER,
 	$artwork_offset: CARD_ARTWORK_VERSIONS_OFFSET,
 	$token: monster_types.TYPE_TOKEN,
 };
+
+export const stmt_base = `${select_all}${base_filter}`;
+export const arg_base = {
+	$tyler: ID_TYLER_THE_GREAT_WARRIOR,
+	$token: monster_types.TYPE_TOKEN,
+};
+
+export const stmt_no_alias = `${select_id}${base_filter} AND alias == $none`;
+export const arg_no_alias = {
+	$tyler: ID_TYLER_THE_GREAT_WARRIOR,
+	$token: monster_types.TYPE_TOKEN,
+	$none: 0,
+};
+
 
 /**
  * Set `card.setcode` from int64.
