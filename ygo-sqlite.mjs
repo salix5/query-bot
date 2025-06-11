@@ -47,11 +47,12 @@ export const arg_no_alias = {
  * @param {bigint} setcode 
  */
 function set_setcode(card, setcode) {
+	setcode = BigInt.asUintN(64, setcode);
 	while (setcode) {
 		if (setcode & 0xffffn) {
 			card.setcode.push(Number(setcode & 0xffffn));
 		}
-		setcode = (setcode >> 16n) & 0xffffffffffffn;
+		setcode = setcode >> 16n;
 	}
 }
 
