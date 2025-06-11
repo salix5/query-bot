@@ -503,18 +503,11 @@ export function get_name(cid, locale) {
 	}
 	if (!complete_name_table[locale])
 		return '';
-	if (complete_name_table[locale].has(cid)) {
-		if (cid === CID_BLACK_LUSTER_SOLDIER) {
-			if (complete_name_table[locale].has(4370))
-				return complete_name_table[locale].get(4370);
-			else
-				return complete_name_table[locale].get(cid);
-		}
-		else
-			return complete_name_table[locale].get(cid);
-	}
-	else
+	if (!complete_name_table[locale].has(cid))
 		return '';
+	if (cid === CID_BLACK_LUSTER_SOLDIER && complete_name_table[locale].has(4370))
+		return complete_name_table[locale].get(4370);
+	return complete_name_table[locale].get(cid);
 }
 
 /**
