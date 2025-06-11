@@ -1033,16 +1033,16 @@ export function param_to_condition(params) {
 			arg.$mask = 0xff;
 		}
 		if (params.has("scale_from")) {
-			qstr += " AND (level >> $offset & $mask) >= $scacle_from";
+			qstr += " AND (level >> $offset & $mask) >= $scale_from";
 			arg.$offset = 24;
 			arg.$mask = 0xff;
-			arg.$scacle_from = Number.parseInt(params.get("scale_from"));
+			arg.$scale_from = Number.parseInt(params.get("scale_from"));
 		}
 		if (params.has("scale_to")) {
-			qstr += " AND (level >> $offset & $mask) <= $scacle_to";
+			qstr += " AND (level >> $offset & $mask) <= $scale_to";
 			arg.$offset = 24;
 			arg.$mask = 0xff;
-			arg.$scacle_to = Number.parseInt(params.get("scale_from"));
+			arg.$scale_to = Number.parseInt(params.get("scale_to"));
 		}
 
 		// attribute, race
