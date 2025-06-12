@@ -164,7 +164,7 @@ const card_table = new Map();
 
 export { stmt_seventh, arg_seventh };
 
-//workwround
+//workaround
 await init_query();
 
 function multimap_insert(mmap, key, value) {
