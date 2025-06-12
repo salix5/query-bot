@@ -185,6 +185,7 @@ function multimap_clear(mmap) {
  */
 function set_setcode(card, setcode) {
 	setcode = BigInt.asUintN(64, setcode);
+	card.setcode.length = 0;
 	while (setcode) {
 		if (setcode & 0xffffn) {
 			card.setcode.push(Number(setcode & 0xffffn));
@@ -205,16 +206,14 @@ function query_db(db, qstr, arg) {
 	const stmt = db.prepare(qstr);
 	stmt.bind(arg);
 	while (stmt.step()) {
-		const cdata = stmt.getAsObject(null, { useBigInt: true });
-		const card = Object.create(null);
-		for (const [column, value] of Object.entries(cdata)) {
+		const card = stmt.getAsObject(null, { useBigInt: true });
+		for (const [column, value] of Object.entries(card)) {
 			switch (column) {
 				case 'setcode':
 					card.setcode = [];
 					if (value) {
 						if (extra_setcodes[card.id]) {
-							for (const x of extra_setcodes[card.id])
-								card.setcode.push(x);
+							card.setcode.push(...extra_setcodes[card.id]);
 						}
 						else {
 							set_setcode(card, value);
@@ -223,13 +222,11 @@ function query_db(db, qstr, arg) {
 					break;
 				case 'level':
 					card.level = Number(value) & 0xff;
-					card.scale = (Number(value) >> 24) & 0xff;
+					card.scale = Number(value) >>> 24;
 					break;
 				default:
 					if (typeof value === 'bigint')
 						card[column] = Number(value);
-					else
-						card[column] = value;
 					break;
 			}
 		}

@@ -48,6 +48,7 @@ export const arg_no_alias = {
  */
 function set_setcode(card, setcode) {
 	setcode = BigInt.asUintN(64, setcode);
+	card.setcode.length = 0;
 	while (setcode) {
 		if (setcode & 0xffffn) {
 			card.setcode.push(Number(setcode & 0xffffn));
@@ -68,16 +69,14 @@ export function query_db(db, sql = stmt_default, arg = arg_default) {
 	const stmt = db.prepare(sql);
 	stmt.setReadBigInts(true);
 	const result = stmt.all(arg);
-	for (const cdata of result) {
-		const card = Object.create(null);
-		for (const [column, value] of Object.entries(cdata)) {
+	for (const card of result) {
+		for (const [column, value] of Object.entries(card)) {
 			switch (column) {
 				case 'setcode':
 					card.setcode = [];
 					if (value) {
 						if (extra_setcodes[card.id]) {
-							for (const x of extra_setcodes[card.id])
-								card.setcode.push(x);
+							card.setcode.push(...extra_setcodes[card.id]);
 						}
 						else {
 							set_setcode(card, value);
@@ -86,13 +85,11 @@ export function query_db(db, sql = stmt_default, arg = arg_default) {
 					break;
 				case 'level':
 					card.level = Number(value) & 0xff;
-					card.scale = (Number(value) >> 24) & 0xff;
+					card.scale = Number(value) >>> 24;
 					break;
 				default:
 					if (typeof value === 'bigint')
 						card[column] = Number(value);
-					else
-						card[column] = value;
 					break;
 			}
 		}
