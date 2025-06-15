@@ -406,7 +406,7 @@ export function is_setcode(card, value) {
 	const settype = value & 0x0fff;
 	const setsubtype = value & 0xf000;
 	for (const x of card.setcode) {
-		if ((x & 0x0fff) === settype && (x & 0xf000 & setsubtype) === setsubtype)
+		if ((x & 0x0fff) === settype && (x & setsubtype) === setsubtype)
 			return true;
 	}
 	return false;
