@@ -138,7 +138,8 @@ const SQL = await initSqlJs();
  * @property {number[]} setcode
  * @property {number} type
  * @property {number} atk
- * @property {number} def
+ * @property {number} [def]
+ * @property {number} [marker]
  * @property {number} level
  * @property {number} race
  * @property {number} attribute
@@ -264,6 +265,12 @@ function generate_card(cdata) {
 				continue;
 			case "scale":
 				if (cdata.type & monster_types.TYPE_PENDULUM)
+					card[column] = value;
+				break;
+			case "def":
+				if (cdata.type & monster_types.TYPE_LINK)
+					card.marker = value;
+				else
 					card[column] = value;
 				break;
 			default:
@@ -636,21 +643,21 @@ export function print_data(card, newline, locale) {
 		if (card.type & monster_types.TYPE_LINK) {
 			let marker_text = '';
 			for (let marker = link_markers.LINK_MARKER_TOP_LEFT; marker <= link_markers.LINK_MARKER_TOP_RIGHT; marker <<= 1) {
-				if (card.def & marker)
+				if (card.marker & marker)
 					marker_text += strings.marker_char[marker];
 				else
 					marker_text += strings.marker_char['default'];
 			}
 			marker_text += newline;
 
-			if (card.def & link_markers.LINK_MARKER_LEFT)
+			if (card.marker & link_markers.LINK_MARKER_LEFT)
 				marker_text += strings.marker_char[link_markers.LINK_MARKER_LEFT];
 			else
 				marker_text += strings.marker_char['default'];
 
 			marker_text += strings.marker_char['default'];
 
-			if (card.def & link_markers.LINK_MARKER_RIGHT)
+			if (card.marker & link_markers.LINK_MARKER_RIGHT)
 				marker_text += strings.marker_char[link_markers.LINK_MARKER_RIGHT];
 			else
 				marker_text += strings.marker_char['default'];
@@ -658,7 +665,7 @@ export function print_data(card, newline, locale) {
 			marker_text += newline;
 
 			for (let marker = link_markers.LINK_MARKER_BOTTOM_LEFT; marker <= link_markers.LINK_MARKER_BOTTOM_RIGHT; marker <<= 1) {
-				if (card.def & marker)
+				if (card.marker & marker)
 					marker_text += strings.marker_char[marker];
 				else
 					marker_text += strings.marker_char['default'];
