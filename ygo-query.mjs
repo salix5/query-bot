@@ -359,8 +359,8 @@ function create_seventh_condition() {
  */
 export async function init_query(files) {
 	if (!files) {
-		const temp1 = `${import.meta.dirname}/temp/db1.cdb`;
-		const temp2 = `${import.meta.dirname}/temp/db2.cdb`;
+		const temp1 = `${import.meta.dirname}/db/main.cdb`;
+		const temp2 = `${import.meta.dirname}/db/pre.cdb`;
 		await Promise.all([writeFile(temp1, await fetch_db(db_url1)), writeFile(temp2, await fetch_db(db_url2))]);
 		files = [temp1, temp2];
 	}
