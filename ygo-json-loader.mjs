@@ -11,6 +11,7 @@ import kr_table from './data/name_table_kr.json' with { type: 'json' };
 import md_en_table from './data/md_name_en.json' with { type: 'json' };
 import md_jp_table from './data/md_name_jp.json' with { type: 'json' };
 import md_sc from './data/md_name.json' with { type: 'json' };
+import ruby_table from './data/name_table_ruby.json' with { type: 'json' };
 
 import lang_ae from './lang/ae.json' with { type: 'json' };
 import lang_en from './lang/en.json' with { type: 'json' };
@@ -41,6 +42,7 @@ const name_table_ae = object_to_map(ae_table);
 const name_table_en = object_to_map(en_table);
 const name_table_jp = object_to_map(jp_table);
 const name_table_kr = object_to_map(kr_table);
+const name_table_ruby = object_to_map(ruby_table);
 const md_table_en = object_to_map(md_en_table);
 const md_table_jp = object_to_map(md_jp_table);
 const md_table_sc = object_to_map(md_sc);
@@ -89,6 +91,7 @@ name_table['ae'] = name_table_ae;
 name_table['en'] = name_table_en;
 name_table['ja'] = name_table_jp;
 name_table['ko'] = name_table_kr;
+name_table['ruby'] = name_table_ruby;
 
 const md_table = Object.create(null);
 md_table['en'] = md_table_en;
