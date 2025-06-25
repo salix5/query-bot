@@ -256,9 +256,9 @@ function generate_card(cdata) {
 				card[prop] = name_table[locale].get(card.cid);
 			else if (md_table[locale] && md_table[locale].has(card.cid))
 				card[game_name[locale]] = md_table[locale].get(card.cid);
+			if (locale === 'ja' && name_table['ruby'].has(card.cid))
+				card.jp_ruby = name_table['ruby'].get(card.cid);
 		}
-		if (name_table['ruby'].has(card.cid))
-			card.jp_ruby = name_table['ruby'].get(card.cid);
 	}
 	for (const [column, value] of Object.entries(cdata)) {
 		switch (column) {
