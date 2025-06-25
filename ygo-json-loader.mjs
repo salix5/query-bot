@@ -21,34 +21,35 @@ import lang_zhtw from './lang/zh-tw.json' with { type: 'json' };
 import { inverse_mapping } from './ygo-utility.mjs';
 
 function object_to_map(obj) {
-	const map = new Map();
-	for (const [key, value] of Object.entries(obj)) {
-		const id = Number.parseInt(key, 10);
+	const entries = Object.entries(obj);
+	for (const pair of entries) {
+		const id = Number.parseInt(pair[0], 10);
 		if (!Number.isSafeInteger(id)) {
-			console.error('object_to_map: invalid id', key);
+			console.error('object_to_map: invalid id', pair[0]);
 			continue;
 		}
-		if (map.has(id)) {
-			console.error('object_to_map: duplicate id', key);
-			continue;
-		}
-		map.set(id, value);
+		pair[0] = id;
 	}
+	const map = new Map(entries);
 	return map;
 }
 
 const cid_table = object_to_map(cid_json);
-const name_table_ae = object_to_map(ae_table);
-const name_table_en = object_to_map(en_table);
-const name_table_jp = object_to_map(jp_table);
-const name_table_kr = object_to_map(kr_table);
-const name_table_ruby = object_to_map(ruby_table);
-const md_table_en = object_to_map(md_en_table);
-const md_table_jp = object_to_map(md_jp_table);
 const md_table_sc = object_to_map(md_sc);
 
+const name_table = Object.create(null);
+name_table['ae'] = object_to_map(ae_table);
+name_table['en'] = object_to_map(en_table);
+name_table['ja'] = object_to_map(jp_table);
+name_table['ko'] = object_to_map(kr_table);
+name_table['ruby'] = object_to_map(ruby_table);
+
+const md_table = Object.create(null);
+md_table['en'] = object_to_map(md_en_table);
+md_table['ja'] = object_to_map(md_jp_table);
+
 for (const [cid, id] of cid_table) {
-	if (!name_table_en.has(cid) && !name_table_jp.has(cid)) {
+	if (!name_table['ja'].has(cid) && !name_table['en'].has(cid)) {
 		console.error('cid_table: invalid cid', cid);
 		cid_table.delete(id);
 	}
@@ -85,17 +86,6 @@ bls_postfix['zh-tw'] = '（通常怪獸）';
 const game_name = Object.create(null);
 game_name['en'] = 'md_name_en';
 game_name['ja'] = 'md_name_jp';
-
-const name_table = Object.create(null);
-name_table['ae'] = name_table_ae;
-name_table['en'] = name_table_en;
-name_table['ja'] = name_table_jp;
-name_table['ko'] = name_table_kr;
-name_table['ruby'] = name_table_ruby;
-
-const md_table = Object.create(null);
-md_table['en'] = md_table_en;
-md_table['ja'] = md_table_jp;
 
 export {
 	ltable_ocg, ltable_tcg, ltable_md,
