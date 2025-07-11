@@ -20,11 +20,10 @@
   "author": "salix5",
   "license": "MIT",
   "dependencies": {
-    "discord.js": "14.x",
-    "sql.js": "*"
+    "discord.js": "14.x"
   },
   "engines": {
-    "node": "22.x"
+    "node": "24.x"
   },
   "devDependencies": {
     "@eslint/js": "^9.6.0",
