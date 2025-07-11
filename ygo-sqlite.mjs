@@ -121,6 +121,38 @@ export function query_db(db, sql = stmt_default, arg = arg_default) {
 }
 
 /**
+ * Check if the card is an alternative artwork card.
+ * @param {Entry} record
+ * @returns 
+ */
+export function is_alternative(record) {
+	if (record.id === ID_BLACK_LUSTER_SOLDIER)
+		return false;
+	return Math.abs(record.id - record.alias) < CARD_ARTWORK_VERSIONS_OFFSET;
+}
+
+/**
+ * The sqlite condition of checking setcode.
+ * @param {number} setcode
+ * @param {Object} arg
+ * @returns {string}
+ */
+export function setcode_condition(setcode, arg) {
+	const setcode_str1 = `(setcode & $mask12) == $setname AND (setcode & $settype) == $settype`;
+	const setcode_str2 = `(setcode >> $sec1 & $mask12) == $setname AND (setcode >> $sec1 & $settype) == $settype`;
+	const setcode_str3 = `(setcode >> $sec2 & $mask12) == $setname AND (setcode >> $sec2 & $settype) == $settype`;
+	const setcode_str4 = `(setcode >> $sec3 & $mask12) == $setname AND (setcode >> $sec3 & $settype) == $settype`;
+	const ret = `(${setcode_str1} OR ${setcode_str2} OR ${setcode_str3} OR ${setcode_str4})`;
+	arg.$setname = setcode & 0x0fff;
+	arg.$settype = setcode & 0xf000;
+	arg.$mask12 = 0x0fff;
+	arg.$sec1 = 16;
+	arg.$sec2 = 32;
+	arg.$sec3 = 48;
+	return ret;
+}
+
+/**
  * Get cards from databases file at `path` with statement `sql` and binding object `arg`.
  * @param {string} path
  * @param {string} sql 
