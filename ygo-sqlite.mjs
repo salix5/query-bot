@@ -7,6 +7,7 @@ export const ID_TYLER_THE_GREAT_WARRIOR = 68811206;
 export const ID_BLACK_LUSTER_SOLDIER = 5405695;
 export const ALT_POLYMERIZATION = 27847700;
 export const ALT_DARK_MAGICIAN = 36996508;
+export const CID_BLACK_LUSTER_SOLDIER = 19092;
 
 export const CARD_ARTWORK_VERSIONS_OFFSET = 20;
 export const MAX_CARD_ID = 99999999;
@@ -18,6 +19,7 @@ export const select_name = `SELECT datas.id, name FROM datas, texts WHERE datas.
 export const base_filter = ` AND datas.id != $tyler AND NOT type & $token`;
 export const no_alt_filter = ` AND (datas.id == $luster OR abs(datas.id - alias) >= $artwork_offset)`;
 export const default_filter = `${base_filter}${no_alt_filter}`;
+export const effect_filter = ` AND (NOT type & $normal OR type & $pendulum)`;
 
 export const stmt_default = `${select_all}${default_filter}`;
 export const arg_default = {
