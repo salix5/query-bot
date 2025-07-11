@@ -42,6 +42,24 @@ export const arg_no_alias = {
 
 
 /**
+ * @typedef {Object} Entry
+ * @property {number} id
+ * @property {number} ot
+ * @property {number} alias
+ * @property {number[]} setcode
+ * @property {number} type
+ * @property {number} atk
+ * @property {number} def
+ * @property {number} level
+ * @property {number} race
+ * @property {number} attribute
+ * @property {number} scale
+ * 
+ * @property {string} name
+ * @property {string} desc
+ */
+
+/**
  * Set `card.setcode` from int64.
  * @param {Card} card 
  * @param {bigint} setcode 
@@ -62,7 +80,7 @@ function set_setcode(card, setcode) {
  * @param {DatabaseSync} db 
  * @param {string} sql 
  * @param {Object} arg 
- * @returns 
+ * @returns {Entry[]}
  */
 export function query_db(db, sql = stmt_default, arg = arg_default) {
 	const ret = [];
