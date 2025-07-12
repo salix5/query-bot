@@ -78,7 +78,7 @@ function set_setcode(card, setcode) {
 }
 
 /**
- * Query cards from `db` with statement `qstr` and binding object `arg` and put them in `ret`.
+ * Query cards from `db` with statement `qstr` and binding object `arg`.
  * @param {DatabaseSync} db 
  * @param {string} sql 
  * @param {Object} arg 
