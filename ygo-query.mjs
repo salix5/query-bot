@@ -1,6 +1,5 @@
-import extra_setcodes from './data/extra_setcodes.json' with { type: 'json' };
-import { readFile, writeFile } from 'node:fs/promises';
-import initSqlJs from 'sql.js';
+import { writeFile } from 'node:fs/promises';
+import { DatabaseSync } from 'node:sqlite';
 import { ltable_ocg, ltable_tcg, ltable_md } from './ygo-json-loader.mjs';
 import { md_card_list } from './ygo-json-loader.mjs';
 import { id_to_cid, cid_table } from './ygo-json-loader.mjs';
@@ -8,52 +7,17 @@ import { lang, collator_locale, bls_postfix, official_name, game_name } from './
 import { name_table, md_table, md_table_sc } from './ygo-json-loader.mjs';
 import { inverse_mapping, zh_collator, zh_compare } from './ygo-utility.mjs';
 import { db_url1, db_url2, fetch_db } from './ygo-fetch.mjs';
-import {
-	card_types, monster_types, link_markers, md_rarity, spell_colors, trap_colors,
-	ID_TYLER_THE_GREAT_WARRIOR, ID_BLACK_LUSTER_SOLDIER, CID_BLACK_LUSTER_SOLDIER
-} from "./ygo-constant.mjs";
+import { card_types, monster_types, link_markers, md_rarity, spell_colors, trap_colors, CID_BLACK_LUSTER_SOLDIER } from "./ygo-constant.mjs";
+import { arg_default, CARD_ARTWORK_VERSIONS_OFFSET, is_alternative, MAX_CARD_ID, query_db, stmt_default } from './ygo-sqlite.mjs';
 
-const CARD_ARTWORK_VERSIONS_OFFSET = 20;
-const MAX_CARD_ID = 99999999;
-
-const select_all = `SELECT datas.id, ot, alias, setcode, type, atk, def, level, attribute, race, name, "desc" FROM datas, texts WHERE datas.id == texts.id`;
-const select_id = `SELECT datas.id FROM datas, texts WHERE datas.id == texts.id`;
-const select_name = `SELECT datas.id, name FROM datas, texts WHERE datas.id == texts.id`;
-
-const base_filter = ` AND datas.id != $tyler AND NOT type & $token`;
-const no_alt_filter = ` AND (datas.id == $luster OR abs(datas.id - alias) >= $artwork_offset)`;
-const default_filter = `${base_filter}${no_alt_filter}`;
-const effect_filter = ` AND (NOT type & $normal OR type & $pendulum)`;
-
-const stmt_default = `${select_all}${default_filter}`;
-const arg_default = {
-	$tyler: ID_TYLER_THE_GREAT_WARRIOR,
-	$luster: ID_BLACK_LUSTER_SOLDIER,
-	$artwork_offset: CARD_ARTWORK_VERSIONS_OFFSET,
-	$token: monster_types.TYPE_TOKEN,
-};
-
-const stmt_base = `${select_all}${base_filter}`;
-const arg_base = {
-	$tyler: ID_TYLER_THE_GREAT_WARRIOR,
-	$token: monster_types.TYPE_TOKEN,
-};
-
-const stmt_no_alias = `${select_id}${base_filter} AND alias == $none`;
-const arg_no_alias = {
-	$tyler: ID_TYLER_THE_GREAT_WARRIOR,
-	$token: monster_types.TYPE_TOKEN,
-	$none: 0,
-};
-const regexp_mention = `(?<=「)[^「」]*「?[^「」]*」?[^「」]*(?=」)`;
+export const regexp_mention = `(?<=「)[^「」]*「?[^「」]*」?[^「」]*(?=」)`;
 
 export {
 	select_all, select_id, select_name,
 	base_filter, no_alt_filter, default_filter, effect_filter,
 	stmt_default, stmt_base, stmt_no_alias,
 	arg_default, arg_base, arg_no_alias,
-	regexp_mention,
-};
+} from './ygo-sqlite.mjs';
 
 const complete_name_table = Object.create(null);
 for (const locale of Object.keys(official_name)) {
@@ -86,28 +50,9 @@ export {
 };
 
 /**
- * @type {Database[]}
+ * @type {DatabaseSync[]}
  */
 const db_list = [];
-const SQL = await initSqlJs();
-
-/**
- * @typedef {Object} Entry
- * @property {number} id
- * @property {number} ot
- * @property {number} alias
- * @property {number[]} setcode
- * @property {number} type
- * @property {number} atk
- * @property {number} def
- * @property {number} level
- * @property {number} race
- * @property {number} attribute
- * @property {number} scale
- * 
- * @property {string} name
- * @property {string} desc
- */
 
 /**
  * @typedef {Object} CardText
@@ -172,64 +117,6 @@ function multimap_insert(mmap, key, value) {
 function multimap_clear(mmap) {
 	for (const key of Object.keys(mmap))
 		delete mmap[key];
-}
-
-/**
- * Set `card.setcode` from int64.
- * @param {Card} card 
- * @param {bigint} setcode 
- */
-function set_setcode(card, setcode) {
-	setcode = BigInt.asUintN(64, setcode);
-	card.setcode.length = 0;
-	while (setcode) {
-		if (setcode & 0xffffn) {
-			card.setcode.push(Number(setcode & 0xffffn));
-		}
-		setcode = setcode >> 16n;
-	}
-}
-
-/**
- * Query cards from `db` with statement `qstr` and binding object `arg` and put them in `ret`.
- * @param {Database} db 
- * @param {string} qstr 
- * @param {Object} arg 
- * @returns {Entry[]}
- */
-function query_db(db, qstr, arg) {
-	const ret = [];
-	const stmt = db.prepare(qstr);
-	stmt.bind(arg);
-	while (stmt.step()) {
-		const card = stmt.getAsObject(null, { useBigInt: true });
-		for (const [column, value] of Object.entries(card)) {
-			switch (column) {
-				case 'setcode':
-					card.setcode = [];
-					if (value) {
-						if (extra_setcodes[card.id]) {
-							card.setcode.push(...extra_setcodes[card.id]);
-						}
-						else {
-							set_setcode(card, value);
-						}
-					}
-					break;
-				case 'level':
-					card.level = Number(value) & 0xff;
-					card.scale = Number(value) >>> 24;
-					break;
-				default:
-					if (typeof value === 'bigint')
-						card[column] = Number(value);
-					break;
-			}
-		}
-		ret.push(card);
-	}
-	stmt.free();
-	return ret;
 }
 
 function generate_card(cdata) {
@@ -368,7 +255,7 @@ export async function init_query(files) {
 	multimap_clear(mmap_seventh);
 	card_table.clear();
 	for (const file of files) {
-		db_list.push(new SQL.Database(await readFile(file)));
+		db_list.push(new DatabaseSync(file, { readOnly: true }));
 	}
 	const seventh_cards = query(stmt_seventh, arg_seventh);
 	seventh_cards.sort((c1, c2) => zh_collator.compare(c1.tw_name, c2.tw_name));
@@ -378,17 +265,6 @@ export async function init_query(files) {
 	for (const card of query()) {
 		card_table.set(card.id, card);
 	}
-}
-
-/**
- * Check if the card is an alternative artwork card.
- * @param {Entry} record
- * @returns 
- */
-export function is_alternative(record) {
-	if (record.id === ID_BLACK_LUSTER_SOLDIER)
-		return false;
-	return Math.abs(record.id - record.alias) < CARD_ARTWORK_VERSIONS_OFFSET;
 }
 
 /**
@@ -415,28 +291,6 @@ export function is_setcode(card, value) {
 	}
 	return false;
 }
-
-/**
- * The sqlite condition of checking setcode.
- * @param {number} setcode
- * @param {Object} arg
- * @returns {string}
- */
-export function setcode_condition(setcode, arg) {
-	const setcode_str1 = `(setcode & $mask12) == $setname AND (setcode & $settype) == $settype`;
-	const setcode_str2 = `(setcode >> $sec1 & $mask12) == $setname AND (setcode >> $sec1 & $settype) == $settype`;
-	const setcode_str3 = `(setcode >> $sec2 & $mask12) == $setname AND (setcode >> $sec2 & $settype) == $settype`;
-	const setcode_str4 = `(setcode >> $sec3 & $mask12) == $setname AND (setcode >> $sec3 & $settype) == $settype`;
-	const ret = `(${setcode_str1} OR ${setcode_str2} OR ${setcode_str3} OR ${setcode_str4})`;
-	arg.$setname = setcode & 0x0fff;
-	arg.$settype = setcode & 0xf000;
-	arg.$mask12 = 0x0fff;
-	arg.$sec1 = 16;
-	arg.$sec2 = 32;
-	arg.$sec3 = 48;
-	return ret;
-}
-
 
 /**
  * Query card from all databases with statement `qstr` and binding object `arg`.
