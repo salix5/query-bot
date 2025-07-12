@@ -8,14 +8,11 @@ import { lang, collator_locale, bls_postfix, official_name, game_name } from './
 import { name_table, md_table, md_table_sc } from './ygo-json-loader.mjs';
 import { inverse_mapping, zh_collator, zh_compare } from './ygo-utility.mjs';
 import { db_url1, db_url2, fetch_db } from './ygo-fetch.mjs';
-import { card_types, monster_types, link_markers, md_rarity, spell_colors, trap_colors } from "./ygo-constant.mjs";
+import {
+	card_types, monster_types, link_markers, md_rarity, spell_colors, trap_colors,
+	ID_TYLER_THE_GREAT_WARRIOR, ID_BLACK_LUSTER_SOLDIER, CID_BLACK_LUSTER_SOLDIER
+} from "./ygo-constant.mjs";
 
-// special ID
-const ID_TYLER_THE_GREAT_WARRIOR = 68811206;
-const ID_BLACK_LUSTER_SOLDIER = 5405695;
-const ALT_POLYMERIZATION = 27847700;
-const ALT_DARK_MAGICIAN = 36996508;
-const CID_BLACK_LUSTER_SOLDIER = 19092;
 const CARD_ARTWORK_VERSIONS_OFFSET = 20;
 const MAX_CARD_ID = 99999999;
 
@@ -51,9 +48,6 @@ const arg_no_alias = {
 const regexp_mention = `(?<=「)[^「」]*「?[^「」]*」?[^「」]*(?=」)`;
 
 export {
-	ID_TYLER_THE_GREAT_WARRIOR, ID_BLACK_LUSTER_SOLDIER,
-	ALT_DARK_MAGICIAN, ALT_POLYMERIZATION,
-	CID_BLACK_LUSTER_SOLDIER,
 	select_all, select_id, select_name,
 	base_filter, no_alt_filter, default_filter, effect_filter,
 	stmt_default, stmt_base, stmt_no_alias,
