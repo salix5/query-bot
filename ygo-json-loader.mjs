@@ -19,6 +19,7 @@ import lang_ja from './lang/ja.json' with { type: 'json' };
 import lang_ko from './lang/ko.json' with { type: 'json' };
 import lang_zhtw from './lang/zh-tw.json' with { type: 'json' };
 import { inverse_mapping } from './ygo-utility.mjs';
+import { CID_BLACK_LUSTER_SOLDIER } from './ygo-sqlite.mjs';
 
 function object_to_map(obj) {
 	const entries = Object.entries(obj);
@@ -87,6 +88,12 @@ const game_name = Object.create(null);
 game_name['en'] = 'md_name_en';
 game_name['ja'] = 'md_name_jp';
 
+const convert_map1 = object_to_map(ruby_table);
+convert_map1.delete(CID_BLACK_LUSTER_SOLDIER);
+const jp_collator = new Intl.Collator('ja-JP');
+const ruby_entries = [...inverse_mapping(convert_map1)].sort((a, b) => jp_collator.compare(jp_table[a[1]], jp_table[b[1]]));
+const choices_ruby = new Map(ruby_entries);
+
 export {
 	ltable_ocg, ltable_tcg, ltable_md,
 	md_card_list,
@@ -101,4 +108,5 @@ export {
 	md_table,
 	md_table_sc,
 	jp_table,
+	choices_ruby,
 }
