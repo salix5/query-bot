@@ -184,6 +184,10 @@ export function check_uniqueness(path, id_luster = ID_BLACK_LUSTER_SOLDIER) {
 		$none: 0,
 	};
 	const cards = read_db(path, stmt1, arg1);
+	if (cards.length === 0) {
+		console.error('No cards found in the database:', path);
+		return false;
+	}
 	const table1 = new Map();
 	const postfix = 'N';
 	for (const card of cards) {
