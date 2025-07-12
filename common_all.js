@@ -1,11 +1,12 @@
 /* eslint-disable no-unused-vars */
+import tc_table from './commands_data/choices_tc.json' with { type: 'json' };
 import { AutocompleteInteraction } from "discord.js";
 import { complete_name_table, create_choice, create_choice_prerelease, escape_regexp, official_name } from "./ygo-query.mjs";
-import { tc_entries, ruby_entries } from './common-json-loader.js';
+import { choices_ruby } from "./ygo-json-loader.mjs";
 
 const MAX_CHOICE = 25;
 
-const choices_tc = new Map(tc_entries);
+const choices_tc = new Map(Object.entries(tc_table));
 const choice_table = Object.create(null);
 for (const locale of Object.keys(official_name)) {
 	choice_table[locale] = create_choice(locale);
@@ -111,7 +112,7 @@ export async function autocomplete_jp(interaction) {
 		const keyword = escape_regexp(focused);
 		const start = new RegExp(`^${keyword}`);
 		const include = new RegExp(`${keyword}`);
-		for (const [ruby, cid] of ruby_entries) {
+		for (const [ruby, cid] of choices_ruby) {
 			if (cid_set.has(cid))
 				continue;
 			if (start.test(ruby))
