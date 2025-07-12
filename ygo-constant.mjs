@@ -1,3 +1,10 @@
+// special id
+export const ALT_DARK_MAGICIAN = 36996508;
+export const ALT_POLYMERIZATION = 27847700;
+export const CID_BLACK_LUSTER_SOLDIER = 19092;
+export const ID_BLACK_LUSTER_SOLDIER = 5405695;
+export const ID_TYLER_THE_GREAT_WARRIOR = 68811206;
+
 // type
 const TYPE_MONSTER = 0x1;
 const TYPE_SPELL = 0x2;

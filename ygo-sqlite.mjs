@@ -1,13 +1,7 @@
 import extra_setcodes from './data/extra_setcodes.json' with { type: 'json' };
 import { DatabaseSync } from "node:sqlite";
-import { monster_types } from "./ygo-constant.mjs";
+import { ALT_DARK_MAGICIAN, ALT_POLYMERIZATION, ID_BLACK_LUSTER_SOLDIER, ID_TYLER_THE_GREAT_WARRIOR, monster_types } from "./ygo-constant.mjs";
 import { inverse_mapping } from "./ygo-utility.mjs";
-
-export const ID_TYLER_THE_GREAT_WARRIOR = 68811206;
-export const ID_BLACK_LUSTER_SOLDIER = 5405695;
-export const ALT_POLYMERIZATION = 27847700;
-export const ALT_DARK_MAGICIAN = 36996508;
-export const CID_BLACK_LUSTER_SOLDIER = 19092;
 
 export const CARD_ARTWORK_VERSIONS_OFFSET = 20;
 export const MAX_CARD_ID = 99999999;

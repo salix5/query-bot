@@ -19,7 +19,7 @@ import lang_ja from './lang/ja.json' with { type: 'json' };
 import lang_ko from './lang/ko.json' with { type: 'json' };
 import lang_zhtw from './lang/zh-tw.json' with { type: 'json' };
 import { inverse_mapping } from './ygo-utility.mjs';
-import { CID_BLACK_LUSTER_SOLDIER } from './ygo-sqlite.mjs';
+import { CID_BLACK_LUSTER_SOLDIER } from './ygo-constant.mjs';
 
 function object_to_map(obj) {
 	const entries = Object.entries(obj);
