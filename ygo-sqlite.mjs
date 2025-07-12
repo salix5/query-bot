@@ -42,11 +42,6 @@ export const arg_no_alias = {
 	$none: 0,
 };
 
-export const db_options = {
-	readOnly: true,
-	readBigInts: true,
-};
-
 
 /**
  * @typedef {Object} Entry
@@ -83,7 +78,7 @@ function set_setcode(card, setcode) {
 }
 
 /**
- * Query cards from `db` with statement `sql` and binding object `arg`.
+ * Query cards from `db` with statement `qstr` and binding object `arg` and put them in `ret`.
  * @param {DatabaseSync} db 
  * @param {string} sql 
  * @param {Object} arg 
@@ -92,6 +87,7 @@ function set_setcode(card, setcode) {
 export function query_db(db, sql = stmt_default, arg = arg_default) {
 	const ret = [];
 	const stmt = db.prepare(sql);
+	stmt.setReadBigInts(true);
 	const result = stmt.all(arg);
 	for (const card of result) {
 		for (const [column, value] of Object.entries(card)) {
@@ -162,7 +158,7 @@ export function setcode_condition(setcode, arg) {
  * @returns 
  */
 export function read_db(path, sql = stmt_default, arg = arg_default) {
-	const db = new DatabaseSync(path, db_options);
+	const db = new DatabaseSync(path, { readOnly: true });
 	if (!db) {
 		console.error('Failed to open database:', path);
 		return [];
