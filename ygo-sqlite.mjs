@@ -3,6 +3,20 @@ import { DatabaseSync } from "node:sqlite";
 import { ALT_DARK_MAGICIAN, ALT_POLYMERIZATION, ID_BLACK_LUSTER_SOLDIER, ID_TYLER_THE_GREAT_WARRIOR, monster_types } from "./ygo-constant.mjs";
 import { inverse_mapping } from "./ygo-utility.mjs";
 
+export {
+	ALT_DARK_MAGICIAN,
+	ALT_POLYMERIZATION,
+	CID_BLACK_LUSTER_SOLDIER,
+	ID_BLACK_LUSTER_SOLDIER,
+	ID_TYLER_THE_GREAT_WARRIOR,
+	monster_types,
+	spell_types,
+	trap_types,
+	races,
+	attributes,
+	link_markers,
+} from './ygo-constant.mjs';
+
 export const CARD_ARTWORK_VERSIONS_OFFSET = 20;
 export const MAX_CARD_ID = 99999999;
 
