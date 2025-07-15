@@ -862,14 +862,14 @@ export function generate_condition(params) {
 			for (const value of params.level) {
 				if (!Number.isSafeInteger(value))
 					continue;
-				level_condtion += ` OR (level & $mask) == $level${level_count}`;
+				level_condtion += ` OR (level & $level_mask) == $level${level_count}`;
 				arg[`$level${level_count}`] = value;
 				level_count++;
 			}
 		}
 		if (level_count) {
 			qstr += ` AND (${level_condtion})`;
-			arg.$mask = 0xff;
+			arg.$level_mask = 0xffff;
 			arg.$cardtype = card_types.TYPE_MONSTER;
 		}
 		else {
@@ -880,21 +880,21 @@ export function generate_condition(params) {
 			if (Number.isSafeInteger(params.level_to) && params.level_to >= 0)
 				level_to = params.level_to;
 			if (level_from >= 0 && level_to >= 0) {
-				qstr += " AND ((level & $mask) BETWEEN $level_from AND $level_to)";
-				arg.$mask = 0xff;
+				qstr += " AND ((level & $level_mask) BETWEEN $level_from AND $level_to)";
+				arg.$level_mask = 0xffff;
 				arg.$level_from = level_from;
 				arg.$level_to = level_to;
 				arg.$cardtype = card_types.TYPE_MONSTER;
 			}
 			else if (level_from >= 0) {
-				qstr += " AND (level & $mask) >= $level_from";
-				arg.$mask = 0xff;
+				qstr += " AND (level & $level_mask) >= $level_from";
+				arg.$level_mask = 0xffff;
 				arg.$level_from = level_from;
 				arg.$cardtype = card_types.TYPE_MONSTER;
 			}
 			else if (level_to >= 0) {
-				qstr += " AND (level & $mask) <= $level_to";
-				arg.$mask = 0xff;
+				qstr += " AND (level & $level_mask) <= $level_to";
+				arg.$level_mask = 0xffff;
 				arg.$level_to = level_to;
 				arg.$cardtype = card_types.TYPE_MONSTER;
 			}
