@@ -803,7 +803,7 @@ export function generate_condition(params) {
 		}
 
 		// def, exclude link monsters
-		let is_def = false;
+		let has_def = false;
 		let def_from = -10;
 		let def_to = -10;
 		let def_condition = "";
@@ -814,12 +814,12 @@ export function generate_condition(params) {
 		if (def_from === -1 || def_to === -1) {
 			def_condition = "def == $unknown";
 			arg.$unknown = -2;
-			is_def = true;
+			has_def = true;
 		}
 		else if (def_from === -2) {
 			def_condition = "def == atk AND def >= $zero";
 			arg.$zero = 0;
-			is_def = true;
+			has_def = true;
 		}
 		else if (def_to >= 0) {
 			if (def_from < 0)
@@ -827,12 +827,12 @@ export function generate_condition(params) {
 			def_condition = "(def BETWEEN $def_from AND $def_to)";
 			arg.$def_from = def_from;
 			arg.$def_to = def_to;
-			is_def = true;
+			has_def = true;
 		}
 		else if (def_from >= 0) {
 			def_condition = "def >= $def_from";
 			arg.$def_from = def_from;
-			is_def = true;
+			has_def = true;
 		}
 		if (atk_condition && def_condition) {
 			qstr += ` AND (${atk_condition} AND ${def_condition})`;
@@ -847,9 +847,9 @@ export function generate_condition(params) {
 			qstr += " AND atk >= $zero AND def >= $zero AND atk + def == $sum";
 			arg.$zero = 0;
 			arg.$sum = params.sum;
-			is_def = true;
+			has_def = true;
 		}
-		if (is_def) {
+		if (has_def) {
 			qstr += " AND NOT type & $link";
 			arg.$link = monster_types.TYPE_LINK;
 			arg.$cardtype = card_types.TYPE_MONSTER;
@@ -901,7 +901,7 @@ export function generate_condition(params) {
 		}
 
 		// scale, pendulum monster only
-		let is_scale = false;
+		let has_scale = false;
 		let scale_condtion = "0";
 		let scale_count = 0;
 		if (Array.isArray(params.scale) && params.scale.length) {
@@ -917,7 +917,7 @@ export function generate_condition(params) {
 			qstr += ` AND (${scale_condtion})`;
 			arg.$offset = 24;
 			arg.$mask = 0xff;
-			is_scale = true;
+			has_scale = true;
 		}
 		else {
 			let scale_from = -10;
@@ -932,24 +932,24 @@ export function generate_condition(params) {
 				arg.$mask = 0xff;
 				arg.$scale_from = scale_from;
 				arg.$scale_to = scale_to;
-				is_scale = true;
+				has_scale = true;
 			}
 			else if (scale_from >= 0) {
 				qstr += " AND (level >> $offset & $mask) >= $scale_from";
 				arg.$offset = 24;
 				arg.$mask = 0xff;
 				arg.$scale_from = scale_from;
-				is_scale = true;
+				has_scale = true;
 			}
 			else if (scale_to >= 0) {
 				qstr += " AND (level >> $offset & $mask) <= $scale_to";
 				arg.$offset = 24;
 				arg.$mask = 0xff;
 				arg.$scale_to = scale_to;
-				is_scale = true;
+				has_scale = true;
 			}
 		}
-		if (is_scale) {
+		if (has_scale) {
 			qstr += " AND type & $pendulum";
 			arg.$pendulum = monster_types.TYPE_PENDULUM;
 			arg.$cardtype = card_types.TYPE_MONSTER;
