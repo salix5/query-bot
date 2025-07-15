@@ -112,8 +112,8 @@ export function query_db(db, sql = stmt_default, arg = arg_default) {
 					}
 					break;
 				case 'level':
-					card.level = Number(value) & 0xff;
-					card.scale = Number(value) >>> 24;
+					card.level = Number(value) & 0xffff;
+					card.scale = Number(value) >> 24 & 0xff;
 					break;
 				default:
 					if (typeof value === 'bigint')
