@@ -766,13 +766,14 @@ export function generate_condition(params) {
 		arg.$exclude = params.exclude;
 	}
 	if (arg.$cardtype === 0 || arg.$cardtype === card_types.TYPE_MONSTER) {
+		let is_monster = false;
 		if (Number.isSafeInteger(params.material) && card_table.has(params.material)) {
 			const material = card_table.get(params.material).tw_name;
 			qstr += ` AND ("desc" LIKE $mat1 ESCAPE '$' OR "desc" LIKE $mat2 ESCAPE '$' OR "desc" LIKE $mat3 ESCAPE '$')`;
 			arg.$mat1 = `「${material}」%+%`;
 			arg.$mat2 = `%+「${material}」%`;
 			arg.$mat3 = `%「${material}」×%`;
-			arg.$cardtype = card_types.TYPE_MONSTER;
+			is_monster = true;
 		}
 
 		// atk
@@ -786,7 +787,7 @@ export function generate_condition(params) {
 		if (atk_from === -1 || atk_to === -1) {
 			atk_condition = "atk == $unknown";
 			arg.$unknown = -2;
-			arg.$cardtype = card_types.TYPE_MONSTER;
+			is_monster = true;
 		}
 		else if (atk_to >= 0) {
 			if (atk_from < 0)
@@ -794,12 +795,12 @@ export function generate_condition(params) {
 			atk_condition = "(atk BETWEEN $atk_from AND $atk_to)";
 			arg.$atk_from = atk_from;
 			arg.$atk_to = atk_to;
-			arg.$cardtype = card_types.TYPE_MONSTER;
+			is_monster = true;
 		}
 		else if (atk_from >= 0) {
 			atk_condition = "atk >= $atk_from";
 			arg.$atk_from = atk_from;
-			arg.$cardtype = card_types.TYPE_MONSTER;
+			is_monster = true;
 		}
 
 		// def, exclude link monsters
@@ -852,7 +853,7 @@ export function generate_condition(params) {
 		if (has_def) {
 			qstr += " AND NOT type & $link";
 			arg.$link = monster_types.TYPE_LINK;
-			arg.$cardtype = card_types.TYPE_MONSTER;
+			is_monster = true;
 		}
 
 		// lv, rank, link
@@ -870,7 +871,7 @@ export function generate_condition(params) {
 		if (level_count) {
 			qstr += ` AND (${level_condtion})`;
 			arg.$level_mask = 0xffff;
-			arg.$cardtype = card_types.TYPE_MONSTER;
+			is_monster = true;
 		}
 		else {
 			let level_from = -10;
@@ -884,19 +885,19 @@ export function generate_condition(params) {
 				arg.$level_mask = 0xffff;
 				arg.$level_from = level_from;
 				arg.$level_to = level_to;
-				arg.$cardtype = card_types.TYPE_MONSTER;
+				is_monster = true;
 			}
 			else if (level_from >= 0) {
 				qstr += " AND (level & $level_mask) >= $level_from";
 				arg.$level_mask = 0xffff;
 				arg.$level_from = level_from;
-				arg.$cardtype = card_types.TYPE_MONSTER;
+				is_monster = true;
 			}
 			else if (level_to >= 0) {
 				qstr += " AND (level & $level_mask) <= $level_to";
 				arg.$level_mask = 0xffff;
 				arg.$level_to = level_to;
-				arg.$cardtype = card_types.TYPE_MONSTER;
+				is_monster = true;
 			}
 		}
 
@@ -952,19 +953,19 @@ export function generate_condition(params) {
 		if (has_scale) {
 			qstr += " AND type & $pendulum";
 			arg.$pendulum = monster_types.TYPE_PENDULUM;
-			arg.$cardtype = card_types.TYPE_MONSTER;
+			is_monster = true;
 		}
 
 		// attribute, race
 		if (Number.isSafeInteger(params.attribute)) {
 			qstr += " AND attribute & $attribute";
 			arg.$attribute = params.attribute
-			arg.$cardtype = card_types.TYPE_MONSTER;
+			is_monster = true;
 		}
 		if (Number.isSafeInteger(params.race)) {
 			qstr += " AND race & $race";
 			arg.$race = params.race
-			arg.$cardtype = card_types.TYPE_MONSTER;
+			is_monster = true;
 		}
 		// marker
 		if (Number.isSafeInteger(params.marker)) {
@@ -975,10 +976,11 @@ export function generate_condition(params) {
 			else
 				qstr += " AND def & $marker";
 			arg.$marker = params.marker
-			arg.$cardtype = card_types.TYPE_MONSTER;
+			is_monster = true;
 		}
-		if (arg.$cardtype === card_types.TYPE_MONSTER) {
+		if (is_monster) {
 			qstr += " AND type & $cardtype";
+			arg.$cardtype = card_types.TYPE_MONSTER;
 		}
 	}
 	return [qstr, arg];
