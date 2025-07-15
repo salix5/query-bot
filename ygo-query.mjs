@@ -730,187 +730,199 @@ export function create_name_table() {
 
 /**
  * Parse param into sqlite statement condition.
- * @param {URLSearchParams} params 
+ * @param {Object} params 
  * @returns {[string, Object]}
  */
-export function param_to_condition(params) {
+export function generate_condition(params) {
 	let qstr = "";
 	const arg = { ...arg_default };
 	// id, primary key
-	if (params.has("id")) {
-		const id = Number.parseInt(params.get("id"));
+	if (Number.isSafeInteger(params.id)) {
 		qstr += " AND datas.id == $id";
-		arg.$id = id;
+		arg.$id = params.id;
 		return [qstr, arg];
 	}
-	if (params.has("cid")) {
-		const cid = Number.parseInt(params.get("cid"));
+	if (Number.isSafeInteger(params.cid)) {
 		qstr += " AND datas.id == $id";
-		arg.$id = cid_table.get(cid) ?? 0;
+		arg.$id = cid_table.get(params.cid) ?? -1;
 		return [qstr, arg];
 	}
 
 	// type
 	arg.$cardtype = 0;
-	if (params.has("cardtype")) {
+	if (Number.isSafeInteger(params.cardtype)) {
 		qstr += ' AND type & $cardtype';
-		arg.$cardtype = Number.parseInt(params.get("cardtype"));
+		arg.$cardtype = params.cardtype;
 	}
-	if (params.has("subtype")) {
-		if (params.has("subtype_operator", "1"))
+	if (Number.isSafeInteger(params.subtype)) {
+		if (Number.isSafeInteger(params.subtype_operator) && params.subtype_operator)
 			qstr += ' AND type & $subtype == $subtype';
 		else
 			qstr += ' AND type & $subtype';
-		arg.$subtype = Number.parseInt(params.get("subtype"));
+		arg.$subtype = params.subtype;
 	}
-	if (params.has("exclude")) {
+	if (Number.isSafeInteger(params.exclude)) {
 		qstr += ' AND NOT type & $exclude';
-		arg.$exclude = Number.parseInt(params.get("exclude"));
+		arg.$exclude = params.exclude;
 	}
 	if (arg.$cardtype === 0 || arg.$cardtype === card_types.TYPE_MONSTER) {
-		const matid = Number.parseInt(params.get("material"));
-		if (matid && card_table.has(matid)) {
-			const material = card_table.get(matid).tw_name;
+		if (Number.isSafeInteger(params.material) && card_table.has(params.material)) {
+			const material = card_table.get(params.material).tw_name;
 			qstr += ` AND ("desc" LIKE $mat1 ESCAPE '$' OR "desc" LIKE $mat2 ESCAPE '$' OR "desc" LIKE $mat3 ESCAPE '$')`;
 			arg.$mat1 = `「${material}」%+%`;
 			arg.$mat2 = `%+「${material}」%`;
 			arg.$mat3 = `%「${material}」×%`;
-			arg.$cardtype |= card_types.TYPE_MONSTER;
+			arg.$cardtype = card_types.TYPE_MONSTER;
 		}
 
 		// atk
-		if (params.has("atk_from")) {
-			const atk_from = Number.parseInt(params.get("atk_from"));
-			arg.$cardtype |= card_types.TYPE_MONSTER;
-			if (atk_from === -1) {
+		if (Number.isSafeInteger(params.atk_from)) {
+			if (params.atk_from === -1) {
 				qstr += " AND atk == $unknown";
 				arg.$unknown = -2;
+				arg.$cardtype = card_types.TYPE_MONSTER;
 			}
-			else {
+			else if (params.atk_from >= 0) {
 				qstr += " AND atk >= $atk_from";
-				arg.$atk_from = atk_from;
+				arg.$atk_from = params.atk_from;
+				arg.$cardtype = card_types.TYPE_MONSTER;
 			}
 		}
-		if (params.has("atk_to")) {
-			const atk_to = Number.parseInt(params.get("atk_to"));
-			arg.$cardtype |= card_types.TYPE_MONSTER;
+		if (Number.isSafeInteger(params.atk_to)) {
 			qstr += " AND atk >= $zero AND atk <= $atk_to";
 			arg.$zero = 0;
-			arg.$atk_to = atk_to;
+			arg.$atk_to = params.atk_to;
+			arg.$cardtype = card_types.TYPE_MONSTER;
 		}
 
 		// def, exclude link monsters
-		if (params.has("def_from") || params.has("def_to") || params.has("sum")) {
-			qstr += " AND NOT type & $link";
-			arg.$link = monster_types.TYPE_LINK;
-			arg.$cardtype |= card_types.TYPE_MONSTER;
-		}
-		if (params.has("def_from")) {
-			const def_from = Number.parseInt(params.get("def_from"));
-			if (def_from === -1) {
+		let is_def = false;
+		if (Number.isSafeInteger(params.def_from)) {
+			if (params.def_from === -1) {
 				qstr += " AND def == $unknown";
 				arg.$unknown = -2;
+				is_def = true;
 			}
-			else if (def_from === -2) {
+			else if (params.def_from === -2) {
 				qstr += " AND def == atk AND def >= $zero";
 				arg.$zero = 0;
+				is_def = true;
 			}
-			else {
+			else if (params.def_from >= 0) {
 				qstr += " AND def >= $def_from";
-				arg.$def_from = def_from;
+				arg.$def_from = params.def_from;
+				is_def = true;
 			}
 		}
-		if (params.has("def_to")) {
-			const def_to = Number.parseInt(params.get("def_to"));
+		if (Number.isSafeInteger(params.def_to)) {
+			const def_to = params.def_to;
 			qstr += " AND def >= $zero AND def <= $def_to";
 			arg.$zero = 0;
 			arg.$def_to = def_to;
+			is_def = true;
 		}
-		if (params.has("sum")) {
-			const sum = Number.parseInt(params.get("sum"));
+		if (Number.isSafeInteger(params.sum)) {
 			qstr += " AND atk >= $zero AND def >= $zero AND atk + def == $sum";
 			arg.$zero = 0;
-			arg.$sum = sum;
+			arg.$sum = params.sum;
+			is_def = true;
+		}
+		if (is_def) {
+			qstr += " AND NOT type & $link";
+			arg.$link = monster_types.TYPE_LINK;
+			arg.$cardtype = card_types.TYPE_MONSTER;
 		}
 
 		// lv, rank, link
-		if (params.has("level") || params.has("level_from") || params.has("level_to")) {
-			arg.$cardtype |= card_types.TYPE_MONSTER;
-		}
-		if (params.has("level")) {
+		if (Array.isArray(params.level) && params.level.length) {
 			let level_condtion = "0";
-			let index = 0;
-			for (const value of params.getAll("level")) {
-				level_condtion += ` OR (level & $mask) == $level${index}`;
-				arg[`$level${index}`] = Number.parseInt(value);
-				index++;
+			let count = 0;
+			for (const value of params.level) {
+				if (!Number.isSafeInteger(value))
+					continue;
+				level_condtion += ` OR (level & $mask) == $level${count}`;
+				arg[`$level${count}`] = value;
+				count++;
 			}
-			qstr += ` AND (${level_condtion})`;
-			arg.$mask = 0xff;
+			if (count) {
+				qstr += ` AND (${level_condtion})`;
+				arg.$mask = 0xff;
+				arg.$cardtype = card_types.TYPE_MONSTER;
+			}
 		}
-		if (params.has("level_from")) {
+		if (Number.isSafeInteger(params.level_from)) {
 			qstr += " AND (level & $mask) >= $level_from";
 			arg.$mask = 0xff;
-			arg.$level_from = Number.parseInt(params.get("level_from"));
+			arg.$level_from = params.level_from;
+			arg.$cardtype = card_types.TYPE_MONSTER;
 		}
-		if (params.has("level_to")) {
+		if (Number.isSafeInteger(params.level_to)) {
 			qstr += " AND (level & $mask) <= $level_to";
 			arg.$mask = 0xff;
-			arg.$level_to = Number.parseInt(params.get("level_to"));
+			arg.$level_to = params.level_to;
+			arg.$cardtype = card_types.TYPE_MONSTER;
 		}
 
 		// scale, pendulum monster only
-		if (params.has("scale") || params.has("scale_from") || params.has("scale_to")) {
-			qstr += " AND type & $pendulum";
-			arg.$pendulum = monster_types.TYPE_PENDULUM;
-			arg.$cardtype |= card_types.TYPE_MONSTER;
-		}
-		if (params.has("scale")) {
+		let is_scale = false;
+		if (Array.isArray(params.scale) && params.scale.length) {
 			let scale_condtion = "0";
-			let index = 0;
-			for (const value of params.getAll("scale")) {
-				scale_condtion += ` OR (level >> $offset & $mask) == $scale${index}`;
-				arg[`$scale${index}`] = Number.parseInt(value);
-				index++;
+			let count = 0;
+			for (const value of params.scale) {
+				if (!Number.isSafeInteger(value))
+					continue;
+				scale_condtion += ` OR (level >> $offset & $mask) == $scale${count}`;
+				arg[`$scale${count}`] = value;
+				count++;
 			}
-			qstr += ` AND (${scale_condtion})`;
-			arg.$offset = 24;
-			arg.$mask = 0xff;
+			if (count) {
+				qstr += ` AND (${scale_condtion})`;
+				arg.$offset = 24;
+				arg.$mask = 0xff;
+				is_scale = true;
+			}
 		}
-		if (params.has("scale_from")) {
+		if (Number.isSafeInteger(params.scale_from)) {
 			qstr += " AND (level >> $offset & $mask) >= $scale_from";
 			arg.$offset = 24;
 			arg.$mask = 0xff;
-			arg.$scale_from = Number.parseInt(params.get("scale_from"));
+			arg.$scale_from = params.scale_from;
+			is_scale = true;
 		}
-		if (params.has("scale_to")) {
+		if (Number.isSafeInteger(params.scale_to)) {
 			qstr += " AND (level >> $offset & $mask) <= $scale_to";
 			arg.$offset = 24;
 			arg.$mask = 0xff;
-			arg.$scale_to = Number.parseInt(params.get("scale_to"));
+			arg.$scale_to = params.scale_to;
+			is_scale = true;
+		}
+		if (is_scale) {
+			qstr += " AND type & $pendulum";
+			arg.$pendulum = monster_types.TYPE_PENDULUM;
+			arg.$cardtype = card_types.TYPE_MONSTER;
 		}
 
 		// attribute, race
-		if (params.has("attribute")) {
+		if (Number.isSafeInteger(params.attribute)) {
 			qstr += " AND attribute & $attribute";
-			arg.$attribute = Number.parseInt(params.get("attribute"))
-			arg.$cardtype |= card_types.TYPE_MONSTER;
+			arg.$attribute = params.attribute
+			arg.$cardtype = card_types.TYPE_MONSTER;
 		}
-		if (params.has("race")) {
+		if (Number.isSafeInteger(params.race)) {
 			qstr += " AND race & $race";
-			arg.$race = Number.parseInt(params.get("race"))
-			arg.$cardtype |= card_types.TYPE_MONSTER;
+			arg.$race = params.race
+			arg.$cardtype = card_types.TYPE_MONSTER;
 		}
 		// marker
-		if (params.has("marker")) {
+		if (Number.isSafeInteger(params.marker)) {
 			qstr += " AND type & $link";
 			arg.$link = monster_types.TYPE_LINK;
-			if (params.has("marker_operator", "1"))
+			if (Number.isSafeInteger(params.marker_operator) && params.marker_operator)
 				qstr += " AND def & $marker == $marker";
 			else
 				qstr += " AND def & $marker";
-			arg.$marker = Number.parseInt(params.get("marker"))
-			arg.$cardtype |= card_types.TYPE_MONSTER;
+			arg.$marker = params.marker
+			arg.$cardtype = card_types.TYPE_MONSTER;
 		}
 		if (arg.$cardtype === card_types.TYPE_MONSTER) {
 			qstr += " AND type & $cardtype";
