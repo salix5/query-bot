@@ -29,7 +29,7 @@ export function inverse_mapping(table) {
 	for (const [key, value] of table) {
 		if (inverse.has(value)) {
 			console.error('non-invertible', `${key}: ${value}`);
-			return (new Map());
+			return new Map();
 		}
 		inverse.set(value, key);
 	}
