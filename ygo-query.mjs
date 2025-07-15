@@ -778,25 +778,26 @@ export function generate_condition(params) {
 		// atk
 		let atk_from = -10;
 		let atk_to = -10;
+		let atk_condition = "";
 		if (Number.isSafeInteger(params.atk_from) && params.atk_from >= -1)
 			atk_from = params.atk_from;
 		if (Number.isSafeInteger(params.atk_to) && params.atk_to >= -1)
 			atk_to = params.atk_to;
 		if (atk_from === -1 || atk_to === -1) {
-			qstr += " AND atk == $unknown";
+			atk_condition = "atk == $unknown";
 			arg.$unknown = -2;
 			arg.$cardtype = card_types.TYPE_MONSTER;
 		}
 		else if (atk_to >= 0) {
 			if (atk_from < 0)
 				atk_from = 0;
-			qstr += " AND (atk BETWEEN $atk_from AND $atk_to)";
+			atk_condition = "(atk BETWEEN $atk_from AND $atk_to)";
 			arg.$atk_from = atk_from;
 			arg.$atk_to = atk_to;
 			arg.$cardtype = card_types.TYPE_MONSTER;
 		}
 		else if (atk_from >= 0) {
-			qstr += " AND atk >= $atk_from";
+			atk_condition = "atk >= $atk_from";
 			arg.$atk_from = atk_from;
 			arg.$cardtype = card_types.TYPE_MONSTER;
 		}
@@ -805,32 +806,42 @@ export function generate_condition(params) {
 		let is_def = false;
 		let def_from = -10;
 		let def_to = -10;
+		let def_condition = "";
 		if (Number.isSafeInteger(params.def_from) && params.def_from >= -2)
 			def_from = params.def_from;
 		if (Number.isSafeInteger(params.def_to) && params.def_to >= -1)
 			def_to = params.def_to;
 		if (def_from === -1 || def_to === -1) {
-			qstr += " AND def == $unknown";
+			def_condition = "def == $unknown";
 			arg.$unknown = -2;
 			is_def = true;
 		}
 		else if (def_from === -2) {
-			qstr += " AND def == atk AND def >= $zero";
+			def_condition = "def == atk AND def >= $zero";
 			arg.$zero = 0;
 			is_def = true;
 		}
 		else if (def_to >= 0) {
 			if (def_from < 0)
 				def_from = 0;
-			qstr += " AND (def BETWEEN $def_from AND $def_to)";
+			def_condition = "(def BETWEEN $def_from AND $def_to)";
 			arg.$def_from = def_from;
 			arg.$def_to = def_to;
 			is_def = true;
 		}
 		else if (def_from >= 0) {
-			qstr += " AND def >= $def_from";
+			def_condition = "def >= $def_from";
 			arg.$def_from = def_from;
 			is_def = true;
+		}
+		if (atk_condition && def_condition) {
+			qstr += ` AND (${atk_condition} AND ${def_condition})`;
+		}
+		else {
+			if (atk_condition)
+				qstr += ` AND ${atk_condition}`;
+			if (def_condition)
+				qstr += ` AND ${def_condition}`;
 		}
 		if (Number.isSafeInteger(params.sum) && params.sum >= 0) {
 			qstr += " AND atk >= $zero AND def >= $zero AND atk + def == $sum";
