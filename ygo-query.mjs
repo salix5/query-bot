@@ -679,12 +679,10 @@ export function get_source_cid(id) {
  */
 export function create_choice(request_locale) {
 	if (!collator_locale[request_locale])
-		return (new Map());
+		return new Map();
 	const inverse = inverse_mapping(complete_name_table[request_locale]);
 	const collator = new Intl.Collator(collator_locale[request_locale]);
-	const inverse_entries = [...inverse].sort((a, b) => collator.compare(a[0], b[0]));
-	const result = new Map(inverse_entries);
-	return result;
+	return new Map([...inverse].sort((a, b) => collator.compare(a[0], b[0])));
 }
 
 /**
@@ -708,15 +706,13 @@ export function create_choice_prerelease() {
 		const kanji = res ? res[0] : '';
 		if (inverse_table.has(card.tw_name) || kanji && inverse_table.has(kanji)) {
 			console.error('choice_prerelease', card.id);
-			return (new Map());
+			return new Map();
 		}
 		inverse_table.set(card.tw_name, card.id);
 		if (kanji)
 			inverse_table.set(kanji, card.id);
 	}
-	const inverse_entries = [...inverse_table].sort(zh_compare);
-	const result = new Map(inverse_entries);
-	return result;
+	return new Map([...inverse_table].sort(zh_compare))
 }
 
 export function create_name_table() {
