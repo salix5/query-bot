@@ -845,67 +845,98 @@ export function generate_condition(params) {
 		}
 
 		// lv, rank, link
+		let level_count = 0;
+		let level_condtion = "0";
 		if (Array.isArray(params.level) && params.level.length) {
-			let level_condtion = "0";
-			let count = 0;
 			for (const value of params.level) {
 				if (!Number.isSafeInteger(value))
 					continue;
-				level_condtion += ` OR (level & $mask) == $level${count}`;
-				arg[`$level${count}`] = value;
-				count++;
+				level_condtion += ` OR (level & $mask) == $level${level_count}`;
+				arg[`$level${level_count}`] = value;
+				level_count++;
 			}
-			if (count) {
-				qstr += ` AND (${level_condtion})`;
+		}
+		if (level_count) {
+			qstr += ` AND (${level_condtion})`;
+			arg.$mask = 0xff;
+			arg.$cardtype = card_types.TYPE_MONSTER;
+		}
+		else {
+			let level_from = -10;
+			let level_to = -10;
+			if (Number.isSafeInteger(params.level_from) && params.level_from >= 0)
+				level_from = params.level_from;
+			if (Number.isSafeInteger(params.level_to) && params.level_to >= 0)
+				level_to = params.level_to;
+			if (level_from >= 0 && level_to >= 0) {
+				qstr += " AND ((level & $mask) BETWEEN $level_from AND $level_to)";
 				arg.$mask = 0xff;
+				arg.$level_from = level_from;
+				arg.$level_to = level_to;
 				arg.$cardtype = card_types.TYPE_MONSTER;
 			}
-		}
-		if (Number.isSafeInteger(params.level_from)) {
-			qstr += " AND (level & $mask) >= $level_from";
-			arg.$mask = 0xff;
-			arg.$level_from = params.level_from;
-			arg.$cardtype = card_types.TYPE_MONSTER;
-		}
-		if (Number.isSafeInteger(params.level_to)) {
-			qstr += " AND (level & $mask) <= $level_to";
-			arg.$mask = 0xff;
-			arg.$level_to = params.level_to;
-			arg.$cardtype = card_types.TYPE_MONSTER;
+			else if (level_from >= 0) {
+				qstr += " AND (level & $mask) >= $level_from";
+				arg.$mask = 0xff;
+				arg.$level_from = level_from;
+				arg.$cardtype = card_types.TYPE_MONSTER;
+			}
+			else if (level_to >= 0) {
+				qstr += " AND (level & $mask) <= $level_to";
+				arg.$mask = 0xff;
+				arg.$level_to = level_to;
+				arg.$cardtype = card_types.TYPE_MONSTER;
+			}
 		}
 
 		// scale, pendulum monster only
 		let is_scale = false;
+		let scale_condtion = "0";
+		let scale_count = 0;
 		if (Array.isArray(params.scale) && params.scale.length) {
-			let scale_condtion = "0";
-			let count = 0;
 			for (const value of params.scale) {
 				if (!Number.isSafeInteger(value))
 					continue;
-				scale_condtion += ` OR (level >> $offset & $mask) == $scale${count}`;
-				arg[`$scale${count}`] = value;
-				count++;
+				scale_condtion += ` OR (level >> $offset & $mask) == $scale${scale_count}`;
+				arg[`$scale${scale_count}`] = value;
+				scale_count++;
 			}
-			if (count) {
-				qstr += ` AND (${scale_condtion})`;
+		}
+		if (scale_count) {
+			qstr += ` AND (${scale_condtion})`;
+			arg.$offset = 24;
+			arg.$mask = 0xff;
+			is_scale = true;
+		}
+		else {
+			let scale_from = -10;
+			let scale_to = -10;
+			if (Number.isSafeInteger(params.scale_from) && params.scale_from >= 0)
+				scale_from = params.scale_from;
+			if (Number.isSafeInteger(params.scale_to) && params.scale_to >= 0)
+				scale_to = params.scale_to;
+			if (scale_from >= 0 && scale_to >= 0) {
+				qstr += " AND ((level >> $offset & $mask) BETWEEN $scale_from AND $scale_to)";
 				arg.$offset = 24;
 				arg.$mask = 0xff;
+				arg.$scale_from = scale_from;
+				arg.$scale_to = scale_to;
 				is_scale = true;
 			}
-		}
-		if (Number.isSafeInteger(params.scale_from)) {
-			qstr += " AND (level >> $offset & $mask) >= $scale_from";
-			arg.$offset = 24;
-			arg.$mask = 0xff;
-			arg.$scale_from = params.scale_from;
-			is_scale = true;
-		}
-		if (Number.isSafeInteger(params.scale_to)) {
-			qstr += " AND (level >> $offset & $mask) <= $scale_to";
-			arg.$offset = 24;
-			arg.$mask = 0xff;
-			arg.$scale_to = params.scale_to;
-			is_scale = true;
+			else if (scale_from >= 0) {
+				qstr += " AND (level >> $offset & $mask) >= $scale_from";
+				arg.$offset = 24;
+				arg.$mask = 0xff;
+				arg.$scale_from = scale_from;
+				is_scale = true;
+			}
+			else if (scale_to >= 0) {
+				qstr += " AND (level >> $offset & $mask) <= $scale_to";
+				arg.$offset = 24;
+				arg.$mask = 0xff;
+				arg.$scale_to = scale_to;
+				is_scale = true;
+			}
 		}
 		if (is_scale) {
 			qstr += " AND type & $pendulum";
