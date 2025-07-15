@@ -959,12 +959,12 @@ export function generate_condition(params) {
 		// attribute, race
 		if (Number.isSafeInteger(params.attribute)) {
 			qstr += " AND attribute & $attribute";
-			arg.$attribute = params.attribute
+			arg.$attribute = params.attribute;
 			is_monster = true;
 		}
 		if (Number.isSafeInteger(params.race)) {
 			qstr += " AND race & $race";
-			arg.$race = params.race
+			arg.$race = params.race;
 			is_monster = true;
 		}
 		// marker
@@ -975,7 +975,7 @@ export function generate_condition(params) {
 				qstr += " AND def & $marker == $marker";
 			else
 				qstr += " AND def & $marker";
-			arg.$marker = params.marker
+			arg.$marker = params.marker;
 			is_monster = true;
 		}
 		if (is_monster) {
