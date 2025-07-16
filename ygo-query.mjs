@@ -216,7 +216,7 @@ function generate_card(cdata) {
 
 /**
  * The sqlite condition of monsters related to No.101 ~ No.107.
- * @returns 
+ * @returns {string}
  */
 // eslint-disable-next-line no-unused-vars
 function create_seventh_condition() {
@@ -270,7 +270,7 @@ export async function init_query(files) {
 /**
  * Check if the card has an official card name.
  * @param {Card} card
- * @returns
+ * @returns {boolean}
  */
 export function is_released(card) {
 	return !!(card.jp_name || card.en_name);
@@ -280,7 +280,7 @@ export function is_released(card) {
  * Check if `card.setcode` contains `value`.
  * @param {Card} card 
  * @param {number} value 
- * @returns
+ * @returns {boolean}
  */
 export function is_setcode(card, value) {
 	const settype = value & 0x0fff;
@@ -660,7 +660,7 @@ export function print_card(card, locale) {
 //database file
 /**
  * @param {number} id 
- * @returns 
+ * @returns {number}
  */
 export function get_source_cid(id) {
 	for (let i = id; i > id - CARD_ARTWORK_VERSIONS_OFFSET; --i) {
@@ -675,7 +675,7 @@ export function get_source_cid(id) {
 /**
  * Create the [name, id] table of region `request_locale`
  * @param {string} request_locale 
- * @returns 
+ * @returns {Map<string, number>}
  */
 export function create_choice(request_locale) {
 	if (!collator_locale[request_locale])
@@ -687,7 +687,7 @@ export function create_choice(request_locale) {
 
 /**
  * Create the [name, id] table for pre-release cards.
- * @returns 
+ * @returns {Map<string, number>}
  */
 export function create_choice_prerelease() {
 	const inverse_table = new Map();
