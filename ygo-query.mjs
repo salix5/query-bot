@@ -838,11 +838,11 @@ export function generate_condition(params) {
 		if (atk_condition && def_condition) {
 			qstr += ` AND (${atk_condition} AND ${def_condition})`;
 		}
-		else {
-			if (atk_condition)
-				qstr += ` AND ${atk_condition}`;
-			if (def_condition)
-				qstr += ` AND ${def_condition}`;
+		else if (atk_condition) {
+			qstr += ` AND ${atk_condition}`;
+		}
+		else if (def_condition) {
+			qstr += ` AND ${def_condition}`;
 		}
 		if (Number.isSafeInteger(params.sum) && params.sum >= 0) {
 			qstr += " AND atk >= $zero AND def >= $zero AND atk + def == $sum";
