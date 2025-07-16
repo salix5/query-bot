@@ -863,18 +863,18 @@ export function generate_condition(params) {
 
 		// lv, rank, link
 		let level_count = 0;
-		let level_condtion = "0";
+		let level_condition = "0";
 		if (Array.isArray(params.level) && params.level.length) {
 			for (const value of params.level) {
 				if (!Number.isSafeInteger(value))
 					continue;
-				level_condtion += ` OR (level & $level_mask) == $level${level_count}`;
+				level_condition += ` OR (level & $level_mask) == $level${level_count}`;
 				arg[`$level${level_count}`] = value;
 				level_count++;
 			}
 		}
 		if (level_count) {
-			qstr += ` AND (${level_condtion})`;
+			qstr += ` AND (${level_condition})`;
 			arg.$level_mask = 0xffff;
 			is_monster = true;
 		}
@@ -908,19 +908,19 @@ export function generate_condition(params) {
 
 		// scale, pendulum monster only
 		let has_scale = false;
-		let scale_condtion = "0";
+		let scale_condition = "0";
 		let scale_count = 0;
 		if (Array.isArray(params.scale) && params.scale.length) {
 			for (const value of params.scale) {
 				if (!Number.isSafeInteger(value))
 					continue;
-				scale_condtion += ` OR (level >> $offset & $mask) == $scale${scale_count}`;
+				scale_condition += ` OR (level >> $offset & $mask) == $scale${scale_count}`;
 				arg[`$scale${scale_count}`] = value;
 				scale_count++;
 			}
 		}
 		if (scale_count) {
-			qstr += ` AND (${scale_condtion})`;
+			qstr += ` AND (${scale_condition})`;
 			arg.$offset = 24;
 			arg.$mask = 0xff;
 			has_scale = true;
