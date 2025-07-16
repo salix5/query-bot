@@ -277,7 +277,7 @@ export function is_released(card) {
 }
 
 /**
- * Check if `card.setode` contains `value`.
+ * Check if `card.setcode` contains `value`.
  * @param {Card} card 
  * @param {number} value 
  * @returns
