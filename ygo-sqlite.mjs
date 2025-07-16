@@ -50,6 +50,11 @@ export const arg_no_alias = {
 	$none: 0,
 };
 
+export const escape_table = {
+	'%': '$%',
+	'_': '$_',
+	'$': '$$',
+};
 
 /**
  * @typedef {Object} Entry
