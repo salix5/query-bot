@@ -20,5 +20,5 @@ export async function execute(interaction) {
 	if (!face)
 		face = 20;
 	const result = await rand(face) + 1;
-	await interaction.reply(result.toString());
+	await interaction.reply(`${result}`);
 }

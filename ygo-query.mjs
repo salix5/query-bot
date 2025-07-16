@@ -416,7 +416,7 @@ export function print_ad(x) {
 	if (x === -2)
 		return '?';
 	else
-		return x.toString();
+		return `${x}`;
 }
 
 /**
