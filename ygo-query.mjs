@@ -8,7 +8,7 @@ import { name_table, md_table, md_table_sc } from './ygo-json-loader.mjs';
 import { inverse_mapping, zh_collator, zh_compare } from './ygo-utility.mjs';
 import { db_url1, db_url2, fetch_db } from './ygo-fetch.mjs';
 import { card_types, monster_types, link_markers, md_rarity, spell_colors, trap_colors, CID_BLACK_LUSTER_SOLDIER } from "./ygo-constant.mjs";
-import { arg_default, CARD_ARTWORK_VERSIONS_OFFSET, is_alternative, MAX_CARD_ID, query_db, stmt_default } from './ygo-sqlite.mjs';
+import { arg_default, CARD_ARTWORK_VERSIONS_OFFSET, escape_table, is_alternative, MAX_CARD_ID, query_db, stmt_default } from './ygo-sqlite.mjs';
 
 export const regexp_mention = `(?<=「)[^「」]*「?[^「」]*」?[^「」]*(?=」)`;
 
@@ -768,9 +768,14 @@ export function generate_condition(params) {
 	if (arg.$cardtype === 0 || arg.$cardtype === card_types.TYPE_MONSTER) {
 		let is_monster = false;
 		if (Number.isSafeInteger(params.material) && card_table.has(params.material)) {
-			const material = card_table.get(params.material).tw_name;
-			qstr += ` AND ("desc" LIKE $mat1 ESCAPE '$' OR "desc" LIKE $mat2 ESCAPE '$' OR "desc" LIKE $mat3 ESCAPE '$')`;
-			arg.$mat1 = `「${material}」%+%`;
+			const material = card_table.get(params.material).tw_name.replace(/[%_$]/g, c => escape_table[c]);
+			let material_condition = "0";
+			for (let i = 0; i < 4; ++i) {
+				material_condition += ` OR "desc" LIKE $mat${i} ESCAPE '$'`;
+			}
+			qstr += ` AND (${material_condition})`;
+			arg.$mat0 = `「${material}」+%`;
+			arg.$mat1 = `「${material}」（%）+%`;
 			arg.$mat2 = `%+「${material}」%`;
 			arg.$mat3 = `%「${material}」×%`;
 			is_monster = true;
