@@ -8,7 +8,8 @@ export function print_db_link(cid, request_locale) {
 }
 
 export function print_yp_link(id) {
-	return `https://yugipedia.com/wiki/${id.toString().padStart(8, '0')}`;
+	const link_id = `${id}`.padStart(8, '0');
+	return `https://yugipedia.com/wiki/${link_id}`;
 }
 
 export function print_qa_link(cid) {
