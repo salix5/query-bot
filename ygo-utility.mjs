@@ -39,7 +39,7 @@ export function inverse_mapping(table) {
 
 /**
  * @param {string} string 
- * @returns 
+ * @returns {string}
  */
 export function escape_regexp(string) {
 	return string.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&');
