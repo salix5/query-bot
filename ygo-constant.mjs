@@ -212,6 +212,7 @@ export const interface_types = {
 	"subtype": 1,
 	"subtype_operator": 1,
 	"exclude": 1,
+	"mention": 1,
 
 	"attribute": 2,
 	"race": 2,
