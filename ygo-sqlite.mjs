@@ -220,3 +220,8 @@ export function check_uniqueness(path, id_luster = ID_BLACK_LUSTER_SOLDIER) {
 	const inv1 = inverse_mapping(table1);
 	return inv1.size === table1.size;
 }
+
+export function regexp_test(pattern, x) {
+	const re = new RegExp(pattern);
+	return re.test(x) ? 1 : 0;
+}
