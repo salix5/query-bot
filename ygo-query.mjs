@@ -5,10 +5,10 @@ import { md_card_list } from './ygo-json-loader.mjs';
 import { id_to_cid, cid_table } from './ygo-json-loader.mjs';
 import { lang, collator_locale, bls_postfix, official_name, game_name } from './ygo-json-loader.mjs';
 import { name_table, md_table, md_table_sc } from './ygo-json-loader.mjs';
-import { inverse_mapping, zh_collator, zh_compare } from './ygo-utility.mjs';
+import { escape_regexp, inverse_mapping, zh_collator, zh_compare } from './ygo-utility.mjs';
 import { db_url1, db_url2, fetch_db } from './ygo-fetch.mjs';
 import { card_types, monster_types, link_markers, md_rarity, spell_colors, trap_colors, CID_BLACK_LUSTER_SOLDIER } from "./ygo-constant.mjs";
-import { arg_default, CARD_ARTWORK_VERSIONS_OFFSET, escape_table, is_alternative, MAX_CARD_ID, query_db, stmt_default } from './ygo-sqlite.mjs';
+import { arg_default, CARD_ARTWORK_VERSIONS_OFFSET, escape_table, is_alternative, MAX_CARD_ID, query_db, regexp_test, stmt_default } from './ygo-sqlite.mjs';
 
 export const regexp_mention = `(?<=「)[^「」]*「?[^「」]*」?[^「」]*(?=」)`;
 
@@ -91,6 +91,11 @@ const db_list = [];
  * @property {number} color - Card color for sorting
  */
 
+/**
+ * @type {Map<number, Card>}
+ */
+const card_table = new Map();
+
 const over_hundred = '(name like $101 OR name like $102 OR name like $103 OR name like $104 OR name like $105 OR name like $106 OR name like $107)';
 const stmt_seventh = `${stmt_default} AND type & $xyz AND ${over_hundred}`;
 const arg_seventh = {
@@ -101,7 +106,6 @@ for (let i = 0; i < 7; ++i) {
 	arg_seventh[`$${101 + i}`] = `%No.${101 + i}%`;
 }
 const mmap_seventh = Object.create(null);
-const card_table = new Map();
 
 export { stmt_seventh, arg_seventh };
 
@@ -255,7 +259,12 @@ export async function init_query(files) {
 	multimap_clear(mmap_seventh);
 	card_table.clear();
 	for (const file of files) {
-		db_list.push(new DatabaseSync(file, { readOnly: true }));
+		const db = new DatabaseSync(file, { readOnly: true });
+		db.function('regexp', {
+			deterministic: true,
+			directOnly: true,
+		}, regexp_test);
+		db_list.push(db);
 	}
 	const seventh_cards = query(stmt_seventh, arg_seventh);
 	seventh_cards.sort((c1, c2) => zh_collator.compare(c1.tw_name, c2.tw_name));
@@ -749,8 +758,7 @@ export function generate_condition(params) {
 	}
 
 	// type
-	arg.$cardtype = 0;
-	if (Number.isSafeInteger(params.cardtype)) {
+	if (Number.isSafeInteger(params.cardtype) && params.cardtype > 0) {
 		qstr += ' AND type & $cardtype';
 		arg.$cardtype = params.cardtype;
 	}
@@ -765,7 +773,11 @@ export function generate_condition(params) {
 		qstr += ' AND NOT type & $exclude';
 		arg.$exclude = params.exclude;
 	}
-	if (arg.$cardtype === 0 || arg.$cardtype === card_types.TYPE_MONSTER) {
+	if (Number.isSafeInteger(params.mention) && card_table.has(params.mention)) {
+		qstr += ' AND desc REGEXP $mention';
+		arg.$mention = `「${escape_regexp(card_table.get(params.mention).tw_name)}」(?![怪魔陷卡])`;
+	}
+	if (!arg.$cardtype || arg.$cardtype === card_types.TYPE_MONSTER) {
 		let is_monster = false;
 		if (Number.isSafeInteger(params.material) && card_table.has(params.material)) {
 			const material = card_table.get(params.material).tw_name.replace(/[%_$]/g, c => escape_table[c]);
