@@ -7,7 +7,7 @@ import { name_table, md_table, md_table_sc } from './ygo-json-loader.mjs';
 import { escape_regexp, inverse_mapping, zh_collator, zh_compare } from './ygo-utility.mjs';
 import { db_url1, db_url2, fetch_db } from './ygo-fetch.mjs';
 import { card_types, monster_types, link_markers, md_rarity, spell_colors, trap_colors, CID_BLACK_LUSTER_SOLDIER } from "./ygo-constant.mjs";
-import { arg_default, CARD_ARTWORK_VERSIONS_OFFSET, escape_table, is_alternative, MAX_CARD_ID, query_db, sqlite3_open, stmt_default } from './ygo-sqlite.mjs';
+import { arg_default, arg_seventh, CARD_ARTWORK_VERSIONS_OFFSET, escape_table, is_alternative, MAX_CARD_ID, query_db, sqlite3_open, stmt_default, stmt_seventh } from './ygo-sqlite.mjs';
 
 export const regexp_mention = `(?<=「)[^「」]*「?[^「」]*」?[^「」]*(?=」)`;
 
@@ -92,18 +92,7 @@ const db_list = [];
  */
 const card_table = new Map();
 
-const over_hundred = '(name like $101 OR name like $102 OR name like $103 OR name like $104 OR name like $105 OR name like $106 OR name like $107)';
-const stmt_seventh = `${stmt_default} AND type & $xyz AND ${over_hundred}`;
-const arg_seventh = {
-	...arg_default,
-	$xyz: monster_types.TYPE_XYZ,
-};
-for (let i = 0; i < 7; ++i) {
-	arg_seventh[`$${101 + i}`] = `%No.${101 + i}%`;
-}
 const mmap_seventh = Object.create(null);
-
-export { stmt_seventh, arg_seventh };
 
 //workaround
 await init_query();
