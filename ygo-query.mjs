@@ -1,5 +1,4 @@
 import { writeFile } from 'node:fs/promises';
-import { DatabaseSync } from 'node:sqlite';
 import { ltable_ocg, ltable_tcg, ltable_md } from './ygo-json-loader.mjs';
 import { md_card_list } from './ygo-json-loader.mjs';
 import { id_to_cid, cid_table } from './ygo-json-loader.mjs';
@@ -49,9 +48,6 @@ export {
 	md_card_list,
 };
 
-/**
- * @type {DatabaseSync[]}
- */
 const db_list = [];
 
 /**
