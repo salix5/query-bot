@@ -111,7 +111,7 @@ export function sqlite3_open(filename) {
 
 /**
  * Set `card.setcode` from int64.
- * @param {Card} card 
+ * @param {Entry} card 
  * @param {bigint} setcode 
  */
 function set_setcode(card, setcode) {
