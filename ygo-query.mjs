@@ -7,7 +7,7 @@ import { name_table, md_table, md_table_sc } from './ygo-json-loader.mjs';
 import { escape_regexp, inverse_mapping, zh_collator, zh_compare } from './ygo-utility.mjs';
 import { db_url1, db_url2, fetch_db } from './ygo-fetch.mjs';
 import { card_types, monster_types, link_markers, md_rarity, spell_colors, trap_colors, CID_BLACK_LUSTER_SOLDIER } from "./ygo-constant.mjs";
-import { arg_default, arg_seventh, CARD_ARTWORK_VERSIONS_OFFSET, escape_table, is_alternative, MAX_CARD_ID, query_db, sqlite3_open, stmt_default, stmt_seventh } from './ygo-sqlite.mjs';
+import { arg_default, arg_seventh, escape_table, is_alternative, MAX_CARD_ID, query_db, sqlite3_open, stmt_default, stmt_seventh } from './ygo-sqlite.mjs';
 
 export const regexp_mention = `(?<=「)[^「」]*「?[^「」]*」?[^「」]*(?=」)`;
 
@@ -650,20 +650,6 @@ export function print_card(card, locale) {
 
 	const card_text = `**${card_name}**\n${other_name}${lfstr}${print_data(card, '\n', locale)}${desc}\n`;
 	return card_text;
-}
-
-
-//database file
-/**
- * @param {number} id 
- * @returns {number}
- */
-export function get_source_cid(id) {
-	for (let i = id; i > id - CARD_ARTWORK_VERSIONS_OFFSET; --i) {
-		if (id_to_cid.has(i))
-			return id_to_cid.get(i);
-	}
-	return 0;
 }
 
 

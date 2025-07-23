@@ -2,6 +2,7 @@ import extra_setcodes from './data/extra_setcodes.json' with { type: 'json' };
 import { DatabaseSync } from "node:sqlite";
 import { ALT_DARK_MAGICIAN, ALT_POLYMERIZATION, ID_BLACK_LUSTER_SOLDIER, ID_TYLER_THE_GREAT_WARRIOR, monster_types } from "./ygo-constant.mjs";
 import { inverse_mapping } from "./ygo-utility.mjs";
+import { id_to_cid } from './ygo-json-loader.mjs';
 
 export {
 	ALT_DARK_MAGICIAN,
@@ -83,6 +84,30 @@ export const escape_table = {
  * @property {string} name
  * @property {string} desc
  */
+
+export function regexp_test(pattern, x) {
+	const re = new RegExp(pattern);
+	return re.test(x) ? 1 : 0;
+}
+
+/**
+ * Open a database file.
+ * @param {string} filename 
+ * @returns {DatabaseSync}
+ */
+export function sqlite3_open(filename) {
+	const db_option = {
+		readOnly: true,
+	};
+	const funtion_option = {
+		deterministic: true,
+		directOnly: true,
+	};
+	const db = new DatabaseSync(filename, db_option);
+	db.exec("PRAGMA trusted_schema = OFF;");
+	db.function('regexp', funtion_option, regexp_test);
+	return db;
+}
 
 /**
  * Set `card.setcode` from int64.
@@ -173,6 +198,8 @@ export function setcode_condition(setcode, arg) {
 	return ret;
 }
 
+
+// database tool
 /**
  * Get cards from databases file at `path` with statement `sql` and binding object `arg`.
  * @param {string} path
@@ -227,26 +254,14 @@ export function check_uniqueness(path, id_luster = ID_BLACK_LUSTER_SOLDIER) {
 	return inv1.size === table1.size;
 }
 
-export function regexp_test(pattern, x) {
-	const re = new RegExp(pattern);
-	return re.test(x) ? 1 : 0;
-}
-
 /**
- * Open a database file.
- * @param {string} filename 
- * @returns {DatabaseSync}
+ * @param {number} id 
+ * @returns {number}
  */
-export function sqlite3_open(filename) {
-	const db_option = {
-		readOnly: true,
-	};
-	const funtion_option = {
-		deterministic: true,
-		directOnly: true,
-	};
-	const db = new DatabaseSync(filename, db_option);
-	db.exec("PRAGMA trusted_schema = OFF;");
-	db.function('regexp', funtion_option, regexp_test);
-	return db;
+export function get_source_cid(id) {
+	for (let i = id; i > id - CARD_ARTWORK_VERSIONS_OFFSET; --i) {
+		if (id_to_cid.has(i))
+			return id_to_cid.get(i);
+	}
+	return 0;
 }
