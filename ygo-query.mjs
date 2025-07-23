@@ -8,7 +8,7 @@ import { name_table, md_table, md_table_sc } from './ygo-json-loader.mjs';
 import { escape_regexp, inverse_mapping, zh_collator, zh_compare } from './ygo-utility.mjs';
 import { db_url1, db_url2, fetch_db } from './ygo-fetch.mjs';
 import { card_types, monster_types, link_markers, md_rarity, spell_colors, trap_colors, CID_BLACK_LUSTER_SOLDIER } from "./ygo-constant.mjs";
-import { arg_default, CARD_ARTWORK_VERSIONS_OFFSET, escape_table, is_alternative, MAX_CARD_ID, query_db, regexp_test, stmt_default } from './ygo-sqlite.mjs';
+import { arg_default, CARD_ARTWORK_VERSIONS_OFFSET, escape_table, is_alternative, MAX_CARD_ID, query_db, sqlite3_open, stmt_default } from './ygo-sqlite.mjs';
 
 export const regexp_mention = `(?<=「)[^「」]*「?[^「」]*」?[^「」]*(?=」)`;
 
@@ -249,7 +249,13 @@ export async function init_query(files) {
 	if (!files) {
 		const temp1 = `${import.meta.dirname}/db/main.cdb`;
 		const temp2 = `${import.meta.dirname}/db/pre.cdb`;
-		await Promise.all([writeFile(temp1, await fetch_db(db_url1)), writeFile(temp2, await fetch_db(db_url2))]);
+		try {
+			await Promise.all([writeFile(temp1, await fetch_db(db_url1)), writeFile(temp2, await fetch_db(db_url2))]);
+		}
+		catch (error) {
+			console.error(error);
+			return;
+		}
 		files = [temp1, temp2];
 	}
 	for (const db of db_list) {
@@ -259,11 +265,7 @@ export async function init_query(files) {
 	multimap_clear(mmap_seventh);
 	card_table.clear();
 	for (const file of files) {
-		const db = new DatabaseSync(file, { readOnly: true });
-		db.function('regexp', {
-			deterministic: true,
-			directOnly: true,
-		}, regexp_test);
+		const db = sqlite3_open(file);
 		db_list.push(db);
 	}
 	const seventh_cards = query(stmt_seventh, arg_seventh);
