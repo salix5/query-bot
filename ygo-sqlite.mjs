@@ -50,6 +50,16 @@ export const arg_no_alias = {
 	$none: 0,
 };
 
+const over_hundred = '(name like $101 OR name like $102 OR name like $103 OR name like $104 OR name like $105 OR name like $106 OR name like $107)';
+export const stmt_seventh = `${stmt_default} AND type & $xyz AND ${over_hundred}`;
+export const arg_seventh = {
+	...arg_default,
+	$xyz: monster_types.TYPE_XYZ,
+};
+for (let i = 0; i < 7; ++i) {
+	arg_seventh[`$${101 + i}`] = `%No.${101 + i}%`;
+}
+
 export const escape_table = {
 	'%': '$%',
 	'_': '$_',
