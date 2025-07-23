@@ -143,13 +143,13 @@ export function query_db(db, sql = stmt_default, arg = arg_default) {
 
 /**
  * Check if the card is an alternative artwork card.
- * @param {Entry} record
+ * @param {Entry} cdata
  * @returns 
  */
-export function is_alternative(record) {
-	if (record.id === ID_BLACK_LUSTER_SOLDIER)
+export function is_alternative(cdata) {
+	if (cdata.id === ID_BLACK_LUSTER_SOLDIER)
 		return false;
-	return Math.abs(record.id - record.alias) < CARD_ARTWORK_VERSIONS_OFFSET;
+	return Math.abs(cdata.id - cdata.alias) < CARD_ARTWORK_VERSIONS_OFFSET;
 }
 
 /**
