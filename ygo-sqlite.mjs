@@ -61,12 +61,6 @@ for (let i = 0; i < 7; ++i) {
 	arg_seventh[`$${101 + i}`] = `%No.${101 + i}%`;
 }
 
-export const escape_table = {
-	'%': '$%',
-	'_': '$_',
-	'$': '$$',
-};
-
 /**
  * @typedef {Object} Entry
  * @property {number} id
