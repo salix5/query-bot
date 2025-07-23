@@ -4,10 +4,10 @@ import { md_card_list } from './ygo-json-loader.mjs';
 import { id_to_cid, cid_table } from './ygo-json-loader.mjs';
 import { lang, collator_locale, bls_postfix, official_name, game_name } from './ygo-json-loader.mjs';
 import { name_table, md_table, md_table_sc } from './ygo-json-loader.mjs';
-import { escape_regexp, inverse_mapping, zh_collator, zh_compare } from './ygo-utility.mjs';
+import { escape_regexp, escape_wildcard, inverse_mapping, zh_collator, zh_compare } from './ygo-utility.mjs';
 import { db_url1, db_url2, fetch_db } from './ygo-fetch.mjs';
 import { card_types, monster_types, link_markers, md_rarity, spell_colors, trap_colors, CID_BLACK_LUSTER_SOLDIER } from "./ygo-constant.mjs";
-import { arg_default, arg_seventh, escape_table, is_alternative, MAX_CARD_ID, query_db, sqlite3_open, stmt_default, stmt_seventh } from './ygo-sqlite.mjs';
+import { arg_default, arg_seventh, is_alternative, MAX_CARD_ID, query_db, sqlite3_open, stmt_default, stmt_seventh } from './ygo-sqlite.mjs';
 
 export const regexp_mention = `(?<=「)[^「」]*「?[^「」]*」?[^「」]*(?=」)`;
 
@@ -753,7 +753,7 @@ export function generate_condition(params) {
 	if (!arg.$cardtype || arg.$cardtype === card_types.TYPE_MONSTER) {
 		let is_monster = false;
 		if (Number.isSafeInteger(params.material) && card_table.has(params.material)) {
-			const material = card_table.get(params.material).tw_name.replace(/[%_$]/g, c => escape_table[c]);
+			const material = escape_wildcard(card_table.get(params.material).tw_name);
 			let material_condition = "0";
 			for (let i = 0; i < 4; ++i) {
 				material_condition += ` OR "desc" LIKE $mat${i} ESCAPE '$'`;
