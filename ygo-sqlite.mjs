@@ -171,11 +171,7 @@ export function setcode_condition(setcode, arg) {
  * @returns 
  */
 export function read_db(path, sql = stmt_default, arg = arg_default) {
-	const db = new DatabaseSync(path, { readOnly: true });
-	if (!db) {
-		console.error('Failed to open database:', path);
-		return [];
-	}
+	const db = sqlite3_open(path);
 	const ret = query_db(db, sql, arg);
 	db.close();
 	return ret;
@@ -224,4 +220,23 @@ export function check_uniqueness(path, id_luster = ID_BLACK_LUSTER_SOLDIER) {
 export function regexp_test(pattern, x) {
 	const re = new RegExp(pattern);
 	return re.test(x) ? 1 : 0;
+}
+
+/**
+ * Open a database file.
+ * @param {string} filename 
+ * @returns {DatabaseSync}
+ */
+export function sqlite3_open(filename) {
+	const db_option = {
+		readOnly: true,
+	};
+	const funtion_option = {
+		deterministic: true,
+		directOnly: true,
+	};
+	const db = new DatabaseSync(filename, db_option);
+	db.exec("PRAGMA trusted_schema = OFF;");
+	db.function('regexp', funtion_option, regexp_test);
+	return db;
 }
