@@ -46,6 +46,14 @@ export function escape_regexp(string) {
 }
 
 /**
+ * @param {string} string 
+ * @returns {string}
+ */
+export function escape_wildcard(string) {
+	return string.replace(/[%_$]/g, '$$$&');
+}
+
+/**
  * @param {Map} map 
  * @param {Function} compare 
  * @returns
