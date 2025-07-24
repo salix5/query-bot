@@ -38,19 +38,19 @@ export function inverse_mapping(table) {
 }
 
 /**
- * @param {string} string 
+ * @param {string} str 
  * @returns {string}
  */
-export function escape_regexp(string) {
-	return string.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&');
+export function escape_regexp(str) {
+	return str.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&');
 }
 
 /**
- * @param {string} string 
+ * @param {string} str 
  * @returns {string}
  */
-export function escape_wildcard(string) {
-	return string.replace(/[%_$]/g, '$$$&');
+export function escape_wildcard(str) {
+	return str.replace(/[%_$]/g, '$$$&');
 }
 
 /**
