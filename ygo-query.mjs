@@ -51,6 +51,24 @@ export {
 const db_list = [];
 
 /**
+ * @typedef {Object} Entry
+ * @property {number} id
+ * @property {number} ot
+ * @property {number} alias
+ * @property {number[]} setcode
+ * @property {number} type
+ * @property {number} atk
+ * @property {number} def
+ * @property {number} level
+ * @property {number} race
+ * @property {number} attribute
+ * @property {number} scale
+ * 
+ * @property {string} name
+ * @property {string} desc
+ */
+
+/**
  * @typedef {Object} CardText
  * @property {string} desc
  * @property {string} [db_desc]
@@ -108,6 +126,10 @@ function multimap_clear(mmap) {
 		delete mmap[key];
 }
 
+/**
+ * @param {Entry} cdata 
+ * @returns {Card}
+ */
 function generate_card(cdata) {
 	let artid = 0;
 	if (is_alternative(cdata)) {
