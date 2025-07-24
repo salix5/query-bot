@@ -662,10 +662,7 @@ export function get_card(cid) {
  */
 export function get_name(cid, locale) {
 	if (locale === 'md') {
-		if (md_table_sc.has(cid))
-			return md_table_sc.get(cid);
-		else
-			return '';
+		return md_table_sc.get(cid) ?? '';
 	}
 	if (!complete_name_table[locale])
 		return '';
