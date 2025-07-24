@@ -7,7 +7,7 @@ import { name_table, md_table, md_table_sc } from './ygo-json-loader.mjs';
 import { escape_regexp, escape_wildcard, inverse_mapping, zh_collator, zh_compare } from './ygo-utility.mjs';
 import { db_url1, db_url2, fetch_db } from './ygo-fetch.mjs';
 import { card_types, monster_types, link_markers, md_rarity, spell_colors, trap_colors, CID_BLACK_LUSTER_SOLDIER } from "./ygo-constant.mjs";
-import { arg_default, arg_seventh, is_alternative, MAX_CARD_ID, query_db, sqlite3_open, stmt_default, stmt_seventh } from './ygo-sqlite.mjs';
+import { arg_base, arg_default, arg_seventh, is_alternative, MAX_CARD_ID, query_db, sqlite3_open, stmt_base, stmt_default, stmt_seventh } from './ygo-sqlite.mjs';
 
 export const regexp_mention = `(?<=「)[^「」]*「?[^「」]*」?[^「」]*(?=」)`;
 
@@ -256,7 +256,7 @@ function create_seventh_condition() {
  */
 export function generate_condition(params) {
 	let qstr = "";
-	const arg = { ...arg_default };
+	const arg = {};
 	// id, primary key
 	if (Number.isSafeInteger(params.id)) {
 		qstr += " AND datas.id == $id";
@@ -604,6 +604,32 @@ export function query_alias(alias) {
 		$alias: alias,
 	};
 	return query(qstr, arg);
+}
+
+/**
+ * Query card from all databases with JSON object `params`.
+ * @param {Object} params 
+ * @returns {Card[]}
+ */
+export function query_card(params) {
+	const [condition, arg_condition] = generate_condition(params);
+	if (!Object.keys(arg_condition).length) {
+		return [];
+	}
+	if (Number.isSafeInteger(arg_condition.$id)) {
+		const stmt = `${stmt_base}${condition};`;
+		const arg = {
+			...arg_base,
+			...arg_condition,
+		};
+		return query(stmt, arg);
+	}
+	const stmt = `${stmt_default}${condition};`;
+	const arg = {
+		...arg_default,
+		...arg_condition,
+	};
+	return query(stmt, arg);
 }
 
 /**
