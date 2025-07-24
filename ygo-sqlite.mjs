@@ -57,7 +57,7 @@ export const arg_seventh = {
 	...arg_default,
 	$xyz: monster_types.TYPE_XYZ,
 };
-for (let i = 0; i < 7; ++i) {
+for (let i = 0; i < 7; i += 1) {
 	arg_seventh[`$${101 + i}`] = `%No.${101 + i}%`;
 }
 
@@ -253,7 +253,7 @@ export function check_uniqueness(path, id_luster = ID_BLACK_LUSTER_SOLDIER) {
  * @returns {number}
  */
 export function get_source_cid(id) {
-	for (let i = id; i > id - CARD_ARTWORK_VERSIONS_OFFSET; --i) {
+	for (let i = id; i > id - CARD_ARTWORK_VERSIONS_OFFSET; i -= 1) {
 		if (id_to_cid.has(i))
 			return id_to_cid.get(i);
 	}

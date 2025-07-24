@@ -210,7 +210,7 @@ function generate_card(cdata) {
 // eslint-disable-next-line no-unused-vars
 function create_seventh_condition() {
 	let condition1 = '0';
-	for (let i = 1; i <= 13; ++i) {
+	for (let i = 1; i <= 13; i += 1) {
 		if (!mmap_seventh[i])
 			continue;
 		let attr_value = 0;
@@ -755,7 +755,7 @@ export function generate_condition(params) {
 		if (Number.isSafeInteger(params.material) && card_table.has(params.material)) {
 			const material = escape_wildcard(card_table.get(params.material).tw_name);
 			let material_condition = "0";
-			for (let i = 0; i < 4; ++i) {
+			for (let i = 0; i < 4; i += 1) {
 				material_condition += ` OR "desc" LIKE $mat${i} ESCAPE '$'`;
 			}
 			qstr += ` AND (${material_condition})`;
@@ -855,7 +855,7 @@ export function generate_condition(params) {
 					continue;
 				level_condition += ` OR (level & $level_mask) == $level${level_count}`;
 				arg[`$level${level_count}`] = value;
-				level_count++;
+				level_count += 1;
 			}
 		}
 		if (level_count) {
@@ -901,7 +901,7 @@ export function generate_condition(params) {
 					continue;
 				scale_condition += ` OR (level >> $offset & $mask) == $scale${scale_count}`;
 				arg[`$scale${scale_count}`] = value;
-				scale_count++;
+				scale_count += 1;
 			}
 		}
 		if (scale_count) {
