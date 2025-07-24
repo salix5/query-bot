@@ -226,490 +226,7 @@ function create_seventh_condition() {
 }
 
 
-//query
-/**
- * @param {string[]} [files] 
- */
-export async function init_query(files) {
-	if (!files) {
-		const temp1 = `${import.meta.dirname}/db/main.cdb`;
-		const temp2 = `${import.meta.dirname}/db/pre.cdb`;
-		try {
-			await Promise.all([writeFile(temp1, await fetch_db(db_url1)), writeFile(temp2, await fetch_db(db_url2))]);
-		}
-		catch (error) {
-			console.error(error);
-			return;
-		}
-		files = [temp1, temp2];
-	}
-	for (const db of db_list) {
-		db.close();
-	}
-	db_list.length = 0;
-	multimap_clear(mmap_seventh);
-	card_table.clear();
-	for (const file of files) {
-		const db = sqlite3_open(file);
-		db_list.push(db);
-	}
-	const seventh_cards = query(stmt_seventh, arg_seventh);
-	seventh_cards.sort((c1, c2) => zh_collator.compare(c1.tw_name, c2.tw_name));
-	for (const card of seventh_cards) {
-		multimap_insert(mmap_seventh, card.level, card);
-	}
-	for (const card of query()) {
-		card_table.set(card.id, card);
-	}
-}
-
-/**
- * Check if the card has an official card name.
- * @param {Card} card
- * @returns {boolean}
- */
-export function is_released(card) {
-	return !!(card.jp_name || card.en_name);
-}
-
-/**
- * Check if `card.setcode` contains `value`.
- * @param {Card} card 
- * @param {number} value 
- * @returns {boolean}
- */
-export function is_setcode(card, value) {
-	const settype = value & 0x0fff;
-	const setsubtype = value & 0xf000;
-	for (const x of card.setcode) {
-		if ((x & 0x0fff) === settype && (x & setsubtype) === setsubtype)
-			return true;
-	}
-	return false;
-}
-
-/**
- * Query card from all databases with statement `qstr` and binding object `arg`.
- * @param {string} qstr 
- * @param {Object} arg 
- * @returns {Card[]}
- */
-export function query(qstr = stmt_default, arg = arg_default) {
-	const ret = [];
-	for (const db of db_list) {
-		for (const cdata of query_db(db, qstr, arg)) {
-			ret.push(generate_card(cdata));
-		}
-	}
-	return ret;
-}
-
-/**
- * Query card from all databases with `alias`.
- * @param {number} alias 
- * @returns {Card[]}
- */
-export function query_alias(alias) {
-	const qstr = `${stmt_default} AND alias == $alias;`;
-	const arg = {
-		...arg_default,
-		$alias: alias,
-	};
-	return query(qstr, arg);
-}
-
-/**
- * Get a card with cid or temp id from all databases.
- * @param {number|string} cid 
- * @returns {?Card}
- */
-export function get_card(cid) {
-	if (typeof cid === 'string')
-		cid = Number.parseInt(cid, 10);
-	if (!Number.isSafeInteger(cid))
-		return null;
-	let id = 0;
-	if (cid > MAX_CARD_ID)
-		id = cid;
-	else if (cid_table.has(cid))
-		id = cid_table.get(cid);
-	else
-		return null;
-	if (card_table.has(id))
-		return card_table.get(id);
-	return null;
-}
-
-/**
- * Get the card name of `id` in the region `locale`.
- * @param {number} cid 
- * @param {string} locale 
- * @returns {string}
- */
-export function get_name(cid, locale) {
-	if (locale === 'md') {
-		if (md_table_sc.has(cid))
-			return md_table_sc.get(cid);
-		else
-			return '';
-	}
-	if (!complete_name_table[locale])
-		return '';
-	if (!complete_name_table[locale].has(cid))
-		return '';
-	if (cid === CID_BLACK_LUSTER_SOLDIER && complete_name_table[locale].has(4370))
-		return complete_name_table[locale].get(4370);
-	return complete_name_table[locale].get(cid);
-}
-
-/**
- * Get the request_locale of `card` in region `locale`.
- * @param {Card} card 
- * @param {string} locale 
- * @returns {string}
- */
-export function get_request_locale(card, locale) {
-	if (card[official_name[locale]]) {
-		return locale;
-	}
-	else if (card.ot === 2) {
-		return 'en';
-	}
-	else {
-		return 'ja';
-	}
-}
-
-/**
- * Get No.101 ~ No.107 Xyz Monsters with the same race or attribute.
- * @param {Card} card 
- * @returns {Card[]}
- */
-export function get_seventh_xyz(card) {
-	const result = [];
-	if (!(card.type & card_types.TYPE_MONSTER))
-		return result;
-	if (card.type & monster_types.TYPE_EXTRA)
-		return result;
-	if (!mmap_seventh[card.level])
-		return result;
-	for (const seventh of mmap_seventh[card.level]) {
-		if (!seventh.cid)
-			continue;
-		if ((seventh.race & card.race) || (seventh.attribute & card.attribute)) {
-			result.push(seventh);
-		}
-	}
-	return result;
-}
-
-/**
- * Print the ATK or DEF of a card.
- * @param {number} x 
- * @returns {string}
- */
-export function print_ad(x) {
-	if (x === -2)
-		return '?';
-	else
-		return `${x}`;
-}
-
-/**
- * Print the stat of `card` in language `locale`, using newline char `newline`.
- * @param {Card} card 
- * @param {string} newline 
- * @param {string} locale 
- * @returns {string}
- */
-export function print_data(card, newline, locale) {
-	const strings = lang[locale];
-	let data = '';
-
-	if (card.type & card_types.TYPE_MONSTER) {
-		const mtype = strings.type_name[card_types.TYPE_MONSTER];
-		let subtype = '';
-		let lvstr = '\u2605';
-		if (card.type & monster_types.TYPE_RITUAL)
-			subtype = `/${strings.type_name[monster_types.TYPE_RITUAL]}`;
-		else if (card.type & monster_types.TYPE_FUSION)
-			subtype = `/${strings.type_name[monster_types.TYPE_FUSION]}`;
-		else if (card.type & monster_types.TYPE_SYNCHRO)
-			subtype = `/${strings.type_name[monster_types.TYPE_SYNCHRO]}`;
-		else if (card.type & monster_types.TYPE_XYZ) {
-			subtype = `/${strings.type_name[monster_types.TYPE_XYZ]}`;
-			lvstr = `\u2606`;
-		}
-		else if (card.type & monster_types.TYPE_LINK) {
-			subtype = `/${strings.type_name[monster_types.TYPE_LINK]}`;
-			lvstr = `LINK-`;
-		}
-		if (card.type & monster_types.TYPE_PENDULUM) {
-			subtype += `/${strings.type_name[monster_types.TYPE_PENDULUM]}`;
-		}
-
-		// extype
-		if (card.type & monster_types.TYPE_NORMAL)
-			subtype += `/${strings.type_name[monster_types.TYPE_NORMAL]}`;
-		if (card.type & monster_types.TYPE_SPIRIT)
-			subtype += `/${strings.type_name[monster_types.TYPE_SPIRIT]}`;
-		if (card.type & monster_types.TYPE_UNION)
-			subtype += `/${strings.type_name[monster_types.TYPE_UNION]}`;
-		if (card.type & monster_types.TYPE_DUAL)
-			subtype += `/${strings.type_name[monster_types.TYPE_DUAL]}`;
-		if (card.type & monster_types.TYPE_TUNER)
-			subtype += `/${strings.type_name[monster_types.TYPE_TUNER]}`;
-		if (card.type & monster_types.TYPE_FLIP)
-			subtype += `/${strings.type_name[monster_types.TYPE_FLIP]}`;
-		if (card.type & monster_types.TYPE_TOON)
-			subtype += `/${strings.type_name[monster_types.TYPE_TOON]}`;
-		if (card.type & monster_types.TYPE_SPSUMMON)
-			subtype += `/${strings.type_name[monster_types.TYPE_SPSUMMON]}`;
-		if (card.type & monster_types.TYPE_EFFECT)
-			subtype += `/${strings.type_name[monster_types.TYPE_EFFECT]}`;
-		data = `[${mtype}${subtype}]${newline}`;
-
-		data += `${lvstr}${card.level === 0 ? '?' : card.level}`;
-		if (card.attribute)
-			data += `/${strings.attribute_name[card.attribute]}`;
-		else
-			data += `/${strings.attribute_name['unknown']}`;
-		if (card.race)
-			data += `/${strings.race_name[card.race]}`;
-		else
-			data += `/${strings.race_name['unknown']}`;
-		data += `/${strings.value_name['atk']}${print_ad(card.atk)}`;
-		if (!(card.type & monster_types.TYPE_LINK)) {
-			data += `/${strings.value_name['def']}${print_ad(card.def)}`;
-		}
-		data += newline;
-
-		if (card.type & monster_types.TYPE_PENDULUM) {
-			data += `【${strings.value_name['scale']}：${card.scale}】${newline}`;
-		}
-		if (card.type & monster_types.TYPE_LINK) {
-			let marker_text = '';
-			for (let marker = link_markers.LINK_MARKER_TOP_LEFT; marker <= link_markers.LINK_MARKER_TOP_RIGHT; marker <<= 1) {
-				if (card.marker & marker)
-					marker_text += strings.marker_char[marker];
-				else
-					marker_text += strings.marker_char['default'];
-			}
-			marker_text += newline;
-
-			if (card.marker & link_markers.LINK_MARKER_LEFT)
-				marker_text += strings.marker_char[link_markers.LINK_MARKER_LEFT];
-			else
-				marker_text += strings.marker_char['default'];
-
-			marker_text += strings.marker_char['default'];
-
-			if (card.marker & link_markers.LINK_MARKER_RIGHT)
-				marker_text += strings.marker_char[link_markers.LINK_MARKER_RIGHT];
-			else
-				marker_text += strings.marker_char['default'];
-
-			marker_text += newline;
-
-			for (let marker = link_markers.LINK_MARKER_BOTTOM_LEFT; marker <= link_markers.LINK_MARKER_BOTTOM_RIGHT; marker <<= 1) {
-				if (card.marker & marker)
-					marker_text += strings.marker_char[marker];
-				else
-					marker_text += strings.marker_char['default'];
-			}
-			marker_text += newline;
-			data += marker_text;
-		}
-	}
-	else if (card.type & card_types.TYPE_SPELL) {
-		const extype = card.type & ~card_types.TYPE_SPELL;
-		const mtype = `${strings.type_name[card_types.TYPE_SPELL]}`;
-		let subtype = '';
-		if (spell_colors[extype])
-			subtype = `/${strings.type_name[extype]}`;
-		else
-			subtype = `/???`;
-		data = `[${mtype}${subtype}]${newline}`;
-	}
-	else if (card.type & card_types.TYPE_TRAP) {
-		const extype = card.type & ~card_types.TYPE_TRAP;
-		const mtype = `${strings.type_name[card_types.TYPE_TRAP]}`;
-		let subtype = '';
-		if (trap_colors[extype])
-			subtype = `/${strings.type_name[extype]}`;
-		else
-			subtype = `/???`;
-		data = `[${mtype}${subtype}]${newline}`;
-	}
-	return data;
-}
-
-/**
- * Print `card` in language `locale`.
- * @param {Card} card 
- * @param {string} locale 
- * @returns {string}
- */
-export function print_card(card, locale) {
-	const strings = lang[locale];
-	let lfstr = '';
-	let lfstr_ocg = '';
-	let lfstr_tcg = '';
-	let lfstr_md = '';
-
-	let card_name = 'null';
-	let other_name = '';
-	let desc = '';
-
-	switch (locale) {
-		case 'zh-tw':
-			card_name = card.tw_name;
-			if (card.jp_name)
-				other_name += `${card.jp_name}\n`;
-			else if (card.md_name_jp)
-				other_name += `${card.md_name_jp}    (MD)\n`;
-			if (card.en_name)
-				other_name += `${card.en_name}\n`;
-			else if (card.md_name_en)
-				other_name += `${card.md_name_en}    (MD)\n`;
-			desc = `${card.text.desc}\n--`;
-			break;
-		case 'ae':
-			card_name = card.ae_name;
-
-			if (card.jp_name)
-				other_name = `${card.jp_name}\n`;
-			else if (card.md_name_jp)
-				other_name = `${card.md_name_jp}    (MD)\n`;
-			desc = card.text.db_desc ?? '';
-			break;
-		case 'ja':
-			if (card.jp_name)
-				card_name = card.jp_name;
-			else if (card.md_name_jp)
-				card_name = `${card.md_name_jp}    (MD)`;
-
-			if (card.en_name)
-				other_name = `${card.en_name}\n`;
-			else if (card.md_name_en)
-				other_name = `${card.md_name_en}    (MD)\n`;
-			desc = card.text.db_desc ?? '';
-			break;
-		case 'ko':
-			if (card.kr_name)
-				card_name = card.kr_name;
-
-			if (card.en_name)
-				other_name = `${card.en_name}\n`;
-			else if (card.md_name_en)
-				other_name = `${card.md_name_en}    (MD)\n`;
-			desc = card.text.db_desc ?? '';
-			break;
-		case 'en':
-			if (card.en_name)
-				card_name = card.en_name;
-			else if (card.md_name_en)
-				card_name = `${card.md_name_en}    (MD)`;
-
-			if (card.jp_name)
-				other_name = `${card.jp_name}\n`;
-			else if (card.md_name_jp)
-				other_name = `${card.md_name_jp}    (MD)\n`;
-			desc = card.text.db_desc ?? '';
-			break;
-		default:
-			break;
-	}
-
-	if (card.md_rarity)
-		other_name += `MD：${md_rarity[card.md_rarity]}\n`;
-	let show_lflist = false;
-	if (Number.isSafeInteger(ltable_ocg[card.id])) {
-		lfstr_ocg = `OCG：${strings.limit_name[ltable_ocg[card.id]]}`;
-		show_lflist = true;
-	}
-	else {
-		lfstr_ocg = `OCG：-`;
-	}
-	if (Number.isSafeInteger(ltable_tcg[card.id])) {
-		lfstr_tcg = `TCG：${strings.limit_name[ltable_tcg[card.id]]}`;
-		show_lflist = true;
-	}
-	else {
-		lfstr_tcg = `TCG：-`;
-	}
-	if (Number.isSafeInteger(ltable_md[card.id])) {
-		lfstr_md = `MD：${strings.limit_name[ltable_md[card.id]]}`;
-		show_lflist = true;
-	}
-	else {
-		lfstr_md = `MD：-`;
-	}
-	if (show_lflist)
-		lfstr = `(${lfstr_ocg} / ${lfstr_tcg} / ${lfstr_md})\n`;
-
-	const card_text = `**${card_name}**\n${other_name}${lfstr}${print_data(card, '\n', locale)}${desc}\n`;
-	return card_text;
-}
-
-
-//table
-/**
- * Create the [name, id] table of region `request_locale`
- * @param {string} request_locale 
- * @returns {Map<string, number>}
- */
-export function create_choice(request_locale) {
-	if (!collator_locale[request_locale])
-		return new Map();
-	const inverse = inverse_mapping(complete_name_table[request_locale]);
-	const collator = new Intl.Collator(collator_locale[request_locale]);
-	return new Map([...inverse].sort((a, b) => collator.compare(a[0], b[0])));
-}
-
-/**
- * Create the [name, id] table for pre-release cards.
- * @returns {Map<string, number>}
- */
-export function create_choice_prerelease() {
-	const inverse_table = new Map();
-	const stmt_pre = `${stmt_default} AND datas.id > $ub`;
-	const arg_pre = {
-		...arg_default,
-		$ub: MAX_CARD_ID,
-	};
-	const re_kanji = /※.*/;
-	const pre_list = query(stmt_pre, arg_pre);
-	for (const card of pre_list) {
-		if (card.cid) {
-			continue;
-		}
-		const res = card.text.desc.match(re_kanji);
-		const kanji = res ? res[0] : '';
-		if (inverse_table.has(card.tw_name) || kanji && inverse_table.has(kanji)) {
-			console.error('choice_prerelease', card.id);
-			return new Map();
-		}
-		inverse_table.set(card.tw_name, card.id);
-		if (kanji)
-			inverse_table.set(kanji, card.id);
-	}
-	return new Map([...inverse_table].sort(zh_compare))
-}
-
-export function create_name_table() {
-	const cards = query(stmt_default, arg_default);
-	const table1 = new Map();
-	for (const card of cards) {
-		if (card.cid)
-			table1.set(card.cid, card.tw_name);
-	}
-	table1.set(CID_BLACK_LUSTER_SOLDIER, `${table1.get(CID_BLACK_LUSTER_SOLDIER)}${bls_postfix['zh-tw']}`);
-	if (table1.size !== cid_table.size)
-		console.error('invalid name_table_tw:', cid_table.size, table1.size);
-	return table1;
-}
-
+// query
 /**
  * Parse param into sqlite statement condition.
  * @param {Object} params 
@@ -974,6 +491,491 @@ export function generate_condition(params) {
 		}
 	}
 	return [qstr, arg];
+}
+
+/**
+ * @param {string[]} [files] 
+ */
+export async function init_query(files) {
+	if (!files) {
+		const temp1 = `${import.meta.dirname}/db/main.cdb`;
+		const temp2 = `${import.meta.dirname}/db/pre.cdb`;
+		try {
+			await Promise.all([writeFile(temp1, await fetch_db(db_url1)), writeFile(temp2, await fetch_db(db_url2))]);
+		}
+		catch (error) {
+			console.error(error);
+			return;
+		}
+		files = [temp1, temp2];
+	}
+	for (const db of db_list) {
+		db.close();
+	}
+	db_list.length = 0;
+	multimap_clear(mmap_seventh);
+	card_table.clear();
+	for (const file of files) {
+		const db = sqlite3_open(file);
+		db_list.push(db);
+	}
+	const seventh_cards = query(stmt_seventh, arg_seventh);
+	seventh_cards.sort((c1, c2) => zh_collator.compare(c1.tw_name, c2.tw_name));
+	for (const card of seventh_cards) {
+		multimap_insert(mmap_seventh, card.level, card);
+	}
+	for (const card of query()) {
+		card_table.set(card.id, card);
+	}
+}
+
+/**
+ * Check if the card has an official card name.
+ * @param {Card} card
+ * @returns {boolean}
+ */
+export function is_released(card) {
+	return !!(card.jp_name || card.en_name);
+}
+
+/**
+ * Check if `card.setcode` contains `value`.
+ * @param {Card} card 
+ * @param {number} value 
+ * @returns {boolean}
+ */
+export function is_setcode(card, value) {
+	const settype = value & 0x0fff;
+	const setsubtype = value & 0xf000;
+	for (const x of card.setcode) {
+		if ((x & 0x0fff) === settype && (x & setsubtype) === setsubtype)
+			return true;
+	}
+	return false;
+}
+
+/**
+ * Query card from all databases with statement `qstr` and binding object `arg`.
+ * @param {string} qstr 
+ * @param {Object} arg 
+ * @returns {Card[]}
+ */
+export function query(qstr = stmt_default, arg = arg_default) {
+	const ret = [];
+	for (const db of db_list) {
+		for (const cdata of query_db(db, qstr, arg)) {
+			ret.push(generate_card(cdata));
+		}
+	}
+	return ret;
+}
+
+/**
+ * Query card from all databases with `alias`.
+ * @param {number} alias 
+ * @returns {Card[]}
+ */
+export function query_alias(alias) {
+	const qstr = `${stmt_default} AND alias == $alias;`;
+	const arg = {
+		...arg_default,
+		$alias: alias,
+	};
+	return query(qstr, arg);
+}
+
+/**
+ * Get a card with cid or temp id from all databases.
+ * @param {number|string} cid 
+ * @returns {?Card}
+ */
+export function get_card(cid) {
+	if (typeof cid === 'string')
+		cid = Number.parseInt(cid, 10);
+	if (!Number.isSafeInteger(cid))
+		return null;
+	let id = 0;
+	if (cid > MAX_CARD_ID)
+		id = cid;
+	else if (cid_table.has(cid))
+		id = cid_table.get(cid);
+	else
+		return null;
+	if (card_table.has(id))
+		return card_table.get(id);
+	return null;
+}
+
+/**
+ * Get the card name of `id` in the region `locale`.
+ * @param {number} cid 
+ * @param {string} locale 
+ * @returns {string}
+ */
+export function get_name(cid, locale) {
+	if (locale === 'md') {
+		if (md_table_sc.has(cid))
+			return md_table_sc.get(cid);
+		else
+			return '';
+	}
+	if (!complete_name_table[locale])
+		return '';
+	if (!complete_name_table[locale].has(cid))
+		return '';
+	if (cid === CID_BLACK_LUSTER_SOLDIER && complete_name_table[locale].has(4370))
+		return complete_name_table[locale].get(4370);
+	return complete_name_table[locale].get(cid);
+}
+
+/**
+ * Get the request_locale of `card` in region `locale`.
+ * @param {Card} card 
+ * @param {string} locale 
+ * @returns {string}
+ */
+export function get_request_locale(card, locale) {
+	if (card[official_name[locale]]) {
+		return locale;
+	}
+	else if (card.ot === 2) {
+		return 'en';
+	}
+	else {
+		return 'ja';
+	}
+}
+
+/**
+ * Get No.101 ~ No.107 Xyz Monsters with the same race or attribute.
+ * @param {Card} card 
+ * @returns {Card[]}
+ */
+export function get_seventh_xyz(card) {
+	const result = [];
+	if (!(card.type & card_types.TYPE_MONSTER))
+		return result;
+	if (card.type & monster_types.TYPE_EXTRA)
+		return result;
+	if (!mmap_seventh[card.level])
+		return result;
+	for (const seventh of mmap_seventh[card.level]) {
+		if (!seventh.cid)
+			continue;
+		if ((seventh.race & card.race) || (seventh.attribute & card.attribute)) {
+			result.push(seventh);
+		}
+	}
+	return result;
+}
+
+
+// print
+/**
+ * Print the ATK or DEF of a card.
+ * @param {number} x 
+ * @returns {string}
+ */
+export function print_ad(x) {
+	if (x === -2)
+		return '?';
+	else
+		return `${x}`;
+}
+
+/**
+ * Print the stat of `card` in language `locale`, using newline char `newline`.
+ * @param {Card} card 
+ * @param {string} newline 
+ * @param {string} locale 
+ * @returns {string}
+ */
+export function print_data(card, newline, locale) {
+	const strings = lang[locale];
+	let data = '';
+
+	if (card.type & card_types.TYPE_MONSTER) {
+		const mtype = strings.type_name[card_types.TYPE_MONSTER];
+		let subtype = '';
+		let lvstr = '\u2605';
+		if (card.type & monster_types.TYPE_RITUAL)
+			subtype = `/${strings.type_name[monster_types.TYPE_RITUAL]}`;
+		else if (card.type & monster_types.TYPE_FUSION)
+			subtype = `/${strings.type_name[monster_types.TYPE_FUSION]}`;
+		else if (card.type & monster_types.TYPE_SYNCHRO)
+			subtype = `/${strings.type_name[monster_types.TYPE_SYNCHRO]}`;
+		else if (card.type & monster_types.TYPE_XYZ) {
+			subtype = `/${strings.type_name[monster_types.TYPE_XYZ]}`;
+			lvstr = `\u2606`;
+		}
+		else if (card.type & monster_types.TYPE_LINK) {
+			subtype = `/${strings.type_name[monster_types.TYPE_LINK]}`;
+			lvstr = `LINK-`;
+		}
+		if (card.type & monster_types.TYPE_PENDULUM) {
+			subtype += `/${strings.type_name[monster_types.TYPE_PENDULUM]}`;
+		}
+
+		// extype
+		if (card.type & monster_types.TYPE_NORMAL)
+			subtype += `/${strings.type_name[monster_types.TYPE_NORMAL]}`;
+		if (card.type & monster_types.TYPE_SPIRIT)
+			subtype += `/${strings.type_name[monster_types.TYPE_SPIRIT]}`;
+		if (card.type & monster_types.TYPE_UNION)
+			subtype += `/${strings.type_name[monster_types.TYPE_UNION]}`;
+		if (card.type & monster_types.TYPE_DUAL)
+			subtype += `/${strings.type_name[monster_types.TYPE_DUAL]}`;
+		if (card.type & monster_types.TYPE_TUNER)
+			subtype += `/${strings.type_name[monster_types.TYPE_TUNER]}`;
+		if (card.type & monster_types.TYPE_FLIP)
+			subtype += `/${strings.type_name[monster_types.TYPE_FLIP]}`;
+		if (card.type & monster_types.TYPE_TOON)
+			subtype += `/${strings.type_name[monster_types.TYPE_TOON]}`;
+		if (card.type & monster_types.TYPE_SPSUMMON)
+			subtype += `/${strings.type_name[monster_types.TYPE_SPSUMMON]}`;
+		if (card.type & monster_types.TYPE_EFFECT)
+			subtype += `/${strings.type_name[monster_types.TYPE_EFFECT]}`;
+		data = `[${mtype}${subtype}]${newline}`;
+
+		data += `${lvstr}${card.level === 0 ? '?' : card.level}`;
+		if (card.attribute)
+			data += `/${strings.attribute_name[card.attribute]}`;
+		else
+			data += `/${strings.attribute_name['unknown']}`;
+		if (card.race)
+			data += `/${strings.race_name[card.race]}`;
+		else
+			data += `/${strings.race_name['unknown']}`;
+		data += `/${strings.value_name['atk']}${print_ad(card.atk)}`;
+		if (!(card.type & monster_types.TYPE_LINK)) {
+			data += `/${strings.value_name['def']}${print_ad(card.def)}`;
+		}
+		data += newline;
+
+		if (card.type & monster_types.TYPE_PENDULUM) {
+			data += `【${strings.value_name['scale']}：${card.scale}】${newline}`;
+		}
+		if (card.type & monster_types.TYPE_LINK) {
+			let marker_text = '';
+			for (let marker = link_markers.LINK_MARKER_TOP_LEFT; marker <= link_markers.LINK_MARKER_TOP_RIGHT; marker <<= 1) {
+				if (card.marker & marker)
+					marker_text += strings.marker_char[marker];
+				else
+					marker_text += strings.marker_char['default'];
+			}
+			marker_text += newline;
+
+			if (card.marker & link_markers.LINK_MARKER_LEFT)
+				marker_text += strings.marker_char[link_markers.LINK_MARKER_LEFT];
+			else
+				marker_text += strings.marker_char['default'];
+
+			marker_text += strings.marker_char['default'];
+
+			if (card.marker & link_markers.LINK_MARKER_RIGHT)
+				marker_text += strings.marker_char[link_markers.LINK_MARKER_RIGHT];
+			else
+				marker_text += strings.marker_char['default'];
+
+			marker_text += newline;
+
+			for (let marker = link_markers.LINK_MARKER_BOTTOM_LEFT; marker <= link_markers.LINK_MARKER_BOTTOM_RIGHT; marker <<= 1) {
+				if (card.marker & marker)
+					marker_text += strings.marker_char[marker];
+				else
+					marker_text += strings.marker_char['default'];
+			}
+			marker_text += newline;
+			data += marker_text;
+		}
+	}
+	else if (card.type & card_types.TYPE_SPELL) {
+		const extype = card.type & ~card_types.TYPE_SPELL;
+		const mtype = `${strings.type_name[card_types.TYPE_SPELL]}`;
+		let subtype = '';
+		if (spell_colors[extype])
+			subtype = `/${strings.type_name[extype]}`;
+		else
+			subtype = `/???`;
+		data = `[${mtype}${subtype}]${newline}`;
+	}
+	else if (card.type & card_types.TYPE_TRAP) {
+		const extype = card.type & ~card_types.TYPE_TRAP;
+		const mtype = `${strings.type_name[card_types.TYPE_TRAP]}`;
+		let subtype = '';
+		if (trap_colors[extype])
+			subtype = `/${strings.type_name[extype]}`;
+		else
+			subtype = `/???`;
+		data = `[${mtype}${subtype}]${newline}`;
+	}
+	return data;
+}
+
+/**
+ * Print `card` in language `locale`.
+ * @param {Card} card 
+ * @param {string} locale 
+ * @returns {string}
+ */
+export function print_card(card, locale) {
+	const strings = lang[locale];
+	let lfstr = '';
+	let lfstr_ocg = '';
+	let lfstr_tcg = '';
+	let lfstr_md = '';
+
+	let card_name = 'null';
+	let other_name = '';
+	let desc = '';
+
+	switch (locale) {
+		case 'zh-tw':
+			card_name = card.tw_name;
+			if (card.jp_name)
+				other_name += `${card.jp_name}\n`;
+			else if (card.md_name_jp)
+				other_name += `${card.md_name_jp}    (MD)\n`;
+			if (card.en_name)
+				other_name += `${card.en_name}\n`;
+			else if (card.md_name_en)
+				other_name += `${card.md_name_en}    (MD)\n`;
+			desc = `${card.text.desc}\n--`;
+			break;
+		case 'ae':
+			card_name = card.ae_name;
+
+			if (card.jp_name)
+				other_name = `${card.jp_name}\n`;
+			else if (card.md_name_jp)
+				other_name = `${card.md_name_jp}    (MD)\n`;
+			desc = card.text.db_desc ?? '';
+			break;
+		case 'ja':
+			if (card.jp_name)
+				card_name = card.jp_name;
+			else if (card.md_name_jp)
+				card_name = `${card.md_name_jp}    (MD)`;
+
+			if (card.en_name)
+				other_name = `${card.en_name}\n`;
+			else if (card.md_name_en)
+				other_name = `${card.md_name_en}    (MD)\n`;
+			desc = card.text.db_desc ?? '';
+			break;
+		case 'ko':
+			if (card.kr_name)
+				card_name = card.kr_name;
+
+			if (card.en_name)
+				other_name = `${card.en_name}\n`;
+			else if (card.md_name_en)
+				other_name = `${card.md_name_en}    (MD)\n`;
+			desc = card.text.db_desc ?? '';
+			break;
+		case 'en':
+			if (card.en_name)
+				card_name = card.en_name;
+			else if (card.md_name_en)
+				card_name = `${card.md_name_en}    (MD)`;
+
+			if (card.jp_name)
+				other_name = `${card.jp_name}\n`;
+			else if (card.md_name_jp)
+				other_name = `${card.md_name_jp}    (MD)\n`;
+			desc = card.text.db_desc ?? '';
+			break;
+		default:
+			break;
+	}
+
+	if (card.md_rarity)
+		other_name += `MD：${md_rarity[card.md_rarity]}\n`;
+	let show_lflist = false;
+	if (Number.isSafeInteger(ltable_ocg[card.id])) {
+		lfstr_ocg = `OCG：${strings.limit_name[ltable_ocg[card.id]]}`;
+		show_lflist = true;
+	}
+	else {
+		lfstr_ocg = `OCG：-`;
+	}
+	if (Number.isSafeInteger(ltable_tcg[card.id])) {
+		lfstr_tcg = `TCG：${strings.limit_name[ltable_tcg[card.id]]}`;
+		show_lflist = true;
+	}
+	else {
+		lfstr_tcg = `TCG：-`;
+	}
+	if (Number.isSafeInteger(ltable_md[card.id])) {
+		lfstr_md = `MD：${strings.limit_name[ltable_md[card.id]]}`;
+		show_lflist = true;
+	}
+	else {
+		lfstr_md = `MD：-`;
+	}
+	if (show_lflist)
+		lfstr = `(${lfstr_ocg} / ${lfstr_tcg} / ${lfstr_md})\n`;
+
+	const card_text = `**${card_name}**\n${other_name}${lfstr}${print_data(card, '\n', locale)}${desc}\n`;
+	return card_text;
+}
+
+
+// table
+/**
+ * Create the [name, id] table of region `request_locale`
+ * @param {string} request_locale 
+ * @returns {Map<string, number>}
+ */
+export function create_choice(request_locale) {
+	if (!collator_locale[request_locale])
+		return new Map();
+	const inverse = inverse_mapping(complete_name_table[request_locale]);
+	const collator = new Intl.Collator(collator_locale[request_locale]);
+	return new Map([...inverse].sort((a, b) => collator.compare(a[0], b[0])));
+}
+
+/**
+ * Create the [name, id] table for pre-release cards.
+ * @returns {Map<string, number>}
+ */
+export function create_choice_prerelease() {
+	const inverse_table = new Map();
+	const stmt_pre = `${stmt_default} AND datas.id > $ub`;
+	const arg_pre = {
+		...arg_default,
+		$ub: MAX_CARD_ID,
+	};
+	const re_kanji = /※.*/;
+	const pre_list = query(stmt_pre, arg_pre);
+	for (const card of pre_list) {
+		if (card.cid) {
+			continue;
+		}
+		const res = card.text.desc.match(re_kanji);
+		const kanji = res ? res[0] : '';
+		if (inverse_table.has(card.tw_name) || kanji && inverse_table.has(kanji)) {
+			console.error('choice_prerelease', card.id);
+			return new Map();
+		}
+		inverse_table.set(card.tw_name, card.id);
+		if (kanji)
+			inverse_table.set(kanji, card.id);
+	}
+	return new Map([...inverse_table].sort(zh_compare))
+}
+
+export function create_name_table() {
+	const cards = query(stmt_default, arg_default);
+	const table1 = new Map();
+	for (const card of cards) {
+		if (card.cid)
+			table1.set(card.cid, card.tw_name);
+	}
+	table1.set(CID_BLACK_LUSTER_SOLDIER, `${table1.get(CID_BLACK_LUSTER_SOLDIER)}${bls_postfix['zh-tw']}`);
+	if (table1.size !== cid_table.size)
+		console.error('invalid name_table_tw:', cid_table.size, table1.size);
+	return table1;
 }
 
 export {
