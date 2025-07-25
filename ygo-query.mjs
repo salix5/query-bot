@@ -279,22 +279,22 @@ export function generate_condition(params) {
 
 	// type
 	if (Number.isSafeInteger(params.cardtype) && params.cardtype > 0) {
-		qstr += ' AND type & $cardtype';
+		qstr += " AND type & $cardtype";
 		arg.$cardtype = params.cardtype;
 	}
 	if (Number.isSafeInteger(params.subtype)) {
 		if (Number.isSafeInteger(params.subtype_operator) && params.subtype_operator)
-			qstr += ' AND type & $subtype == $subtype';
+			qstr += " AND type & $subtype == $subtype";
 		else
-			qstr += ' AND type & $subtype';
+			qstr += " AND type & $subtype";
 		arg.$subtype = params.subtype;
 	}
 	if (Number.isSafeInteger(params.exclude)) {
-		qstr += ' AND NOT type & $exclude';
+		qstr += " AND NOT type & $exclude";
 		arg.$exclude = params.exclude;
 	}
 	if (Number.isSafeInteger(params.mention) && card_table.has(params.mention)) {
-		qstr += ' AND desc REGEXP $mention';
+		qstr += " AND desc REGEXP $mention";
 		arg.$mention = `「${escape_regexp(card_table.get(params.mention).tw_name)}」(?![怪魔陷卡])`;
 	}
 
