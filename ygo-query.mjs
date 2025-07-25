@@ -257,15 +257,22 @@ function create_seventh_condition() {
 export function generate_condition(params) {
 	let qstr = "";
 	const arg = {};
-	// id, primary key
+	const key_list = [];
+	// primary key
 	if (Number.isSafeInteger(params.id)) {
-		qstr += " AND datas.id == $id";
-		arg.$id = params.id;
-		return [qstr, arg];
+		key_list.push(params.id);
 	}
-	if (Number.isSafeInteger(params.cid)) {
-		qstr += " AND datas.id == $id";
-		arg.$id = cid_table.get(params.cid) ?? -1;
+	if (Number.isSafeInteger(params.cid) && cid_table.has(params.cid)) {
+		key_list.push(cid_table.get(params.cid));
+	}
+	if (key_list.length) {
+		let key_condition = "datas.id == $key0";
+		arg.$key0 = key_list[0];
+		for (let i = 1; i < key_list.length; i += 1) {
+			key_condition += ` OR datas.id == $key${i}`;
+			arg[`$key${i}`] = key_list[i];
+		}
+		qstr = ` AND (${key_condition})`;
 		return [qstr, arg];
 	}
 
@@ -616,7 +623,7 @@ export function query_card(params) {
 	if (!Object.keys(arg_condition).length) {
 		return [];
 	}
-	if (Number.isSafeInteger(arg_condition.$id)) {
+	if (Number.isSafeInteger(arg_condition.$key0) || Number.isSafeInteger(arg_condition.$key1)) {
 		const stmt = `${stmt_base}${condition};`;
 		const arg = {
 			...arg_base,
