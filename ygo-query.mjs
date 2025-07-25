@@ -10,6 +10,7 @@ import { card_types, monster_types, link_markers, md_rarity, spell_colors, trap_
 import { arg_base, arg_default, arg_seventh, is_alternative, MAX_CARD_ID, query_db, sqlite3_open, stmt_base, stmt_default, stmt_seventh } from './ygo-sqlite.mjs';
 
 export const regexp_mention = `(?<=「)[^「」]*「?[^「」]*」?[^「」]*(?=」)`;
+const MAX_PATTERN_LENGTH = 200;
 
 export {
 	select_all, select_id, select_name,
@@ -296,6 +297,17 @@ export function generate_condition(params) {
 		qstr += ' AND desc REGEXP $mention';
 		arg.$mention = `「${escape_regexp(card_table.get(params.mention).tw_name)}」(?![怪魔陷卡])`;
 	}
+
+	// text
+	if (typeof params.name === 'string' && params.name.length > 0 && params.name.length < MAX_PATTERN_LENGTH) {
+		qstr += ` AND name LIKE $name ESCAPE '$'`;
+		arg.$name = params.name;
+	}
+	if (typeof params.desc === 'string' && params.desc.length > 0 && params.desc.length < MAX_PATTERN_LENGTH) {
+		qstr += ` AND "desc" LIKE $desc ESCAPE '$'`;
+		arg.$desc = params.desc;
+	}
+
 	if (!arg.$cardtype || arg.$cardtype === card_types.TYPE_MONSTER) {
 		let is_monster = false;
 		if (Number.isSafeInteger(params.material) && card_table.has(params.material)) {
