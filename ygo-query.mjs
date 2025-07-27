@@ -300,6 +300,8 @@ export function generate_condition(params) {
 		qstr += " AND desc REGEXP $mention";
 		arg.$mention = `「${escape_regexp(card_table.get(params.mention).tw_name)}」(?![怪魔陷卡])`;
 	}
+
+	// text
 	if (typeof params.pack === 'string' && params.pack.length > 0 && params.pack.length < MAX_STRING_LENGTH) {
 		if (params.pack === 'o') {
 			qstr += " AND datas.ot != $ot";
@@ -318,8 +320,6 @@ export function generate_condition(params) {
 			arg.$pack_end = pre_release[params.pack] + 500;
 		}
 	}
-
-	// text
 	if (typeof params.name === 'string' && params.name.length > 0 && params.name.length < MAX_PATTERN_LENGTH) {
 		qstr += ` AND name LIKE $name ESCAPE '$'`;
 		arg.$name = params.name;
