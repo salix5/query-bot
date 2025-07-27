@@ -172,7 +172,7 @@ export function is_alternative(cdata) {
 }
 
 /**
- * The sqlite condition of checking setcode.
+ * The sqlite condition of setcode.
  * @param {number} setcode
  * @param {Object} arg
  * @returns {string}
@@ -192,6 +192,22 @@ export function setcode_condition(setcode, arg) {
 	return ret;
 }
 
+/**
+ * The sqlite condition of pack.
+ * @param {number[]} pack 
+ * @param {Object} arg 
+ * @returns {string}
+ */
+export function pack_condition(pack, arg) {
+	let condition = "0";
+	for (let i = 0; i < pack.length; ++i) {
+		if (pack[i] && pack[i] !== 1) {
+			condition += ` OR datas.id=@p${i}`;
+			arg[`@p${i}`] = pack[i];
+		}
+	}
+	return ` AND (${condition})`;
+}
 
 // database tool
 /**
