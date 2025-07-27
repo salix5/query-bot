@@ -1,5 +1,5 @@
 import { writeFile } from 'node:fs/promises';
-import { ltable_ocg, ltable_tcg, ltable_md } from './ygo-json-loader.mjs';
+import { ltable_ocg, ltable_tcg, ltable_md, pack_list, pre_release } from './ygo-json-loader.mjs';
 import { md_card_list } from './ygo-json-loader.mjs';
 import { id_to_cid, cid_table } from './ygo-json-loader.mjs';
 import { lang, collator_locale, bls_postfix, official_name, game_name } from './ygo-json-loader.mjs';
@@ -7,10 +7,11 @@ import { name_table, md_table, md_table_sc } from './ygo-json-loader.mjs';
 import { escape_regexp, escape_wildcard, inverse_mapping, zh_collator, zh_compare } from './ygo-utility.mjs';
 import { db_url1, db_url2, fetch_db } from './ygo-fetch.mjs';
 import { card_types, monster_types, link_markers, md_rarity, spell_colors, trap_colors, CID_BLACK_LUSTER_SOLDIER } from "./ygo-constant.mjs";
-import { arg_base, arg_default, arg_seventh, is_alternative, MAX_CARD_ID, query_db, sqlite3_open, stmt_base, stmt_default, stmt_seventh } from './ygo-sqlite.mjs';
+import { arg_base, arg_default, arg_seventh, is_alternative, MAX_CARD_ID, pack_condition, query_db, sqlite3_open, stmt_base, stmt_default, stmt_seventh } from './ygo-sqlite.mjs';
 
 export const regexp_mention = `(?<=「)[^「」]*「?[^「」]*」?[^「」]*(?=」)`;
 const MAX_PATTERN_LENGTH = 200;
+const MAX_STRING_LENGTH = 10;
 
 export {
 	select_all, select_id, select_name,
@@ -293,9 +294,29 @@ export function generate_condition(params) {
 		qstr += " AND NOT type & $exclude";
 		arg.$exclude = params.exclude;
 	}
+
+	// other
 	if (Number.isSafeInteger(params.mention) && card_table.has(params.mention)) {
 		qstr += " AND desc REGEXP $mention";
 		arg.$mention = `「${escape_regexp(card_table.get(params.mention).tw_name)}」(?![怪魔陷卡])`;
+	}
+	if (typeof params.pack === 'string' && params.pack.length > 0 && params.pack.length < MAX_STRING_LENGTH) {
+		if (params.pack === 'o') {
+			qstr += " AND datas.ot != $ot";
+			arg.$ot = 2;
+		}
+		else if (params.pack === 't') {
+			qstr += " AND datas.ot == $ot";
+			arg.$ot = 2;
+		}
+		else if (pack_list[params.pack]) {
+			qstr += pack_condition(pack_list[params.pack], arg);
+		}
+		else if (pre_release[params.pack]) {
+			qstr += " AND (data.id BETWEEN $pack_begin AND $pack_end)";
+			arg.$pack_begin = pre_release[params.pack];
+			arg.$pack_end = pre_release[params.pack] + 500;
+		}
 	}
 
 	// text

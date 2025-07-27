@@ -2,6 +2,8 @@ import ltable_ocg from './data/lflist.json' with { type: 'json' };
 import ltable_tcg from './data/lflist_tcg.json' with { type: 'json' };
 import ltable_md from './data/lflist_md.json' with { type: 'json' };
 import md_card_list from './data/CardList.json' with { type: 'json' };
+import pack_list from './data/pack_list.json' with { type: 'json' };
+import pre_release from './commands_data/pre_release.json' with { type: 'json' };
 
 import cid_json from './data/cid_table.json' with { type: 'json' };
 import ae_table from './data/name_table_ae.json' with { type: 'json' };
@@ -97,6 +99,8 @@ const choices_ruby = new Map(ruby_entries);
 export {
 	ltable_ocg, ltable_tcg, ltable_md,
 	md_card_list,
+	pack_list,
+	pre_release,
 	cid_table,
 	id_to_cid,
 	lang,
