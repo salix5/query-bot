@@ -221,19 +221,19 @@ export const interface_types = {
 	"sum": 0,
 	"marker": 0,
 	"marker_operator": 0,
-	"level": 0,
+	"level": 1,
 	"level_from": 0,
 	"level_to": 0,
-	"scale": 0,
+	"scale": 1,
 	"scale_from": 0,
 	"scale_to": 0,
 	"race": 0,
 	"attribute": 0,
 	"material": 0,
 
-	"name": 1,
-	"desc": 1,
-	"pack": 1,
+	"name": 2,
+	"desc": 2,
+	"pack": 2,
 };
 
 export const constant_table = {
