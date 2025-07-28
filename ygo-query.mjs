@@ -302,6 +302,14 @@ export function generate_condition(params) {
 	}
 
 	// text
+	if (typeof params.name === 'string' && params.name.length > 0 && params.name.length < MAX_PATTERN_LENGTH) {
+		qstr += ` AND name LIKE $name ESCAPE '$'`;
+		arg.$name = params.name;
+	}
+	if (typeof params.desc === 'string' && params.desc.length > 0 && params.desc.length < MAX_PATTERN_LENGTH) {
+		qstr += ` AND "desc" LIKE $desc ESCAPE '$'`;
+		arg.$desc = params.desc;
+	}
 	if (typeof params.pack === 'string' && params.pack.length > 0 && params.pack.length < MAX_STRING_LENGTH) {
 		if (params.pack === 'o') {
 			qstr += " AND datas.ot != $ot";
@@ -319,14 +327,6 @@ export function generate_condition(params) {
 			arg.$pack_begin = pre_release[params.pack];
 			arg.$pack_end = pre_release[params.pack] + 500;
 		}
-	}
-	if (typeof params.name === 'string' && params.name.length > 0 && params.name.length < MAX_PATTERN_LENGTH) {
-		qstr += ` AND name LIKE $name ESCAPE '$'`;
-		arg.$name = params.name;
-	}
-	if (typeof params.desc === 'string' && params.desc.length > 0 && params.desc.length < MAX_PATTERN_LENGTH) {
-		qstr += ` AND "desc" LIKE $desc ESCAPE '$'`;
-		arg.$desc = params.desc;
 	}
 
 	if (!arg.$cardtype || arg.$cardtype === card_types.TYPE_MONSTER) {
