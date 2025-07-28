@@ -21,7 +21,7 @@ export {
 export const CARD_ARTWORK_VERSIONS_OFFSET = 20;
 export const MAX_CARD_ID = 99999999;
 
-export const select_all = `SELECT datas.id, ot, alias, setcode, type, atk, def, level, attribute, race, name, "desc" FROM datas, texts WHERE datas.id == texts.id`;
+export const select_all = `SELECT datas.id, ot, alias, setcode, type, atk, def, level, race, attribute, name, "desc" FROM datas, texts WHERE datas.id == texts.id`;
 export const select_id = `SELECT datas.id FROM datas, texts WHERE datas.id == texts.id`;
 export const select_name = `SELECT datas.id, name FROM datas, texts WHERE datas.id == texts.id`;
 
