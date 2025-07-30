@@ -303,12 +303,20 @@ export function generate_condition(params) {
 
 	// text
 	if (typeof params.name === 'string' && params.name.length > 0 && params.name.length < MAX_PATTERN_LENGTH) {
-		qstr += ` AND name LIKE $name ESCAPE '$'`;
 		arg.$name = params.name;
 	}
 	if (typeof params.desc === 'string' && params.desc.length > 0 && params.desc.length < MAX_PATTERN_LENGTH) {
-		qstr += ` AND "desc" LIKE $desc ESCAPE '$'`;
 		arg.$desc = params.desc;
+	}
+	if (arg.$name && arg.$desc) {
+		const op = (Number.isSafeInteger(params.desc_operator) && !params.desc_operator) ? "OR" : "AND";
+		qstr += ` AND (name LIKE $name ESCAPE '$' ${op} "desc" LIKE $desc ESCAPE '$')`;
+	}
+	else if (arg.$name) {
+		qstr += ` AND name LIKE $name ESCAPE '$'`;
+	}
+	else if (arg.$desc) {
+		qstr += ` AND "desc" LIKE $desc ESCAPE '$'`;
 	}
 	if (typeof params.pack === 'string' && params.pack.length > 0 && params.pack.length < MAX_STRING_LENGTH) {
 		if (params.pack === 'o') {
