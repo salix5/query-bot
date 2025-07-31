@@ -130,19 +130,14 @@ export function query_db(db, sql = stmt_default, arg = arg_default) {
 	const stmt = db.prepare(sql);
 	stmt.setReadBigInts(true);
 	const result = stmt.all(arg);
+	const result_table = new Map();
 	for (const card of result) {
 		for (const [column, value] of Object.entries(card)) {
 			switch (column) {
 				case 'setcode':
 					card.setcode = [];
-					if (value) {
-						if (extra_setcodes[card.id]) {
-							card.setcode.push(...extra_setcodes[card.id]);
-						}
-						else {
-							write_setcode(card.setcode, value);
-						}
-					}
+					write_setcode(card.setcode, value);
+					result_table.set(card.id, card);
 					break;
 				case 'level':
 					card.level = Number(value) & 0xffff;
@@ -153,6 +148,14 @@ export function query_db(db, sql = stmt_default, arg = arg_default) {
 						card[column] = Number(value);
 					break;
 			}
+		}
+	}
+	for (const [key, value] of Object.entries(extra_setcodes)) {
+		const id = Number.parseInt(key, 10);
+		if (result_table.has(id)) {
+			const card = result_table.get(id);
+			card.setcode = [];
+			card.setcode.push(...value);
 		}
 	}
 	return result;
