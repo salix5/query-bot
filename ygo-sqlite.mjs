@@ -105,15 +105,15 @@ export function sqlite3_open(filename) {
 
 /**
  * Set `card.setcode` from int64.
- * @param {Entry} card 
+ * @param {number[]} list 
  * @param {bigint} setcode 
  */
-function set_setcode(card, setcode) {
+function write_setcode(list, setcode) {
 	setcode = BigInt.asUintN(64, setcode);
-	card.setcode.length = 0;
+	list.length = 0;
 	while (setcode) {
 		if (setcode & 0xffffn) {
-			card.setcode.push(Number(setcode & 0xffffn));
+			list.push(Number(setcode & 0xffffn));
 		}
 		setcode = setcode >> 16n;
 	}
@@ -127,7 +127,6 @@ function set_setcode(card, setcode) {
  * @returns {Entry[]}
  */
 export function query_db(db, sql = stmt_default, arg = arg_default) {
-	const ret = [];
 	const stmt = db.prepare(sql);
 	stmt.setReadBigInts(true);
 	const result = stmt.all(arg);
@@ -141,7 +140,7 @@ export function query_db(db, sql = stmt_default, arg = arg_default) {
 							card.setcode.push(...extra_setcodes[card.id]);
 						}
 						else {
-							set_setcode(card, value);
+							write_setcode(card.setcode, value);
 						}
 					}
 					break;
@@ -155,9 +154,8 @@ export function query_db(db, sql = stmt_default, arg = arg_default) {
 					break;
 			}
 		}
-		ret.push(card);
 	}
-	return ret;
+	return result;
 }
 
 /**
