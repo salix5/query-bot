@@ -6,6 +6,7 @@ import { id_to_cid } from './ygo-json-loader.mjs';
 
 export {
 	CID_BLACK_LUSTER_SOLDIER,
+	card_types,
 	monster_types,
 	spell_types,
 	trap_types,
