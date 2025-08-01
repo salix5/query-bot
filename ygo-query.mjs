@@ -296,7 +296,7 @@ export function generate_condition(params) {
 	}
 	if (Number.isSafeInteger(params.alias)) {
 		qstr += " AND alias == $alias";
-		arg.$alias = params.alias
+		arg.$alias = params.alias;
 	}
 	if (Number.isSafeInteger(params.cardtype) && params.cardtype > 0) {
 		qstr += " AND type & $cardtype";
@@ -314,7 +314,7 @@ export function generate_condition(params) {
 		arg.$exclude = params.exclude;
 	}
 	if (Number.isSafeInteger(params.mention) && card_table.has(params.mention)) {
-		qstr += " AND desc REGEXP $mention";
+		qstr += ` AND "desc" REGEXP $mention`;
 		arg.$mention = `「${escape_regexp(card_table.get(params.mention).tw_name)}」(?![怪魔陷卡])`;
 	}
 
@@ -340,7 +340,7 @@ export function generate_condition(params) {
 			qstr += pack_condition(pack_list[params.pack], arg);
 		}
 		else if (pre_release[params.pack]) {
-			qstr += " AND (data.id BETWEEN $pack_begin AND $pack_end)";
+			qstr += " AND (datas.id BETWEEN $pack_begin AND $pack_end)";
 			arg.$pack_begin = pre_release[params.pack];
 			arg.$pack_end = pre_release[params.pack] + 500;
 		}
