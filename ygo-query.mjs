@@ -105,6 +105,7 @@ const db_list = [];
  * 
  * @property {number} artid
  * @property {number} color - Card color for sorting
+ * @property {number} [pack_index]
  */
 
 /**
@@ -681,7 +682,21 @@ export function query_card(params) {
 		...arg_default,
 		...arg_condition,
 	};
-	return query(stmt, arg);
+	const result = query(stmt, arg);
+	if (is_string(params.pack, MAX_STRING_LENGTH) && pack_list[params.pack]) {
+		const pack = pack_list[params.pack];
+		const indext_table = new Map();
+		for (let i = 0; i < pack.length; i += 1) {
+			if (Number.isSafeInteger(pack[i]) && pack[i] > 0) {
+				indext_table.set(pack[i], i);
+			}
+		}
+		for (const card of result) {
+			card.pack_index = indext_table.get(card.id) ?? -1;
+		}
+		result.sort((a, b) => a.pack_index - b.pack_index);
+	}
+	return result;
 }
 
 /**
