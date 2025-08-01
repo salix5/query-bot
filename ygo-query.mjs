@@ -251,6 +251,10 @@ function create_seventh_condition() {
 
 
 // query
+function is_string(str, max_length) {
+	return typeof str === 'string' && str.length > 0 && str.length <= max_length;
+}
+
 /**
  * Parse param into sqlite statement condition.
  * @param {Object} params 
@@ -302,10 +306,10 @@ export function generate_condition(params) {
 	}
 
 	// text
-	if (typeof params.name === 'string' && params.name.length > 0 && params.name.length < MAX_PATTERN_LENGTH) {
+	if (is_string(params.name, MAX_PATTERN_LENGTH)) {
 		arg.$name = params.name;
 	}
-	if (typeof params.desc === 'string' && params.desc.length > 0 && params.desc.length < MAX_PATTERN_LENGTH) {
+	if (is_string(params.desc, MAX_PATTERN_LENGTH)) {
 		arg.$desc = params.desc;
 	}
 	if (arg.$name && arg.$desc) {
@@ -318,7 +322,7 @@ export function generate_condition(params) {
 	else if (arg.$desc) {
 		qstr += ` AND "desc" LIKE $desc ESCAPE '$'`;
 	}
-	if (typeof params.pack === 'string' && params.pack.length > 0 && params.pack.length < MAX_STRING_LENGTH) {
+	if (is_string(params.pack, MAX_STRING_LENGTH)) {
 		if (params.pack === 'o') {
 			qstr += " AND datas.ot != $ot";
 			arg.$ot = 2;
