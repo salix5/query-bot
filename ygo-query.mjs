@@ -283,7 +283,7 @@ export function generate_condition(params) {
 		return [qstr, arg];
 	}
 
-	// type
+	// number
 	if (Number.isSafeInteger(params.cardtype) && params.cardtype > 0) {
 		qstr += " AND type & $cardtype";
 		arg.$cardtype = params.cardtype;
@@ -299,8 +299,6 @@ export function generate_condition(params) {
 		qstr += " AND NOT type & $exclude";
 		arg.$exclude = params.exclude;
 	}
-
-	// other
 	if (Number.isSafeInteger(params.mention) && card_table.has(params.mention)) {
 		qstr += " AND desc REGEXP $mention";
 		arg.$mention = `「${escape_regexp(card_table.get(params.mention).tw_name)}」(?![怪魔陷卡])`;
