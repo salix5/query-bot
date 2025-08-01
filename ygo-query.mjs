@@ -284,6 +284,16 @@ export function generate_condition(params) {
 	}
 
 	// number
+	if (Number.isSafeInteger(params.tcg)) {
+		if (params.tcg) {
+			qstr += " AND ot & $ot_mask == $tcg";
+		}
+		else {
+			qstr += " AND ot & $ot_mask != $tcg";
+		}
+		arg.$ot_mask = 0x3;
+		arg.$tcg = 0x2;
+	}
 	if (Number.isSafeInteger(params.alias)) {
 		qstr += " AND alias == $alias";
 		arg.$alias = params.alias
@@ -326,15 +336,7 @@ export function generate_condition(params) {
 		qstr += ` AND "desc" LIKE $desc ESCAPE '$'`;
 	}
 	if (is_string(params.pack, MAX_STRING_LENGTH)) {
-		if (params.pack === 'o') {
-			qstr += " AND datas.ot != $ot";
-			arg.$ot = 2;
-		}
-		else if (params.pack === 't') {
-			qstr += " AND datas.ot == $ot";
-			arg.$ot = 2;
-		}
-		else if (pack_list[params.pack]) {
+		if (pack_list[params.pack]) {
 			qstr += pack_condition(pack_list[params.pack], arg);
 		}
 		else if (pre_release[params.pack]) {
