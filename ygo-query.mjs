@@ -243,7 +243,7 @@ function seventh_condition() {
 			attr_value |= card.attribute;
 			race_value |= card.race;
 		}
-		condition1 += ` OR level == ${i} AND (attribute & ${attr_value} OR race & ${race_value})`;
+		condition1 += ` OR (level & 0xffff) == ${i} AND (attribute & ${attr_value} OR race & ${race_value})`;
 	}
 	const ret = ` AND type & $monster AND NOT type & $extra AND (${condition1})`;
 	return ret;
