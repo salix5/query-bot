@@ -232,7 +232,7 @@ function generate_card(cdata) {
  * @returns {string}
  */
 // eslint-disable-next-line no-unused-vars
-function create_seventh_condition() {
+function seventh_condition() {
 	let condition1 = '0';
 	for (let i = 1; i <= 13; i += 1) {
 		if (!mmap_seventh[i])
