@@ -103,20 +103,30 @@ export function sqlite3_open(filename) {
 	return db;
 }
 
+const setcode_table = new Map();
 /**
- * Set `card.setcode` from int64.
+ * Write uint64 `setcode` to an array.
  * @param {number[]} list 
  * @param {bigint} setcode 
  */
 function write_setcode(list, setcode) {
-	setcode = BigInt.asUintN(64, setcode);
 	list.length = 0;
+	const key = setcode;
+	const value = setcode_table.get(key);
+	if (value) {
+		list.push(...value);
+		return;
+	}
+	const result = [];
+	setcode = BigInt.asUintN(64, setcode);
 	while (setcode) {
 		if (setcode & 0xffffn) {
-			list.push(Number(setcode & 0xffffn));
+			result.push(Number(setcode & 0xffffn));
 		}
 		setcode = setcode >> 16n;
 	}
+	setcode_table.set(key, result);
+	list.push(...result);
 }
 
 /**
