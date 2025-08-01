@@ -152,8 +152,8 @@ export function query_db(db, sql = stmt_default, arg = arg_default) {
 	}
 	for (const [key, value] of Object.entries(extra_setcodes)) {
 		const id = Number.parseInt(key, 10);
-		if (result_table.has(id)) {
-			const card = result_table.get(id);
+		const card = result_table.get(id);
+		if (card) {
 			card.setcode = [];
 			card.setcode.push(...value);
 		}
