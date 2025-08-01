@@ -1,15 +1,11 @@
 import extra_setcodes from './data/extra_setcodes.json' with { type: 'json' };
 import { DatabaseSync } from "node:sqlite";
-import { ALT_DARK_MAGICIAN, ALT_POLYMERIZATION, ID_BLACK_LUSTER_SOLDIER, ID_TYLER_THE_GREAT_WARRIOR, monster_types } from "./ygo-constant.mjs";
+import { monster_types } from "./ygo-constant.mjs";
 import { inverse_mapping } from "./ygo-utility.mjs";
 import { id_to_cid } from './ygo-json-loader.mjs';
 
 export {
-	ALT_DARK_MAGICIAN,
-	ALT_POLYMERIZATION,
 	CID_BLACK_LUSTER_SOLDIER,
-	ID_BLACK_LUSTER_SOLDIER,
-	ID_TYLER_THE_GREAT_WARRIOR,
 	monster_types,
 	spell_types,
 	trap_types,
@@ -20,6 +16,11 @@ export {
 
 export const CARD_ARTWORK_VERSIONS_OFFSET = 20;
 export const MAX_CARD_ID = 99999999;
+
+export const ALT_DARK_MAGICIAN = 36996508;
+export const ALT_POLYMERIZATION = 27847700;
+export const ID_BLACK_LUSTER_SOLDIER = 5405695;
+export const ID_TYLER_THE_GREAT_WARRIOR = 68811206;
 
 export const select_all = `SELECT datas.id, ot, alias, setcode, type, atk, def, level, race, attribute, name, "desc" FROM datas, texts WHERE datas.id == texts.id`;
 export const select_id = `SELECT datas.id FROM datas, texts WHERE datas.id == texts.id`;
