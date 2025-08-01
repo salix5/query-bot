@@ -284,6 +284,10 @@ export function generate_condition(params) {
 	}
 
 	// number
+	if (Number.isSafeInteger(params.alias)) {
+		qstr += " AND alias == $alias";
+		arg.$alias = params.alias
+	}
 	if (Number.isSafeInteger(params.cardtype) && params.cardtype > 0) {
 		qstr += " AND type & $cardtype";
 		arg.$cardtype = params.cardtype;
