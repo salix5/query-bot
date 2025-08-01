@@ -211,8 +211,8 @@ export function setcode_condition(setcode, arg) {
  */
 export function pack_condition(pack, arg) {
 	let condition = "0";
-	for (let i = 0; i < pack.length; ++i) {
-		if (pack[i] && pack[i] !== 1) {
+	for (let i = 0; i < pack.length; i += 1) {
+		if (Number.isSafeInteger(pack[i]) && pack[i] > 0) {
 			condition += ` OR datas.id=@p${i}`;
 			arg[`@p${i}`] = pack[i];
 		}
