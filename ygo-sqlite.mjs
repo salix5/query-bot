@@ -92,14 +92,15 @@ export function regexp_test(pattern, x) {
 export function sqlite3_open(filename) {
 	const db_option = {
 		readOnly: true,
+		readBigInts: true,
 	};
-	const funtion_option = {
+	const function_option = {
 		deterministic: true,
 		directOnly: true,
 	};
 	const db = new DatabaseSync(filename, db_option);
 	db.exec("PRAGMA trusted_schema = OFF;");
-	db.function('regexp', funtion_option, regexp_test);
+	db.function('regexp', function_option, regexp_test);
 	return db;
 }
 
@@ -138,7 +139,6 @@ function write_setcode(list, setcode) {
  */
 export function query_db(db, sql = stmt_default, arg = arg_default) {
 	const stmt = db.prepare(sql);
-	stmt.setReadBigInts(true);
 	const result = stmt.all(arg);
 	const result_table = new Map();
 	for (const card of result) {
