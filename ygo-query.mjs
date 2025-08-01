@@ -694,16 +694,11 @@ export function get_card(cid) {
 		cid = Number.parseInt(cid, 10);
 	if (!Number.isSafeInteger(cid))
 		return null;
-	let id = 0;
-	if (cid > MAX_CARD_ID)
-		id = cid;
-	else if (cid_table.has(cid))
-		id = cid_table.get(cid);
-	else
+	const id = (cid > MAX_CARD_ID) ? cid : cid_table.get(cid);
+	if (!Number.isSafeInteger(id))
 		return null;
-	if (card_table.has(id))
-		return card_table.get(id);
-	return null;
+	const card = card_table.get(id);
+	return card ?? null;
 }
 
 /**
