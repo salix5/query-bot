@@ -212,6 +212,8 @@ export function setcode_condition(setcode, arg) {
  * @returns {string}
  */
 export function pack_condition(pack, arg) {
+	if (!pack.length)
+		return "";
 	let condition = "0";
 	for (let i = 0; i < pack.length; i += 1) {
 		if (Number.isSafeInteger(pack[i]) && pack[i] > 0) {
