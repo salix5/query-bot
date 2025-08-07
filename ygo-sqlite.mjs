@@ -193,13 +193,22 @@ export function setcode_condition(setcode, arg) {
 	const setcode_str2 = `(setcode >> $sec1 & $mask12) == $setname AND (setcode >> $sec1 & $settype) == $settype`;
 	const setcode_str3 = `(setcode >> $sec2 & $mask12) == $setname AND (setcode >> $sec2 & $settype) == $settype`;
 	const setcode_str4 = `(setcode >> $sec3 & $mask12) == $setname AND (setcode >> $sec3 & $settype) == $settype`;
-	const ret = ` AND (${setcode_str1} OR ${setcode_str2} OR ${setcode_str3} OR ${setcode_str4})`;
+	let condition = `${setcode_str1} OR ${setcode_str2} OR ${setcode_str3} OR ${setcode_str4}`;
 	arg.$setname = setcode & 0x0fff;
 	arg.$settype = setcode & 0xf000;
 	arg.$mask12 = 0x0fff;
 	arg.$sec1 = 16;
 	arg.$sec2 = 32;
 	arg.$sec3 = 48;
+	let count = 0;
+	for (const [id, value] of extra_setcodes) {
+		if (value.includes(setcode)) {
+			condition += ` OR datas.id == $sid${count}`;
+			arg[`$sid${count}`] = id;
+			count += 1;
+		}
+	}
+	const ret = ` AND (${condition})`;
 	return ret;
 }
 
