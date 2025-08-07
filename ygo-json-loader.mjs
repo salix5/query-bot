@@ -15,6 +15,7 @@ import md_en_table from './data/md_name_en.json' with { type: 'json' };
 import md_jp_table from './data/md_name_jp.json' with { type: 'json' };
 import md_sc from './data/md_name.json' with { type: 'json' };
 import ruby_table from './data/name_table_ruby.json' with { type: 'json' };
+import setcode_table from './data/extra_setcodes.json' with { type: 'json' };
 
 import lang_ae from './lang/ae.json' with { type: 'json' };
 import lang_en from './lang/en.json' with { type: 'json' };
@@ -26,7 +27,7 @@ import { CID_BLACK_LUSTER_SOLDIER } from './ygo-constant.mjs';
 
 /**
  * @param {Object} obj 
- * @returns {Map<number, number>}
+ * @returns {Map<number, any>}
  */
 function object_to_map(obj) {
 	const entries = Object.entries(obj);
@@ -45,6 +46,7 @@ function object_to_map(obj) {
 
 const cid_table = object_to_map(cid_json);
 const md_table_sc = object_to_map(md_sc);
+const extra_setcodes = object_to_map(setcode_table);
 
 const name_table = Object.create(null);
 name_table['ae'] = object_to_map(ae_table);
@@ -120,4 +122,5 @@ export {
 	md_table_sc,
 	jp_table,
 	choices_ruby,
+	extra_setcodes,
 }

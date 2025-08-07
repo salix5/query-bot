@@ -1,8 +1,7 @@
-import extra_setcodes from './data/extra_setcodes.json' with { type: 'json' };
 import { DatabaseSync } from "node:sqlite";
 import { monster_types } from "./ygo-constant.mjs";
 import { inverse_mapping } from "./ygo-utility.mjs";
-import { id_to_cid } from './ygo-json-loader.mjs';
+import { id_to_cid, extra_setcodes } from './ygo-json-loader.mjs';
 
 export {
 	CID_BLACK_LUSTER_SOLDIER,
@@ -162,8 +161,7 @@ export function query_db(db, sql = stmt_default, arg = arg_default) {
 			}
 		}
 	}
-	for (const [key, value] of Object.entries(extra_setcodes)) {
-		const id = Number.parseInt(key, 10);
+	for (const [id, value] of extra_setcodes) {
 		const card = result_table.get(id);
 		if (card) {
 			card.setcode = [];
