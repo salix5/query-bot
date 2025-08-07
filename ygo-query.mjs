@@ -259,9 +259,10 @@ function is_string(str, max_length) {
 /**
  * Parse param into sqlite statement condition.
  * @param {Object} params 
+ * @param {number[]} [id_list]
  * @returns {[string, Object]}
  */
-export function generate_condition(params) {
+export function generate_condition(params, id_list) {
 	let qstr = "";
 	const arg = {};
 	const key_list = [];
@@ -284,6 +285,9 @@ export function generate_condition(params) {
 	}
 
 	// number
+	if (id_list && id_list.length) {
+		qstr += pack_condition(id_list, arg);
+	}
 	if (Number.isSafeInteger(params.tcg)) {
 		if (params.tcg) {
 			qstr += " AND ot & $ot_mask == $tcg";
@@ -335,15 +339,10 @@ export function generate_condition(params) {
 	else if (arg.$desc) {
 		qstr += ` AND "desc" LIKE $desc ESCAPE '$'`;
 	}
-	if (is_string(params.pack, MAX_STRING_LENGTH)) {
-		if (pack_list[params.pack]) {
-			qstr += pack_condition(pack_list[params.pack], arg);
-		}
-		else if (pre_release[params.pack]) {
-			qstr += " AND (datas.id BETWEEN $pack_begin AND $pack_end)";
-			arg.$pack_begin = pre_release[params.pack];
-			arg.$pack_end = pre_release[params.pack] + 500;
-		}
+	if (is_string(params.pack, MAX_STRING_LENGTH) && pre_release[params.pack]) {
+		qstr += " AND (datas.id BETWEEN $pack_begin AND $pack_end)";
+		arg.$pack_begin = pre_release[params.pack];
+		arg.$pack_end = pre_release[params.pack] + 500;
 	}
 
 	if (!arg.$cardtype || arg.$cardtype === card_types.TYPE_MONSTER) {
