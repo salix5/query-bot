@@ -269,8 +269,8 @@ export function generate_condition(params) {
 	if (Number.isSafeInteger(params.id)) {
 		key_list.push(params.id);
 	}
-	if (Number.isSafeInteger(params.cid) && cid_table.has(params.cid)) {
-		key_list.push(cid_table.get(params.cid));
+	if (Number.isSafeInteger(params.cid)) {
+		key_list.push(cid_table.get(params.cid) ?? -1);
 	}
 	if (key_list.length) {
 		let key_condition = "datas.id == $key0";
