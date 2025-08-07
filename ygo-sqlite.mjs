@@ -216,10 +216,8 @@ export function pack_condition(pack, arg) {
 		return "";
 	let condition = "0";
 	for (let i = 0; i < pack.length; i += 1) {
-		if (Number.isSafeInteger(pack[i]) && pack[i] > 0) {
-			condition += ` OR datas.id=@p${i}`;
-			arg[`@p${i}`] = pack[i];
-		}
+		condition += ` OR datas.id=@p${i}`;
+		arg[`@p${i}`] = pack[i];
 	}
 	return ` AND (${condition})`;
 }
