@@ -1,13 +1,12 @@
 import { writeFile } from 'node:fs/promises';
 import { ltable_ocg, ltable_tcg, ltable_md, pack_list, pre_release } from './ygo-json-loader.mjs';
-import { md_card_list } from './ygo-json-loader.mjs';
 import { id_to_cid, cid_table } from './ygo-json-loader.mjs';
 import { lang, collator_locale, bls_postfix, official_name, game_name } from './ygo-json-loader.mjs';
-import { name_table, md_table, md_table_sc } from './ygo-json-loader.mjs';
+import { name_table, md_table, md_table_sc, md_card_list } from './ygo-json-loader.mjs';
 import { escape_regexp, escape_wildcard, inverse_mapping, zh_collator, zh_compare } from './ygo-utility.mjs';
 import { db_url1, db_url2, fetch_db } from './ygo-fetch.mjs';
 import { card_types, monster_types, link_markers, md_rarity, spell_colors, trap_colors, CID_BLACK_LUSTER_SOLDIER } from "./ygo-constant.mjs";
-import { arg_base, arg_default, arg_seventh, is_alternative, MAX_CARD_ID, pack_condition, query_db, sqlite3_open, stmt_base, stmt_default, stmt_seventh } from './ygo-sqlite.mjs';
+import { arg_base, arg_default, arg_seventh, is_alternative, MAX_CARD_ID, pack_condition, query_db, setcode_condition, sqlite3_open, stmt_base, stmt_default, stmt_seventh } from './ygo-sqlite.mjs';
 
 export const regexp_mention = `(?<=「)[^「」]*「?[^「」]*」?[^「」]*(?=」)`;
 const MAX_PATTERN_LENGTH = 200;
@@ -20,7 +19,7 @@ export {
 	arg_default, arg_base, arg_no_alias,
 } from './ygo-sqlite.mjs';
 
-const complete_name_table = Object.create(null);
+export const complete_name_table = Object.create(null);
 for (const locale of Object.keys(official_name)) {
 	const table1 = new Map(name_table[locale]);
 	let valid = true;
@@ -46,9 +45,10 @@ for (const locale of Object.keys(official_name)) {
 export {
 	lang, official_name,
 	cid_table, name_table, md_table,
-	complete_name_table, id_to_cid,
+	id_to_cid,
 	md_card_list,
-};
+	setname,
+} from './ygo-json-loader.mjs';
 
 const db_list = [];
 
@@ -301,6 +301,9 @@ export function generate_condition(params, id_list) {
 	if (Number.isSafeInteger(params.alias)) {
 		qstr += " AND alias == $alias";
 		arg.$alias = params.alias;
+	}
+	if (Number.isSafeInteger(params.setcode)) {
+		qstr += setcode_condition(params.setcode, arg);
 	}
 	if (Number.isSafeInteger(params.cardtype) && params.cardtype > 0) {
 		qstr += " AND type & $cardtype";
