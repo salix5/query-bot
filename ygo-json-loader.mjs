@@ -23,17 +23,22 @@ import lang_zhtw from './lang/zh-tw.json' with { type: 'json' };
 import { inverse_mapping } from './ygo-utility.mjs';
 import { CID_BLACK_LUSTER_SOLDIER } from './ygo-constant.mjs';
 
+/**
+ * @param {Object} obj 
+ * @returns {Map<number, number>}
+ */
 function object_to_map(obj) {
 	const entries = Object.entries(obj);
-	for (const pair of entries) {
-		const id = Number.parseInt(pair[0], 10);
-		if (!Number.isSafeInteger(id)) {
-			console.error('object_to_map: invalid id', pair[0]);
+	const result = [];
+	for (const [prop, value] of entries) {
+		const key = Number.parseInt(prop, 10);
+		if (!Number.isSafeInteger(key)) {
+			console.error('object_to_map: invalid key', prop);
 			continue;
 		}
-		pair[0] = id;
+		result.push([key, value]);
 	}
-	const map = new Map(entries);
+	const map = new Map(result);
 	return map;
 }
 
