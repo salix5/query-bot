@@ -668,11 +668,8 @@ export function query_alias(alias) {
  * @returns {Card[]}
  */
 export function query_card(params) {
-	const [condition, arg_condition] = generate_condition(params);
-	if (!Object.keys(arg_condition).length) {
-		return [];
-	}
-	if (Number.isSafeInteger(arg_condition.$key0) || Number.isSafeInteger(arg_condition.$key1)) {
+	if (Number.isSafeInteger(params.id) || Number.isSafeInteger(params.cid)) {
+		const [condition, arg_condition] = generate_condition(params);
 		const stmt = `${stmt_base}${condition};`;
 		const arg = {
 			...arg_base,
@@ -680,27 +677,42 @@ export function query_card(params) {
 		};
 		return query(stmt, arg);
 	}
+	if (is_string(params.pack, MAX_STRING_LENGTH) && pack_list[params.pack]) {
+		const pack = pack_list[params.pack];
+		const id_list = [];
+		const index_table = new Map();
+		for (let i = 0; i < pack.length; i += 1) {
+			if (Number.isSafeInteger(pack[i]) && pack[i] > 0) {
+				id_list.push(pack[i]);
+				index_table.set(pack[i], i);
+			}
+		}
+		delete params.pack;
+		const [condition, arg_condition] = generate_condition(params, id_list);
+		const stmt = `${stmt_default}${condition};`;
+		const arg = {
+			...arg_default,
+			...arg_condition,
+		};
+		const result = query(stmt, arg);
+		for (const card of result) {
+			card.pack_index = index_table.get(card.id);
+		}
+		if (result.length > 1) {
+			result.sort((a, b) => a.pack_index - b.pack_index);
+		}
+		return result;
+	}
+	const [condition, arg_condition] = generate_condition(params);
+	if (!Object.keys(arg_condition).length) {
+		return [];
+	}
 	const stmt = `${stmt_default}${condition};`;
 	const arg = {
 		...arg_default,
 		...arg_condition,
 	};
 	const result = query(stmt, arg);
-	if (is_string(params.pack, MAX_STRING_LENGTH) && pack_list[params.pack]) {
-		const pack = pack_list[params.pack];
-		const index_table = new Map();
-		for (let i = 0; i < pack.length; i += 1) {
-			if (Number.isSafeInteger(pack[i]) && pack[i] > 0) {
-				index_table.set(pack[i], i);
-			}
-		}
-		for (const card of result) {
-			card.pack_index = index_table.get(card.id) ?? -1;
-		}
-		if (result.length > 1) {
-			result.sort((a, b) => a.pack_index - b.pack_index);
-		}
-	}
 	return result;
 }
 
