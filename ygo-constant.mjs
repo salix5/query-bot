@@ -204,6 +204,11 @@ export const md_rarity = {
 }
 
 export const interface_types = {
+	"id": 0,
+	"cid": 0,
+	"tcg": 0,
+	"alias": 0,
+	"setcode": 0,
 	"cardtype": 0,
 	"subtype": 0,
 	"subtype_operator": 0,
