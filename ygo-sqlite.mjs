@@ -62,6 +62,16 @@ for (let i = 0; i < 7; i += 1) {
 	arg_seventh[`$${101 + i}`] = `%No.${101 + i}%`;
 }
 
+const code_table = new Map();
+for (const [id, list] of extra_setcodes) {
+	for (const code of list) {
+		if (!code_table.has(code))
+			code_table.set(code, []);
+		const id_list = code_table.get(code);
+		id_list.push(id);
+	}
+}
+
 /**
  * @typedef {Object} Entry
  * @property {number} id
@@ -200,16 +210,15 @@ export function setcode_condition(setcode, arg) {
 	arg.$sec1 = 16;
 	arg.$sec2 = 32;
 	arg.$sec3 = 48;
-	let count = 0;
-	for (const [id, value] of extra_setcodes) {
-		if (value.includes(setcode)) {
+	if (code_table.has(setcode)) {
+		let count = 0;
+		for (const id of code_table.get(setcode)) {
 			condition += ` OR datas.id == $sid${count}`;
 			arg[`$sid${count}`] = id;
 			count += 1;
 		}
 	}
-	const ret = ` AND (${condition})`;
-	return ret;
+	return ` AND (${condition})`;
 }
 
 /**
