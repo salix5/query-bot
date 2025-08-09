@@ -115,7 +115,7 @@ export function sqlite3_open(filename) {
 	return db;
 }
 
-const setcode_table = new Map();
+const convert_table = new Map();
 /**
  * Write uint64 `setcode` to an array.
  * @param {number[]} list 
@@ -123,21 +123,18 @@ const setcode_table = new Map();
  */
 function write_setcode(list, setcode) {
 	list.length = 0;
-	const key = setcode;
-	const value = setcode_table.get(key);
+	const value = convert_table.get(setcode);
 	if (value) {
 		list.push(...value);
 		return;
 	}
 	const result = [];
-	setcode = BigInt.asUintN(64, setcode);
-	while (setcode) {
-		if (setcode & 0xffffn) {
-			result.push(Number(setcode & 0xffffn));
+	for (let x = BigInt.asUintN(64, setcode); x > 0n; x >>= 16n) {
+		if (x & 0xffffn) {
+			result.push(Number(x & 0xffffn));
 		}
-		setcode = setcode >> 16n;
 	}
-	setcode_table.set(key, result);
+	convert_table.set(setcode, result);
 	list.push(...result);
 }
 
