@@ -6,7 +6,7 @@ import { name_table, md_table, md_table_sc, md_card_list } from './ygo-json-load
 import { escape_regexp, escape_wildcard, inverse_mapping, zh_collator, zh_compare } from './ygo-utility.mjs';
 import { db_url1, db_url2, fetch_db } from './ygo-fetch.mjs';
 import { card_types, monster_types, link_markers, md_rarity, spell_colors, trap_colors, CID_BLACK_LUSTER_SOLDIER } from "./ygo-constant.mjs";
-import { arg_base, arg_default, arg_seventh, is_alternative, MAX_CARD_ID, pack_condition, query_db, setcode_condition, sqlite3_open, stmt_base, stmt_default, stmt_seventh } from './ygo-sqlite.mjs';
+import { arg_base, arg_default, arg_seventh, is_alternative, like_pattern, MAX_CARD_ID, pack_condition, query_db, setcode_condition, sqlite3_open, stmt_base, stmt_default, stmt_seventh } from './ygo-sqlite.mjs';
 
 export const regexp_mention = `(?<=「)[^「」]*「?[^「」]*」?[^「」]*(?=」)`;
 const MAX_PATTERN_LENGTH = 200;
@@ -302,7 +302,7 @@ export function generate_condition(params, id_list) {
 		qstr += " AND alias == $alias";
 		arg.$alias = params.alias;
 	}
-	if (Number.isSafeInteger(params.setcode)) {
+	if (Number.isSafeInteger(params.setcode) && params.setcode > 0) {
 		qstr += setcode_condition(params.setcode, arg);
 	}
 	if (Number.isSafeInteger(params.cardtype) && params.cardtype > 0) {
@@ -327,10 +327,10 @@ export function generate_condition(params, id_list) {
 
 	// text
 	if (is_string(params.name, MAX_PATTERN_LENGTH)) {
-		arg.$name = params.name;
+		arg.$name = like_pattern(params.name);
 	}
 	if (is_string(params.desc, MAX_PATTERN_LENGTH)) {
-		arg.$desc = params.desc;
+		arg.$desc = like_pattern(params.desc);
 	}
 	if (arg.$name && arg.$desc) {
 		const op = (Number.isSafeInteger(params.desc_operator) && !params.desc_operator) ? "OR" : "AND";
