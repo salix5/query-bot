@@ -66,6 +66,8 @@ for (let i = 0; i < 7; i += 1) {
 	arg_seventh[`$${101 + i}`] = `%No.${101 + i}%`;
 }
 
+export const re_wildcard = /(?<!\$)[%_]/;
+
 const code_table = new Map();
 for (const [id, list] of extra_setcodes) {
 	for (const code of list) {
@@ -237,6 +239,19 @@ export function pack_condition(pack, arg) {
 		arg[`@p${i}`] = pack[i];
 	}
 	return ` AND (${condition})`;
+}
+
+/**
+ * Convert a string to a LIKE pattern.
+ * @param {string} str 
+ * @returns {string}
+ */
+export function like_pattern(str) {
+	if (!str)
+		return '';
+	if (re_wildcard.test(str))
+		return str;
+	return `%${str.replace(/\$(?![%_])/g, '$$$&')}%`;
 }
 
 // database tool

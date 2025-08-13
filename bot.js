@@ -4,10 +4,6 @@ import { name_table, create_name_table, inverse_mapping, init_query } from './yg
 import { refresh_choice_table } from './common_all.js';
 import { seventh_handler } from './common_query.js';
 import { deploy_command } from './deploy-commands.js';
-//import 'dotenv/config';
-
-// eslint-disable-next-line no-unused-vars
-const re_wildcard = /(^|[^$])[%_]/;
 
 const client = new Client({
 	intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.DirectMessages],
