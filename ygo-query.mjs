@@ -274,10 +274,10 @@ export function generate_condition(params, id_list) {
 		key_list.push(cid_table.get(params.cid) ?? -1);
 	}
 	if (key_list.length) {
-		let key_condition = "datas.id == $key0";
+		let key_condition = "id == $key0";
 		arg.$key0 = key_list[0];
 		for (let i = 1; i < key_list.length; i += 1) {
-			key_condition += ` OR datas.id == $key${i}`;
+			key_condition += ` OR id == $key${i}`;
 			arg[`$key${i}`] = key_list[i];
 		}
 		qstr = ` AND (${key_condition})`;
@@ -343,7 +343,7 @@ export function generate_condition(params, id_list) {
 		qstr += ` AND "desc" LIKE $desc ESCAPE '$'`;
 	}
 	if (is_string(params.pack, MAX_STRING_LENGTH) && pre_release[params.pack]) {
-		qstr += " AND (datas.id BETWEEN $pack_begin AND $pack_end)";
+		qstr += " AND (id BETWEEN $pack_begin AND $pack_end)";
 		arg.$pack_begin = pre_release[params.pack];
 		arg.$pack_end = pre_release[params.pack] + 500;
 	}
@@ -1068,7 +1068,7 @@ export function create_choice(request_locale) {
  */
 export function create_choice_prerelease() {
 	const inverse_table = new Map();
-	const stmt_pre = `${stmt_default} AND datas.id > $ub`;
+	const stmt_pre = `${stmt_default} AND id > $ub`;
 	const arg_pre = {
 		...arg_default,
 		$ub: MAX_CARD_ID,
