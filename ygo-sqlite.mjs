@@ -152,7 +152,8 @@ function write_setcode(list, setcode) {
  * @returns {Entry[]}
  */
 export function query_db(db, sql = stmt_default, arg = arg_default) {
-	const stmt = db.prepare(sql);
+	const full_sql = `${sql} ORDER BY id`;
+	const stmt = db.prepare(full_sql);
 	const result = stmt.all(arg);
 	const result_table = new Map();
 	for (const card of result) {
