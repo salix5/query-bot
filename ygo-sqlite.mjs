@@ -23,12 +23,12 @@ export const ID_BLACK_LUSTER_SOLDIER = 5405695;
 export const ID_TYLER_THE_GREAT_WARRIOR = 68811206;
 export const ID_DECOY = 20240828;
 
-export const select_all = `SELECT datas.id, ot, alias, setcode, type, atk, def, level, race, attribute, name, "desc" FROM datas, texts WHERE datas.id == texts.id`;
-export const select_id = `SELECT datas.id FROM datas, texts WHERE datas.id == texts.id`;
-export const select_name = `SELECT datas.id, name FROM datas, texts WHERE datas.id == texts.id`;
+export const select_all = `SELECT datas.id, datas.ot, datas.alias, datas.setcode, datas.type, datas.atk, datas.def, datas.level, datas.race, datas.attribute, texts.name, texts.desc FROM datas JOIN texts USING (id) WHERE 1`;
+export const select_id = `SELECT datas.id FROM datas JOIN texts USING (id) WHERE 1`;
+export const select_name = `SELECT datas.id, texts.name FROM datas JOIN texts USING (id) WHERE 1`;
 
-export const base_filter = ` AND datas.id != $tyler AND datas.id != $decoy AND NOT type & $token`;
-export const no_alt_filter = ` AND (datas.id == $luster OR abs(datas.id - alias) >= $artwork_offset)`;
+export const base_filter = ` AND id != $tyler AND id != $decoy AND NOT type & $token`;
+export const no_alt_filter = ` AND (id == $luster OR abs(id - alias) >= $artwork_offset)`;
 export const default_filter = `${base_filter}${no_alt_filter}`;
 export const effect_filter = ` AND (NOT type & $normal OR type & $pendulum)`;
 
@@ -217,7 +217,7 @@ export function setcode_condition(setcode, arg) {
 	if (code_table.has(setcode)) {
 		let count = 0;
 		for (const id of code_table.get(setcode)) {
-			condition += ` OR datas.id == $sid${count}`;
+			condition += ` OR id == $sid${count}`;
 			arg[`$sid${count}`] = id;
 			count += 1;
 		}
@@ -236,7 +236,7 @@ export function pack_condition(pack, arg) {
 		return "";
 	let condition = "0";
 	for (let i = 0; i < pack.length; i += 1) {
-		condition += ` OR datas.id=@p${i}`;
+		condition += ` OR id=@p${i}`;
 		arg[`@p${i}`] = pack[i];
 	}
 	return ` AND (${condition})`;
@@ -277,7 +277,7 @@ export function read_db(path, sql = stmt_default, arg = arg_default) {
  * @returns 
  */
 export function check_uniqueness(path, id_luster = ID_BLACK_LUSTER_SOLDIER) {
-	const condition = ` AND (NOT type & $token OR alias == $none) AND (type & $token OR datas.id == $luster OR abs(datas.id - alias) >= $artwork_offset)`;
+	const condition = ` AND (NOT type & $token OR alias == $none) AND (type & $token OR id == $luster OR abs(id - alias) >= $artwork_offset)`;
 	const stmt1 = `${select_name}${condition}`;
 	const arg1 = {
 		$token: arg_default.$token,
