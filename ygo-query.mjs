@@ -305,16 +305,13 @@ export function generate_condition(params, id_list) {
 	if (Number.isSafeInteger(params.setcode) && params.setcode > 0) {
 		qstr += setcode_condition(params.setcode, arg);
 	}
-	if (Number.isSafeInteger(params.cardtype) && params.cardtype > 0) {
-		qstr += " AND type & $cardtype";
-		arg.$cardtype = params.cardtype;
+	if (Number.isSafeInteger(params.type) && params.type > 0) {
+		qstr += " AND type & $type";
+		arg.$type = params.type;
 	}
-	if (Number.isSafeInteger(params.subtype)) {
-		if (Number.isSafeInteger(params.subtype_operator) && params.subtype_operator)
-			qstr += " AND type & $subtype == $subtype";
-		else
-			qstr += " AND type & $subtype";
-		arg.$subtype = params.subtype;
+	if (Number.isSafeInteger(params.exact_type) && params.exact_type > 0) {
+		qstr += " AND type & $exact_type == $exact_type";
+		arg.$exact_type = params.exact_type;
 	}
 	if (Number.isSafeInteger(params.exclude)) {
 		qstr += " AND NOT type & $exclude";

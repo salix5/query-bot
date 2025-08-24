@@ -209,9 +209,8 @@ export const interface_types = {
 	"tcg": 0,
 	"alias": 0,
 	"setcode": 0,
-	"cardtype": 0,
-	"subtype": 0,
-	"subtype_operator": 0,
+	"type": 0,
+	"exact_type": 0,
 	"exclude": 0,
 	"mention": 0,
 
