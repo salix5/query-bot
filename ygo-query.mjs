@@ -313,7 +313,7 @@ export function generate_condition(params, id_list) {
 		qstr += " AND type & $exact_type == $exact_type";
 		arg.$exact_type = params.exact_type;
 	}
-	if (Number.isSafeInteger(params.exclude)) {
+	if (Number.isSafeInteger(params.exclude) && params.exclude > 0) {
 		qstr += " AND NOT type & $exclude";
 		arg.$exclude = params.exclude;
 	}
