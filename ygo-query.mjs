@@ -1047,7 +1047,7 @@ export function print_card(card, locale) {
 
 // table
 /**
- * Create the [name, id] table of region `request_locale`
+ * Create the [name, cid] table of region `request_locale`
  * @param {string} request_locale 
  * @returns {Map<string, number>}
  */
@@ -1071,8 +1071,8 @@ export function create_choice_prerelease() {
 		$ub: MAX_CARD_ID,
 	};
 	const re_kanji = /※.*/;
-	const pre_list = query(stmt_pre, arg_pre);
-	for (const card of pre_list) {
+	const cards = query(stmt_pre, arg_pre);
+	for (const card of cards) {
 		if (card.cid) {
 			continue;
 		}
@@ -1085,6 +1085,32 @@ export function create_choice_prerelease() {
 		inverse_table.set(card.tw_name, card.id);
 		if (kanji)
 			inverse_table.set(kanji, card.id);
+	}
+	return new Map([...inverse_table].sort(zh_compare))
+}
+
+/**
+ * Create the [name, cid] table from database file.
+ * @returns {Map<string, number>}
+ */
+export function create_choice_db() {
+	const inverse_table = new Map();
+	const re_kanji = /※.*/;
+	const cards = query();
+	for (const card of cards) {
+		if (!card.cid) {
+			continue;
+		}
+		const res = card.text.desc.match(re_kanji);
+		const kanji = res ? res[0] : '';
+		const key = (card.cid === CID_BLACK_LUSTER_SOLDIER) ? `${card.tw_name}（通常怪獸）` : card.tw_name;
+		if (inverse_table.has(key) || kanji && inverse_table.has(kanji)) {
+			console.error('choice_tc', card.cid);
+			return new Map();
+		}
+		inverse_table.set(key, card.cid);
+		if (kanji)
+			inverse_table.set(kanji, card.cid);
 	}
 	return new Map([...inverse_table].sort(zh_compare))
 }
