@@ -1131,7 +1131,7 @@ export function create_name_table() {
 export {
 	inverse_mapping,
 	print_db_link, print_yp_link, print_qa_link, print_history_link,
-	escape_regexp, map_stringify, table_stringify,
+	escape_regexp, table_stringify,
 	zh_compare,
 } from './ygo-utility.mjs';
 
