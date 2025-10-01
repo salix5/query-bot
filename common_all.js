@@ -5,12 +5,10 @@ import { choices_ruby, official_name } from "./ygo-json-loader.mjs";
 
 const MAX_CHOICE = 25;
 
-const choices_tc = create_choice_db();
 const choice_table = Object.create(null);
 for (const locale of Object.keys(official_name)) {
 	choice_table[locale] = create_choice(locale);
 }
-choice_table['zh-tw'] = choices_tc;
 refresh_choice_table();
 
 const jp_entries = half_width_entries(choice_table['ja']);
@@ -53,6 +51,8 @@ function half_width_entries(choices) {
 
 
 export function refresh_choice_table() {
+	const choices_tc = create_choice_db();
+	choice_table['zh-tw'] = choices_tc;
 	const choices_tc_full = new Map(choices_tc);
 	const choices_pre = create_choice_prerelease();
 	for (const [name, id] of choices_pre) {
@@ -62,7 +62,6 @@ export function refresh_choice_table() {
 		}
 		choices_tc_full.set(name, id);
 	}
-	delete choice_table['full'];
 	choice_table['full'] = choices_tc_full;
 }
 
