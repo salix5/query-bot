@@ -54,16 +54,7 @@ export function escape_wildcard(str) {
 }
 
 /**
- * @param {Map} map 
- * @param {Function} compare 
- * @returns
- */
-export function map_stringify(map, compare) {
-	return JSON.stringify(Object.fromEntries([...map].sort(compare)), null, 1);
-}
-
-/**
- * Stringify `map` with numeric keys.
+ * Stringify Map objects.
  * @param {Map} map 
  * @returns 
  */
