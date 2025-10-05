@@ -183,7 +183,7 @@ function generate_card(cdata) {
 	card.artid = artid;
 	// color
 	if (card.type & card_types.TYPE_MONSTER) {
-		if (!(card.type & monster_types.TYPE_EXTRA)) {
+		if (!(card.type & monster_types.TYPES_EXTRA)) {
 			if (card.type & monster_types.TYPE_TOKEN)
 				card.color = 0;
 			else if (card.type & monster_types.TYPE_NORMAL)
@@ -803,7 +803,7 @@ export function get_seventh_xyz(card) {
 	const result = [];
 	if (!(card.type & card_types.TYPE_MONSTER))
 		return result;
-	if (card.type & monster_types.TYPE_EXTRA)
+	if (card.type & monster_types.TYPES_EXTRA)
 		return result;
 	if (!mmap_seventh[card.level])
 		return result;

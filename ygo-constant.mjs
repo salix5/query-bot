@@ -15,7 +15,7 @@ const TYPE_SYNCHRO = 0x2000;
 const TYPE_XYZ = 0x800000;
 const TYPE_PENDULUM = 0x1000000;
 const TYPE_LINK = 0x4000000;
-const TYPE_EXTRA = TYPE_FUSION | TYPE_SYNCHRO | TYPE_XYZ | TYPE_LINK;
+const TYPES_EXTRA = TYPE_FUSION | TYPE_SYNCHRO | TYPE_XYZ | TYPE_LINK;
 
 // extype
 const TYPE_SPIRIT = 0x200;
@@ -102,7 +102,6 @@ export const monster_types = {
 	TYPE_XYZ,
 	TYPE_PENDULUM,
 	TYPE_LINK,
-	TYPE_EXTRA,
 
 	TYPE_SPIRIT,
 	TYPE_UNION,
@@ -112,6 +111,7 @@ export const monster_types = {
 	TYPE_FLIP,
 	TYPE_TOON,
 	TYPE_SPSUMMON,
+	TYPES_EXTRA,
 };
 
 export const spell_types = {
