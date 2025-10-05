@@ -5,7 +5,7 @@ import { lang, collator_locale, bls_postfix, official_name, game_name } from './
 import { name_table, md_table, md_table_sc, md_card_list } from './ygo-json-loader.mjs';
 import { escape_regexp, escape_wildcard, inverse_mapping, zh_collator, zh_compare } from './ygo-utility.mjs';
 import { db_url1, db_url2, fetch_db } from './ygo-fetch.mjs';
-import { card_types, monster_types, link_markers, md_rarity, spell_colors, trap_colors, CID_BLACK_LUSTER_SOLDIER } from "./ygo-constant.mjs";
+import { card_types, monster_types, link_markers, md_rarity, spell_colors, trap_colors, CID_BLACK_LUSTER_SOLDIER, spell_types, trap_types } from "./ygo-constant.mjs";
 import { arg_base, arg_default, arg_seventh, is_alternative, like_pattern, MAX_CARD_ID, pack_condition, query_db, setcode_condition, sqlite3_open, stmt_base, stmt_default, stmt_seventh } from './ygo-sqlite.mjs';
 
 export const regexp_mention = `(?<=「)[^「」]*「?[^「」]*」?[^「」]*(?=」)`;
@@ -316,6 +316,30 @@ export function generate_condition(params, id_list) {
 	if (Number.isSafeInteger(params.exclude) && params.exclude > 0) {
 		qstr += " AND NOT type & $exclude";
 		arg.$exclude = params.exclude;
+	}
+	if (Number.isSafeInteger(params.spell_type) && params.spell_type > 0) {
+		const normal = BigInt.asUintN(32, BigInt(spell_types.TYPE_NORMAL));
+		let subtype = BigInt.asUintN(32, BigInt(params.spell_type));
+		let subtype_condition = "type & $stype";
+		if (subtype & normal) {
+			subtype_condition += " OR type == $spell";
+			subtype &= ~normal;
+		}
+		qstr += ` AND type & $spell AND (${subtype_condition})`;
+		arg.$spell = card_types.TYPE_SPELL;
+		arg.$stype = subtype;
+	}
+	if (Number.isSafeInteger(params.trap_type) && params.trap_type > 0) {
+		const normal = BigInt.asUintN(32, BigInt(trap_types.TYPE_NORMAL));
+		let subtype = BigInt.asUintN(32, BigInt(params.trap_type));
+		let subtype_condition = "type & $ttype";
+		if (subtype & normal) {
+			subtype_condition += " OR type == $trap";
+			subtype &= ~normal;
+		}
+		qstr += ` AND type & $trap AND (${subtype_condition})`;
+		arg.$trap = card_types.TYPE_TRAP;
+		arg.$ttype = subtype;
 	}
 	if (Number.isSafeInteger(params.mention) && card_table.has(params.mention)) {
 		qstr += ` AND "desc" REGEXP $mention`;

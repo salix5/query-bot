@@ -121,12 +121,14 @@ export const spell_types = {
 	TYPE_EQUIP,
 	TYPE_RITUAL,
 	TYPE_FIELD,
+	TYPE_NORMAL: 0x80000000,	// Pseudo type for API (not stored in database)
 };
 
 export const trap_types = {
 	none: 0,
 	TYPE_CONTINUOUS,
 	TYPE_COUNTER,
+	TYPE_NORMAL: 0x80000000,	// Pseudo type for API (not stored in database)
 };
 
 export const spell_colors = {
@@ -212,6 +214,8 @@ export const interface_types = {
 	"type": 0,
 	"exact_type": 0,
 	"exclude": 0,
+	"spell_type": 0,
+	"trap_type": 0,
 	"mention": 0,
 
 	"atk_from": 0,
