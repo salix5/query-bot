@@ -5,6 +5,7 @@ import md_card_list from './data/CardList.json' with { type: 'json' };
 import setname from './data/setname.json' with { type: 'json' };
 import pack_list from './pack/pack_list.json' with { type: 'json' };
 import pre_release from './pack/pre_release.json' with { type: 'json' };
+import genesys_point from'./data/genesys_point.json' with { type: 'json' };
 
 import cid_json from './data/cid_table.json' with { type: 'json' };
 import ae_table from './data/name_table_ae.json' with { type: 'json' };
@@ -110,6 +111,7 @@ export {
 	pack_list,
 	setname,
 	pre_release,
+	genesys_point,
 	cid_table,
 	id_to_cid,
 	lang,
