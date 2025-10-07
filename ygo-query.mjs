@@ -1,5 +1,5 @@
 import { writeFile } from 'node:fs/promises';
-import { ltable_ocg, ltable_tcg, ltable_md, pack_list, pre_release } from './ygo-json-loader.mjs';
+import { ltable_ocg, ltable_tcg, ltable_md, pack_list, pre_release, genesys_point } from './ygo-json-loader.mjs';
 import { id_to_cid, cid_table } from './ygo-json-loader.mjs';
 import { lang, collator_locale, bls_postfix, official_name, game_name } from './ygo-json-loader.mjs';
 import { name_table, md_table, md_table_sc, md_card_list } from './ygo-json-loader.mjs';
@@ -1066,7 +1066,11 @@ export function print_card(card, locale) {
 	if (show_lflist)
 		lfstr = `(${lfstr_ocg} / ${lfstr_tcg} / ${lfstr_md})\n`;
 
-	const card_text = `**${card_name}**\n${other_name}${md_status}${lfstr}${print_data(card, '\n', locale)}${desc}\n`;
+	let genesys_status = '';
+	if (card.cid && genesys_point[card.cid]) {
+		genesys_status = `Genesys：${genesys_point[card.cid]}\n`;
+	}
+	const card_text = `**${card_name}**\n${other_name}${md_status}${genesys_status}${lfstr}${print_data(card, '\n', locale)}${desc}\n`;
 	return card_text;
 }
 
