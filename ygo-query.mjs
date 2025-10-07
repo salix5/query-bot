@@ -968,10 +968,6 @@ export function print_data(card, newline, locale) {
  */
 export function print_card(card, locale) {
 	const strings = lang[locale];
-	let lfstr = '';
-	let lfstr_ocg = '';
-	let lfstr_tcg = '';
-	let lfstr_md = '';
 
 	let card_name = 'null';
 	let other_name = '';
@@ -1037,8 +1033,14 @@ export function print_card(card, locale) {
 			break;
 	}
 
+	let md_status = '';
 	if (card.md_rarity)
-		other_name += `MD：${md_rarity[card.md_rarity]}\n`;
+		md_status = `MD：${md_rarity[card.md_rarity]}\n`;
+
+	let lfstr = '';
+	let lfstr_ocg = '';
+	let lfstr_tcg = '';
+	let lfstr_md = '';
 	let show_lflist = false;
 	if (Number.isSafeInteger(ltable_ocg[card.id])) {
 		lfstr_ocg = `OCG：${strings.limit_name[ltable_ocg[card.id]]}`;
@@ -1064,7 +1066,7 @@ export function print_card(card, locale) {
 	if (show_lflist)
 		lfstr = `(${lfstr_ocg} / ${lfstr_tcg} / ${lfstr_md})\n`;
 
-	const card_text = `**${card_name}**\n${other_name}${lfstr}${print_data(card, '\n', locale)}${desc}\n`;
+	const card_text = `**${card_name}**\n${other_name}${md_status}${lfstr}${print_data(card, '\n', locale)}${desc}\n`;
 	return card_text;
 }
 
