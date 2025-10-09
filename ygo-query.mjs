@@ -343,7 +343,7 @@ export function generate_condition(params, id_list) {
 	}
 	if (Number.isSafeInteger(params.mention) && card_table.has(params.mention)) {
 		qstr += ` AND "desc" REGEXP $mention`;
-		arg.$mention = `「${escape_regexp(card_table.get(params.mention).tw_name)}」(?!怪獸|魔法|陷阱|卡片|通常|永續|裝備|速攻|儀式魔法|場地|反擊)`;
+		arg.$mention = `「${escape_regexp(card_table.get(params.mention).tw_name)}」(?!怪獸|魔法|陷阱|卡片|融合怪獸|同步怪獸|超量怪獸|連結怪獸|儀式怪獸|靈擺怪獸|通常|永續|裝備|速攻|儀式魔法|場地|反擊)`;
 	}
 
 	// text
