@@ -89,7 +89,7 @@ for (const [id, list] of extra_setcodes) {
  * @property {number} atk
  * @property {number} def
  * @property {number} level
- * @property {number} race
+ * @property {bigint} race
  * @property {number} attribute
  * @property {number} scale
  * 
@@ -168,6 +168,9 @@ export function query_db(db, sql = stmt_default, arg = arg_default) {
 				case 'level':
 					card.level = Number(value) & 0xffff;
 					card.scale = Number(value) >> 24 & 0xff;
+					break;
+				case 'race':
+					card.race = BigInt.asUintN(64, value);
 					break;
 				default:
 					if (typeof value === 'bigint')
