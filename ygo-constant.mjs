@@ -1,5 +1,6 @@
 // special cid
 export const CID_BLACK_LUSTER_SOLDIER = 19092;
+export const MAX_CARD_ID = 99999999;
 
 // type
 const TYPE_MONSTER = 0x1;
