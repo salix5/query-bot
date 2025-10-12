@@ -11,13 +11,6 @@ export const regexp_mention = `(?<=「)[^「」]*「?[^「」]*」?[^「」]*(?=
 const MAX_PATTERN_LENGTH = 200;
 const MAX_STRING_LENGTH = 10;
 
-export {
-	select_all, select_id, select_name,
-	base_filter, no_alt_filter, default_filter, effect_filter,
-	stmt_default, stmt_base, stmt_no_alias,
-	arg_default, arg_base, arg_no_alias,
-} from './ygo-sqlite.mjs';
-
 export const complete_name_table = Object.create(null);
 for (const locale of Object.keys(official_name)) {
 	const table1 = new Map(name_table[locale]);
@@ -1153,4 +1146,12 @@ export {
 } from './ygo-constant.mjs';
 
 export * from './ygo-json-loader.mjs';
+
+export {
+	select_all, select_id, select_name,
+	base_filter, no_alt_filter, default_filter, effect_filter,
+	stmt_default, stmt_base, stmt_no_alias,
+	arg_default, arg_base, arg_no_alias,
+} from './ygo-sqlite.mjs';
+
 export * from './ygo-utility.mjs';
