@@ -15,8 +15,6 @@ export {
 } from './ygo-constant.mjs';
 
 export const CARD_ARTWORK_VERSIONS_OFFSET = 20;
-export const MAX_CARD_ID = 99999999;
-
 export const ALT_DARK_MAGICIAN = 36996508;
 export const ALT_POLYMERIZATION = 27847700;
 export const ID_BLACK_LUSTER_SOLDIER = 5405695;
