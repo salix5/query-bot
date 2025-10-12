@@ -5,7 +5,7 @@ import md_card_list from './data/CardList.json' with { type: 'json' };
 import setname from './data/setname.json' with { type: 'json' };
 import pack_list from './pack/pack_list.json' with { type: 'json' };
 import pre_table from './pack/pre_release.json' with { type: 'json' };
-import wiki_table from './data/wiki_link.json' with { type: 'json' };
+import wiki_table from './pack/wiki_link.json' with { type: 'json' };
 import genesys_point from'./data/genesys_point.json' with { type: 'json' };
 
 import cid_json from './data/cid_table.json' with { type: 'json' };
