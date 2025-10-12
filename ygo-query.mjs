@@ -345,10 +345,10 @@ export function generate_condition(params, id_list) {
 	else if (arg.$desc) {
 		qstr += ` AND "desc" LIKE $desc ESCAPE '$'`;
 	}
-	if (is_string(params.pack, MAX_STRING_LENGTH) && pre_release[params.pack]) {
+	if (is_string(params.pack, MAX_STRING_LENGTH) && pre_release.has(params.pack)) {
 		qstr += " AND (id BETWEEN $pack_begin AND $pack_end)";
-		arg.$pack_begin = pre_release[params.pack];
-		arg.$pack_end = pre_release[params.pack] + 500;
+		arg.$pack_begin = pre_release.get(params.pack);
+		arg.$pack_end = pre_release.get(params.pack) + 500;
 	}
 
 	if (!arg.$cardtype || arg.$cardtype === card_types.TYPE_MONSTER) {
