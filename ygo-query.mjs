@@ -62,7 +62,7 @@ const db_list = [];
  * @property {number} atk
  * @property {number} def
  * @property {number} level
- * @property {number} race
+ * @property {bigint} race
  * @property {number} attribute
  * @property {number} scale
  * 
@@ -239,7 +239,7 @@ function seventh_condition() {
 		if (!mmap_seventh[i])
 			continue;
 		let attr_value = 0;
-		let race_value = 0;
+		let race_value = 0n;
 		for (const card of mmap_seventh[i]) {
 			attr_value |= card.attribute;
 			race_value |= card.race;
@@ -569,9 +569,9 @@ export function generate_condition(params, id_list) {
 			arg.$attribute = params.attribute;
 			is_monster = true;
 		}
-		if (Number.isSafeInteger(params.race)) {
+		if (typeof params.race === 'bigint' && params.race > 0) {
 			qstr += " AND race & $race";
-			arg.$race = params.race;
+			arg.$race = BigInt.asUintN(64, params.race);
 			is_monster = true;
 		}
 		// marker
@@ -1156,12 +1156,7 @@ export function create_name_table() {
 	return table1;
 }
 
-export {
-	inverse_mapping,
-	print_db_link, print_yp_link, print_qa_link, print_history_link,
-	escape_regexp, table_stringify,
-	zh_compare,
-} from './ygo-utility.mjs';
+export * from './ygo-utility.mjs';
 
 export {
 	card_types, monster_types, spell_types, trap_types,

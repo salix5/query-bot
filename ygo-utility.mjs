@@ -83,3 +83,10 @@ export function zh_compare(a, b) {
 			return zh_collator.compare(a[0], b[0]);
 	}
 }
+
+export function bigint_replacer(key, value) {
+	if (typeof value === 'bigint') {
+		return JSON.rawJSON(value.toString());
+	}
+	return value;
+}
