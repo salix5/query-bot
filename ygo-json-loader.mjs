@@ -4,7 +4,8 @@ import ltable_md from './data/lflist_md.json' with { type: 'json' };
 import md_card_list from './data/CardList.json' with { type: 'json' };
 import setname from './data/setname.json' with { type: 'json' };
 import pack_list from './pack/pack_list.json' with { type: 'json' };
-import pre_release from './pack/pre_release.json' with { type: 'json' };
+import pre_table from './pack/pre_release.json' with { type: 'json' };
+import wiki_table from './data/wiki_link.json' with { type: 'json' };
 import genesys_point from'./data/genesys_point.json' with { type: 'json' };
 
 import cid_json from './data/cid_table.json' with { type: 'json' };
@@ -60,6 +61,9 @@ const md_table = Object.create(null);
 md_table['en'] = object_to_map(md_en_table);
 md_table['ja'] = object_to_map(md_jp_table);
 
+const pre_release = new Map(Object.entries(pre_table));
+const wiki_link = new Map(Object.entries(wiki_table));
+
 for (const [cid, id] of cid_table) {
 	if (!name_table['ja'].has(cid) && !name_table['en'].has(cid)) {
 		console.error('cid_table: invalid cid', cid);
@@ -111,6 +115,7 @@ export {
 	pack_list,
 	setname,
 	pre_release,
+	wiki_link,
 	genesys_point,
 	cid_table,
 	id_to_cid,
