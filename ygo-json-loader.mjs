@@ -26,6 +26,7 @@ import lang_ko from './lang/ko.json' with { type: 'json' };
 import lang_zhtw from './lang/zh-tw.json' with { type: 'json' };
 import { inverse_mapping } from './ygo-utility.mjs';
 import { CID_BLACK_LUSTER_SOLDIER } from './ygo-constant.mjs';
+import { MAX_CARD_ID } from './ygo-sqlite.mjs';
 
 /**
  * @param {Object} obj 
@@ -108,6 +109,16 @@ convert_map1.delete(CID_BLACK_LUSTER_SOLDIER);
 const jp_collator = new Intl.Collator('ja-JP');
 const ruby_entries = [...inverse_mapping(convert_map1)].sort((a, b) => jp_collator.compare(jp_table[a[1]], jp_table[b[1]]));
 const choices_ruby = new Map(ruby_entries);
+
+const pack_id_table = inverse_mapping(pre_release);
+export function get_pack_name(id) {
+	if (id <= MAX_CARD_ID)
+		return '';
+	const pack_id = id - id % 1000;
+	if (pack_id_table.has(pack_id))
+		return pack_id_table.get(pack_id);
+	return '';
+}
 
 export {
 	ltable_ocg, ltable_tcg, ltable_md,
