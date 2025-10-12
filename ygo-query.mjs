@@ -318,24 +318,22 @@ export function generate_condition(params, id_list) {
 		arg.$exclude = params.exclude;
 	}
 	if (Number.isSafeInteger(params.spell_type) && params.spell_type > 0) {
-		const normal = BigInt.asUintN(32, BigInt(spell_types.TYPE_NORMAL));
-		let subtype = BigInt.asUintN(32, BigInt(params.spell_type));
+		let subtype = params.spell_type;
 		let subtype_condition = "type & $stype";
-		if (subtype & normal) {
+		if (subtype & spell_types.TYPE_NORMAL) {
 			subtype_condition += " OR type == $spell";
-			subtype &= ~normal;
+			subtype = (subtype & ~spell_types.TYPE_NORMAL) >>> 0;
 		}
 		qstr += ` AND type & $spell AND (${subtype_condition})`;
 		arg.$spell = card_types.TYPE_SPELL;
 		arg.$stype = subtype;
 	}
 	if (Number.isSafeInteger(params.trap_type) && params.trap_type > 0) {
-		const normal = BigInt.asUintN(32, BigInt(trap_types.TYPE_NORMAL));
-		let subtype = BigInt.asUintN(32, BigInt(params.trap_type));
+		let subtype = params.trap_type;
 		let subtype_condition = "type & $ttype";
-		if (subtype & normal) {
+		if (subtype & trap_types.TYPE_NORMAL) {
 			subtype_condition += " OR type == $trap";
-			subtype &= ~normal;
+			subtype = (subtype & ~trap_types.TYPE_NORMAL) >>> 0;
 		}
 		qstr += ` AND type & $trap AND (${subtype_condition})`;
 		arg.$trap = card_types.TYPE_TRAP;
