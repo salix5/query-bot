@@ -61,8 +61,9 @@ export function create_reply(card, locale) {
 	const msg = Object.create(null);
 	msg.content = ygo.print_card(card, locale);
 	msg.components = [];
+	const pack_name = ygo.get_pack_name(card.id);
+	const request_locale = ygo.get_request_locale(card, locale);
 	if (card.cid) {
-		const request_locale = ygo.get_request_locale(card, locale);
 		const db_text = request_locale === 'en' ? 'DB (TCG)' : 'DB';
 		const row_db = new ActionRowBuilder();
 		const button1 = new ButtonBuilder()
@@ -92,6 +93,22 @@ export function create_reply(card, locale) {
 			.setLabel('Yugipedia')
 			.setURL(ygo.print_yp_link(card.id));
 		const row1 = new ActionRowBuilder().addComponents(button1);
+		msg.components.push(row1);
+	}
+	else if (pack_name) {
+		const row1 = new ActionRowBuilder();
+		const button1 = new ButtonBuilder()
+			.setStyle(ButtonStyle.Link)
+			.setURL(ygo.wiki_link.get(pack_name))
+			.setLabel('Wiki');
+		row1.addComponents(button1);
+		if (ygo.get_seventh_xyz(card).length) {
+			const button_seventh = new ButtonBuilder()
+				.setStyle(ButtonStyle.Primary)
+				.setLabel('七皇')
+				.setCustomId(`${request_locale}${card.cid ?? card.id}`);
+			row1.addComponents(button_seventh);
+		}
 		msg.components.push(row1);
 	}
 	return msg;
