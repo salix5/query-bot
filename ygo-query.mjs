@@ -1,8 +1,7 @@
 import { writeFile } from 'node:fs/promises';
 import { ltable_ocg, ltable_tcg, ltable_md, pack_list, pre_release, genesys_point } from './ygo-json-loader.mjs';
-import { id_to_cid, cid_table } from './ygo-json-loader.mjs';
 import { lang, collator_locale, bls_postfix, official_name, game_name } from './ygo-json-loader.mjs';
-import { name_table, md_table, md_table_sc, md_card_list } from './ygo-json-loader.mjs';
+import { id_to_cid, cid_table, name_table, md_table, md_table_sc, md_card_list } from './ygo-json-loader.mjs';
 import { escape_regexp, escape_wildcard, inverse_mapping, zh_collator, zh_compare } from './ygo-utility.mjs';
 import { db_url1, db_url2, fetch_db } from './ygo-fetch.mjs';
 import { card_types, monster_types, link_markers, md_rarity, spell_colors, trap_colors, CID_BLACK_LUSTER_SOLDIER, spell_types, trap_types } from "./ygo-constant.mjs";
@@ -41,14 +40,6 @@ for (const locale of Object.keys(official_name)) {
 		table1.set(CID_BLACK_LUSTER_SOLDIER, `${table1.get(CID_BLACK_LUSTER_SOLDIER)}${bls_postfix[locale]}`);
 	complete_name_table[locale] = table1;
 }
-
-export {
-	lang, official_name,
-	cid_table, name_table, md_table,
-	id_to_cid,
-	md_card_list,
-	setname,
-} from './ygo-json-loader.mjs';
 
 const db_list = [];
 
@@ -1156,9 +1147,10 @@ export function create_name_table() {
 	return table1;
 }
 
-export * from './ygo-utility.mjs';
-
 export {
 	card_types, monster_types, spell_types, trap_types,
 	link_markers, races, attributes,
 } from './ygo-constant.mjs';
+
+export * from './ygo-json-loader.mjs';
+export * from './ygo-utility.mjs';
