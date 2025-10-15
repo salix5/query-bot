@@ -224,7 +224,7 @@ export function setcode_condition(setcode, arg) {
 			count += 1;
 		}
 	}
-	return ` AND (${condition})`;
+	return `(${condition})`;
 }
 
 /**

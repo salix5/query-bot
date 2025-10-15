@@ -287,7 +287,7 @@ export function generate_condition(params, id_list) {
 		arg.$alias = params.alias;
 	}
 	if (Number.isSafeInteger(params.setcode) && params.setcode > 0) {
-		qstr += setcode_condition(params.setcode, arg);
+		qstr += ` AND ${setcode_condition(params.setcode, arg)}`;
 	}
 	if (Number.isSafeInteger(params.type) && params.type > 0) {
 		qstr += " AND type & $type";
