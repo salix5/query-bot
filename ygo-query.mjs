@@ -270,7 +270,7 @@ export function generate_condition(params, id_list) {
 
 	// number
 	if (id_list && id_list.length) {
-		qstr += pack_condition(id_list, arg);
+		qstr += ` AND ${pack_condition(id_list, arg)}`;
 	}
 	if (Number.isSafeInteger(params.tcg)) {
 		if (params.tcg) {
