@@ -5,7 +5,7 @@ import { id_to_cid, cid_table, name_table, md_table, md_table_sc, md_card_list }
 import { escape_regexp, escape_wildcard, inverse_mapping, zh_collator, zh_compare } from './ygo-utility.mjs';
 import { db_url1, db_url2, fetch_db } from './ygo-fetch.mjs';
 import { card_types, monster_types, link_markers, md_rarity, spell_colors, trap_colors, CID_BLACK_LUSTER_SOLDIER, spell_types, trap_types, MAX_CARD_ID } from "./ygo-constant.mjs";
-import { arg_base, arg_default, arg_seventh, is_alternative, like_pattern, pack_condition, query_db, setcode_condition, sqlite3_open, stmt_base, stmt_default, stmt_seventh } from './ygo-sqlite.mjs';
+import { arg_base, arg_default, arg_seventh, is_alternative, like_pattern, name_condition, pack_condition, query_db, setcode_condition, sqlite3_open, stmt_base, stmt_default, stmt_seventh } from './ygo-sqlite.mjs';
 
 export const regexp_mention = `(?<=「)[^「」]*「?[^「」]*」?[^「」]*(?=」)`;
 const MAX_PATTERN_LENGTH = 200;
@@ -330,20 +330,11 @@ export function generate_condition(params, id_list) {
 
 	// text
 	if (is_string(params.name, MAX_PATTERN_LENGTH)) {
-		arg.$name = like_pattern(params.name);
+		qstr += ` AND ${name_condition(params.name, arg)}`;
 	}
 	if (is_string(params.desc, MAX_PATTERN_LENGTH)) {
-		arg.$desc = like_pattern(params.desc);
-	}
-	if (arg.$name && arg.$desc) {
-		const op = (Number.isSafeInteger(params.desc_operator) && !params.desc_operator) ? "OR" : "AND";
-		qstr += ` AND (name LIKE $name ESCAPE '$' ${op} "desc" LIKE $desc ESCAPE '$')`;
-	}
-	else if (arg.$name) {
-		qstr += ` AND name LIKE $name ESCAPE '$'`;
-	}
-	else if (arg.$desc) {
 		qstr += ` AND "desc" LIKE $desc ESCAPE '$'`;
+		arg.$desc = like_pattern(params.desc);
 	}
 	if (is_string(params.pack, MAX_STRING_LENGTH) && pre_release.has(params.pack)) {
 		qstr += " AND (id BETWEEN $pack_begin AND $pack_end)";

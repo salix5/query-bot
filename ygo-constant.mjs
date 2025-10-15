@@ -238,7 +238,6 @@ export const interface_types = {
 
 	"name": 2,
 	"desc": 2,
-	"desc_operator": 0,
 	"pack": 2,
 };
 
