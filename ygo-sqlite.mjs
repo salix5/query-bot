@@ -255,6 +255,21 @@ export function like_pattern(str) {
 	return `%${str.replace(/\$(?![%_])/g, '$$$&')}%`;
 }
 
+/**
+ * Generate the name condition of a statement.
+ * @param {string} input
+ * @param {Object} arg
+ * @returns {string}
+ */
+export function name_condition(input, arg) {
+	let condition = `name LIKE $name ESCAPE '$' OR "desc" LIKE $kanji ESCAPE '$'`;
+	condition += ` OR alias IN (${stmt_no_alias} AND name LIKE $name ESCAPE '$')`;
+	arg.$name = like_pattern(input);
+	arg.$kanji = `%※${like_pattern(input)}`;
+	arg.$none = 0;
+	return `(${condition})`;
+}
+
 // database tool
 /**
  * Get cards from databases file at `path` with statement `sql` and binding object `arg`.
