@@ -690,16 +690,13 @@ export function query_card(params) {
 }
 
 /**
- * Get a card with cid or temp id from all databases.
- * @param {number|string} cid 
+ * Get a card with id from all databases.
+ * @param {number|string} id 
  * @returns {?Card}
  */
-export function get_card(cid) {
-	if (typeof cid === 'string')
-		cid = Number.parseInt(cid, 10);
-	if (!Number.isSafeInteger(cid))
-		return null;
-	const id = (cid > MAX_CARD_ID) ? cid : cid_table.get(cid);
+export function get_card(id) {
+	if (typeof id === 'string')
+		id = Number.parseInt(id, 10);
 	if (!Number.isSafeInteger(id))
 		return null;
 	const card = card_table.get(id);
@@ -1026,16 +1023,20 @@ export function print_card(card, locale) {
 
 // table
 /**
- * Create the [name, cid] table of region `request_locale`
+ * Create the [name, id] table of region `request_locale`
  * @param {string} request_locale 
  * @returns {Map<string, number>}
  */
 export function create_choice(request_locale) {
-	if (!collator_locale[request_locale])
+	if (!complete_name_table[request_locale])
 		return new Map();
 	const inverse = inverse_mapping(complete_name_table[request_locale]);
 	const collator = new Intl.Collator(collator_locale[request_locale]);
-	return new Map([...inverse].sort((a, b) => collator.compare(a[0], b[0])));
+	const entries = [...inverse].sort((a, b) => collator.compare(a[0], b[0]));
+	for (const entry of entries) {
+		entry[1] = cid_table.get(entry[1]);
+	}
+	return new Map(entries);
 }
 
 /**
@@ -1069,14 +1070,13 @@ export function create_choice_prerelease() {
 }
 
 /**
- * Create the [name, cid] table from database file.
+ * Create the [name, id] table from database file.
  * @returns {Map<string, number>}
  */
 export function create_choice_db() {
 	const inverse_table = new Map();
 	const re_kanji = /※.*/;
-	const cards = query();
-	for (const card of cards) {
+	for (const card of card_table.values()) {
 		if (!card.cid) {
 			continue;
 		}
@@ -1084,12 +1084,12 @@ export function create_choice_db() {
 		const kanji = res ? res[0] : '';
 		const key = (card.cid === CID_BLACK_LUSTER_SOLDIER) ? `${card.tw_name}（通常怪獸）` : card.tw_name;
 		if (inverse_table.has(key) || kanji && inverse_table.has(kanji)) {
-			console.error('choice_tc', card.cid);
+			console.error('choice_db', card.id);
 			return new Map();
 		}
-		inverse_table.set(key, card.cid);
+		inverse_table.set(key, card.id);
 		if (kanji)
-			inverse_table.set(kanji, card.cid);
+			inverse_table.set(kanji, card.id);
 	}
 	return new Map([...inverse_table].sort(zh_compare))
 }
