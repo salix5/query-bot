@@ -62,18 +62,6 @@ md_table['ja'] = object_to_map(md_jp_table);
 
 export const pre_release = new Map(Object.entries(pre_table));
 export const wiki_link = new Map(Object.entries(wiki_table));
-
-for (const cid of cid_table.keys()) {
-	if (!name_table['ja'].has(cid) && !name_table['en'].has(cid)) {
-		console.error('cid_table: invalid cid', cid);
-		cid_table.delete(cid);
-	}
-}
-const ja_set = new Set(name_table['ja'].keys());
-const cid_set = ja_set.union(name_table['en']);
-if (cid_table.size !== cid_set.size) {
-	console.error('cid_table: size mismatch', cid_table.size, cid_set.size);
-}
 export const id_to_cid = inverse_mapping(cid_table);
 
 export const official_name = Object.create(null);
@@ -112,6 +100,18 @@ convert_map1.delete(CID_BLACK_LUSTER_SOLDIER);
 const jp_collator = new Intl.Collator('ja-JP');
 const ruby_entries = [...inverse_mapping(convert_map1)].sort((a, b) => jp_collator.compare(jp_table[a[1]], jp_table[b[1]]));
 export const choices_ruby = new Map(ruby_entries);
+
+for (const cid of cid_table.keys()) {
+	if (!name_table['ja'].has(cid) && !name_table['en'].has(cid)) {
+		console.error('cid_table: invalid cid', cid);
+		cid_table.delete(cid);
+	}
+}
+const ja_set = new Set(name_table['ja'].keys());
+const cid_set = ja_set.union(name_table['en']);
+if (cid_table.size !== cid_set.size) {
+	console.error('cid_table: size mismatch', cid_table.size, cid_set.size);
+}
 
 const pack_id_table = inverse_mapping(pre_release);
 export function get_pack_name(id) {
