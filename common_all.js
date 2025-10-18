@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import { AutocompleteInteraction } from "discord.js";
-import { complete_name_table, create_choice, create_choice_prerelease, create_choice_db, escape_regexp } from "./ygo-query.mjs";
-import { choices_ruby, official_name } from "./ygo-json-loader.mjs";
+import { create_choice, create_choice_prerelease, create_choice_db, escape_regexp, inverse_mapping } from "./ygo-query.mjs";
+import { choices_ruby, complete_name_table, id_to_cid, official_name } from "./ygo-json-loader.mjs";
 
 const MAX_CHOICE = 25;
 
@@ -12,6 +12,7 @@ for (const locale of Object.keys(official_name)) {
 refresh_choice_table();
 
 const jp_entries = half_width_entries(choice_table['ja']);
+const name_jp = inverse_mapping(choice_table['ja']);
 
 /**
  * @param {string} str
@@ -72,14 +73,12 @@ function filter_choice(interaction, entries) {
 	const focused = interaction.options.getFocused().trim();
 	const starts_with = [];
 	const other = [];
-	const keyword = escape_regexp(toHalfWidth(focused));
-	const start = new RegExp(`^${keyword}`);
-	const include = new RegExp(`${keyword}`);
-	for (const [choice, cid] of entries) {
-		if (start.test(choice))
-			starts_with.push(cid);
-		else if (include.test(choice))
-			other.push(cid);
+	const keyword = toHalfWidth(focused);
+	for (const [choice, id] of entries) {
+		if (choice.startsWith(keyword))
+			starts_with.push(id);
+		else if (choice.includes(keyword))
+			other.push(id);
 		if (starts_with.length >= MAX_CHOICE)
 			return starts_with;
 	}
@@ -104,17 +103,14 @@ export async function autocomplete_jp(interaction) {
 		const ruby_max_length = MAX_CHOICE - ret.length;
 		const starts_with = [];
 		const other = [];
-		const cid_set = new Set(ret);
-		const keyword = escape_regexp(focused);
-		const start = new RegExp(`^${keyword}`);
-		const include = new RegExp(`${keyword}`);
-		for (const [ruby, cid] of choices_ruby) {
-			if (cid_set.has(cid))
+		const id_set = new Set(ret);
+		for (const [ruby, id] of choices_ruby) {
+			if (id_set.has(id))
 				continue;
-			if (start.test(ruby))
-				starts_with.push(cid);
-			else if (include.test(ruby))
-				other.push(cid);
+			if (ruby.startsWith(focused))
+				starts_with.push(id);
+			else if (ruby.includes(focused))
+				other.push(id);
 			if (starts_with.length >= ruby_max_length)
 				break;
 		}
@@ -124,10 +120,10 @@ export async function autocomplete_jp(interaction) {
 		if (ret.length > MAX_CHOICE)
 			ret.length = MAX_CHOICE;
 	}
-	const name_jp = complete_name_table['ja'];
-	await interaction.respond(
-		ret.map(cid => ({ name: name_jp.get(cid), value: name_jp.get(cid) }))
-	);
+	await interaction.respond(ret.map(id => {
+		const card_name = name_jp.get(id);
+		return { name: card_name, value: card_name };
+	}));
 }
 
 /**
