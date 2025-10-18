@@ -162,6 +162,22 @@ export function get_pack_name(id) {
 	return pack_id_table.get(pack_id);
 }
 
+/**
+ * Get the card name of `id` in the region `locale`.
+ * @param {number} cid 
+ * @param {string} locale 
+ * @returns {string}
+ */
+export function get_name(cid, locale) {
+	if (!complete_name_table[locale])
+		return '';
+	if (!complete_name_table[locale].has(cid))
+		return '';
+	if (cid === CID_BLACK_LUSTER_SOLDIER && complete_name_table[locale].has(4370))
+		return complete_name_table[locale].get(4370);
+	return complete_name_table[locale].get(cid);
+}
+
 export {
 	ltable_ocg, ltable_tcg, ltable_md,
 	md_card_list,
