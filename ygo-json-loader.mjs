@@ -42,8 +42,7 @@ function object_to_map(obj) {
 		}
 		result.push([key, value]);
 	}
-	const map = new Map(result);
-	return map;
+	return new Map(result);
 }
 
 const cid_table = object_to_map(cid_json);
@@ -64,11 +63,16 @@ md_table['ja'] = object_to_map(md_jp_table);
 const pre_release = new Map(Object.entries(pre_table));
 const wiki_link = new Map(Object.entries(wiki_table));
 
-for (const [cid, id] of cid_table) {
+for (const cid of cid_table.keys()) {
 	if (!name_table['ja'].has(cid) && !name_table['en'].has(cid)) {
 		console.error('cid_table: invalid cid', cid);
-		cid_table.delete(id);
+		cid_table.delete(cid);
 	}
+}
+const ja_set = new Set(name_table['ja'].keys());
+const cid_set = ja_set.union(name_table['en']);
+if (cid_table.size !== cid_set.size) {
+	console.error('cid_table: size mismatch', cid_table.size, cid_set.size);
 }
 const id_to_cid = inverse_mapping(cid_table);
 
