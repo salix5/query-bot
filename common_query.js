@@ -123,8 +123,8 @@ export function create_reply(card, locale) {
 export async function query_command(interaction, input_locale, output_locale) {
 	const input = interaction.options.getString('input');
 	if (choice_table[input_locale] && choice_table[input_locale].has(input)) {
-		const cid = choice_table[input_locale].get(input);
-		const card = ygo.get_card(cid);
+		const id = choice_table[input_locale].get(input);
+		const card = ygo.get_card(id);
 		if (card) {
 			let count = search_count.ensure(card.id, () => 0);
 			count++;
@@ -139,7 +139,7 @@ export async function query_command(interaction, input_locale, output_locale) {
 			}
 		}
 		else {
-			console.error('invalid card cid', cid);
+			console.error('invalid card id', id);
 			await interaction.reply(reply_text[output_locale].none);
 		}
 	}

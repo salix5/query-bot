@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from 'discord.js';
-import { get_name } from '../ygo-query.mjs';
+import { get_name, id_to_cid } from '../ygo-query.mjs';
 import { autocomplete_default, choice_table } from '../common_all.js';
 
 export const module_url = import.meta.url;
@@ -19,7 +19,7 @@ export async function autocomplete(interaction) {
 }
 export async function execute(interaction) {
 	const input = interaction.options.getString('input');
-	const cid = choice_table['zh-tw'].get(input);
+	const cid = id_to_cid.get(choice_table['zh-tw'].get(input));
 	const card_name = cid ? get_name(cid, 'md') : '';
 	if (card_name) {
 		await interaction.reply(card_name);
