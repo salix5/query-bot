@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from 'discord.js';
-import { get_name, id_to_cid } from '../ygo-query.mjs';
+import { get_name, id_to_cid } from '../ygo-json-loader.mjs';
 import { choice_table } from '../common_all.js';
 import { reply_text } from '../common_query.js';
 
