@@ -113,14 +113,19 @@ if (cid_table.size !== cid_set.size) {
 	console.error('cid_table: size mismatch', cid_table.size, cid_set.size);
 }
 
-const pack_id_table = inverse_mapping(pre_release);
+/**
+ * Get the pack name for pre-release id.
+ * @param {number} id
+ * @returns {string}
+ */
 export function get_pack_name(id) {
 	if (id <= MAX_CARD_ID)
 		return '';
+	const pack_id_table = inverse_mapping(pre_release);
 	const pack_id = id - id % 1000;
-	if (pack_id_table.has(pack_id))
-		return pack_id_table.get(pack_id);
-	return '';
+	if (!pack_id_table.has(pack_id))
+		return '';
+	return pack_id_table.get(pack_id);
 }
 
 export {
