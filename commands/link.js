@@ -1,6 +1,6 @@
 import { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 import { autocomplete_default, choice_table } from '../common_all.js';
-import { cid_table, print_history_link } from '../ygo-query.mjs';
+import { id_to_cid, print_history_link } from '../ygo-query.mjs';
 
 export const module_url = import.meta.url;
 export const data = new SlashCommandBuilder()
@@ -19,9 +19,9 @@ export async function autocomplete(interaction) {
 }
 export async function execute(interaction) {
 	const input = interaction.options.getString('input');
-	const cid = choice_table['zh-tw'].get(input);
-	if (cid) {
-		const id = cid_table.get(cid);
+	const id = choice_table['zh-tw'].get(input);
+	if (id) {
+		const cid = id_to_cid.get(id);
 		const row1 = new ActionRowBuilder();
 		const button1 = new ButtonBuilder()
 			.setStyle(ButtonStyle.Link)

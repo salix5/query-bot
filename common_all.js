@@ -5,15 +5,13 @@ import { choices_ruby, official_name } from "./ygo-json-loader.mjs";
 
 const MAX_CHOICE = 25;
 
-const choice_table = Object.create(null);
+export const choice_table = Object.create(null);
 for (const locale of Object.keys(official_name)) {
 	choice_table[locale] = create_choice(locale);
 }
 refresh_choice_table();
 
 const jp_entries = half_width_entries(choice_table['ja']);
-
-export { choice_table };
 
 /**
  * @param {string} str
@@ -149,7 +147,7 @@ export async function autocomplete_default(interaction, request_locale) {
 	const keyword = escape_regexp(focused);
 	const start = new RegExp(`^${keyword}`, 'i');
 	const include = new RegExp(`${keyword}`, 'i');
-	for (const [choice, cid] of choice_table[request_locale]) {
+	for (const [choice, _] of choice_table[request_locale]) {
 		if (start.test(choice))
 			starts_with.push(choice);
 		else if (include.test(choice))
