@@ -1,5 +1,5 @@
 import { writeFile } from 'node:fs/promises';
-import { ltable_ocg, ltable_tcg, ltable_md, pack_list, pre_release, genesys_point } from './ygo-json-loader.mjs';
+import { ltable_ocg, ltable_tcg, ltable_md, pack_list, pre_release, genesys_point, complete_name_table } from './ygo-json-loader.mjs';
 import { lang, collator_locale, bls_postfix, official_name, game_name } from './ygo-json-loader.mjs';
 import { id_to_cid, cid_table, name_table, md_table, md_table_sc, md_card_list } from './ygo-json-loader.mjs';
 import { escape_regexp, escape_wildcard, inverse_mapping, zh_collator, zh_compare } from './ygo-utility.mjs';
@@ -10,30 +10,6 @@ import { arg_base, arg_default, arg_seventh, is_alternative, like_pattern, name_
 export const regexp_mention = `(?<=「)[^「」]*「?[^「」]*」?[^「」]*(?=」)`;
 const MAX_PATTERN_LENGTH = 200;
 const MAX_STRING_LENGTH = 10;
-
-export const complete_name_table = Object.create(null);
-for (const locale of Object.keys(official_name)) {
-	const table1 = new Map(name_table[locale]);
-	let valid = true;
-	if (md_table[locale]) {
-		for (const [cid, name] of md_table[locale]) {
-			if (table1.has(cid)) {
-				console.error(`duplicate cid: md_table[${locale}]`, cid);
-				valid = false;
-				break;
-			}
-			table1.set(cid, name);
-		}
-		if (!valid) {
-			complete_name_table[locale] = new Map();
-			continue;
-		}
-	}
-	if (table1.has(CID_BLACK_LUSTER_SOLDIER))
-		table1.set(CID_BLACK_LUSTER_SOLDIER, `${table1.get(CID_BLACK_LUSTER_SOLDIER)}${bls_postfix[locale]}`);
-	complete_name_table[locale] = table1;
-}
-
 const db_list = [];
 
 /**

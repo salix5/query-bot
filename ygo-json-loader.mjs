@@ -101,6 +101,29 @@ const jp_collator = new Intl.Collator('ja-JP');
 const ruby_entries = [...inverse_mapping(convert_map1)].sort((a, b) => jp_collator.compare(jp_table[a[1]], jp_table[b[1]]));
 export const choices_ruby = new Map(ruby_entries);
 
+export const complete_name_table = Object.create(null);
+for (const locale of Object.keys(official_name)) {
+	const table1 = new Map(name_table[locale]);
+	let valid = true;
+	if (md_table[locale]) {
+		for (const [cid, name] of md_table[locale]) {
+			if (table1.has(cid)) {
+				console.error(`duplicate cid: md_table[${locale}]`, cid);
+				valid = false;
+				break;
+			}
+			table1.set(cid, name);
+		}
+		if (!valid) {
+			complete_name_table[locale] = new Map();
+			continue;
+		}
+	}
+	if (table1.has(CID_BLACK_LUSTER_SOLDIER))
+		table1.set(CID_BLACK_LUSTER_SOLDIER, `${table1.get(CID_BLACK_LUSTER_SOLDIER)}${bls_postfix[locale]}`);
+	complete_name_table[locale] = table1;
+}
+
 for (const cid of cid_table.keys()) {
 	if (!name_table['ja'].has(cid) && !name_table['en'].has(cid)) {
 		console.error('cid_table: invalid cid', cid);
