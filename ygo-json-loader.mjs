@@ -99,6 +99,9 @@ const convert_map1 = object_to_map(ruby_table);
 convert_map1.delete(CID_BLACK_LUSTER_SOLDIER);
 const jp_collator = new Intl.Collator('ja-JP');
 const ruby_entries = [...inverse_mapping(convert_map1)].sort((a, b) => jp_collator.compare(jp_table[a[1]], jp_table[b[1]]));
+for(const entry of ruby_entries) {
+	entry[1] = cid_table.get(entry[1]);
+}
 export const choices_ruby = new Map(ruby_entries);
 
 export const complete_name_table = Object.create(null);
