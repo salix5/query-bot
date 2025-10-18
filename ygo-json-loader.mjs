@@ -135,6 +135,14 @@ const cid_set = ja_set.union(name_table['en']);
 if (cid_table.size !== cid_set.size) {
 	console.error('cid_table: size mismatch', cid_table.size, cid_set.size);
 }
+for (const locale of Object.keys(name_table)) {
+	if (locale === 'ja' || locale === 'en')
+		continue;
+	const key_set = new Set(name_table[locale].keys());
+	if (!key_set.isSubsetOf(cid_set)) {
+		console.error(`invalid cid in name_table[${locale}]`);
+	}
+}
 
 /**
  * Get the pack name for pre-release id.
