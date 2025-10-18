@@ -45,23 +45,23 @@ function object_to_map(obj) {
 	return new Map(result);
 }
 
-const cid_table = object_to_map(cid_json);
-const md_table_sc = object_to_map(md_sc);
-const extra_setcodes = object_to_map(setcode_table);
+export const cid_table = object_to_map(cid_json);
+export const md_table_sc = object_to_map(md_sc);
+export const extra_setcodes = object_to_map(setcode_table);
 
-const name_table = Object.create(null);
+export const name_table = Object.create(null);
 name_table['ae'] = object_to_map(ae_table);
 name_table['en'] = object_to_map(en_table);
 name_table['ja'] = object_to_map(jp_table);
 name_table['ko'] = object_to_map(kr_table);
 name_table['ruby'] = object_to_map(ruby_table);
 
-const md_table = Object.create(null);
+export const md_table = Object.create(null);
 md_table['en'] = object_to_map(md_en_table);
 md_table['ja'] = object_to_map(md_jp_table);
 
-const pre_release = new Map(Object.entries(pre_table));
-const wiki_link = new Map(Object.entries(wiki_table));
+export const pre_release = new Map(Object.entries(pre_table));
+export const wiki_link = new Map(Object.entries(wiki_table));
 
 for (const cid of cid_table.keys()) {
 	if (!name_table['ja'].has(cid) && !name_table['en'].has(cid)) {
@@ -74,36 +74,36 @@ const cid_set = ja_set.union(name_table['en']);
 if (cid_table.size !== cid_set.size) {
 	console.error('cid_table: size mismatch', cid_table.size, cid_set.size);
 }
-const id_to_cid = inverse_mapping(cid_table);
+export const id_to_cid = inverse_mapping(cid_table);
 
-const official_name = Object.create(null);
+export const official_name = Object.create(null);
 official_name['ae'] = 'ae_name';
 official_name['en'] = 'en_name';
 official_name['ja'] = 'jp_name';
 official_name['ko'] = 'kr_name';
 
-const lang = Object.create(null);
+export const lang = Object.create(null);
 lang['ae'] = lang_ae;
 lang['en'] = lang_en;
 lang['ja'] = lang_ja;
 lang['ko'] = lang_ko;
 lang['zh-tw'] = lang_zhtw;
 
-const collator_locale = Object.create(null);
+export const collator_locale = Object.create(null);
 collator_locale['ae'] = 'en-US';
 collator_locale['en'] = 'en-US';
 collator_locale['ja'] = 'ja-JP';
 collator_locale['ko'] = 'ko-KR';
 collator_locale['zh-tw'] = 'zh-Hant';
 
-const bls_postfix = Object.create(null);
+export const bls_postfix = Object.create(null);
 bls_postfix['ae'] = ' (Normal)';
 bls_postfix['en'] = ' (Normal)';
 bls_postfix['ja'] = '（通常モンスター）';
 bls_postfix['ko'] = ' (일반)';
 bls_postfix['zh-tw'] = '（通常怪獸）';
 
-const game_name = Object.create(null);
+export const game_name = Object.create(null);
 game_name['en'] = 'md_name_en';
 game_name['ja'] = 'md_name_jp';
 
@@ -111,7 +111,7 @@ const convert_map1 = object_to_map(ruby_table);
 convert_map1.delete(CID_BLACK_LUSTER_SOLDIER);
 const jp_collator = new Intl.Collator('ja-JP');
 const ruby_entries = [...inverse_mapping(convert_map1)].sort((a, b) => jp_collator.compare(jp_table[a[1]], jp_table[b[1]]));
-const choices_ruby = new Map(ruby_entries);
+export const choices_ruby = new Map(ruby_entries);
 
 const pack_id_table = inverse_mapping(pre_release);
 export function get_pack_name(id) {
@@ -128,20 +128,6 @@ export {
 	md_card_list,
 	pack_list,
 	setname,
-	pre_release,
-	wiki_link,
 	genesys_point,
-	cid_table,
-	id_to_cid,
-	lang,
-	collator_locale,
-	bls_postfix,
-	official_name,
-	game_name,
-	name_table,
-	md_table,
-	md_table_sc,
 	jp_table,
-	choices_ruby,
-	extra_setcodes,
 }
