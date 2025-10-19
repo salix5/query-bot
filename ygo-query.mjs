@@ -5,7 +5,8 @@ import { id_to_cid, cid_table, name_table, md_table, md_card_list } from './ygo-
 import { escape_regexp, escape_wildcard, inverse_mapping, zh_collator, zh_compare } from './ygo-utility.mjs';
 import { db_url1, db_url2, fetch_db } from './ygo-fetch.mjs';
 import { card_types, monster_types, link_markers, md_rarity, spell_colors, trap_colors, CID_BLACK_LUSTER_SOLDIER, spell_types, trap_types, MAX_CARD_ID } from "./ygo-constant.mjs";
-import { arg_base, arg_default, arg_seventh, is_alternative, like_pattern, name_condition, pack_condition, query_db, setcode_condition, sqlite3_open, stmt_base, stmt_default, stmt_seventh } from './ygo-sqlite.mjs';
+import { arg_base, arg_default, arg_seventh, effect_filter, stmt_base, stmt_default, stmt_seventh } from './ygo-sqlite.mjs';
+import { is_alternative, like_pattern, name_condition, pack_condition, query_db, setcode_condition, sqlite3_open, } from './ygo-sqlite.mjs';
 
 export const regexp_mention = `(?<=「)[^「」]*「?[^「」]*」?[^「」]*(?=」)`;
 const MAX_PATTERN_LENGTH = 200;
@@ -300,7 +301,9 @@ export function generate_condition(params, id_list) {
 		arg.$ttype = subtype;
 	}
 	if (Number.isSafeInteger(params.mention) && card_table.has(params.mention)) {
-		qstr += ` AND "desc" REGEXP $mention`;
+		qstr += `${effect_filter} AND "desc" REGEXP $mention`;
+		arg.$normal = monster_types.TYPE_NORMAL;
+		arg.$pendulum = monster_types.TYPE_PENDULUM;
 		arg.$mention = `「${escape_regexp(card_table.get(params.mention).tw_name)}」(?!怪獸|魔法|陷阱|卡片|融合怪獸|同步怪獸|超量怪獸|連結怪獸|儀式怪獸|靈擺怪獸|通常|永續|裝備|速攻|儀式魔法|場地|反擊)`;
 	}
 
