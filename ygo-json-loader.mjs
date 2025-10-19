@@ -128,13 +128,13 @@ for (const locale of Object.keys(official_name)) {
 }
 
 for (const cid of cid_table.keys()) {
-	if (!name_table['ja'].has(cid) && !name_table['en'].has(cid)) {
+	if (!complete_name_table['ja'].has(cid) && !complete_name_table['en'].has(cid)) {
 		console.error('cid_table: invalid cid', cid);
 		cid_table.delete(cid);
 	}
 }
-const ja_set = new Set(name_table['ja'].keys());
-const cid_set = ja_set.union(name_table['en']);
+const ja_set = new Set(complete_name_table['ja'].keys());
+const cid_set = ja_set.union(complete_name_table['en']);
 if (cid_table.size !== cid_set.size) {
 	console.error('cid_table: size mismatch', cid_table.size, cid_set.size);
 }
