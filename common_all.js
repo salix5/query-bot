@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import { AutocompleteInteraction } from "discord.js";
 import { create_choice, create_choice_prerelease, create_choice_db, escape_regexp, inverse_mapping } from "./ygo-query.mjs";
-import { choices_ruby, complete_name_table, id_to_cid, official_name } from "./ygo-json-loader.mjs";
+import { choices_ruby, official_name } from "./ygo-json-loader.mjs";
 
 const MAX_CHOICE = 25;
 
@@ -28,16 +28,6 @@ function toHalfWidth(str) {
  */
 function toFullWidth(str) {
 	return str.replace(/[A-Za-z0-9]/g, (s) => String.fromCharCode(s.charCodeAt(0) + 0xFEE0));
-}
-
-/**
- * Check if 2 strings are case-insensitive equal.
- * @param {string} a 
- * @param {string} b 
- * @returns boolean result
- */
-function is_equal(a, b) {
-	return toHalfWidth(a.toLowerCase()) === toHalfWidth(b.toLowerCase());
 }
 
 function half_width_entries(choices) {
