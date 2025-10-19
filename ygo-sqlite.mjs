@@ -130,9 +130,8 @@ const convert_table = new Map();
  */
 function write_setcode(list, setcode) {
 	list.length = 0;
-	const value = convert_table.get(setcode);
-	if (value) {
-		list.push(...value);
+	if (convert_table.has(setcode)) {
+		list.push(...convert_table.get(setcode));
 		return;
 	}
 	const result = [];
