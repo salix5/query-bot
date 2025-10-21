@@ -103,6 +103,23 @@ export function regexp_test(pattern, str) {
 }
 
 /**
+ * @param {bigint} value 
+ * @param {bigint} setcode 
+ * @returns {number}
+ */
+export function setcode_match(value, setcode) {
+	value = BigInt.asUintN(16, value);
+	const setname = value & 0x0fffn;
+	const settype = value & 0xf000n;
+	for (let x = BigInt.asUintN(64, setcode); x > 0n; x >>= 16n) {
+		const section = x & 0xffffn;
+		if ((section & 0x0fffn) === setname && (section & settype) === settype)
+			return 1;
+	}
+	return 0;
+}
+
+/**
  * Open a database file.
  * @param {string} filename 
  * @returns {DatabaseSync}
@@ -112,13 +129,19 @@ export function sqlite3_open(filename) {
 		readOnly: true,
 		readBigInts: true,
 	};
-	const function_option = {
+	const regexp_option = {
 		deterministic: true,
 		directOnly: true,
 	};
+	const match_option = {
+		deterministic: true,
+		directOnly: true,
+		useBigIntArguments: true,
+	};
 	const db = new DatabaseSync(filename, db_option);
 	db.exec("PRAGMA trusted_schema = OFF;");
-	db.function('regexp', function_option, regexp_test);
+	db.function('regexp', regexp_option, regexp_test);
+	db.function('match', match_option, setcode_match);
 	return db;
 }
 
@@ -206,17 +229,8 @@ export function is_alternative(cdata) {
  * @returns {string}
  */
 export function setcode_condition(setcode, arg) {
-	const setcode_str1 = `(setcode & $mask12) == $setname AND (setcode & $settype) == $settype`;
-	const setcode_str2 = `(setcode >> $sec1 & $mask12) == $setname AND (setcode >> $sec1 & $settype) == $settype`;
-	const setcode_str3 = `(setcode >> $sec2 & $mask12) == $setname AND (setcode >> $sec2 & $settype) == $settype`;
-	const setcode_str4 = `(setcode >> $sec3 & $mask12) == $setname AND (setcode >> $sec3 & $settype) == $settype`;
-	let condition = `${setcode_str1} OR ${setcode_str2} OR ${setcode_str3} OR ${setcode_str4}`;
-	arg.$setname = setcode & 0x0fff;
-	arg.$settype = setcode & 0xf000;
-	arg.$mask12 = 0x0fff;
-	arg.$sec1 = 16;
-	arg.$sec2 = 32;
-	arg.$sec3 = 48;
+	let condition = `setcode MATCH $setcode`;
+	arg.$setcode = BigInt(setcode);
 	if (code_table.has(setcode)) {
 		let count = 0;
 		for (const id of code_table.get(setcode)) {
