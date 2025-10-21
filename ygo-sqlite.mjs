@@ -97,7 +97,12 @@ for (const [id, list] of extra_setcodes) {
  * @property {string} desc
  */
 
-export function regexp_test(pattern, str) {
+/**
+ * @param {string} pattern 
+ * @param {string} str 
+ * @returns 
+ */
+function regexp_test(pattern, str) {
 	const re = new RegExp(pattern);
 	return re.test(str) ? 1 : 0;
 }
@@ -107,7 +112,7 @@ export function regexp_test(pattern, str) {
  * @param {bigint} setcode 
  * @returns {number}
  */
-export function setcode_match(value, setcode) {
+function setcode_match(value, setcode) {
 	value = BigInt.asUintN(16, value);
 	const setname = value & 0x0fffn;
 	const settype = value & 0xf000n;
