@@ -97,9 +97,9 @@ for (const [id, list] of extra_setcodes) {
  * @property {string} desc
  */
 
-export function regexp_test(pattern, x) {
+export function regexp_test(pattern, str) {
 	const re = new RegExp(pattern);
-	return re.test(x) ? 1 : 0;
+	return re.test(str) ? 1 : 0;
 }
 
 /**
