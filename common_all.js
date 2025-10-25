@@ -132,9 +132,9 @@ export async function autocomplete_default(interaction, request_locale) {
 	const other = [];
 	const keyword = focused.toLowerCase();
 	for (const [choice, _] of choice_table[request_locale]) {
-		if (choice.startsWith(keyword))
+		if (choice.toLowerCase().startsWith(keyword))
 			starts_with.push(choice);
-		else if (choice.includes(keyword))
+		else if (choice.toLowerCase().includes(keyword))
 			other.push(choice);
 		if (starts_with.length >= MAX_CHOICE)
 			break;
