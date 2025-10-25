@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 import { AutocompleteInteraction } from "discord.js";
-import { create_choice, create_choice_prerelease, create_choice_db, escape_regexp, inverse_mapping } from "./ygo-query.mjs";
+import { create_choice, create_choice_prerelease, create_choice_db, inverse_mapping } from "./ygo-query.mjs";
 import { choices_ruby, official_name } from "./ygo-json-loader.mjs";
 
 const MAX_CHOICE = 25;
@@ -130,18 +130,16 @@ export async function autocomplete_default(interaction, request_locale) {
 	}
 	const starts_with = [];
 	const other = [];
-	const keyword = escape_regexp(focused);
-	const start = new RegExp(`^${keyword}`, 'i');
-	const include = new RegExp(`${keyword}`, 'i');
+	const keyword = focused.toLowerCase();
 	for (const [choice, _] of choice_table[request_locale]) {
-		if (start.test(choice))
+		if (choice.startsWith(keyword))
 			starts_with.push(choice);
-		else if (include.test(choice))
+		else if (choice.includes(keyword))
 			other.push(choice);
 		if (starts_with.length >= MAX_CHOICE)
 			break;
 	}
-	let ret;
+	let ret = null;
 	if (starts_with.length >= MAX_CHOICE)
 		ret = starts_with;
 	else
