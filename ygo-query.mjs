@@ -1,5 +1,5 @@
 import { writeFile } from 'node:fs/promises';
-import { ltable_ocg, ltable_tcg, ltable_md, pack_list, pre_release, genesys_point, complete_name_table } from './ygo-json-loader.mjs';
+import { ltable_ocg, ltable_tcg, ltable_md, pack_list, pre_release, genesys_point, complete_name_table, setname_table } from './ygo-json-loader.mjs';
 import { lang, collator_locale, bls_postfix, official_name, game_name } from './ygo-json-loader.mjs';
 import { id_to_cid, cid_table, name_table, md_table, md_card_list } from './ygo-json-loader.mjs';
 import { escape_regexp, escape_wildcard, inverse_mapping, zh_collator, zh_compare } from './ygo-utility.mjs';
@@ -75,6 +75,11 @@ const db_list = [];
 const card_table = new Map();
 
 const mmap_seventh = Object.create(null);
+
+/**
+ * @type {Set<number>}
+ */
+const ambiguous_name_list = new Set();
 
 //workaround
 await init_query();
@@ -301,10 +306,16 @@ export function generate_condition(params, id_list) {
 		arg.$ttype = subtype;
 	}
 	if (Number.isSafeInteger(params.mention) && card_table.has(params.mention)) {
-		qstr += `${effect_filter} AND "desc" REGEXP $mention`;
+		if (ambiguous_name_list.has(params.mention)) {
+			qstr += `${effect_filter} AND "desc" REGEXP $mention`;
+			arg.$mention = `「${escape_regexp(card_table.get(params.mention).tw_name)}」(?!怪獸|魔法|陷阱|卡片|融合怪獸|同步怪獸|超量怪獸|連結怪獸|儀式怪獸|靈擺怪獸|通常|永續|裝備|速攻|儀式魔法|場地|反擊)`;
+		}
+		else {
+			qstr += `${effect_filter} AND "desc" LIKE $mention`;
+			arg.$mention = `%「${escape_wildcard(card_table.get(params.mention).tw_name)}」%`;
+		}
 		arg.$normal = monster_types.TYPE_NORMAL;
 		arg.$pendulum = monster_types.TYPE_PENDULUM;
-		arg.$mention = `「${escape_regexp(card_table.get(params.mention).tw_name)}」(?!怪獸|魔法|陷阱|卡片|融合怪獸|同步怪獸|超量怪獸|連結怪獸|儀式怪獸|靈擺怪獸|通常|永續|裝備|速攻|儀式魔法|場地|反擊)`;
 	}
 
 	// text
@@ -569,6 +580,7 @@ export async function init_query(files) {
 	db_list.length = 0;
 	multimap_clear(mmap_seventh);
 	card_table.clear();
+	ambiguous_name_list.clear();
 	for (const file of files) {
 		const db = sqlite3_open(file);
 		db_list.push(db);
@@ -580,6 +592,9 @@ export async function init_query(files) {
 	}
 	for (const card of query()) {
 		card_table.set(card.id, card);
+		if (setname_table[card.tw_name]) {
+			ambiguous_name_list.add(card.id);
+		}
 	}
 }
 
