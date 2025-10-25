@@ -1,7 +1,7 @@
 import { DatabaseSync } from "node:sqlite";
 import { monster_types } from "./ygo-constant.mjs";
 import { inverse_mapping } from "./ygo-utility.mjs";
-import { id_to_cid, extra_setcodes } from './ygo-json-loader.mjs';
+import { id_to_cid, extra_setcodes, setname_table } from './ygo-json-loader.mjs';
 
 export {
 	CID_BLACK_LUSTER_SOLDIER,
@@ -282,11 +282,16 @@ export function like_pattern(str) {
  * @returns {string}
  */
 export function name_condition(input, arg) {
-	let condition = `name LIKE $name ESCAPE '$' OR "desc" LIKE $kanji ESCAPE '$'`;
-	condition += ` OR alias IN (${stmt_no_alias} AND name LIKE $name ESCAPE '$')`;
+	let condition = `name LIKE $name ESCAPE '$' OR "desc" LIKE $kanji ESCAPE '$' OR alias IN (${stmt_no_alias} AND name LIKE $name ESCAPE '$')`;
 	arg.$name = like_pattern(input);
 	arg.$kanji = `%※${like_pattern(input)}`;
 	arg.$none = 0;
+	let keyword = '';
+	if (!re_wildcard.test(input))
+		keyword = input.replace(/\$(?=[%_])/g, '');
+	if (keyword && setname_table[keyword]) {
+		condition += ` OR ${setcode_condition(setname_table[keyword], arg)}`;
+	}
 	return `(${condition})`;
 }
 
