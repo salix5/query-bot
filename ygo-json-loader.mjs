@@ -2,7 +2,7 @@ import ltable_ocg from './data/lflist.json' with { type: 'json' };
 import ltable_tcg from './data/lflist_tcg.json' with { type: 'json' };
 import ltable_md from './data/lflist_md.json' with { type: 'json' };
 import md_card_list from './data/CardList.json' with { type: 'json' };
-import setname from './data/setname.json' with { type: 'json' };
+import setname_table from './data/setname.json' with { type: 'json' };
 import pack_list from './pack/pack_list.json' with { type: 'json' };
 import pre_table from './pack/pre_release.json' with { type: 'json' };
 import wiki_table from './pack/wiki_link.json' with { type: 'json' };
@@ -182,7 +182,7 @@ export {
 	ltable_ocg, ltable_tcg, ltable_md,
 	md_card_list,
 	pack_list,
-	setname,
+	setname_table,
 	genesys_point,
 	jp_table,
 }
