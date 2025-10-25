@@ -268,9 +268,6 @@ export function generate_condition(params, id_list) {
 		qstr += " AND alias == $alias";
 		arg.$alias = params.alias;
 	}
-	if (Number.isSafeInteger(params.setcode) && params.setcode > 0) {
-		qstr += ` AND ${setcode_condition(params.setcode, arg)}`;
-	}
 	if (Number.isSafeInteger(params.type) && params.type > 0) {
 		qstr += " AND type & $type";
 		arg.$type = params.type;
@@ -321,6 +318,9 @@ export function generate_condition(params, id_list) {
 	// text
 	if (is_string(params.name, MAX_PATTERN_LENGTH)) {
 		qstr += ` AND ${name_condition(params.name, arg)}`;
+	}
+	else if (Number.isSafeInteger(params.setcode) && params.setcode > 0) {
+		qstr += ` AND ${setcode_condition(params.setcode, arg)}`;
 	}
 	if (is_string(params.desc, MAX_PATTERN_LENGTH)) {
 		qstr += ` AND "desc" LIKE $desc ESCAPE '$'`;
