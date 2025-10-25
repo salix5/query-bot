@@ -1032,8 +1032,16 @@ export function create_choice(request_locale) {
 	const inverse = inverse_mapping(complete_name_table[request_locale]);
 	const collator = new Intl.Collator(collator_locale[request_locale]);
 	const entries = [...inverse].sort((a, b) => collator.compare(a[0], b[0]));
-	for (const entry of entries) {
-		entry[1] = cid_table.get(entry[1]);
+	if (request_locale === 'ja') {
+		for (const entry of entries) {
+			entry[1] = cid_table.get(entry[1]);
+		}
+	}
+	else {
+		for (const entry of entries) {
+			entry[0] = entry[0].toLowerCase();
+			entry[1] = cid_table.get(entry[1]);
+		}
 	}
 	return new Map(entries);
 }
@@ -1056,12 +1064,13 @@ export function create_choice_prerelease() {
 			continue;
 		}
 		const res = card.text.desc.match(re_kanji);
-		const kanji = res ? res[0] : '';
-		if (inverse_table.has(card.tw_name) || kanji && inverse_table.has(kanji)) {
+		const kanji = res ? res[0].toLowerCase() : '';
+		const key = card.tw_name.toLowerCase();
+		if (inverse_table.has(key) || kanji && inverse_table.has(kanji)) {
 			console.error('choice_prerelease', card.id);
 			return new Map();
 		}
-		inverse_table.set(card.tw_name, card.id);
+		inverse_table.set(key, card.id);
 		if (kanji)
 			inverse_table.set(kanji, card.id);
 	}
@@ -1080,8 +1089,11 @@ export function create_choice_db() {
 			continue;
 		}
 		const res = card.text.desc.match(re_kanji);
-		const kanji = res ? res[0] : '';
-		const key = (card.cid === CID_BLACK_LUSTER_SOLDIER) ? `${card.tw_name}（通常怪獸）` : card.tw_name;
+		const kanji = res ? res[0].toLowerCase() : '';
+		let key = card.tw_name.toLowerCase();
+		if (card.cid === CID_BLACK_LUSTER_SOLDIER) {
+			key += bls_postfix['zh-tw'];
+		}
 		if (inverse_table.has(key) || kanji && inverse_table.has(kanji)) {
 			console.error('choice_db', card.id);
 			return new Map();
