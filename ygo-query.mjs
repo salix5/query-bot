@@ -314,6 +314,10 @@ export function generate_condition(params, id_list) {
 		arg.$normal = monster_types.TYPE_NORMAL;
 		arg.$pendulum = monster_types.TYPE_PENDULUM;
 	}
+	if (Number.isSafeInteger(params.page) && Number.isSafeInteger(params.page_size) && params.page > 0 && params.page_size > 0) {
+		arg.$page = params.page;
+		arg.$page_size = params.page_size;
+	}
 
 	// text
 	if (is_string(params.name, MAX_PATTERN_LENGTH)) {
