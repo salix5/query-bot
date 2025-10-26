@@ -185,7 +185,13 @@ function write_setcode(list, setcode) {
  * @returns {Entry[]}
  */
 export function query_db(db, sql = stmt_default, arg = arg_default) {
-	const full_sql = `${sql} ORDER BY id`;
+	let page_filter = '';
+	if (Number.isSafeInteger(arg.$page) && Number.isSafeInteger(arg.$page_size)) {
+		page_filter = ` LIMIT $page_size OFFSET $offset`;
+		arg.$offset = (arg.$page - 1) * arg.$page_size;
+		delete arg.$page;
+	}
+	const full_sql = `${sql} ORDER BY id${page_filter}`;
 	const stmt = db.prepare(full_sql);
 	const result = stmt.all(arg);
 	const result_table = new Map();
@@ -290,7 +296,7 @@ export function name_condition(input, arg) {
 	let condition = `name LIKE $name ESCAPE '$' OR "desc" LIKE $kanji ESCAPE '$' OR alias IN (${stmt_no_alias} AND name LIKE $name ESCAPE '$')`;
 	arg.$name = like_pattern(input);
 	arg.$kanji = `%※${like_pattern(input)}`;
-	arg.$none = 0;
+	Object.assign(arg, arg_no_alias);
 	let keyword = '';
 	if (!re_wildcard.test(input))
 		keyword = input.replace(/\$(?=[%_])/g, '').toLowerCase();
