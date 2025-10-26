@@ -79,6 +79,11 @@ for (const [id, list] of extra_setcodes) {
 	}
 }
 
+const normalized_setname_table = {};
+for (const [name, code] of Object.entries(setname_table)) {
+	normalized_setname_table[name.toLowerCase()] = code;
+}
+
 /**
  * @typedef {Object} Entry
  * @property {number} id
@@ -288,9 +293,9 @@ export function name_condition(input, arg) {
 	arg.$none = 0;
 	let keyword = '';
 	if (!re_wildcard.test(input))
-		keyword = input.replace(/\$(?=[%_])/g, '');
-	if (keyword && setname_table[keyword]) {
-		condition += ` OR ${setcode_condition(setname_table[keyword], arg)}`;
+		keyword = input.replace(/\$(?=[%_])/g, '').toLowerCase();
+	if (keyword && normalized_setname_table[keyword]) {
+		condition += ` OR ${setcode_condition(normalized_setname_table[keyword], arg)}`;
 	}
 	return `(${condition})`;
 }
