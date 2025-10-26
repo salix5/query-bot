@@ -186,10 +186,11 @@ function write_setcode(list, setcode) {
  */
 export function query_db(db, sql = stmt_default, arg = arg_default) {
 	let page_filter = '';
-	if (Number.isSafeInteger(arg.$page) && Number.isSafeInteger(arg.$page_size)) {
-		page_filter = ` LIMIT $page_size OFFSET $offset`;
-		arg.$offset = (arg.$page - 1) * arg.$page_size;
-		delete arg.$page;
+	if (Number.isSafeInteger(arg.$limit)) {
+		page_filter = ` LIMIT $limit`;
+		if (Number.isSafeInteger(arg.$offset)) {
+			page_filter += ` OFFSET $offset`;
+		}
 	}
 	const full_sql = `${sql} ORDER BY id${page_filter}`;
 	const stmt = db.prepare(full_sql);
