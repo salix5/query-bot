@@ -590,11 +590,20 @@ export async function init_query(files) {
 	for (const card of seventh_cards) {
 		multimap_insert(mmap_seventh, card.level, card);
 	}
+	const normalized_names = new Map();
 	for (const card of query()) {
 		card_table.set(card.id, card);
 		if (setname_table[card.tw_name]) {
 			ambiguous_name_list.add(card.id);
 		}
+		let key = card.tw_name.toLowerCase();
+		if (card.cid === CID_BLACK_LUSTER_SOLDIER) {
+			key += bls_postfix['zh-tw'];
+		}
+		if (normalized_names.has(key)) {
+			console.error('duplicate normalized name:', card.id, card.tw_name);
+		}
+		normalized_names.set(key, card.id);
 	}
 }
 
@@ -1097,9 +1106,8 @@ export function create_choice_db() {
 }
 
 export function create_name_table() {
-	const cards = query(stmt_default, arg_default);
 	const table1 = new Map();
-	for (const card of cards) {
+	for (const card of card_table.values()) {
 		if (card.cid)
 			table1.set(card.cid, card.tw_name);
 	}
