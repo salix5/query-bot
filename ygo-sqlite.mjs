@@ -168,7 +168,7 @@ function write_setcode(list, setcode) {
 		return;
 	}
 	const result = [];
-	for (let x = BigInt.asUintN(64, setcode); x > 0n; x >>= 16n) {
+	for (let x = setcode; x > 0n; x >>= 16n) {
 		if (x & 0xffffn) {
 			result.push(Number(x & 0xffffn));
 		}
@@ -195,21 +195,16 @@ export function query_db(db, sql = stmt_default, arg = arg_default) {
 	const full_sql = `${sql} ORDER BY id${page_filter}`;
 	const stmt = db.prepare(full_sql);
 	const result = stmt.all(arg);
-	const result_table = new Map();
 	for (const card of result) {
 		for (const [column, value] of Object.entries(card)) {
 			switch (column) {
-				case 'setcode':
-					card.setcode = [];
-					write_setcode(card.setcode, value);
-					result_table.set(card.id, card);
-					break;
 				case 'level':
 					card.level = Number(value) & 0xffff;
 					card.scale = Number(value) >> 24 & 0xff;
 					break;
+				case 'setcode':
 				case 'race':
-					card.race = BigInt.asUintN(64, value);
+					card[column] = BigInt.asUintN(64, value);
 					break;
 				default:
 					if (typeof value === 'bigint')
@@ -217,12 +212,15 @@ export function query_db(db, sql = stmt_default, arg = arg_default) {
 					break;
 			}
 		}
-	}
-	for (const [id, value] of extra_setcodes) {
-		const card = result_table.get(id);
-		if (card) {
+		if ('setcode' in card) {
+			const setcode = card.setcode;
 			card.setcode = [];
-			card.setcode.push(...value);
+			const key = card.alias || card.id;
+			const list = extra_setcodes.get(key);
+			if (list)
+				card.setcode.push(...list);
+			else
+				write_setcode(card.setcode, setcode);
 		}
 	}
 	return result;
