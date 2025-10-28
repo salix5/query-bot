@@ -264,15 +264,18 @@ export function setcode_condition(setcode, arg) {
  * The sqlite condition of pack.
  * @param {number[]} pack 
  * @param {Object} arg 
+ * @param {string} prefix
  * @returns {string}
  */
-export function pack_condition(pack, arg) {
-	let condition = '0';
-	for (let i = 0; i < pack.length; i += 1) {
-		condition += ` OR id=@p${i}`;
-		arg[`@p${i}`] = pack[i];
+export function pack_condition(pack, arg, prefix) {
+	if (pack.length === 0) {
+		return '(0)';
 	}
-	return `(${condition})`;
+	const placeholders = pack.map((_, i) => `@${prefix}${i}`).join(', ');
+	pack.forEach((id, i) => {
+		arg[`@${prefix}${i}`] = id;
+	});
+	return `(id IN (${placeholders}))`;
 }
 
 /**
