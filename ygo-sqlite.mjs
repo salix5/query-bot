@@ -69,6 +69,9 @@ for (let i = 0; i < 7; i += 1) {
 
 export const re_wildcard = /(?<!\$)[%_]/;
 
+/**
+ * @type {Map<number, number[]>}
+ */
 const code_table = new Map();
 for (const [id, list] of extra_setcodes) {
 	for (const code of list) {
@@ -246,13 +249,13 @@ export function is_alternative(cdata) {
 export function setcode_condition(setcode, arg) {
 	let condition = `setcode MATCH $setcode`;
 	arg.$setcode = BigInt(setcode);
-	if (code_table.has(setcode)) {
-		let count = 0;
-		for (const id of code_table.get(setcode)) {
-			condition += ` OR id == $sid${count}`;
-			arg[`$sid${count}`] = id;
-			count += 1;
-		}
+	const id_list = code_table.get(setcode);
+	if (id_list) {
+		const placeholders = id_list.map((_, i) => `$sid${i}`).join(', ');
+		condition += ` OR id IN (${placeholders})`;
+		id_list.forEach((id, i) => {
+			arg[`$sid${i}`] = id;
+		});
 	}
 	return `(${condition})`;
 }
