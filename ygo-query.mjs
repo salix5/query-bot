@@ -316,7 +316,7 @@ export function generate_condition(params, id_list) {
 	}
 	if (Number.isSafeInteger(params.page_size) && params.page_size > 0) {
 		arg.$limit = params.page_size;
-		if (Number.isSafeInteger(params.page) && params.page > 0) {
+		if (Number.isSafeInteger(params.page) && params.page > 0 && Number.isSafeInteger((params.page - 1) * params.page_size)) {
 			arg.$offset = (params.page - 1) * params.page_size;
 		}
 	}
