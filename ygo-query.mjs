@@ -240,19 +240,13 @@ export function generate_condition(params, id_list) {
 		key_list.push(cid_table.get(params.cid) ?? -1);
 	}
 	if (key_list.length) {
-		let key_condition = "id == $key0";
-		arg.$key0 = key_list[0];
-		for (let i = 1; i < key_list.length; i += 1) {
-			key_condition += ` OR id == $key${i}`;
-			arg[`$key${i}`] = key_list[i];
-		}
-		qstr = ` AND (${key_condition})`;
+		qstr = ` AND ${pack_condition(key_list, arg, 'key')}`;
 		return [qstr, arg];
 	}
 
 	// number
 	if (id_list && id_list.length) {
-		qstr += ` AND ${pack_condition(id_list, arg)}`;
+		qstr += ` AND ${pack_condition(id_list, arg, 'id')}`;
 	}
 	if (Number.isSafeInteger(params.tcg)) {
 		if (params.tcg) {
