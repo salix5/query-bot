@@ -32,17 +32,16 @@ import { CID_BLACK_LUSTER_SOLDIER, MAX_CARD_ID } from './ygo-constant.mjs';
  * @returns {Map<number, any>}
  */
 function object_to_map(obj) {
-	const entries = Object.entries(obj);
-	const result = [];
-	for (const [prop, value] of entries) {
+	const result = new Map();
+	for (const [prop, value] of Object.entries(obj)) {
 		const key = Number.parseInt(prop, 10);
 		if (!Number.isSafeInteger(key)) {
 			console.error('object_to_map: invalid key', prop);
 			continue;
 		}
-		result.push([key, value]);
+		result.set(key, value);
 	}
-	return new Map(result);
+	return result;
 }
 
 export const cid_table = object_to_map(cid_json);
