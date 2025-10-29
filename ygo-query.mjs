@@ -326,10 +326,16 @@ export function generate_condition(params, id_list) {
 		qstr += ` AND "desc" LIKE $desc ESCAPE '$'`;
 		arg.$desc = like_pattern(params.desc);
 	}
-	if (is_string(params.pack, MAX_STRING_LENGTH) && pre_release.has(params.pack)) {
-		qstr += " AND (id BETWEEN $pack_begin AND $pack_end)";
-		arg.$pack_begin = pre_release.get(params.pack);
-		arg.$pack_end = pre_release.get(params.pack) + 500;
+	if (is_string(params.pack, MAX_STRING_LENGTH)) {
+		if (pack_list[params.pack]) {
+			const pack = pack_list[params.pack].filter(x => Number.isSafeInteger(x) && x > 0);
+			qstr += ` AND ${pack_condition(pack, arg, 'pack')}`;
+		}
+		else if (pre_release.has(params.pack)) {
+			qstr += " AND (id BETWEEN $pack_begin AND $pack_end)";
+			arg.$pack_begin = pre_release.get(params.pack);
+			arg.$pack_end = pre_release.get(params.pack) + 500;
+		}
 	}
 
 	if (!arg.$cardtype || arg.$cardtype === card_types.TYPE_MONSTER) {
@@ -679,16 +685,13 @@ export function query_card(params) {
 	}
 	if (is_string(params.pack, MAX_STRING_LENGTH) && pack_list[params.pack]) {
 		const pack = pack_list[params.pack];
-		const id_list = [];
 		const index_table = new Map();
 		for (let i = 0; i < pack.length; i += 1) {
 			if (Number.isSafeInteger(pack[i]) && pack[i] > 0) {
-				id_list.push(pack[i]);
 				index_table.set(pack[i], i);
 			}
 		}
-		delete params.pack;
-		const [condition, arg_condition] = generate_condition(params, id_list);
+		const [condition, arg_condition] = generate_condition(params);
 		const stmt = `${stmt_default}${condition};`;
 		const arg = {
 			...arg_default,
