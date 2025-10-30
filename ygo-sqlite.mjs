@@ -24,11 +24,11 @@ export const ID_TYLER_THE_GREAT_WARRIOR = 68811206;
 export const ID_DECOY = 20240828;
 
 const column_names = `datas.id, datas.ot, datas.alias, datas.setcode, datas.type, datas.atk, datas.def, datas.level, datas.race, datas.attribute, texts.name, texts."desc"`;
-export const select_all = `SELECT ${column_names} FROM datas JOIN texts USING (id) WHERE 1`;
-export const select_id = `SELECT datas.id FROM datas JOIN texts USING (id) WHERE 1`;
-export const select_name = `SELECT datas.id, texts.name FROM datas JOIN texts USING (id) WHERE 1`;
+export const select_all = `SELECT ${column_names} FROM datas JOIN texts USING (id) WHERE`;
+export const select_id = `SELECT datas.id FROM datas JOIN texts USING (id) WHERE`;
+export const select_name = `SELECT datas.id, texts.name FROM datas JOIN texts USING (id) WHERE`;
 
-export const base_filter = ` AND id != $tyler AND id != $decoy AND NOT type & $token`;
+export const base_filter = ` NOT id IN ($tyler, $decoy) AND NOT type & $token`;
 export const no_alt_filter = ` AND (id == $luster OR abs(id - alias) >= $artwork_offset)`;
 export const default_filter = `${base_filter}${no_alt_filter}`;
 export const effect_filter = ` AND (NOT type & $normal OR type & $pendulum)`;
@@ -333,7 +333,7 @@ export function read_db(path, sql = stmt_default, arg = arg_default) {
  * @returns 
  */
 export function check_uniqueness(path, id_luster = ID_BLACK_LUSTER_SOLDIER) {
-	const condition = ` AND (NOT type & $token OR alias == $none) AND (type & $token OR id == $luster OR abs(id - alias) >= $artwork_offset)`;
+	const condition = ` (NOT type & $token OR alias == $none) AND (type & $token OR id == $luster OR abs(id - alias) >= $artwork_offset)`;
 	const stmt1 = `${select_name}${condition}`;
 	const arg1 = {
 		$token: arg_default.$token,
