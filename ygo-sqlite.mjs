@@ -27,6 +27,7 @@ const column_names = `datas.id, datas.ot, datas.alias, datas.setcode, datas.type
 export const select_all = `SELECT ${column_names} FROM datas JOIN texts USING (id) WHERE 1`;
 export const select_id = `SELECT datas.id FROM datas JOIN texts USING (id) WHERE 1`;
 export const select_name = `SELECT datas.id, texts.name FROM datas JOIN texts USING (id) WHERE 1`;
+export const select_count = `SELECT COUNT(*) FROM datas JOIN texts USING (id) WHERE 1`;
 
 export const base_filter = ` AND NOT id IN ($tyler, $decoy) AND NOT type & $token`;
 export const no_alt_filter = ` AND (id == $luster OR abs(id - alias) >= $artwork_offset)`;
@@ -34,6 +35,7 @@ export const default_filter = `${base_filter}${no_alt_filter}`;
 export const effect_filter = ` AND (NOT type & $normal OR type & $pendulum)`;
 
 export const stmt_default = `${select_all}${default_filter}`;
+export const stmt_count = `${select_count}${default_filter}`;
 export const arg_default = {
 	$tyler: ID_TYLER_THE_GREAT_WARRIOR,
 	$decoy: ID_DECOY,
