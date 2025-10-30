@@ -5,7 +5,7 @@ import { id_to_cid, cid_table, name_table, md_table, md_card_list } from './ygo-
 import { escape_regexp, escape_wildcard, inverse_mapping, zh_collator, zh_compare } from './ygo-utility.mjs';
 import { db_url1, db_url2, fetch_db } from './ygo-fetch.mjs';
 import { card_types, monster_types, link_markers, md_rarity, spell_colors, trap_colors, CID_BLACK_LUSTER_SOLDIER, spell_types, trap_types, MAX_CARD_ID } from "./ygo-constant.mjs";
-import { arg_base, arg_default, arg_seventh, effect_filter, stmt_base, stmt_default, stmt_seventh } from './ygo-sqlite.mjs';
+import { arg_base, arg_default, arg_seventh, effect_filter, stmt_base, stmt_count, stmt_default, stmt_seventh } from './ygo-sqlite.mjs';
 import { is_alternative, like_pattern, name_condition, pack_condition, query_db, setcode_condition, sqlite3_open, } from './ygo-sqlite.mjs';
 
 export const regexp_mention = `(?<=「)[^「」]*「?[^「」]*」?[^「」]*(?=」)`;
@@ -671,7 +671,7 @@ export function query_alias(alias) {
 /**
  * Query card from all databases with JSON object `params`.
  * @param {Object} params 
- * @returns {Card[]}
+ * @returns {{result: Card[], total: number}}
  */
 export function query_card(params) {
 	if (Number.isSafeInteger(params.id) || Number.isSafeInteger(params.cid)) {
@@ -681,8 +681,17 @@ export function query_card(params) {
 			...arg_base,
 			...arg_condition,
 		};
-		return query(stmt, arg);
+		const result = query(stmt, arg);
+		const total = result.length;
+		return { result, total };
 	}
+	const [condition, arg_condition] = generate_condition(params);
+	const stmt1 = `${stmt_default}${condition};`;
+	const arg1 = {
+		...arg_default,
+		...arg_condition,
+	};
+	const result = query(stmt1, arg1);
 	if (is_string(params.pack, MAX_STRING_LENGTH) && pack_list[params.pack]) {
 		const pack = pack_list[params.pack];
 		const index_table = new Map();
@@ -691,32 +700,27 @@ export function query_card(params) {
 				index_table.set(pack[i], i);
 			}
 		}
-		const [condition, arg_condition] = generate_condition(params);
-		const stmt = `${stmt_default}${condition};`;
-		const arg = {
-			...arg_default,
-			...arg_condition,
-		};
-		const result = query(stmt, arg);
 		for (const card of result) {
 			card.pack_index = index_table.get(card.id);
 		}
 		if (result.length > 1) {
 			result.sort((a, b) => a.pack_index - b.pack_index);
 		}
-		return result;
 	}
-	const [condition, arg_condition] = generate_condition(params);
-	if (!Object.keys(arg_condition).length) {
-		return [];
+	let total = result.length;
+	if (arg1.$limit) {
+		const stmt2 = `${stmt_count}${condition};`;
+		const arg2 = { ...arg1 };
+		delete arg2.$limit;
+		delete arg2.$offset;
+		total = 0;
+		for(const db of db_list) {
+			const st = db.prepare(stmt2);
+			st.setReturnArrays(true);
+			total += st.all(arg2)[0];
+		}
 	}
-	const stmt = `${stmt_default}${condition};`;
-	const arg = {
-		...arg_default,
-		...arg_condition,
-	};
-	const result = query(stmt, arg);
-	return result;
+	return { result, total };
 }
 
 /**
