@@ -27,7 +27,7 @@ const column_names = `datas.id, datas.ot, datas.alias, datas.setcode, datas.type
 export const select_all = `SELECT ${column_names} FROM datas JOIN texts USING (id) WHERE 1`;
 export const select_id = `SELECT datas.id FROM datas JOIN texts USING (id) WHERE 1`;
 export const select_name = `SELECT datas.id, texts.name FROM datas JOIN texts USING (id) WHERE 1`;
-export const select_count = `SELECT COUNT(*) FROM datas JOIN texts USING (id) WHERE 1`;
+export const select_count = `SELECT count(*) FROM datas JOIN texts USING (id) WHERE 1`;
 
 export const base_filter = ` AND NOT id IN ($tyler, $decoy) AND NOT type & $token`;
 export const no_alt_filter = ` AND (id == $luster OR abs(id - alias) >= $artwork_offset)`;
