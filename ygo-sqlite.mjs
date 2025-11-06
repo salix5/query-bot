@@ -204,8 +204,8 @@ export function query_db(db, sql = stmt_default, arg = arg_default) {
 		for (const [column, value] of Object.entries(card)) {
 			switch (column) {
 				case 'level':
-					card.level = Number(value) & 0xffff;
-					card.scale = Number(value) >> 24 & 0xff;
+					card.level = Number(BigInt.asUintN(32, value) & 0xffffn);
+					card.scale = Number((BigInt.asUintN(32, value) & 0xff000000n) >> 24);
 					break;
 				case 'setcode':
 				case 'race':
