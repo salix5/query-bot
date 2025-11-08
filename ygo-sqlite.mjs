@@ -5,6 +5,7 @@ import { id_to_cid, extra_setcodes, setname_table } from './ygo-json-loader.mjs'
 
 export {
 	CID_BLACK_LUSTER_SOLDIER,
+	MAX_CARD_ID,
 	card_types,
 	monster_types,
 	spell_types,
