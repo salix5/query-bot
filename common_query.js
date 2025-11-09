@@ -99,7 +99,7 @@ export function create_reply(card, locale) {
 		const row1 = new ActionRowBuilder();
 		const button1 = new ButtonBuilder()
 			.setStyle(ButtonStyle.Link)
-			.setURL(ygo.wiki_link.get(pack_name))
+			.setURL("https://salix5.github.io/wiki/")
 			.setLabel('Wiki');
 		row1.addComponents(button1);
 		if (ygo.get_seventh_xyz(card).length) {
