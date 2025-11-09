@@ -96,11 +96,13 @@ export function create_reply(card, locale) {
 		msg.components.push(row1);
 	}
 	else if (pack_name) {
+		const card_locale = (card.ot === 2) ? 'EN' : 'JP';
+		const card_number = `${pack_name}-${card_locale}${card.pack_index.toString().padStart(3, '0')}`;
 		const row1 = new ActionRowBuilder();
 		const button1 = new ButtonBuilder()
 			.setStyle(ButtonStyle.Link)
 			.setURL("https://salix5.github.io/wiki/")
-			.setLabel('Wiki');
+			.setLabel(card_number);
 		row1.addComponents(button1);
 		if (ygo.get_seventh_xyz(card).length) {
 			const button_seventh = new ButtonBuilder()
