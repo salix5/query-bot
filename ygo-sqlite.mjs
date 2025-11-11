@@ -124,11 +124,13 @@ function regexp_test(pattern, str) {
  * @returns {number}
  */
 function setcode_match(value, setcode) {
-	value = BigInt.asUintN(16, value);
+	if (setcode === 0n || value === 0n)
+		return 0;
 	const setname = value & 0x0fffn;
 	const settype = value & 0xf000n;
-	for (let x = BigInt.asUintN(64, setcode); x > 0n; x >>= 16n) {
-		const section = x & 0xffffn;
+	const data= BigInt.asUintN(64, setcode);
+	for (let i = 0n; i < 4n; i += 1n) {
+		const section = (data >> (i * 16n)) & 0xffffn;
 		if ((section & 0x0fffn) === setname && (section & settype) === settype)
 			return 1;
 	}
