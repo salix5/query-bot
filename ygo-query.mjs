@@ -52,12 +52,12 @@ const db_list = [];
  * @property {number} ot
  * @property {number} alias
  * @property {number[]} setcode
- * @property {number} type
+ * @property {bigint} type
  * @property {number} atk
  * @property {number} [def]
  * @property {number} [marker]
  * @property {number} level
- * @property {number} race
+ * @property {bigint} race
  * @property {number} attribute
  * @property {number} [scale]
  * @property {number} [md_rarity]
