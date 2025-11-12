@@ -96,13 +96,13 @@ for (const [name, code] of Object.entries(setname_table)) {
  * @property {number} ot
  * @property {number} alias
  * @property {number[]} setcode
- * @property {number} type
+ * @property {bigint} type
  * @property {number} atk
  * @property {number} def
  * @property {number} level
+ * @property {number} scale
  * @property {bigint} race
  * @property {number} attribute
- * @property {number} scale
  * 
  * @property {string} name
  * @property {string} desc
@@ -128,9 +128,8 @@ function setcode_match(value, setcode) {
 		return 0;
 	const setname = value & 0x0fffn;
 	const settype = value & 0xf000n;
-	const data= BigInt.asUintN(64, setcode);
 	for (let i = 0n; i < 4n; i += 1n) {
-		const section = (data >> (i * 16n)) & 0xffffn;
+		const section = (setcode >> (i * 16n)) & 0xffffn;
 		if ((section & 0x0fffn) === setname && (section & settype) === settype)
 			return 1;
 	}
@@ -171,14 +170,18 @@ const convert_table = new Map();
  */
 function write_setcode(list, setcode) {
 	list.length = 0;
+	if (!setcode) {
+		return;
+	}
 	if (convert_table.has(setcode)) {
 		list.push(...convert_table.get(setcode));
 		return;
 	}
 	const result = [];
-	for (let x = setcode; x > 0n; x >>= 16n) {
-		if (x & 0xffffn) {
-			result.push(Number(x & 0xffffn));
+	for (let i = 0n; i < 4n; i += 1n) {
+		const section = (setcode >> (i * 16n)) & 0xffffn;
+		if (section) {
+			result.push(Number(section));
 		}
 	}
 	convert_table.set(setcode, result);
@@ -211,8 +214,10 @@ export function query_db(db, sql = stmt_default, arg = arg_default) {
 					card.scale = Number((BigInt.asUintN(32, value) & 0xff000000n) >> 24n);
 					break;
 				case 'setcode':
+				case 'type':
 				case 'race':
-					card[column] = BigInt.asUintN(64, value);
+				case 'category':
+					card[column] = BigInt.asIntN(64, value);
 					break;
 				default:
 					if (typeof value === 'bigint')
