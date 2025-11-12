@@ -9,7 +9,6 @@ import { arg_base, arg_default, arg_seventh, effect_filter, stmt_base, stmt_coun
 import { is_alternative, like_pattern, name_condition, pack_condition, query_db, setcode_condition, sqlite3_open, } from './ygo-sqlite.mjs';
 
 export const regexp_mention = `(?<=「)[^「」]*「?[^「」]*」?[^「」]*(?=」)`;
-const MAX_PATTERN_LENGTH = 200;
 const MAX_STRING_LENGTH = 10;
 const db_list = [];
 
@@ -218,8 +217,8 @@ function seventh_condition() {
 
 
 // query
-function is_string(str, max_length) {
-	return typeof str === 'string' && str.length > 0 && str.length <= max_length;
+function is_string(str) {
+	return typeof str === 'string' && str.length > 0;
 }
 
 /**
@@ -316,17 +315,17 @@ export function generate_condition(params, id_list) {
 	}
 
 	// text
-	if (is_string(params.name, MAX_PATTERN_LENGTH)) {
+	if (is_string(params.name)) {
 		qstr += ` AND ${name_condition(params.name, arg)}`;
 	}
 	else if (Number.isSafeInteger(params.setcode) && params.setcode > 0) {
 		qstr += ` AND ${setcode_condition(params.setcode, arg)}`;
 	}
-	if (is_string(params.desc, MAX_PATTERN_LENGTH)) {
+	if (is_string(params.desc)) {
 		qstr += ` AND "desc" LIKE $desc ESCAPE '$'`;
 		arg.$desc = like_pattern(params.desc);
 	}
-	if (is_string(params.pack, MAX_STRING_LENGTH)) {
+	if (is_string(params.pack)) {
 		if (pack_list[params.pack]) {
 			const pack = pack_list[params.pack].filter(x => Number.isSafeInteger(x) && x > 0);
 			qstr += ` AND ${pack_condition(pack, arg, 'pack')}`;
