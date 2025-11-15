@@ -177,11 +177,11 @@ function write_setcode(list, setcode) {
 		list.push(...convert_table.get(setcode));
 		return;
 	}
-	const result = [];
+	const result = new Set();
 	for (let i = 0n; i < 4n; i += 1n) {
 		const section = (setcode >> (i * 16n)) & 0xffffn;
 		if (section) {
-			result.push(Number(section));
+			result.add(Number(section));
 		}
 	}
 	convert_table.set(setcode, result);
