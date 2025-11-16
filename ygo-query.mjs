@@ -6,7 +6,7 @@ import { escape_regexp, escape_wildcard, inverse_mapping, zh_collator, zh_compar
 import { db_url1, db_url2, fetch_db } from './ygo-fetch.mjs';
 import { card_types, monster_types, link_markers, md_rarity, spell_colors, trap_colors, CID_BLACK_LUSTER_SOLDIER, spell_types, trap_types, MAX_CARD_ID } from "./ygo-constant.mjs";
 import { arg_base, arg_default, arg_seventh, effect_filter, stmt_base, stmt_count, stmt_default, stmt_seventh } from './ygo-sqlite.mjs';
-import { is_alternative, like_pattern, name_condition, pack_condition, query_db, setcode_condition, sqlite3_open, } from './ygo-sqlite.mjs';
+import { is_alternative, like_pattern, name_condition, list_condition, query_db, setcode_condition, sqlite3_open, } from './ygo-sqlite.mjs';
 
 export const regexp_mention = `(?<=「)[^「」]*「?[^「」]*」?[^「」]*(?=」)`;
 const MAX_STRING_LENGTH = 10;
@@ -239,13 +239,13 @@ export function generate_condition(params, id_list) {
 		key_list.push(cid_table.get(params.cid) ?? -1);
 	}
 	if (key_list.length) {
-		qstr = ` AND ${pack_condition(key_list, arg, 'key')}`;
+		qstr = ` AND ${list_condition('id', 'id', key_list, arg)}`;
 		return [qstr, arg];
 	}
 
 	// number
 	if (id_list && id_list.length) {
-		qstr += ` AND ${pack_condition(id_list, arg, 'id')}`;
+		qstr += ` AND ${list_condition('id', 'id', id_list, arg)}`;
 	}
 	if (Number.isSafeInteger(params.tcg)) {
 		if (params.tcg) {
@@ -328,7 +328,7 @@ export function generate_condition(params, id_list) {
 	if (is_string(params.pack)) {
 		if (pack_list[params.pack]) {
 			const pack = pack_list[params.pack].filter(x => Number.isSafeInteger(x) && x > 0);
-			qstr += ` AND ${pack_condition(pack, arg, 'pack')}`;
+			qstr += ` AND ${list_condition('id', 'pack', pack, arg)}`;
 		}
 		else if (pre_release.has(params.pack)) {
 			qstr += " AND (id BETWEEN $pack_begin AND $pack_end)";

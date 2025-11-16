@@ -261,31 +261,32 @@ export function setcode_condition(setcode, arg) {
 	arg.$setcode = BigInt(setcode);
 	const id_list = code_table.get(setcode);
 	if (id_list) {
-		const placeholders = id_list.map((_, i) => `$sid${i}`).join(', ');
-		condition += ` OR id IN (${placeholders})`;
-		id_list.forEach((id, i) => {
-			arg[`$sid${i}`] = id;
-		});
+		condition += ` OR ${list_condition('id', 'sid', id_list, arg)}`;
 	}
 	return `(${condition})`;
 }
 
 /**
- * The sqlite condition of pack.
- * @param {number[]} pack 
+ * The sqlite condition for a list.
+ * @param {string} column 
+ * @param {string} prefix 
+ * @param {Array} list 
  * @param {Object} arg 
- * @param {string} prefix
  * @returns {string}
  */
-export function pack_condition(pack, arg, prefix) {
-	if (pack.length === 0) {
-		return '(0)';
+export function list_condition(column, prefix, list, arg) {
+	const set1 = new Set(list);
+	const tokens = [];
+	let index = 0;
+	for (const value of set1) {
+		if (!Number.isSafeInteger(value)) {
+			continue;
+		}
+		tokens.push(`@${prefix}${index}`);
+		arg[`@${prefix}${index}`] = value;
+		index++;
 	}
-	const placeholders = pack.map((_, i) => `@${prefix}${i}`).join(', ');
-	pack.forEach((id, i) => {
-		arg[`@${prefix}${i}`] = id;
-	});
-	return `(id IN (${placeholders}))`;
+	return `${column} IN (${tokens.join(', ')})`;
 }
 
 /**
