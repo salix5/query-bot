@@ -160,8 +160,8 @@ export async function seventh_handler(interaction) {
 	msg.flags = MessageFlags.Ephemeral;
 	const re_number = /\w?No.10[1-7]/;
 	const request_locale = interaction.customId.substring(0, 2);
-	const id = interaction.customId.substring(2);
-	const card = ygo.get_card(id);
+	const cid = Number.parseInt(interaction.customId.substring(2)) ?? 0;
+	const card = ygo.get_card(ygo.cid_table.get(cid));
 	if (!card) {
 		console.error('invalid customId', interaction.customId);
 		msg.content = 'invalid button';
