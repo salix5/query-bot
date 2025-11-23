@@ -82,7 +82,7 @@ export function create_reply(card, locale) {
 			const button3 = new ButtonBuilder()
 				.setStyle(ButtonStyle.Primary)
 				.setLabel('七皇')
-				.setCustomId(`${request_locale}${card.cid ?? card.id}`);
+				.setCustomId(`${request_locale}${card.id}`);
 			row_db.addComponents(button3);
 		}
 		msg.components.push(row_db);
@@ -109,7 +109,7 @@ export function create_reply(card, locale) {
 			const button_seventh = new ButtonBuilder()
 				.setStyle(ButtonStyle.Primary)
 				.setLabel('七皇')
-				.setCustomId(`${request_locale}${card.cid ?? card.id}`);
+				.setCustomId(`${request_locale}${card.id}`);
 			row1.addComponents(button_seventh);
 		}
 		msg.components.push(row1);
@@ -160,8 +160,8 @@ export async function seventh_handler(interaction) {
 	msg.flags = MessageFlags.Ephemeral;
 	const re_number = /\w?No.10[1-7]/;
 	const request_locale = interaction.customId.substring(0, 2);
-	const cid = Number.parseInt(interaction.customId.substring(2)) ?? 0;
-	const card = ygo.get_card(ygo.cid_table.get(cid));
+	const id = Number.parseInt(interaction.customId.substring(2)) ?? 0;
+	const card = ygo.get_card(id);
 	if (!card) {
 		console.error('invalid customId', interaction.customId);
 		msg.content = 'invalid button';
@@ -179,7 +179,7 @@ export async function seventh_handler(interaction) {
 			.setURL(ygo.print_db_link(seventh.cid, request_locale));
 		row_seventh.addComponents(button1);
 	}
-	msg.content = '時空の七皇\nSeventh Tachyon';
+	msg.content = '時空の七皇\nSeventh Tachyon\nRelated cards: ';
 	msg.components = [];
 	msg.components.push(row_seventh);
 	await interaction.reply(msg);
