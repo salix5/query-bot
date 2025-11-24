@@ -228,8 +228,7 @@ export function query_db(db, sql = stmt_default, arg = arg_default) {
 		if ('setcode' in card) {
 			const setcode = card.setcode;
 			card.setcode = [];
-			const key = card.alias || card.id;
-			const list = extra_setcodes.get(key);
+			const list = extra_setcodes.get(card.id);
 			if (list)
 				card.setcode.push(...list);
 			else
