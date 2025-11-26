@@ -244,7 +244,7 @@ export function generate_condition(params, id_list) {
 	}
 
 	// number
-	if (id_list && id_list.length) {
+	if (Array.isArray(id_list) && id_list.length) {
 		qstr += ` AND ${list_condition('id', 'id', id_list, arg)}`;
 	}
 	if (Number.isSafeInteger(params.tcg)) {
@@ -434,19 +434,8 @@ export function generate_condition(params, id_list) {
 		}
 
 		// lv, rank, link
-		let level_count = 0;
-		let level_condition = "0";
 		if (Array.isArray(params.level) && params.level.length) {
-			for (const value of params.level) {
-				if (!Number.isSafeInteger(value))
-					continue;
-				level_condition += ` OR (level & $level_mask) == $level${level_count}`;
-				arg[`$level${level_count}`] = value;
-				level_count += 1;
-			}
-		}
-		if (level_count) {
-			qstr += ` AND (${level_condition})`;
+			qstr += ` AND ${list_condition('level & $level_mask', 'level', params.level, arg)}`;
 			arg.$level_mask = 0xffff;
 			is_monster = true;
 		}
@@ -480,19 +469,8 @@ export function generate_condition(params, id_list) {
 
 		// scale, pendulum monster only
 		let has_scale = false;
-		let scale_condition = "0";
-		let scale_count = 0;
 		if (Array.isArray(params.scale) && params.scale.length) {
-			for (const value of params.scale) {
-				if (!Number.isSafeInteger(value))
-					continue;
-				scale_condition += ` OR (level >> $offset & $mask) == $scale${scale_count}`;
-				arg[`$scale${scale_count}`] = value;
-				scale_count += 1;
-			}
-		}
-		if (scale_count) {
-			qstr += ` AND (${scale_condition})`;
+			qstr += ` AND ${list_condition('level >> $offset & $mask', 'scale', params.scale, arg)}`;
 			arg.$offset = 24;
 			arg.$mask = 0xff;
 			has_scale = true;
@@ -713,7 +691,7 @@ export function query_card(params) {
 		delete arg2.$limit;
 		delete arg2.$offset;
 		total = 0;
-		for(const db of db_list) {
+		for (const db of db_list) {
 			const st = db.prepare(stmt2);
 			st.setReturnArrays(true);
 			total += st.all(arg2)[0];
