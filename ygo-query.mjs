@@ -638,7 +638,7 @@ export function query(qstr = stmt_default, arg = arg_default) {
  * @returns {Card[]}
  */
 export function query_alias(alias) {
-	const qstr = `${stmt_default} AND alias == $alias;`;
+	const qstr = `${stmt_default} AND alias == $alias`;
 	const arg = {
 		...arg_default,
 		$alias: alias,
@@ -654,7 +654,7 @@ export function query_alias(alias) {
 export function query_card(params) {
 	if (Number.isSafeInteger(params.id) || Number.isSafeInteger(params.cid)) {
 		const [condition, arg_condition] = generate_condition(params);
-		const stmt = `${stmt_base}${condition};`;
+		const stmt = `${stmt_base}${condition}`;
 		const arg = {
 			...arg_base,
 			...arg_condition,
@@ -664,7 +664,7 @@ export function query_card(params) {
 		return { result, total };
 	}
 	const [condition, arg_condition] = generate_condition(params);
-	const stmt1 = `${stmt_default}${condition};`;
+	const stmt1 = `${stmt_default}${condition}`;
 	const arg1 = {
 		...arg_default,
 		...arg_condition,
