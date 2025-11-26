@@ -144,7 +144,6 @@ function setcode_match(value, setcode) {
 export function sqlite3_open(filename) {
 	const db_option = {
 		readOnly: true,
-		readBigInts: true,
 	};
 	const regexp_option = {
 		deterministic: true,
@@ -205,6 +204,7 @@ export function query_db(db, sql = stmt_default, arg = arg_default) {
 	}
 	const full_sql = `${sql} ORDER BY id${page_filter}`;
 	const stmt = db.prepare(full_sql);
+	stmt.setReadBigInts(true);
 	const result = stmt.all(arg);
 	for (const card of result) {
 		for (const [column, value] of Object.entries(card)) {
