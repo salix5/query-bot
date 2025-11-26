@@ -695,7 +695,7 @@ export function query_card(params) {
 		for (const db of db_list) {
 			const st = db.prepare(stmt2);
 			st.setReturnArrays(true);
-			total += st.all(arg2)[0];
+			total += st.all(arg2)[0][0];
 		}
 	}
 	return { result, total };
