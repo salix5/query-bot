@@ -164,7 +164,7 @@ export function sqlite3_open(filename) {
 
 const convert_table = new Map();
 /**
- * Write uint64 `setcode` to an array.
+ * Write int64 `setcode` to an array.
  * @param {number[]} list 
  * @param {bigint} setcode 
  */
@@ -269,7 +269,7 @@ export function setcode_condition(setcode, arg) {
  * The sqlite condition for a list.
  * @param {string} column 
  * @param {string} prefix 
- * @param {Array} list 
+ * @param {number[]} list 
  * @param {Object} arg 
  * @returns {string}
  */
