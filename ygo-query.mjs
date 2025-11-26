@@ -469,10 +469,11 @@ export function generate_condition(params, id_list) {
 
 		// scale, pendulum monster only
 		let has_scale = false;
+		const scale_column = "level >> $scale_pos & $scale_mask";
 		if (Array.isArray(params.scale) && params.scale.length) {
-			qstr += ` AND ${list_condition('level >> $offset & $mask', 'scale', params.scale, arg)}`;
-			arg.$offset = 24;
-			arg.$mask = 0xff;
+			qstr += ` AND ${list_condition(scale_column, 'scale', params.scale, arg)}`;
+			arg.$scale_pos = 24;
+			arg.$scale_mask = 0xff;
 			has_scale = true;
 		}
 		else {
@@ -483,24 +484,24 @@ export function generate_condition(params, id_list) {
 			if (Number.isSafeInteger(params.scale_to) && params.scale_to >= 0)
 				scale_to = params.scale_to;
 			if (scale_from >= 0 && scale_to >= 0) {
-				qstr += " AND ((level >> $offset & $mask) BETWEEN $scale_from AND $scale_to)";
-				arg.$offset = 24;
-				arg.$mask = 0xff;
+				qstr += ` AND (${scale_column} BETWEEN $scale_from AND $scale_to)`;
+				arg.$scale_pos = 24;
+				arg.$scale_mask = 0xff;
 				arg.$scale_from = scale_from;
 				arg.$scale_to = scale_to;
 				has_scale = true;
 			}
 			else if (scale_from >= 0) {
-				qstr += " AND (level >> $offset & $mask) >= $scale_from";
-				arg.$offset = 24;
-				arg.$mask = 0xff;
+				qstr += ` AND ${scale_column} >= $scale_from`;
+				arg.$scale_pos = 24;
+				arg.$scale_mask = 0xff;
 				arg.$scale_from = scale_from;
 				has_scale = true;
 			}
 			else if (scale_to >= 0) {
-				qstr += " AND (level >> $offset & $mask) <= $scale_to";
-				arg.$offset = 24;
-				arg.$mask = 0xff;
+				qstr += ` AND ${scale_column} <= $scale_to`;
+				arg.$scale_pos = 24;
+				arg.$scale_mask = 0xff;
 				arg.$scale_to = scale_to;
 				has_scale = true;
 			}
