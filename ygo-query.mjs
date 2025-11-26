@@ -52,7 +52,7 @@ const db_list = [];
  * @property {number} ot
  * @property {number} alias
  * @property {number[]} setcode
- * @property {bigint} type
+ * @property {number} type
  * @property {number} atk
  * @property {number} [def]
  * @property {number} [marker]

@@ -96,7 +96,7 @@ for (const [name, code] of Object.entries(setname_table)) {
  * @property {number} ot
  * @property {number} alias
  * @property {number[]} setcode
- * @property {bigint} type
+ * @property {number} type
  * @property {number} atk
  * @property {number} def
  * @property {number} level
@@ -214,7 +214,6 @@ export function query_db(db, sql = stmt_default, arg = arg_default) {
 					card.scale = Number((BigInt.asUintN(32, value) & 0xff000000n) >> 24n);
 					break;
 				case 'setcode':
-				case 'type':
 				case 'race':
 				case 'category':
 					card[column] = BigInt.asIntN(64, value);
