@@ -240,6 +240,7 @@ export const interface_types = {
 
 	"name": 2,
 	"desc": 2,
+	"keyword": 2,
 	"pack": 2,
 };
 

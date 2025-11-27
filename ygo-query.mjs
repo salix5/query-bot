@@ -315,15 +315,20 @@ export function generate_condition(params, id_list) {
 	}
 
 	// text
-	if (is_string(params.name)) {
-		qstr += ` AND ${name_condition(params.name, arg)}`;
+	if (is_string(params.keyword)) {
+		qstr += ` AND (${name_condition(params.keyword, arg)} OR "desc" LIKE $name ESCAPE '$')`;
 	}
-	else if (Number.isSafeInteger(params.setcode) && params.setcode > 0) {
-		qstr += ` AND ${setcode_condition(params.setcode, arg)}`;
-	}
-	if (is_string(params.desc)) {
-		qstr += ` AND "desc" LIKE $desc ESCAPE '$'`;
-		arg.$desc = like_pattern(params.desc);
+	else {
+		if (is_string(params.name)) {
+			qstr += ` AND ${name_condition(params.name, arg)}`;
+		}
+		else if (Number.isSafeInteger(params.setcode) && params.setcode > 0) {
+			qstr += ` AND ${setcode_condition(params.setcode, arg)}`;
+		}
+		if (is_string(params.desc)) {
+			qstr += ` AND "desc" LIKE $desc ESCAPE '$'`;
+			arg.$desc = like_pattern(params.desc);
+		}
 	}
 	if (is_string(params.pack)) {
 		if (pack_list[params.pack]) {
