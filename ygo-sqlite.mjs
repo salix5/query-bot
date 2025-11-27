@@ -224,7 +224,7 @@ export function query_db(db, sql = stmt_default, arg = arg_default) {
 					break;
 			}
 		}
-		if ('setcode' in card) {
+		if (Object.hasOwn(card, 'setcode')) {
 			const setcode = card.setcode;
 			card.setcode = [];
 			const list = extra_setcodes.get(card.id);
