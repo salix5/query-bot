@@ -52,10 +52,8 @@ export const arg_base = {
 	$token: monster_types.TYPE_TOKEN,
 };
 
-export const stmt_no_alias = `${select_id}${base_filter} AND alias == $none`;
+export const stmt_no_alias = `SELECT datas.id FROM datas JOIN texts USING (id) WHERE NOT type & $token AND alias == $none`;
 export const arg_no_alias = {
-	$tyler: ID_TYLER_THE_GREAT_WARRIOR,
-	$decoy: ID_DECOY,
 	$token: monster_types.TYPE_TOKEN,
 	$none: 0,
 };
