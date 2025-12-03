@@ -1,7 +1,7 @@
 import { DatabaseSync } from "node:sqlite";
 import { monster_types } from "./ygo-constant.mjs";
 import { inverse_mapping } from "./ygo-utility.mjs";
-import { id_to_cid, extra_setcodes, setname_table } from './ygo-json-loader.mjs';
+import { id_to_cid, extra_setcodes, setname_table } from "./ygo-json-loader.mjs";
 
 export {
 	CID_BLACK_LUSTER_SOLDIER,
@@ -67,6 +67,13 @@ export const arg_seventh = {
 for (let i = 0; i < 7; i += 1) {
 	arg_seventh[`$${101 + i}`] = `%No.${101 + i}%`;
 }
+
+const stmt_attach = `ATTACH DATABASE ? AS sub;`;
+const stmt_detach = `DETACH DATABASE sub;`;
+const stmt_merge = `BEGIN TRANSACTION;
+INSERT OR REPLACE INTO datas SELECT * FROM sub.datas;
+INSERT OR REPLACE INTO texts SELECT * FROM sub.texts;
+COMMIT;`;
 
 export const re_wildcard = /(?<!\$)[%_]/;
 
@@ -157,6 +164,36 @@ export function sqlite3_open(filename) {
 	db.function('regexp', regexp_option, regexp_test);
 	db.function('match', match_option, setcode_match);
 	return db;
+}
+
+/**
+ * Merge databases in `db_list` into `base_db`.
+ * @param {string} base_db
+ * @param {string[]} db_list
+ * @returns {boolean}
+ */
+export function merge_db(base_db, db_list) {
+	if (db_list.length === 0) {
+		return true;
+	}
+	const base = new DatabaseSync(base_db);
+	base.exec("PRAGMA trusted_schema = OFF;");
+	const stmt1 = base.prepare(stmt_attach);
+	for (const db of db_list) {
+		try {
+			stmt1.run(db);
+			base.exec(stmt_merge);
+			base.exec(stmt_detach);
+		}
+		catch (error) {
+			console.error('Failed to merge database:', db);
+			console.error(error);
+			base.close();
+			return false;
+		}
+	}
+	base.close();
+	return true;
 }
 
 const convert_table = new Map();
