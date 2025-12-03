@@ -1,11 +1,11 @@
-import { writeFile } from 'node:fs/promises';
+import { rename, rm, writeFile } from 'node:fs/promises';
 import { ltable_ocg, ltable_tcg, ltable_md, pack_list, pre_release, genesys_point, complete_name_table, setname_table } from './ygo-json-loader.mjs';
 import { lang, collator_locale, bls_postfix, official_name, game_name } from './ygo-json-loader.mjs';
 import { id_to_cid, cid_table, name_table, md_table, md_card_list } from './ygo-json-loader.mjs';
 import { escape_regexp, escape_wildcard, inverse_mapping, zh_collator, zh_compare } from './ygo-utility.mjs';
 import { db_url1, db_url2, fetch_db } from './ygo-fetch.mjs';
 import { card_types, monster_types, link_markers, md_rarity, spell_colors, trap_colors, CID_BLACK_LUSTER_SOLDIER, spell_types, trap_types, MAX_CARD_ID } from "./ygo-constant.mjs";
-import { arg_base, arg_default, arg_seventh, effect_filter, stmt_base, stmt_count, stmt_default, stmt_seventh } from './ygo-sqlite.mjs';
+import { arg_base, arg_default, arg_seventh, effect_filter, merge_db, stmt_base, stmt_count, stmt_default, stmt_seventh } from './ygo-sqlite.mjs';
 import { is_alternative, like_pattern, name_condition, list_condition, query_db, setcode_condition, sqlite3_open, } from './ygo-sqlite.mjs';
 
 export const regexp_mention = `(?<=「)[^「」]*「?[^「」]*」?[^「」]*(?=」)`;
@@ -552,6 +552,7 @@ export function generate_condition(params, id_list) {
  */
 export async function init_query(files) {
 	if (!files) {
+		const current_path = `${import.meta.dirname}/db/query.cdb`;
 		const temp1 = `${import.meta.dirname}/db/main.cdb`;
 		const temp2 = `${import.meta.dirname}/db/pre.cdb`;
 		try {
@@ -561,36 +562,45 @@ export async function init_query(files) {
 			console.error(error);
 			return;
 		}
-		files = [temp1, temp2];
+		if (!merge_db(temp1, [temp2])) {
+			return;
+		}
+		for (const db of db_list) {
+			db.close();
+		}
+		db_list.length = 0;
+		await rm(current_path, { force: true });
+		await rename(temp1, current_path);
+		db_list.push(sqlite3_open(current_path));
 	}
-	for (const db of db_list) {
-		db.close();
+	else {
+		for (const db of db_list) {
+			db.close();
+		}
+		db_list.length = 0;
+		for (const file of files) {
+			db_list.push(sqlite3_open(file));
+		}
 	}
-	db_list.length = 0;
+	// refresh multimap of No.101 ~ No.107
 	multimap_clear(mmap_seventh);
-	card_table.clear();
-	ambiguous_name_list.clear();
-	for (const file of files) {
-		const db = sqlite3_open(file);
-		db_list.push(db);
-	}
 	const seventh_cards = query(stmt_seventh, arg_seventh);
 	seventh_cards.sort((c1, c2) => zh_collator.compare(c1.tw_name, c2.tw_name));
 	for (const card of seventh_cards) {
 		multimap_insert(mmap_seventh, card.level, card);
 	}
+	// refresh card table
 	const normalized_names = new Map();
+	ambiguous_name_list.clear();
+	card_table.clear();
 	for (const card of query()) {
 		card_table.set(card.id, card);
 		if (setname_table[card.tw_name]) {
 			ambiguous_name_list.add(card.id);
 		}
-		let key = card.tw_name.toLowerCase();
-		if (card.cid === CID_BLACK_LUSTER_SOLDIER) {
-			key += bls_postfix['zh-tw'];
-		}
+		const key = (card.cid === CID_BLACK_LUSTER_SOLDIER) ? `${card.tw_name.toLowerCase()}${bls_postfix['zh-tw']}` : card.tw_name.toLowerCase();
 		if (normalized_names.has(key)) {
-			console.error('duplicate normalized name:', card.id, card.tw_name);
+			console.error('duplicate normalized name:', card.id, key);
 		}
 		normalized_names.set(key, card.id);
 	}
