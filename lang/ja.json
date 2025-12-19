@@ -67,8 +67,7 @@
     },
     "value_name": {
         "atk": "攻",
-        "def": "守",
-        "scale": "ペンデュラムスケール"
+        "def": "守"
     },
     "marker_char": {
         "1": ":arrow_lower_left:",
@@ -86,5 +85,8 @@
         "1": ":one:",
         "2": ":two:",
         "region": "OCG"
+    },
+    "text_name":{
+        "pendulum_effect": "ペンデュラム効果"
     }
 }
