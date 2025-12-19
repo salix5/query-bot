@@ -855,7 +855,7 @@ export function print_data(card, newline, locale) {
 		data += newline;
 
 		if (card.type & monster_types.TYPE_PENDULUM) {
-			data += `【${strings.value_name['scale']}：${card.scale}】${newline}`;
+			data += `:small_blue_diamond:${card.scale}/${card.scale}:small_orange_diamond:${newline}`;
 		}
 		if (card.type & monster_types.TYPE_LINK) {
 			let marker_text = '';
