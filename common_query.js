@@ -43,7 +43,7 @@ async function fetch_desc(card, request_locale) {
 				res_ptext[1] = '';
 			ptext = res_ptext[1].replaceAll('<br>', '\n');
 		}
-		return `${ptext}\n【${ygo.lang[request_locale].type_name[ygo.monster_types.TYPE_EFFECT]}】\n${ctext}\n`;
+		return `【${ygo.lang[request_locale].text_name.pendulum_effect}】\n${ptext}\n【${ygo.lang[request_locale].type_name[ygo.monster_types.TYPE_EFFECT]}】\n${ctext}\n`;
 	}
 	else {
 		return `${ctext}\n`;

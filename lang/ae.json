@@ -67,8 +67,7 @@
     },
     "value_name": {
         "atk": "ATK ",
-        "def": "DEF ",
-        "scale": "Pendulum Scale"
+        "def": "DEF "
     },
     "marker_char": {
         "1": ":arrow_lower_left:",
@@ -86,5 +85,8 @@
         "1": ":one:",
         "2": ":two:",
         "region": "OCG"
+    },
+    "text_name":{
+        "pendulum_effect": "Pendulum Effect"
     }
 }
