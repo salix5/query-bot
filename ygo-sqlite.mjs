@@ -25,10 +25,10 @@ export const ID_TYLER_THE_GREAT_WARRIOR = 68811206;
 export const ID_DECOY = 20240828;
 
 const column_names = `datas.id, datas.ot, datas.alias, datas.setcode, datas.type, datas.atk, datas.def, datas.level, datas.race, datas.attribute, texts.name, texts."desc"`;
-export const select_all = `SELECT ${column_names} FROM datas JOIN texts USING (id) WHERE 1`;
-export const select_id = `SELECT datas.id FROM datas JOIN texts USING (id) WHERE 1`;
-export const select_name = `SELECT datas.id, texts.name FROM datas JOIN texts USING (id) WHERE 1`;
-export const select_count = `SELECT count(*) FROM datas JOIN texts USING (id) WHERE 1`;
+export const select_all = `SELECT ${column_names} FROM datas JOIN texts USING (id) WHERE 1 = 1`;
+export const select_id = `SELECT datas.id FROM datas JOIN texts USING (id) WHERE 1 = 1`;
+export const select_name = `SELECT datas.id, texts.name FROM datas JOIN texts USING (id) WHERE 1 = 1`;
+export const select_count = `SELECT count(*) FROM datas JOIN texts USING (id) WHERE 1 = 1`;
 
 export const base_filter = ` AND NOT id IN ($tyler, $decoy) AND NOT type & $token`;
 export const no_alt_filter = ` AND (id == $luster OR abs(id - alias) >= $artwork_offset)`;
