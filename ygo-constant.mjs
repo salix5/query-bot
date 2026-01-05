@@ -218,8 +218,8 @@ export const interface_types = {
 	"spell_type": 0,
 	"trap_type": 0,
 	"mention": 0,
-	"page_size": 0,
-	"page": 0,
+	"limit": 0,
+	"offset": 0,
 
 	"atk_from": 0,
 	"atk_to": 0,
