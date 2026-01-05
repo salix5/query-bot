@@ -307,10 +307,25 @@ export function generate_condition(params, id_list) {
 		arg.$normal = monster_types.TYPE_NORMAL;
 		arg.$pendulum = monster_types.TYPE_PENDULUM;
 	}
-	if (Number.isSafeInteger(params.page_size) && params.page_size > 0) {
-		arg.$limit = params.page_size;
-		if (Number.isSafeInteger(params.page) && params.page > 0 && Number.isSafeInteger((params.page - 1) * params.page_size)) {
-			arg.$offset = (params.page - 1) * params.page_size;
+	if (is_string(params.pack)) {
+		if (pack_list[params.pack]) {
+			const pack = pack_list[params.pack].filter(x => Number.isSafeInteger(x) && x > 0);
+			qstr += ` AND ${list_condition('id', 'pack', pack, arg)}`;
+			delete params.limit;
+			delete params.offset;
+		}
+		else if (pre_release.has(params.pack)) {
+			qstr += " AND (id BETWEEN $pack_begin AND $pack_end)";
+			arg.$pack_begin = pre_release.get(params.pack);
+			arg.$pack_end = pre_release.get(params.pack) + 500;
+			delete params.limit;
+			delete params.offset;
+		}
+	}
+	if (Number.isSafeInteger(params.limit) && params.limit > 0) {
+		arg.$limit = params.limit;
+		if (Number.isSafeInteger(params.offset) && params.offset > 0) {
+			arg.$offset = params.offset;
 		}
 		else {
 			arg.$offset = 0;
@@ -331,17 +346,6 @@ export function generate_condition(params, id_list) {
 		if (is_string(params.desc)) {
 			qstr += ` AND "desc" LIKE $desc ESCAPE '$'`;
 			arg.$desc = like_pattern(params.desc);
-		}
-	}
-	if (is_string(params.pack)) {
-		if (pack_list[params.pack]) {
-			const pack = pack_list[params.pack].filter(x => Number.isSafeInteger(x) && x > 0);
-			qstr += ` AND ${list_condition('id', 'pack', pack, arg)}`;
-		}
-		else if (pre_release.has(params.pack)) {
-			qstr += " AND (id BETWEEN $pack_begin AND $pack_end)";
-			arg.$pack_begin = pre_release.get(params.pack);
-			arg.$pack_end = pre_release.get(params.pack) + 500;
 		}
 	}
 
@@ -667,9 +671,9 @@ export function query_alias(alias) {
 /**
  * Query card from all databases with JSON object `params`.
  * @param {Object} params 
- * @returns {Object}
  */
 export function query_card(params) {
+	const meta = {};
 	if (Number.isSafeInteger(params.id) || Number.isSafeInteger(params.cid)) {
 		const [condition, arg_condition] = generate_condition(params);
 		const stmt = `${stmt_base}${condition}`;
@@ -678,8 +682,8 @@ export function query_card(params) {
 			...arg_condition,
 		};
 		const result = query(stmt, arg);
-		const total = result.length;
-		return { result, total };
+		meta.total = result.length;
+		return { result, meta };
 	}
 	const [condition, arg_condition] = generate_condition(params);
 	const stmt1 = `${stmt_default}${condition}`;
@@ -703,21 +707,23 @@ export function query_card(params) {
 			result.sort((a, b) => a.pack_index - b.pack_index);
 		}
 	}
-	let total = result.length;
+	meta.total = result.length;
 	if (arg1.$limit) {
 		const command = `${stmt_count}${condition};`;
 		const arg2 = { ...arg1 };
 		delete arg2.$limit;
 		delete arg2.$offset;
-		total = 0;
+		let total = 0;
 		for (const db of db_list) {
 			const st = db.prepare(command);
 			st.setReturnArrays(true);
 			total += st.all(arg2)[0][0];
 		}
+		meta.total = total;
+		meta.offset = arg1.$offset;
+		meta.limit = arg1.$limit;
 	}
-	const offset = arg1.$offset ?? 0;
-	return { result, offset, total };
+	return { result, meta };
 }
 
 /**
