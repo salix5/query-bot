@@ -312,6 +312,9 @@ export function generate_condition(params, id_list) {
 		if (Number.isSafeInteger(params.page) && params.page > 0 && Number.isSafeInteger((params.page - 1) * params.page_size)) {
 			arg.$offset = (params.page - 1) * params.page_size;
 		}
+		else {
+			arg.$offset = 0;
+		}
 	}
 
 	// text
@@ -664,7 +667,7 @@ export function query_alias(alias) {
 /**
  * Query card from all databases with JSON object `params`.
  * @param {Object} params 
- * @returns {{result: Card[], total: number}}
+ * @returns {Object}
  */
 export function query_card(params) {
 	if (Number.isSafeInteger(params.id) || Number.isSafeInteger(params.cid)) {
@@ -702,18 +705,19 @@ export function query_card(params) {
 	}
 	let total = result.length;
 	if (arg1.$limit) {
-		const stmt2 = `${stmt_count}${condition};`;
+		const command = `${stmt_count}${condition};`;
 		const arg2 = { ...arg1 };
 		delete arg2.$limit;
 		delete arg2.$offset;
 		total = 0;
 		for (const db of db_list) {
-			const st = db.prepare(stmt2);
+			const st = db.prepare(command);
 			st.setReturnArrays(true);
 			total += st.all(arg2)[0][0];
 		}
 	}
-	return { result, total };
+	const offset = arg1.$offset ?? 0;
+	return { result, offset, total };
 }
 
 /**
