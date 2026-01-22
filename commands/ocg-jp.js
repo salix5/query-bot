@@ -13,7 +13,7 @@ export const data = new SlashCommandBuilder()
 	);
 data.integration_types = [0, 1];
 data.contexts = [0, 1, 2];
-export const cooldown = 2;
+export const cooldown = 5;
 export { autocomplete_jp as autocomplete } from '../common_all.js';
 export async function execute(interaction) {
 	await query_command(interaction, 'ja', 'ja');
