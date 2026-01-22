@@ -121,7 +121,7 @@ export function create_reply(card, locale) {
 
 /**
  * The handler of query slash command.
- * @param {ChatInputCommandInteraction} interaction 
+ * @param {import('discord.js').ChatInputCommandInteraction} interaction 
  * @param {string} input_locale 
  * @param {string} output_locale 
  */
@@ -135,7 +135,11 @@ export async function query_command(interaction, input_locale, output_locale) {
 			count++;
 			search_count.set(card.id, count);
 			if (output_locale === 'zh-tw') {
-				await interaction.reply(create_reply(card, output_locale));
+				const response = await interaction.reply(create_reply(card, output_locale));
+				if (card.cid && ygo.genesys_point[card.cid] == 100) {
+					const msg = response.resource.message;
+					await msg?.react('💯');
+				}
 			}
 			else {
 				await interaction.deferReply();
