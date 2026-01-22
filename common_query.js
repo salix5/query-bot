@@ -57,7 +57,7 @@ async function fetch_desc(card, request_locale) {
  * @param {ygo.Card} card 
  * @param {string} locale 
  * @param {boolean} seventh
- * @returns 
+ * @returns {{ content: string, components: any[] }}
  */
 export function create_reply(card, locale) {
 	const msg = Object.create(null);
@@ -135,10 +135,12 @@ export async function query_command(interaction, input_locale, output_locale) {
 			count++;
 			search_count.set(card.id, count);
 			if (output_locale === 'zh-tw') {
-				const response = await interaction.reply(create_reply(card, output_locale));
+				const reply_msg = create_reply(card, output_locale);
+				reply_msg.withResponse = true;
+				const response = await interaction.reply(reply_msg);
 				if (card.cid && ygo.genesys_point[card.cid] == 100) {
-					const msg = response.resource.message;
-					await msg?.react('💯');
+					const message = response.resource.message;
+					await message?.react('💯');
 				}
 			}
 			else {
