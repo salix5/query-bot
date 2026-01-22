@@ -104,7 +104,7 @@ client.on(Events.InteractionCreate, async interaction => {
 				if (now < expirationTime) {
 					const expiredTimestamp = Math.round(expirationTime / 1000);
 					try {
-						await interaction.reply({ content: `CD: <t:${expiredTimestamp}:R>`, flags: MessageFlags.Ephemeral });
+						await interaction.reply({ content: `Cooldown: <t:${expiredTimestamp}:R>`, flags: MessageFlags.Ephemeral });
 					}
 					catch (error) {
 						console.error(interaction.user.id);
