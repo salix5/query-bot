@@ -223,9 +223,9 @@ function is_string(str) {
 
 /**
  * Parse param into sqlite statement condition.
- * @param {Object} params 
+ * @param {object} params 
  * @param {number[]} [id_list]
- * @returns {[string, Object]}
+ * @returns {[string, object]}
  */
 export function generate_condition(params, id_list) {
 	let qstr = "";
@@ -641,7 +641,7 @@ export function is_setcode(card, value) {
 /**
  * Query card from all databases with statement `qstr` and binding object `arg`.
  * @param {string} qstr 
- * @param {Object} arg 
+ * @param {object} arg 
  * @returns {Card[]}
  */
 export function query(qstr = stmt_default, arg = arg_default) {
@@ -670,7 +670,7 @@ export function query_alias(alias) {
 
 /**
  * Query card from all databases with JSON object `params`.
- * @param {Object} params 
+ * @param {object} params 
  */
 export function query_card(params) {
 	const meta = {};

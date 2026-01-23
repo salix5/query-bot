@@ -226,7 +226,7 @@ function write_setcode(list, setcode) {
  * Query cards from `db` with statement `qstr` and binding object `arg`.
  * @param {DatabaseSync} db 
  * @param {string} sql 
- * @param {Object} arg 
+ * @param {object} arg 
  * @returns {Entry[]}
  */
 export function query_db(db, sql = stmt_default, arg = arg_default) {
@@ -286,7 +286,7 @@ export function is_alternative(cdata) {
 /**
  * The sqlite condition of setcode.
  * @param {number} setcode
- * @param {Object} arg
+ * @param {object} arg
  * @returns {string}
  */
 export function setcode_condition(setcode, arg) {
@@ -304,7 +304,7 @@ export function setcode_condition(setcode, arg) {
  * @param {string} column 
  * @param {string} prefix 
  * @param {number[]} list 
- * @param {Object} arg 
+ * @param {object} arg 
  * @returns {string}
  */
 export function list_condition(column, prefix, list, arg) {
@@ -338,7 +338,7 @@ export function like_pattern(str) {
 /**
  * Generate the name condition of a statement.
  * @param {string} input
- * @param {Object} arg
+ * @param {object} arg
  * @returns {string}
  */
 export function name_condition(input, arg) {
@@ -360,7 +360,7 @@ export function name_condition(input, arg) {
  * Get cards from databases file at `path` with statement `sql` and binding object `arg`.
  * @param {string} path
  * @param {string} sql 
- * @param {Object} arg 
+ * @param {object} arg 
  * @returns 
  */
 export function read_db(path, sql = stmt_default, arg = arg_default) {
