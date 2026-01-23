@@ -6,7 +6,7 @@ import setname_table from './data/setname.json' with { type: 'json' };
 import pack_list from './pack/pack_list.json' with { type: 'json' };
 import pre_table from './pack/pre_release.json' with { type: 'json' };
 import wiki_table from './pack/wiki_link.json' with { type: 'json' };
-import genesys_point from'./data/genesys_point.json' with { type: 'json' };
+import genesys_point from './data/genesys_point.json' with { type: 'json' };
 
 import cid_json from './data/cid_table.json' with { type: 'json' };
 import ae_table from './data/name_table_ae.json' with { type: 'json' };
@@ -28,7 +28,7 @@ import { inverse_mapping } from './ygo-utility.mjs';
 import { CID_BLACK_LUSTER_SOLDIER, MAX_CARD_ID } from './ygo-constant.mjs';
 
 /**
- * @param {Object} obj 
+ * @param {object} obj 
  * @returns {Map<number, any>}
  */
 function object_to_map(obj) {
@@ -98,7 +98,7 @@ const convert_map1 = object_to_map(ruby_table);
 convert_map1.delete(CID_BLACK_LUSTER_SOLDIER);
 const jp_collator = new Intl.Collator('ja-JP');
 const ruby_entries = [...inverse_mapping(convert_map1)].sort((a, b) => jp_collator.compare(jp_table[a[1]], jp_table[b[1]]));
-for(const entry of ruby_entries) {
+for (const entry of ruby_entries) {
 	entry[1] = cid_table.get(entry[1]);
 }
 export const choices_ruby = new Map(ruby_entries);
