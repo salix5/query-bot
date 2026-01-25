@@ -13,7 +13,7 @@ const MAX_STRING_LENGTH = 10;
 const db_list = [];
 
 /**
- * @typedef {Object} Entry
+ * @typedef {object} Entry
  * @property {number} id
  * @property {number} ot
  * @property {number} alias
@@ -31,13 +31,13 @@ const db_list = [];
  */
 
 /**
- * @typedef {Object} CardText
+ * @typedef {object} CardText
  * @property {string} desc
  * @property {string} [db_desc]
  */
 
 /**
- * @typedef {Object} Card
+ * @typedef {object} Card
  * @property {number} [cid]
  * @property {number} id
  * @property {string} tw_name
