@@ -58,14 +58,14 @@ export const arg_no_alias = {
 	$none: 0,
 };
 
-const over_hundred = '(name like $101 OR name like $102 OR name like $103 OR name like $104 OR name like $105 OR name like $106 OR name like $107)';
+const over_hundred = '(name like $n101 OR name like $n102 OR name like $n103 OR name like $n104 OR name like $n105 OR name like $n106 OR name like $n107)';
 export const stmt_seventh = `${stmt_default} AND type & $xyz AND ${over_hundred}`;
 export const arg_seventh = {
 	...arg_default,
 	$xyz: monster_types.TYPE_XYZ,
 };
 for (let i = 0; i < 7; i += 1) {
-	arg_seventh[`$${101 + i}`] = `%No.${101 + i}%`;
+	arg_seventh[`n$${101 + i}`] = `%No.${101 + i}%`;
 }
 
 const stmt_attach = `ATTACH DATABASE ? AS sub;`;
