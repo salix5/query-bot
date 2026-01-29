@@ -560,16 +560,18 @@ export function generate_condition(params, id_list) {
 export async function init_query(files) {
 	if (!files) {
 		const current_path = `${import.meta.dirname}/db/query.cdb`;
-		const temp1 = `${import.meta.dirname}/db/main.cdb`;
-		const temp2 = `${import.meta.dirname}/db/pre.cdb`;
+		const base = `${import.meta.dirname}/db/main.cdb`;
+		const ext1 = `${import.meta.dirname}/db/pre.cdb`;
 		try {
-			await Promise.all([writeFile(temp1, await fetch_db(db_url1)), writeFile(temp2, await fetch_db(db_url2))]);
+			const task1 = fetch_db(db_url1).then(data => writeFile(base, data));
+			const task2 = fetch_db(db_url2).then(data => writeFile(ext1, data));
+			await Promise.all([task1, task2]);
 		}
 		catch (error) {
 			console.error(error);
 			return;
 		}
-		if (!merge_db(temp1, [temp2])) {
+		if (!merge_db(base, [ext1])) {
 			return;
 		}
 		for (const db of db_list) {
@@ -577,7 +579,7 @@ export async function init_query(files) {
 		}
 		db_list.length = 0;
 		await rm(current_path, { force: true });
-		await rename(temp1, current_path);
+		await rename(base, current_path);
 		db_list.push(sqlite3_open(current_path));
 	}
 	else {
