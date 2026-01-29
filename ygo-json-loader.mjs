@@ -149,6 +149,23 @@ for (const locale of Object.keys(name_table)) {
 }
 
 /**
+ * Create the [name, id] table of region `request_locale`
+ * @param {string} request_locale 
+ * @returns {Map<string, number>}
+ */
+export function create_choice(request_locale) {
+	if (!complete_name_table[request_locale])
+		return new Map();
+	const inverse = inverse_mapping(complete_name_table[request_locale]);
+	const collator = new Intl.Collator(collator_locale[request_locale]);
+	const entries = [...inverse].sort((a, b) => collator.compare(a[0], b[0]));
+	for (const entry of entries) {
+		entry[1] = cid_table.get(entry[1]);
+	}
+	return new Map(entries);
+}
+
+/**
  * Get the pack name for pre-release id.
  * @param {number} id
  * @returns {string}

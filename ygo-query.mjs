@@ -1,8 +1,8 @@
 import { rename, rm, writeFile } from 'node:fs/promises';
-import { ltable_ocg, ltable_tcg, ltable_md, pack_list, pre_release, genesys_point, complete_name_table, setname_table } from './ygo-json-loader.mjs';
-import { lang, collator_locale, bls_postfix, official_name, game_name } from './ygo-json-loader.mjs';
+import { ltable_ocg, ltable_tcg, ltable_md, pack_list, pre_release, genesys_point, setname_table } from './ygo-json-loader.mjs';
+import { lang, bls_postfix, official_name, game_name } from './ygo-json-loader.mjs';
 import { id_to_cid, cid_table, name_table, md_table, md_card_list } from './ygo-json-loader.mjs';
-import { escape_regexp, escape_wildcard, inverse_mapping, zh_collator, zh_compare } from './ygo-utility.mjs';
+import { escape_regexp, escape_wildcard, zh_collator, zh_compare } from './ygo-utility.mjs';
 import { db_url1, db_url2, fetch_db } from './ygo-fetch.mjs';
 import { card_types, monster_types, link_markers, md_rarity, spell_colors, trap_colors, CID_BLACK_LUSTER_SOLDIER, spell_types, trap_types, MAX_CARD_ID } from "./ygo-constant.mjs";
 import { arg_base, arg_default, arg_seventh, effect_filter, merge_db, stmt_base, stmt_count, stmt_default, stmt_seventh } from './ygo-sqlite.mjs';
@@ -1042,23 +1042,6 @@ export function print_card(card, locale) {
 
 
 // table
-/**
- * Create the [name, id] table of region `request_locale`
- * @param {string} request_locale 
- * @returns {Map<string, number>}
- */
-export function create_choice(request_locale) {
-	if (!complete_name_table[request_locale])
-		return new Map();
-	const inverse = inverse_mapping(complete_name_table[request_locale]);
-	const collator = new Intl.Collator(collator_locale[request_locale]);
-	const entries = [...inverse].sort((a, b) => collator.compare(a[0], b[0]));
-	for (const entry of entries) {
-		entry[1] = cid_table.get(entry[1]);
-	}
-	return new Map(entries);
-}
-
 /**
  * Create the [name, id] table for pre-release cards.
  * @returns {Map<string, number>}
