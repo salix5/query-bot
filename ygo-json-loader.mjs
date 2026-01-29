@@ -121,12 +121,14 @@ for (const locale of Object.keys(official_name)) {
 			continue;
 		}
 	}
-	if (table1.has(CID_BLACK_LUSTER_SOLDIER))
-		table1.set(CID_BLACK_LUSTER_SOLDIER, `${table1.get(CID_BLACK_LUSTER_SOLDIER)}${bls_postfix[locale]}`);
+	if (table1.has(CID_BLACK_LUSTER_SOLDIER)) {
+		const bls_name = `${table1.get(CID_BLACK_LUSTER_SOLDIER)}${bls_postfix[locale]}`;
+		table1.set(CID_BLACK_LUSTER_SOLDIER, bls_name);
+	}
 	complete_name_table[locale] = table1;
 }
 
-for (const cid of cid_table.keys()) {
+for (const [cid] of cid_table) {
 	if (!complete_name_table['ja'].has(cid) && !complete_name_table['en'].has(cid)) {
 		console.error('cid_table: invalid cid', cid);
 		cid_table.delete(cid);
@@ -168,9 +170,7 @@ export function get_pack_name(id) {
  * @returns {string}
  */
 export function get_name(cid, locale) {
-	if (!complete_name_table[locale])
-		return '';
-	if (!complete_name_table[locale].has(cid))
+	if (!complete_name_table[locale]?.has(cid))
 		return '';
 	if (cid === CID_BLACK_LUSTER_SOLDIER && complete_name_table[locale].has(4370))
 		return complete_name_table[locale].get(4370);
