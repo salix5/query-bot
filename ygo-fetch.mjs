@@ -9,5 +9,9 @@ export { db_url1, db_url2 };
  * @returns 
  */
 export async function fetch_db(url) {
-	return (await fetch(url)).bytes();
+	const resp = await fetch(url);
+	if (!resp.ok) {
+		throw new Error(`Failed to fetch ${url}: ${resp.status} ${resp.statusText}`);
+	}
+	return resp.bytes();
 }
