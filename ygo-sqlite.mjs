@@ -65,7 +65,7 @@ export const arg_seventh = {
 	$xyz: monster_types.TYPE_XYZ,
 };
 for (let i = 0; i < 7; i += 1) {
-	arg_seventh[`n$${101 + i}`] = `%No.${101 + i}%`;
+	arg_seventh[`$n${101 + i}`] = `%No.${101 + i}%`;
 }
 
 const stmt_attach = `ATTACH DATABASE ? AS sub;`;
