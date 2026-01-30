@@ -1,14 +1,14 @@
 /* eslint-disable no-unused-vars */
 import { AutocompleteInteraction } from "discord.js";
-import { create_choice, create_choice_prerelease, create_choice_db, inverse_mapping } from "./ygo-query.mjs";
-import { choices_ruby, official_name } from "./ygo-json-loader.mjs";
+import { create_choice_prerelease, create_choice_db, inverse_mapping } from "./ygo-query.mjs";
+import { choices_ruby, name_to_id } from "./ygo-json-loader.mjs";
 
 const MAX_CHOICE = 25;
 
-export const choice_table = Object.create(null);
-for (const locale of Object.keys(official_name)) {
-	choice_table[locale] = create_choice(locale);
-}
+export const choice_table = {
+	__proto__: null,
+	...name_to_id,
+};
 refresh_choice_table();
 
 const jp_entries = half_width_entries(choice_table['ja']);
