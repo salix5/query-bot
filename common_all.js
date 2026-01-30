@@ -1,5 +1,3 @@
-/* eslint-disable no-unused-vars */
-import { AutocompleteInteraction } from "discord.js";
 import { create_choice_prerelease, create_choice_db, inverse_mapping } from "./ygo-query.mjs";
 import { choices_ruby, name_to_id } from "./ygo-json-loader.mjs";
 
@@ -16,7 +14,7 @@ const name_jp = inverse_mapping(choice_table['ja']);
 
 /**
  * @param {string} str
- * @returns
+ * @returns {string}
  */
 function toHalfWidth(str) {
 	return str.replace(/[Ａ-Ｚａ-ｚ０-９]/g, (s) => String.fromCharCode(s.charCodeAt(0) - 0xFEE0));
@@ -24,8 +22,9 @@ function toHalfWidth(str) {
 
 /**
  * @param {string} str
- * @returns 
+ * @returns {string}
  */
+// eslint-disable-next-line no-unused-vars
 function toFullWidth(str) {
 	return str.replace(/[A-Za-z0-9]/g, (s) => String.fromCharCode(s.charCodeAt(0) + 0xFEE0));
 }
@@ -55,7 +54,7 @@ export function refresh_choice_table() {
 }
 
 /**
- * @param {AutocompleteInteraction} interaction 
+ * @param {import('discord.js').AutocompleteInteraction} interaction 
  * @param {[string, number][]} entries 
  * @returns id list
  */
@@ -80,7 +79,7 @@ function filter_choice(interaction, entries) {
 
 /**
  * The autocomplete handler for Japanese card names, which also searches ruby.
- * @param {AutocompleteInteraction} interaction
+ * @param {import('discord.js').AutocompleteInteraction} interaction
  */
 export async function autocomplete_jp(interaction) {
 	const focused = interaction.options.getFocused().trim();
@@ -118,7 +117,7 @@ export async function autocomplete_jp(interaction) {
 
 /**
  * The default autocomplete handler.
- * @param {AutocompleteInteraction} interaction 
+ * @param {import('discord.js').AutocompleteInteraction} interaction 
  * @param {string} request_locale 
  * @returns 
  */
@@ -131,7 +130,7 @@ export async function autocomplete_default(interaction, request_locale) {
 	const starts_with = [];
 	const other = [];
 	const keyword = focused.toLowerCase();
-	for (const [choice, _] of choice_table[request_locale]) {
+	for (const choice of choice_table[request_locale].keys()) {
 		if (choice.toLowerCase().startsWith(keyword))
 			starts_with.push(choice);
 		else if (choice.toLowerCase().includes(keyword))
