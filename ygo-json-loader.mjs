@@ -153,7 +153,7 @@ for (const locale of Object.keys(name_table)) {
  * @param {string} request_locale 
  * @returns {Map<string, number>}
  */
-export function create_choice(request_locale) {
+function create_choice(request_locale) {
 	if (!complete_name_table[request_locale])
 		return new Map();
 	const inverse = inverse_mapping(complete_name_table[request_locale]);
@@ -163,6 +163,11 @@ export function create_choice(request_locale) {
 		entry[1] = cid_table.get(entry[1]);
 	}
 	return new Map(entries);
+}
+
+export const name_to_id = Object.create(null);
+for (const locale of Object.keys(official_name)) {
+	name_to_id[locale] = create_choice(locale);
 }
 
 /**
