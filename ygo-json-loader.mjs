@@ -63,36 +63,46 @@ export const pre_release = new Map(Object.entries(pre_table));
 export const wiki_link = new Map(Object.entries(wiki_table));
 export const id_to_cid = inverse_mapping(cid_table);
 
-export const official_name = Object.create(null);
-official_name['ae'] = 'ae_name';
-official_name['en'] = 'en_name';
-official_name['ja'] = 'jp_name';
-official_name['ko'] = 'kr_name';
+export const official_name = {
+	__proto__: null,
+	'ae': 'ae_name',
+	'en': 'en_name',
+	'ja': 'jp_name',
+	'ko': 'kr_name',
+};
 
-export const lang = Object.create(null);
-lang['ae'] = lang_ae;
-lang['en'] = lang_en;
-lang['ja'] = lang_ja;
-lang['ko'] = lang_ko;
-lang['zh-tw'] = lang_zhtw;
+export const lang = {
+	__proto__: null,
+	'ae': lang_ae,
+	'en': lang_en,
+	'ja': lang_ja,
+	'ko': lang_ko,
+	'zh-tw': lang_zhtw,
+};
 
-export const collator_locale = Object.create(null);
-collator_locale['ae'] = 'en-US';
-collator_locale['en'] = 'en-US';
-collator_locale['ja'] = 'ja-JP';
-collator_locale['ko'] = 'ko-KR';
-collator_locale['zh-tw'] = 'zh-Hant';
+export const collator_locale = {
+	__proto__: null,
+	'ae': 'en-US',
+	'en': 'en-US',
+	'ja': 'ja-JP',
+	'ko': 'ko-KR',
+	'zh-tw': 'zh-Hant',
+};
 
-export const bls_postfix = Object.create(null);
-bls_postfix['ae'] = ' (Normal)';
-bls_postfix['en'] = ' (Normal)';
-bls_postfix['ja'] = '（通常モンスター）';
-bls_postfix['ko'] = ' (일반)';
-bls_postfix['zh-tw'] = '（通常怪獸）';
+export const bls_postfix = {
+	__proto__: null,
+	'ae': ' (Normal)',
+	'en': ' (Normal)',
+	'ja': '（通常モンスター）',
+	'ko': ' (일반)',
+	'zh-tw': '（通常怪獸）',
+};
 
-export const game_name = Object.create(null);
-game_name['en'] = 'md_name_en';
-game_name['ja'] = 'md_name_jp';
+export const game_name = {
+	__proto__: null,
+	'en': 'md_name_en',
+	'ja': 'md_name_jp',
+};
 
 const convert_map1 = object_to_map(ruby_table);
 convert_map1.delete(CID_BLACK_LUSTER_SOLDIER);
