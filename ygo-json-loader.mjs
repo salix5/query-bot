@@ -138,7 +138,7 @@ for (const locale of Object.keys(official_name)) {
 	complete_name_table[locale] = table1;
 }
 
-for (const [cid] of cid_table) {
+for (const cid of cid_table.keys()) {
 	if (!complete_name_table['ja'].has(cid) && !complete_name_table['en'].has(cid)) {
 		console.error('cid_table: invalid cid', cid);
 		cid_table.delete(cid);
@@ -152,8 +152,7 @@ if (cid_table.size !== cid_set.size) {
 for (const locale of Object.keys(name_table)) {
 	if (locale === 'ja' || locale === 'en')
 		continue;
-	const key_set = new Set(name_table[locale].keys());
-	if (!key_set.isSubsetOf(cid_set)) {
+	if (!cid_set.isSupersetOf(name_table[locale])) {
 		console.error(`invalid cid in name_table[${locale}]`);
 	}
 }
