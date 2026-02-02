@@ -25,7 +25,7 @@ import lang_ja from './lang/ja.json' with { type: 'json' };
 import lang_ko from './lang/ko.json' with { type: 'json' };
 import lang_zhtw from './lang/zh-tw.json' with { type: 'json' };
 import { inverse_mapping } from './ygo-utility.mjs';
-import { CID_BLACK_LUSTER_SOLDIER, MAX_CARD_ID } from './ygo-constant.mjs';
+import { CID_BLACK_LUSTER_SOLDIER, CID_RITUAL_BLS, MAX_CARD_ID } from './ygo-constant.mjs';
 
 /**
  * @param {object} obj 
@@ -203,8 +203,8 @@ export function get_pack_name(id) {
 export function get_name(cid, locale) {
 	if (!complete_name_table[locale]?.has(cid))
 		return '';
-	if (cid === CID_BLACK_LUSTER_SOLDIER && complete_name_table[locale].has(4370))
-		return complete_name_table[locale].get(4370);
+	if (cid === CID_BLACK_LUSTER_SOLDIER && complete_name_table[locale].has(CID_RITUAL_BLS))
+		return complete_name_table[locale].get(CID_RITUAL_BLS);
 	return complete_name_table[locale].get(cid);
 }
 
