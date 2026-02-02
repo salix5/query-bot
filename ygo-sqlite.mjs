@@ -4,6 +4,7 @@ import { inverse_mapping } from "./ygo-utility.mjs";
 import { id_to_cid, extra_setcodes, setname_table } from "./ygo-json-loader.mjs";
 
 export {
+	CID_RITUAL_BLS,
 	CID_BLACK_LUSTER_SOLDIER,
 	MAX_CARD_ID,
 	card_types,

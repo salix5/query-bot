@@ -1,4 +1,5 @@
 // special cid
+export const CID_RITUAL_BLS = 4370;
 export const CID_BLACK_LUSTER_SOLDIER = 19092;
 export const MAX_CARD_ID = 99999999;
 
