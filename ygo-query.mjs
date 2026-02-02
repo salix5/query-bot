@@ -571,9 +571,11 @@ export async function init_query(files) {
 			console.error(error);
 			return;
 		}
-		if (!merge_db(base, [ext1])) {
+		const full_db = merge_db(base, [ext1]);
+		if (!full_db) {
 			return;
 		}
+		full_db.close();
 		for (const db of db_list) {
 			db.close();
 		}

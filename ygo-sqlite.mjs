@@ -176,11 +176,11 @@ export function sqlite3_open(filename) {
  * Merge databases in `db_list` into `base_db`.
  * @param {string} base_db
  * @param {string[]} db_list
- * @returns {boolean}
+ * @returns {DatabaseSync?}
  */
 export function merge_db(base_db, db_list) {
 	if (db_list.length === 0) {
-		return true;
+		return null;
 	}
 	const base = new DatabaseSync(base_db);
 	base.exec("PRAGMA trusted_schema = OFF;");
@@ -195,11 +195,10 @@ export function merge_db(base_db, db_list) {
 			console.error('Failed to merge database:', db);
 			console.error(error);
 			base.close();
-			return false;
+			return null;
 		}
 	}
-	base.close();
-	return true;
+	return base;
 }
 
 const convert_table = new Map();
