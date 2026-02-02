@@ -211,18 +211,23 @@ export function get_name(cid, locale) {
 /**
  * Add complete_name_table to the database `db`.
  * @param {DatabaseSync} db 
+ * @param {string} locale
  */
-export function load_name_table(db) {
-	db.exec(`DROP TABLE IF EXISTS en_name;`);
-	db.exec(`CREATE TABLE en_name ("id" INTEGER PRIMARY KEY, name TEXT);`);
-	const insert_name = db.prepare(`INSERT INTO en_name (id, name) VALUES (?, ?);`);
+export function load_name_table(db, locale) {
+	if (!complete_name_table[locale]) {
+		console.error('load_name_table: invalid locale', locale);
+		return;
+	}
+	db.exec(`DROP TABLE IF EXISTS ${locale}_table;`);
+	db.exec(`CREATE TABLE ${locale}_table ("id" INTEGER PRIMARY KEY, "locale_name" TEXT);`);
+	const insert_name = db.prepare(`INSERT INTO ${locale}_table VALUES (?, ?);`);
 	db.exec(`BEGIN TRANSACTION;`);
-	for (const [cid, name] of complete_name_table['en']) {
+	for (const [cid, name] of complete_name_table[locale]) {
 		const id = cid_table.get(cid);
 		insert_name.run(id, name);
 	}
-	const fix_name = db.prepare(`UPDATE en_name SET name = ? WHERE id = ?;`);
-	const bls_name = complete_name_table['en'].get(CID_RITUAL_BLS);
+	const fix_name = db.prepare(`UPDATE ${locale}_table SET locale_name = ? WHERE id = ?;`);
+	const bls_name = complete_name_table[locale].get(CID_RITUAL_BLS);
 	const bls_id = cid_table.get(CID_BLACK_LUSTER_SOLDIER);
 	fix_name.run(bls_name, bls_id);
 	db.exec(`COMMIT;`);
