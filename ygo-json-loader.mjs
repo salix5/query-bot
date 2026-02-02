@@ -211,26 +211,33 @@ export function get_name(cid, locale) {
 /**
  * Add complete_name_table to the database `db`.
  * @param {DatabaseSync} db 
- * @param {string} locale
  */
-export function load_name_table(db, locale) {
-	if (!complete_name_table[locale]) {
-		console.error('load_name_table: invalid locale', locale);
-		return;
+export function load_name_table(db) {
+	const table_name = 'card_names';
+	db.exec(`DROP TABLE IF EXISTS ${table_name};`);
+	db.exec(`CREATE TABLE ${table_name} ("id" INTEGER PRIMARY KEY, "en_name" TEXT, "jp_name" TEXT, "jp_ruby" TEXT);`);
+	const insert_name = db.prepare(`INSERT INTO ${table_name} VALUES (?, ?, ?, ?);`);
+	try {
+		db.exec(`BEGIN TRANSACTION;`);
+		for (const cid of cid_table.keys()) {
+			const id = cid_table.get(cid);
+			const en_name = complete_name_table['en'].get(cid) ?? '';
+			const jp_name = complete_name_table['ja'].get(cid) ?? '';
+			const jp_ruby = name_table['ruby'].get(cid) ?? '';
+			insert_name.run(id, en_name, jp_name, jp_ruby);
+		}
+		const fix_name = db.prepare(`UPDATE ${table_name} SET en_name = ?, jp_name = ?, jp_ruby = ? WHERE id = ?;`);
+		const bls_name_en = complete_name_table['en'].get(CID_RITUAL_BLS) ?? '';
+		const bls_name_jp = complete_name_table['ja'].get(CID_RITUAL_BLS) ?? '';
+		const bls_name_ruby = name_table['ruby'].get(CID_RITUAL_BLS) ?? '';
+		const bls_id = cid_table.get(CID_BLACK_LUSTER_SOLDIER);
+		fix_name.run(bls_name_en, bls_name_jp, bls_name_ruby, bls_id);
+		db.exec(`COMMIT;`);
 	}
-	db.exec(`DROP TABLE IF EXISTS ${locale}_table;`);
-	db.exec(`CREATE TABLE ${locale}_table ("id" INTEGER PRIMARY KEY, "locale_name" TEXT);`);
-	const insert_name = db.prepare(`INSERT INTO ${locale}_table VALUES (?, ?);`);
-	db.exec(`BEGIN TRANSACTION;`);
-	for (const [cid, name] of complete_name_table[locale]) {
-		const id = cid_table.get(cid);
-		insert_name.run(id, name);
+	catch (error) {
+		db.exec(`ROLLBACK;`);
+		console.error('Failed to load card_names table:', error);
 	}
-	const fix_name = db.prepare(`UPDATE ${locale}_table SET locale_name = ? WHERE id = ?;`);
-	const bls_name = complete_name_table[locale].get(CID_RITUAL_BLS);
-	const bls_id = cid_table.get(CID_BLACK_LUSTER_SOLDIER);
-	fix_name.run(bls_name, bls_id);
-	db.exec(`COMMIT;`);
 }
 
 export {
