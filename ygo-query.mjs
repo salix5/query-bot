@@ -1,5 +1,5 @@
 import { rename, rm, writeFile } from 'node:fs/promises';
-import { ltable_ocg, ltable_tcg, ltable_md, pack_list, pre_release, genesys_point, setname_table } from './ygo-json-loader.mjs';
+import { ltable_ocg, ltable_tcg, ltable_md, pack_list, pre_release, genesys_point, setname_table, load_name_table } from './ygo-json-loader.mjs';
 import { lang, bls_postfix, official_name, game_name } from './ygo-json-loader.mjs';
 import { id_to_cid, cid_table, name_table, md_table, md_card_list } from './ygo-json-loader.mjs';
 import { escape_regexp, escape_wildcard, zh_collator, zh_compare } from './ygo-utility.mjs';
@@ -575,6 +575,7 @@ export async function init_query(files) {
 		if (!full_db) {
 			return;
 		}
+		load_name_table(full_db);
 		full_db.close();
 		for (const db of db_list) {
 			db.close();
