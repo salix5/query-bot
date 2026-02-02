@@ -119,8 +119,13 @@ for (const [name, code] of Object.entries(setname_table)) {
  * @returns 
  */
 function regexp_test(pattern, str) {
-	const re = new RegExp(pattern);
-	return re.test(str) ? 1 : 0;
+	try {
+		const re = new RegExp(pattern, 'u');
+		return re.test(str) ? 1 : 0;
+	}
+	catch {
+		return 0;
+	}
 }
 
 /**
