@@ -208,6 +208,26 @@ export function get_name(cid, locale) {
 	return complete_name_table[locale].get(cid);
 }
 
+/**
+ * Add complete_name_table to the database `db`.
+ * @param {DatabaseSync} db 
+ */
+export function load_name_table(db) {
+	db.exec(`DROP TABLE IF EXISTS en_name;`);
+	db.exec(`CREATE TABLE en_name ("id" INTEGER PRIMARY KEY, name TEXT);`);
+	const insert_name = db.prepare(`INSERT INTO en_name (id, name) VALUES (?, ?);`);
+	db.exec(`BEGIN TRANSACTION;`);
+	for (const [cid, name] of complete_name_table['en']) {
+		const id = cid_table.get(cid);
+		insert_name.run(id, name);
+	}
+	const fix_name = db.prepare(`UPDATE en_name SET name = ? WHERE id = ?;`);
+	const bls_name = complete_name_table['en'].get(CID_RITUAL_BLS);
+	const bls_id = cid_table.get(CID_BLACK_LUSTER_SOLDIER);
+	fix_name.run(bls_name, bls_id);
+	db.exec(`COMMIT;`);
+}
+
 export {
 	ltable_ocg, ltable_tcg, ltable_md,
 	md_card_list,
