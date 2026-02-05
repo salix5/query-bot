@@ -2,6 +2,7 @@ import { create_choice_prerelease, create_choice_db, inverse_mapping } from "./y
 import { choices_ruby, name_to_id } from "./ygo-json-loader.mjs";
 
 const MAX_CHOICE = 25;
+const replace_fullwidth = /[Ａ-Ｚａ-ｚ０-９]/g;
 
 export const choice_table = {
 	__proto__: null,
@@ -12,7 +13,6 @@ refresh_choice_table();
 const jp_entries = half_width_entries(choice_table['ja']);
 const name_jp = inverse_mapping(choice_table['ja']);
 
-const replace_fullwidth = /[Ａ-Ｚａ-ｚ０-９]/g;
 /**
  * @param {string} str
  * @returns {string}
