@@ -783,7 +783,8 @@ function get_match_function(target_name, locale) {
  * @param {string} locale 
  * @returns {(a: Card, b: Card) => number}
  */
-export function get_compare_function(name, locale) {
+// eslint-disable-next-line no-unused-vars
+function get_compare_function(name, locale) {
 	const target_name = name?.toLowerCase();
 	if (!target_name) {
 		return compare_card;
