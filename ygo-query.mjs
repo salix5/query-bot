@@ -9,7 +9,6 @@ import { arg_base, arg_default, arg_seventh, effect_filter, merge_db, stmt_base,
 import { is_alternative, like_pattern, name_condition, list_condition, query_db, setcode_condition, sqlite3_open, } from './ygo-sqlite.mjs';
 
 export const regexp_mention = `(?<=「)[^「」]*「?[^「」]*」?[^「」]*(?=」)`;
-const MAX_STRING_LENGTH = 10;
 const db_list = [];
 
 /**
@@ -709,7 +708,7 @@ export function query_card(params) {
 		...arg_condition,
 	};
 	const result = query(stmt1, arg1);
-	if (is_string(params.pack, MAX_STRING_LENGTH) && pack_list[params.pack]) {
+	if (is_string(params.pack) && pack_list[params.pack]) {
 		const pack = pack_list[params.pack];
 		const index_table = new Map();
 		for (let i = 0; i < pack.length; i += 1) {
