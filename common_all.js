@@ -12,12 +12,13 @@ refresh_choice_table();
 const jp_entries = half_width_entries(choice_table['ja']);
 const name_jp = inverse_mapping(choice_table['ja']);
 
+const replace_fullwidth = /[Ａ-Ｚａ-ｚ０-９]/g;
 /**
  * @param {string} str
  * @returns {string}
  */
 function toHalfWidth(str) {
-	return str.replace(/[Ａ-Ｚａ-ｚ０-９]/g, (s) => String.fromCharCode(s.charCodeAt(0) - 0xFEE0));
+	return str.replace(replace_fullwidth, (s) => String.fromCharCode(s.charCodeAt(0) - 0xFEE0));
 }
 
 /**
@@ -31,8 +32,8 @@ function toFullWidth(str) {
 
 function half_width_entries(choices) {
 	const result = [];
-	for (const [name, cid] of choices) {
-		result.push([toHalfWidth(name), cid]);
+	for (const [name, id] of choices) {
+		result.push([toHalfWidth(name), id]);
 	}
 	return result;
 }
