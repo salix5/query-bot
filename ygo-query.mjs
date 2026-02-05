@@ -807,12 +807,10 @@ export function get_request_locale(card, locale) {
 	if (card[official_name[locale]]) {
 		return locale;
 	}
-	else if (card.ot === 2) {
+	if (card.ot === 2) {
 		return 'en';
 	}
-	else {
-		return 'ja';
-	}
+	return 'ja';
 }
 
 /**
