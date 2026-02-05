@@ -77,6 +77,8 @@ INSERT OR REPLACE INTO texts SELECT * FROM sub.texts;
 COMMIT;`;
 
 export const re_wildcard = /(?<!\$)[%_]/;
+const replace_dollar = /\$(?![%_])/g;
+const replace_escape = /\$(?=[%_])/g;
 
 /**
  * @type {Map<number, number[]>}
@@ -337,7 +339,7 @@ export function like_pattern(str) {
 		return '';
 	if (re_wildcard.test(str))
 		return str;
-	return `%${str.replace(/\$(?![%_])/g, '$$$&')}%`;
+	return `%${str.replace(replace_dollar, '$$$&')}%`;
 }
 
 /**
@@ -353,7 +355,7 @@ export function name_condition(input, arg) {
 	Object.assign(arg, arg_no_alias);
 	let keyword = '';
 	if (!re_wildcard.test(input))
-		keyword = input.replace(/\$(?=[%_])/g, '').toLowerCase();
+		keyword = input.replace(replace_escape, '').toLowerCase();
 	if (keyword && normalized_setname_table[keyword]) {
 		condition += ` OR ${setcode_condition(normalized_setname_table[keyword], arg)}`;
 	}

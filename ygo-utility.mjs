@@ -37,20 +37,22 @@ export function inverse_mapping(table) {
 	return inverse;
 }
 
+const replace_regexp = /[|\\{}()[\]^$+*?.]/g;
 /**
  * @param {string} str 
  * @returns {string}
  */
 export function escape_regexp(str) {
-	return str.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&');
+	return str.replace(replace_regexp, '\\$&');
 }
 
+const replace_wildcard = /[%_$]/g;
 /**
  * @param {string} str 
  * @returns {string}
  */
 export function escape_wildcard(str) {
-	return str.replace(/[%_$]/g, '$$$&');
+	return str.replace(replace_wildcard, '$$$&');
 }
 
 /**
