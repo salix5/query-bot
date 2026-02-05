@@ -79,6 +79,10 @@ const mmap_seventh = Object.create(null);
  */
 const ambiguous_name_list = new Set();
 
+const md_exclusive = {
+	22715: true
+};
+
 //workaround
 await init_query();
 
@@ -826,6 +830,9 @@ export function get_request_locale(card, locale) {
 	}
 	if (card.ot === 2) {
 		return 'en';
+	}
+	if (md_exclusive[card.cid]) {
+		return 'md';
 	}
 	return 'ja';
 }
