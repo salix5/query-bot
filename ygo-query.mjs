@@ -348,6 +348,18 @@ export function generate_condition(params, id_list) {
 			arg.$desc = like_pattern(params.desc);
 		}
 	}
+	if (is_string(params.en_name)) {
+		qstr += ` AND en_name LIKE $en_name ESCAPE '$'`;
+		arg.$en_name = like_pattern(params.en_name);
+	}
+	if (is_string(params.jp_name)) {
+		qstr += ` AND jp_name LIKE $jp_name ESCAPE '$'`;
+		arg.$jp_name = like_pattern(params.jp_name);
+	}
+	if (is_string(params.jp_ruby)) {
+		qstr += ` AND jp_ruby LIKE $jp_ruby ESCAPE '$'`;
+		arg.$jp_ruby = like_pattern(params.jp_ruby);
+	}
 
 	if (!arg.$cardtype || arg.$cardtype === card_types.TYPE_MONSTER) {
 		let is_monster = false;
