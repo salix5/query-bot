@@ -53,12 +53,6 @@ export const arg_base = {
 	$token: monster_types.TYPE_TOKEN,
 };
 
-export const stmt_no_alias = `SELECT id FROM datas JOIN texts USING (id) WHERE NOT type & $token AND alias == $none`;
-export const arg_no_alias = {
-	$token: monster_types.TYPE_TOKEN,
-	$none: 0,
-};
-
 const over_hundred = '(name like $n101 OR name like $n102 OR name like $n103 OR name like $n104 OR name like $n105 OR name like $n106 OR name like $n107)';
 export const stmt_seventh = `${stmt_default} AND type & $xyz AND ${over_hundred}`;
 export const arg_seventh = {
@@ -69,6 +63,11 @@ for (let i = 0; i < 7; i += 1) {
 	arg_seventh[`$n${101 + i}`] = `%No.${101 + i}%`;
 }
 
+const stmt_no_alias = `SELECT id FROM datas JOIN texts USING (id) WHERE NOT type & $token AND alias == $none`;
+const arg_no_alias = {
+	$token: monster_types.TYPE_TOKEN,
+	$none: 0,
+};
 const stmt_attach = `ATTACH DATABASE ? AS sub;`;
 const stmt_detach = `DETACH DATABASE sub;`;
 const stmt_merge = `BEGIN TRANSACTION;
