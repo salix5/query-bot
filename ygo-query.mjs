@@ -708,6 +708,10 @@ export function query_card(params) {
 		...arg_condition,
 	};
 	const result = query(stmt1, arg1);
+	meta.total = result.length;
+	if (result.length === 0) {
+		return { result, meta };
+	}
 	if (is_string(params.pack) && pack_list[params.pack]) {
 		const pack = pack_list[params.pack];
 		const index_table = new Map();
@@ -719,12 +723,13 @@ export function query_card(params) {
 		for (const card of result) {
 			card.pack_index = index_table.get(card.id);
 		}
-		if (result.length > 1) {
+	}
+	if (result.length > 1) {
+		if (result[0].pack_index) {
 			result.sort((a, b) => a.pack_index - b.pack_index);
 		}
 	}
-	meta.total = result.length;
-	if (arg1.$limit) {
+	if (Number.isSafeInteger(params.limit) && params.limit > 0) {
 		const command = `${stmt_count}${condition};`;
 		const arg2 = { ...arg1 };
 		delete arg2.$limit;
