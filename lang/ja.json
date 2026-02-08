@@ -69,17 +69,6 @@
         "atk": "攻",
         "def": "守"
     },
-    "marker_char": {
-        "1": ":arrow_lower_left:",
-        "2": ":arrow_down:",
-        "4": ":arrow_lower_right:",
-        "8": ":arrow_left:",
-        "32": ":arrow_right:",
-        "64": ":arrow_upper_left:",
-        "128": ":arrow_up:",
-        "256": ":arrow_upper_right:",
-        "default": ":black_large_square:"
-    },
     "limit_name": {
         "0": ":no_entry_sign:",
         "1": ":one:",
