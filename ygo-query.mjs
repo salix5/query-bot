@@ -4,7 +4,7 @@ import { lang, bls_postfix, official_name, game_name } from './ygo-json-loader.m
 import { id_to_cid, cid_table, name_table, md_table, md_card_list } from './ygo-json-loader.mjs';
 import { escape_regexp, escape_wildcard, zh_collator, zh_compare } from './ygo-utility.mjs';
 import { db_url1, db_url2, fetch_db } from './ygo-fetch.mjs';
-import { card_types, monster_types, link_markers, md_rarity, spell_colors, trap_colors, CID_BLACK_LUSTER_SOLDIER, spell_types, trap_types, MAX_CARD_ID } from "./ygo-constant.mjs";
+import { card_types, monster_types, link_markers, md_rarity, spell_colors, trap_colors, CID_BLACK_LUSTER_SOLDIER, spell_types, trap_types, MAX_CARD_ID, marker_char } from "./ygo-constant.mjs";
 import { arg_base, arg_default, arg_seventh, effect_filter, merge_db, stmt_base, stmt_count, stmt_default, stmt_seventh } from './ygo-sqlite.mjs';
 import { is_alternative, like_pattern, name_condition, list_condition, query_db, setcode_condition, sqlite3_open, } from './ygo-sqlite.mjs';
 
@@ -950,31 +950,31 @@ export function print_data(card, newline, locale) {
 			let marker_text = '';
 			for (let marker = link_markers.LINK_MARKER_TOP_LEFT; marker <= link_markers.LINK_MARKER_TOP_RIGHT; marker <<= 1) {
 				if (card.marker & marker)
-					marker_text += strings.marker_char[marker];
+					marker_text += marker_char[marker];
 				else
-					marker_text += strings.marker_char['default'];
+					marker_text += marker_char['default'];
 			}
 			marker_text += newline;
 
 			if (card.marker & link_markers.LINK_MARKER_LEFT)
-				marker_text += strings.marker_char[link_markers.LINK_MARKER_LEFT];
+				marker_text += marker_char[link_markers.LINK_MARKER_LEFT];
 			else
-				marker_text += strings.marker_char['default'];
+				marker_text += marker_char['default'];
 
-			marker_text += strings.marker_char['default'];
+			marker_text += marker_char.center;
 
 			if (card.marker & link_markers.LINK_MARKER_RIGHT)
-				marker_text += strings.marker_char[link_markers.LINK_MARKER_RIGHT];
+				marker_text += marker_char[link_markers.LINK_MARKER_RIGHT];
 			else
-				marker_text += strings.marker_char['default'];
+				marker_text += marker_char['default'];
 
 			marker_text += newline;
 
 			for (let marker = link_markers.LINK_MARKER_BOTTOM_LEFT; marker <= link_markers.LINK_MARKER_BOTTOM_RIGHT; marker <<= 1) {
 				if (card.marker & marker)
-					marker_text += strings.marker_char[marker];
+					marker_text += marker_char[marker];
 				else
-					marker_text += strings.marker_char['default'];
+					marker_text += marker_char['default'];
 			}
 			marker_text += newline;
 			data += marker_text;

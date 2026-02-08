@@ -207,6 +207,19 @@ export const md_rarity = {
 	4: 'UR',
 }
 
+export const marker_char = {
+	[LINK_MARKER_BOTTOM_LEFT]: ":arrow_lower_left:",
+	[LINK_MARKER_BOTTOM]: ":arrow_down:",
+	[LINK_MARKER_BOTTOM_RIGHT]: ":arrow_lower_right:",
+	[LINK_MARKER_LEFT]: ":arrow_left:",
+	[LINK_MARKER_RIGHT]: ":arrow_right:",
+	[LINK_MARKER_TOP_LEFT]: ":arrow_upper_left:",
+	[LINK_MARKER_TOP]: ":arrow_up:",
+	[LINK_MARKER_TOP_RIGHT]: ":arrow_upper_right:",
+	default: ":black_large_square:",
+	center: ":white_large_square:",
+};
+
 export const interface_types = {
 	"id": 0,
 	"cid": 0,
