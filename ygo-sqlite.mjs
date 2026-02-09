@@ -32,7 +32,7 @@ export const select_name = `SELECT id, texts.name FROM datas JOIN texts USING (i
 export const select_count = `SELECT count(*) FROM datas JOIN texts USING (id) WHERE 1 = 1`;
 
 export const base_filter = ` AND NOT id IN ($tyler, $decoy) AND NOT type & $token`;
-export const no_alt_filter = ` AND (id == $luster OR abs(id - alias) >= $artwork_offset)`;
+export const no_alt_filter = ` AND (id = $luster OR abs(id - alias) >= $artwork_offset)`;
 export const default_filter = `${base_filter}${no_alt_filter}`;
 export const effect_filter = ` AND (NOT type & $normal OR type & $pendulum)`;
 
@@ -63,7 +63,7 @@ for (let i = 0; i < 7; i += 1) {
 	arg_seventh[`$n${101 + i}`] = `%No.${101 + i}%`;
 }
 
-const stmt_no_alias = `SELECT id FROM datas JOIN texts USING (id) WHERE NOT type & $token AND alias == $none`;
+const stmt_no_alias = `SELECT id FROM datas JOIN texts USING (id) WHERE NOT type & $token AND alias = $none`;
 const arg_no_alias = {
 	$token: monster_types.TYPE_TOKEN,
 	$none: 0,
@@ -383,7 +383,7 @@ export function read_db(path, sql = stmt_default, arg = arg_default) {
  * @returns 
  */
 export function check_uniqueness(path, id_luster = ID_BLACK_LUSTER_SOLDIER) {
-	const condition = ` AND (NOT type & $token OR alias == $none) AND (type & $token OR id == $luster OR abs(id - alias) >= $artwork_offset)`;
+	const condition = ` AND (NOT type & $token OR alias = $none) AND (type & $token OR id = $luster OR abs(id - alias) >= $artwork_offset)`;
 	const stmt1 = `${select_name}${condition}`;
 	const arg1 = {
 		$token: arg_default.$token,

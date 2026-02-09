@@ -212,7 +212,7 @@ function seventh_condition() {
 			attr_value |= card.attribute;
 			race_value |= card.race;
 		}
-		condition1 += ` OR (level & 0xffff) == ${i} AND (attribute & ${attr_value} OR race & ${race_value})`;
+		condition1 += ` OR (level & 0xffff) = ${i} AND (attribute & ${attr_value} OR race & ${race_value})`;
 	}
 	const ret = ` AND type & $monster AND NOT type & $extra AND (${condition1})`;
 	return ret;
@@ -252,7 +252,7 @@ export function generate_condition(params, id_list) {
 	}
 	if (Number.isSafeInteger(params.tcg)) {
 		if (params.tcg) {
-			qstr += " AND ot & $ot_mask == $tcg";
+			qstr += " AND ot & $ot_mask = $tcg";
 		}
 		else {
 			qstr += " AND ot & $ot_mask != $tcg";
@@ -261,7 +261,7 @@ export function generate_condition(params, id_list) {
 		arg.$tcg = 0x2;
 	}
 	if (Number.isSafeInteger(params.alias)) {
-		qstr += " AND alias == $alias";
+		qstr += " AND alias = $alias";
 		arg.$alias = params.alias;
 	}
 	if (Number.isSafeInteger(params.type) && params.type > 0) {
@@ -269,7 +269,7 @@ export function generate_condition(params, id_list) {
 		arg.$type = params.type;
 	}
 	if (Number.isSafeInteger(params.exact_type) && params.exact_type > 0) {
-		qstr += " AND type & $exact_type == $exact_type";
+		qstr += " AND type & $exact_type = $exact_type";
 		arg.$exact_type = params.exact_type;
 	}
 	if (Number.isSafeInteger(params.exclude) && params.exclude > 0) {
@@ -280,7 +280,7 @@ export function generate_condition(params, id_list) {
 		let subtype = params.spell_type;
 		let subtype_condition = "type & $stype";
 		if (subtype & spell_types.TYPE_NORMAL) {
-			subtype_condition += " OR type == $spell";
+			subtype_condition += " OR type = $spell";
 			subtype = (subtype & ~spell_types.TYPE_NORMAL) >>> 0;
 		}
 		qstr += ` AND type & $spell AND (${subtype_condition})`;
@@ -291,7 +291,7 @@ export function generate_condition(params, id_list) {
 		let subtype = params.trap_type;
 		let subtype_condition = "type & $ttype";
 		if (subtype & trap_types.TYPE_NORMAL) {
-			subtype_condition += " OR type == $trap";
+			subtype_condition += " OR type = $trap";
 			subtype = (subtype & ~trap_types.TYPE_NORMAL) >>> 0;
 		}
 		qstr += ` AND type & $trap AND (${subtype_condition})`;
@@ -389,7 +389,7 @@ export function generate_condition(params, id_list) {
 		if (Number.isSafeInteger(params.atk_to) && params.atk_to >= -1)
 			atk_to = params.atk_to;
 		if (atk_from === -1 || atk_to === -1) {
-			atk_condition = "atk == $unknown";
+			atk_condition = "atk = $unknown";
 			arg.$unknown = -2;
 			is_monster = true;
 		}
@@ -417,12 +417,12 @@ export function generate_condition(params, id_list) {
 		if (Number.isSafeInteger(params.def_to) && params.def_to >= -1)
 			def_to = params.def_to;
 		if (def_from === -1 || def_to === -1) {
-			def_condition = "def == $unknown";
+			def_condition = "def = $unknown";
 			arg.$unknown = -2;
 			has_def = true;
 		}
 		else if (def_from === -2) {
-			def_condition = "def == atk AND def >= $zero";
+			def_condition = "def = atk AND def >= $zero";
 			arg.$zero = 0;
 			has_def = true;
 		}
@@ -449,7 +449,7 @@ export function generate_condition(params, id_list) {
 			qstr += ` AND ${def_condition}`;
 		}
 		if (Number.isSafeInteger(params.sum) && params.sum >= 0) {
-			qstr += " AND atk >= $zero AND def >= $zero AND atk + def == $sum";
+			qstr += " AND atk >= $zero AND def >= $zero AND atk + def = $sum";
 			arg.$zero = 0;
 			arg.$sum = params.sum;
 			has_def = true;
@@ -555,7 +555,7 @@ export function generate_condition(params, id_list) {
 			qstr += " AND type & $link";
 			arg.$link = monster_types.TYPE_LINK;
 			if (Number.isSafeInteger(params.marker_operator) && params.marker_operator)
-				qstr += " AND def & $marker == $marker";
+				qstr += " AND def & $marker = $marker";
 			else
 				qstr += " AND def & $marker";
 			arg.$marker = params.marker;
@@ -680,7 +680,7 @@ export function query(qstr = stmt_default, arg = arg_default) {
  * @returns {Card[]}
  */
 export function query_alias(alias) {
-	const qstr = `${stmt_default} AND alias == $alias`;
+	const qstr = `${stmt_default} AND alias = $alias`;
 	const arg = {
 		...arg_default,
 		$alias: alias,
