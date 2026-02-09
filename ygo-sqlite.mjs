@@ -38,6 +38,8 @@ export const effect_filter = ` AND (NOT type & $normal OR type & $pendulum)`;
 
 export const stmt_default = `${select_all}${default_filter}`;
 export const stmt_count = `${select_count}${default_filter}`;
+export const stmt_full_default = `SELECT ${column_names} FROM datas JOIN texts USING (id) LEFT JOIN card_names USING (id) WHERE 1 = 1${default_filter}`;
+export const stmt_full_count = `SELECT count(*) FROM datas JOIN texts USING (id) LEFT JOIN card_names USING (id) WHERE 1 = 1${default_filter}`;
 export const arg_default = {
 	$tyler: ID_TYLER_THE_GREAT_WARRIOR,
 	$decoy: ID_DECOY,
