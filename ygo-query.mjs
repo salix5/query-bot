@@ -5,7 +5,7 @@ import { id_to_cid, cid_table, name_table, md_table, md_card_list } from './ygo-
 import { escape_regexp, escape_wildcard, zh_collator, zh_compare } from './ygo-utility.mjs';
 import { db_url1, db_url2, fetch_db } from './ygo-fetch.mjs';
 import { card_types, monster_types, link_markers, md_rarity, spell_colors, trap_colors, CID_BLACK_LUSTER_SOLDIER, spell_types, trap_types, MAX_CARD_ID, marker_char } from "./ygo-constant.mjs";
-import { arg_base, arg_default, arg_seventh, effect_filter, merge_db, stmt_base, stmt_count, stmt_default, stmt_seventh } from './ygo-sqlite.mjs';
+import { arg_base, arg_default, arg_seventh, effect_filter, merge_db, stmt_base, stmt_default, stmt_full_count, stmt_full_default, stmt_seventh } from './ygo-sqlite.mjs';
 import { is_alternative, like_pattern, name_condition, list_condition, query_db, setcode_condition, sqlite3_open, } from './ygo-sqlite.mjs';
 
 export const regexp_mention = `(?<=「)[^「」]*「?[^「」]*」?[^「」]*(?=」)`;
@@ -706,7 +706,7 @@ export function query_card(params) {
 		return { result, meta };
 	}
 	const [condition, arg_condition] = generate_condition(params);
-	const stmt1 = `${stmt_default}${condition}`;
+	const stmt1 = `${stmt_full_default}${condition}`;
 	const arg1 = {
 		...arg_default,
 		...arg_condition,
@@ -734,7 +734,7 @@ export function query_card(params) {
 		}
 	}
 	if (Number.isSafeInteger(params.limit) && params.limit > 0) {
-		const command = `${stmt_count}${condition};`;
+		const command = `${stmt_full_count}${condition};`;
 		const arg2 = { ...arg1 };
 		delete arg2.$limit;
 		delete arg2.$offset;
