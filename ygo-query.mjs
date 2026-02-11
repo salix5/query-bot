@@ -10,6 +10,7 @@ import { is_alternative, like_pattern, name_condition, list_condition, query_db,
 
 export const regexp_mention = `(?<=「)[^「」]*「?[^「」]*」?[^「」]*(?=」)`;
 const db_list = [];
+const RESULT_PER_PAGE = 50;
 
 /**
  * @typedef {object} Entry
@@ -716,6 +717,7 @@ export function query_card(params) {
 	if (result.length === 0) {
 		return { result, meta };
 	}
+	let is_sorted = false;
 	if (is_string(params.pack) && pack_list[params.pack]) {
 		const pack = pack_list[params.pack];
 		const index_table = new Map();
@@ -727,11 +729,8 @@ export function query_card(params) {
 		for (const card of result) {
 			card.pack_index = index_table.get(card.id);
 		}
-	}
-	if (result.length > 1) {
-		if (result[0].pack_index) {
-			result.sort((a, b) => a.pack_index - b.pack_index);
-		}
+		result.sort((a, b) => a.pack_index - b.pack_index);
+		is_sorted = true;
 	}
 	if (Number.isSafeInteger(params.limit) && params.limit > 0) {
 		const command = `${stmt_full_count}${condition};`;
@@ -742,11 +741,20 @@ export function query_card(params) {
 		for (const db of db_list) {
 			const st = db.prepare(command);
 			st.setReturnArrays(true);
-			total += st.all(arg2)[0][0];
+			const rows = st.all(arg2);
+			total += (rows[0]?.[0] ?? 0);
 		}
 		meta.total = total;
 		meta.offset = arg1.$offset;
 		meta.limit = arg1.$limit;
+	}
+	else if (Number.isSafeInteger(params.page) && params.page > 0) {
+		if (!is_sorted) {
+			result.sort(compare_card);
+		}
+		const begin = (params.page - 1) * RESULT_PER_PAGE;
+		const section = result.slice(begin, begin + RESULT_PER_PAGE);
+		return { result: section, meta };
 	}
 	return { result, meta };
 }
