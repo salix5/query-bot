@@ -754,6 +754,7 @@ export function query_card(params) {
 		}
 		const begin = (params.page - 1) * RESULT_PER_PAGE;
 		const section = result.slice(begin, begin + RESULT_PER_PAGE);
+		meta.page = params.page;
 		return { result: section, meta };
 	}
 	return { result, meta };
