@@ -269,9 +269,14 @@ export function generate_condition(params, id_list) {
 		qstr += " AND type & $type";
 		arg.$type = params.type;
 	}
-	if (Number.isSafeInteger(params.exact_type) && params.exact_type > 0) {
-		qstr += " AND type & $exact_type = $exact_type";
-		arg.$exact_type = params.exact_type;
+	if (Number.isSafeInteger(params.monster_type) && params.monster_type > 0) {
+		qstr += " AND type & $monster";
+		arg.$monster = card_types.TYPE_MONSTER;
+		if (Number.isSafeInteger(params.monster_type_op) && params.monster_type_op)
+			qstr += " AND type & $monster_type = $monster_type";
+		else
+			qstr += " AND type & $monster_type";
+		arg.$monster_type = params.monster_type;
 	}
 	if (Number.isSafeInteger(params.exclude) && params.exclude > 0) {
 		qstr += " AND NOT type & $exclude";
