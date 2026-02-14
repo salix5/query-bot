@@ -251,15 +251,15 @@ export function generate_condition(params, id_list) {
 	if (Array.isArray(id_list) && id_list.length) {
 		qstr += ` AND ${list_condition('id', 'id', id_list, arg)}`;
 	}
-	if (Number.isSafeInteger(params.tcg)) {
-		if (params.tcg) {
-			qstr += " AND ot & $ot_mask = $tcg";
-		}
-		else {
-			qstr += " AND ot & $ot_mask != $tcg";
-		}
+	if (Number.isSafeInteger(params.ot) && params.ot > 0) {
+		qstr += " AND ot & $ot_mask = $ot";
 		arg.$ot_mask = 0x3;
-		arg.$tcg = 0x2;
+		arg.$ot = params.ot;
+	}
+	if (Number.isSafeInteger(params.ot_exclude) && params.ot_exclude > 0) {
+		qstr += " AND ot & $ot_mask != $ot_exclude";
+		arg.$ot_mask = 0x3;
+		arg.$ot_exclude = params.ot_exclude;
 	}
 	if (Number.isSafeInteger(params.alias)) {
 		qstr += " AND alias = $alias";
