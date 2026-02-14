@@ -223,7 +223,8 @@ export const marker_char = {
 export const interface_types = {
 	id: 0,
 	cid: 0,
-	tcg: 0,
+	ot: 0,
+	ot_exclude: 0,
 	alias: 0,
 	setcode: 0,
 	type: 0,
