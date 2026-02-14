@@ -560,7 +560,7 @@ export function generate_condition(params, id_list) {
 		if (Number.isSafeInteger(params.marker)) {
 			qstr += " AND type & $link";
 			arg.$link = monster_types.TYPE_LINK;
-			if (Number.isSafeInteger(params.marker_operator) && params.marker_operator)
+			if (Number.isSafeInteger(params.marker_op) && params.marker_op)
 				qstr += " AND def & $marker = $marker";
 			else
 				qstr += " AND def & $marker";
