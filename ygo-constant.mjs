@@ -243,7 +243,7 @@ export const interface_types = {
 	def_to: 0,
 	sum: 0,
 	marker: 0,
-	marker_operator: 0,
+	marker_op: 0,
 	level: 1,
 	level_from: 0,
 	level_to: 0,
