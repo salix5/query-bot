@@ -85,12 +85,12 @@ const replace_escape = /\$(?=[%_])/g;
  * @type {Map<number, number[]>}
  */
 const code_table = new Map();
-for (const [id, list] of extra_setcodes) {
+for (const [key, list] of Object.entries(extra_setcodes)) {
 	for (const code of list) {
 		if (!code_table.has(code))
 			code_table.set(code, []);
 		const id_list = code_table.get(code);
-		id_list.push(id);
+		id_list.push(Number.parseInt(key, 10));
 	}
 }
 

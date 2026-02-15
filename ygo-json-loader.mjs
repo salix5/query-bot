@@ -17,7 +17,7 @@ import md_en_table from './data/md_name_en.json' with { type: 'json' };
 import md_jp_table from './data/md_name_jp.json' with { type: 'json' };
 import md_table_sc from './data/md_name.json' with { type: 'json' };
 import ruby_table from './data/name_table_ruby.json' with { type: 'json' };
-import setcode_table from './data/extra_setcodes.json' with { type: 'json' };
+import extra_setcodes from './data/extra_setcodes.json' with { type: 'json' };
 
 import lang_ae from './lang/ae.json' with { type: 'json' };
 import lang_en from './lang/en.json' with { type: 'json' };
@@ -45,7 +45,6 @@ function object_to_map(obj) {
 }
 
 export const cid_table = object_to_map(cid_json);
-export const extra_setcodes = object_to_map(setcode_table);
 
 export const name_table = Object.create(null);
 name_table['ae'] = object_to_map(ae_table);
@@ -250,4 +249,5 @@ export {
 	genesys_point,
 	jp_table,
 	md_table_sc,
+	extra_setcodes,
 }
