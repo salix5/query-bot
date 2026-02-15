@@ -270,7 +270,7 @@ export function query_db(db, sql = stmt_default, arg = arg_default) {
 		if (Object.hasOwn(card, 'setcode')) {
 			const setcode = card.setcode;
 			card.setcode = [];
-			const list = extra_setcodes.get(card.id);
+			const list = extra_setcodes[card.id];
 			if (list)
 				card.setcode.push(...list);
 			else
