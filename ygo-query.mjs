@@ -68,11 +68,6 @@ const RESULT_PER_PAGE = 50;
  * @property {number} [pack_index]
  */
 
-/**
- * @type {Map<number, Card>}
- */
-const card_table = new Map();
-
 const mmap_seventh = Object.create(null);
 
 /**
@@ -304,17 +299,20 @@ export function generate_condition(params, id_list) {
 		arg.$trap = card_types.TYPE_TRAP;
 		arg.$ttype = subtype;
 	}
-	if (Number.isSafeInteger(params.mention) && card_table.has(params.mention)) {
-		if (ambiguous_name_list.has(params.mention)) {
-			qstr += `${effect_filter} AND "desc" REGEXP $mention`;
-			arg.$mention = `「${escape_regexp(card_table.get(params.mention).tw_name)}」(?!怪|魔|陷|卡|融合怪獸|同步怪獸|超量怪獸|連結怪獸|儀式怪獸|靈擺怪獸|通常|永續|裝備|速攻|儀式魔法|場地|反擊)`;
+	if (Number.isSafeInteger(params.mention)) {
+		const card = get_card(params.mention);
+		if (card) {
+			if (ambiguous_name_list.has(params.mention)) {
+				qstr += `${effect_filter} AND "desc" REGEXP $mention`;
+				arg.$mention = `「${escape_regexp(card.tw_name)}」(?!怪|魔|陷|卡|融合怪獸|同步怪獸|超量怪獸|連結怪獸|儀式怪獸|靈擺怪獸|通常|永續|裝備|速攻|儀式魔法|場地|反擊)`;
+			}
+			else {
+				qstr += `${effect_filter} AND "desc" LIKE $mention`;
+				arg.$mention = `%「${escape_wildcard(card.tw_name)}」%`;
+			}
+			arg.$normal = monster_types.TYPE_NORMAL;
+			arg.$pendulum = monster_types.TYPE_PENDULUM;
 		}
-		else {
-			qstr += `${effect_filter} AND "desc" LIKE $mention`;
-			arg.$mention = `%「${escape_wildcard(card_table.get(params.mention).tw_name)}」%`;
-		}
-		arg.$normal = monster_types.TYPE_NORMAL;
-		arg.$pendulum = monster_types.TYPE_PENDULUM;
 	}
 	if (is_string(params.pack)) {
 		if (pack_list[params.pack]) {
@@ -372,18 +370,21 @@ export function generate_condition(params, id_list) {
 
 	if (!arg.$cardtype || arg.$cardtype === card_types.TYPE_MONSTER) {
 		let is_monster = false;
-		if (Number.isSafeInteger(params.material) && card_table.has(params.material)) {
-			const material = escape_wildcard(card_table.get(params.material).tw_name);
-			let material_condition = "0";
-			for (let i = 0; i < 4; i += 1) {
-				material_condition += ` OR "desc" LIKE $mat${i} ESCAPE '$'`;
+		if (Number.isSafeInteger(params.material)) {
+			const card = get_card(params.material);
+			if (card) {
+				const material = escape_wildcard(card.tw_name);
+				let material_condition = "0";
+				for (let i = 0; i < 4; i += 1) {
+					material_condition += ` OR "desc" LIKE $mat${i} ESCAPE '$'`;
+				}
+				qstr += ` AND (${material_condition})`;
+				arg.$mat0 = `「${material}」+%`;
+				arg.$mat1 = `「${material}」（%）+%`;
+				arg.$mat2 = `%+「${material}」%`;
+				arg.$mat3 = `%「${material}」×%`;
+				is_monster = true;
 			}
-			qstr += ` AND (${material_condition})`;
-			arg.$mat0 = `「${material}」+%`;
-			arg.$mat1 = `「${material}」（%）+%`;
-			arg.$mat2 = `%+「${material}」%`;
-			arg.$mat3 = `%「${material}」×%`;
-			is_monster = true;
 		}
 
 		// atk
@@ -625,9 +626,7 @@ export async function init_query(files) {
 	// refresh card table
 	const normalized_names = new Map();
 	ambiguous_name_list.clear();
-	card_table.clear();
 	for (const card of query()) {
-		card_table.set(card.id, card);
 		if (setname_table[card.tw_name]) {
 			ambiguous_name_list.add(card.id);
 		}
@@ -828,8 +827,15 @@ export function get_card(id) {
 		id = Number.parseInt(id, 10);
 	if (!Number.isSafeInteger(id))
 		return null;
-	const card = card_table.get(id);
-	return card ?? null;
+	const stmt_id = `${stmt_default} AND id = $id;`;
+	const arg_id = {
+		...arg_default,
+		$id: id,
+	};
+	const result = query(stmt_id, arg_id);
+	if (result.length === 0)
+		return null;
+	return result[0];
 }
 
 /**
@@ -1170,7 +1176,7 @@ export function create_choice_prerelease() {
 export function create_choice_db() {
 	const inverse_table = new Map();
 	const re_kanji = /※.*/;
-	for (const card of card_table.values()) {
+	for (const card of query()) {
 		if (!card.cid) {
 			continue;
 		}
@@ -1193,7 +1199,7 @@ export function create_choice_db() {
 
 export function create_name_table() {
 	const table1 = new Map();
-	for (const card of card_table.values()) {
+	for (const card of query()) {
 		if (card.cid)
 			table1.set(card.cid, card.tw_name);
 	}
