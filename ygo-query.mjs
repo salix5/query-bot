@@ -1144,7 +1144,7 @@ export function print_card(card, locale) {
  * @returns {Map<string, number>}
  */
 export function create_choice_prerelease() {
-	const inverse_table = new Map();
+	const choices = new Map();
 	const stmt_pre = `${stmt_default} AND id > $ub`;
 	const arg_pre = {
 		...arg_default,
@@ -1158,15 +1158,15 @@ export function create_choice_prerelease() {
 		}
 		const res = card.text.desc.match(re_kanji);
 		const kanji = res ? res[0] : '';
-		if (inverse_table.has(card.tw_name) || kanji && inverse_table.has(kanji)) {
+		if (choices.has(card.tw_name) || kanji && choices.has(kanji)) {
 			console.error('choice_prerelease', card.id);
 			return new Map();
 		}
-		inverse_table.set(card.tw_name, card.id);
+		choices.set(card.tw_name, card.id);
 		if (kanji)
-			inverse_table.set(kanji, card.id);
+			choices.set(kanji, card.id);
 	}
-	return new Map([...inverse_table].sort(zh_compare))
+	return new Map([...choices].sort(zh_compare))
 }
 
 /**
@@ -1174,7 +1174,7 @@ export function create_choice_prerelease() {
  * @returns {Map<string, number>}
  */
 export function create_choice_db() {
-	const inverse_table = new Map();
+	const choices = new Map();
 	const re_kanji = /※.*/;
 	for (const card of query()) {
 		if (!card.cid) {
@@ -1186,15 +1186,15 @@ export function create_choice_db() {
 		if (card.cid === CID_BLACK_LUSTER_SOLDIER) {
 			key += bls_postfix['zh-tw'];
 		}
-		if (inverse_table.has(key) || kanji && inverse_table.has(kanji)) {
+		if (choices.has(key) || kanji && choices.has(kanji)) {
 			console.error('choice_db', card.id);
 			return new Map();
 		}
-		inverse_table.set(key, card.id);
+		choices.set(key, card.id);
 		if (kanji)
-			inverse_table.set(kanji, card.id);
+			choices.set(kanji, card.id);
 	}
-	return new Map([...inverse_table].sort(zh_compare))
+	return new Map([...choices].sort(zh_compare))
 }
 
 export function create_name_table() {
