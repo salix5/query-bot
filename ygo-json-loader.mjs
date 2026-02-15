@@ -51,7 +51,6 @@ name_table['ae'] = object_to_map(ae_table);
 name_table['en'] = object_to_map(en_table);
 name_table['ja'] = object_to_map(jp_table);
 name_table['ko'] = object_to_map(kr_table);
-name_table['ruby'] = object_to_map(ruby_table);
 
 export const md_table = Object.create(null);
 md_table['en'] = object_to_map(md_en_table);
@@ -224,13 +223,13 @@ export function load_name_table(db) {
 			const id = cid_table.get(cid);
 			const en_name = complete_name_table['en'].get(cid) ?? '';
 			const jp_name = complete_name_table['ja'].get(cid) ?? '';
-			const jp_ruby = name_table['ruby'].get(cid) ?? '';
+			const jp_ruby = ruby_table[cid] ?? '';
 			insert_name.run(id, en_name, jp_name, jp_ruby);
 		}
 		const fix_name = db.prepare(`UPDATE ${table_name} SET en_name = ?, jp_name = ?, jp_ruby = ? WHERE id = ?;`);
 		const bls_name_en = complete_name_table['en'].get(CID_RITUAL_BLS) ?? '';
 		const bls_name_jp = complete_name_table['ja'].get(CID_RITUAL_BLS) ?? '';
-		const bls_name_ruby = name_table['ruby'].get(CID_RITUAL_BLS) ?? '';
+		const bls_name_ruby = ruby_table[CID_RITUAL_BLS] ?? '';
 		const bls_id = cid_table.get(CID_BLACK_LUSTER_SOLDIER);
 		fix_name.run(bls_name_en, bls_name_jp, bls_name_ruby, bls_id);
 		db.exec(`COMMIT;`);
@@ -250,4 +249,5 @@ export {
 	jp_table,
 	md_table_sc,
 	extra_setcodes,
+	ruby_table,
 }
