@@ -1,5 +1,5 @@
 import { rename, rm, writeFile } from 'node:fs/promises';
-import { ltable_ocg, ltable_tcg, ltable_md, pack_list, pre_release, genesys_point, setname_table, load_name_table } from './ygo-json-loader.mjs';
+import { ltable_ocg, ltable_tcg, ltable_md, pack_list, pre_release, genesys_point, setname_table, load_name_table, ruby_table } from './ygo-json-loader.mjs';
 import { lang, bls_postfix, official_name, game_name } from './ygo-json-loader.mjs';
 import { id_to_cid, cid_table, name_table, md_table, md_card_list } from './ygo-json-loader.mjs';
 import { escape_regexp, escape_wildcard, zh_collator, zh_compare } from './ygo-utility.mjs';
@@ -115,8 +115,8 @@ function generate_card(cdata) {
 				card[prop] = name_table[locale].get(card.cid);
 			else if (md_table[locale] && md_table[locale].has(card.cid))
 				card[game_name[locale]] = md_table[locale].get(card.cid);
-			if (locale === 'ja' && name_table['ruby'].has(card.cid))
-				card.jp_ruby = name_table['ruby'].get(card.cid);
+			if (locale === 'ja' && ruby_table[card.cid])
+				card.jp_ruby = ruby_table[card.cid];
 		}
 	}
 	for (const [column, value] of Object.entries(cdata)) {
