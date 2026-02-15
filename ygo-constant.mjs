@@ -230,7 +230,7 @@ export const interface_types = {
 	type: 0,
 	monster_type: 0,
 	monster_type_op: 0,
-	exclude: 0,
+	excluded_type: 0,
 	spell_type: 0,
 	trap_type: 0,
 	mention: 0,
