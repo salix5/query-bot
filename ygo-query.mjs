@@ -278,9 +278,9 @@ export function generate_condition(params, id_list) {
 			qstr += " AND type & $monster_type";
 		arg.$monster_type = params.monster_type;
 	}
-	if (Number.isSafeInteger(params.exclude) && params.exclude > 0) {
-		qstr += " AND NOT type & $exclude";
-		arg.$exclude = params.exclude;
+	if (Number.isSafeInteger(params.excluded_type) && params.excluded_type > 0) {
+		qstr += " AND NOT type & $excluded_type";
+		arg.$excluded_type = params.excluded_type;
 	}
 	if (Number.isSafeInteger(params.spell_type) && params.spell_type > 0) {
 		let subtype = params.spell_type;
