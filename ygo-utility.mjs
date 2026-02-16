@@ -23,7 +23,7 @@ export function print_history_link(cid) {
 /**
  * Create the inverse mapping of `table`.
  * @param {Map} table 
- * @returns 
+ * @returns {Map}
  */
 export function inverse_mapping(table) {
 	const inverse = new Map();
@@ -33,6 +33,24 @@ export function inverse_mapping(table) {
 			return new Map();
 		}
 		inverse.set(value, key);
+	}
+	return inverse;
+}
+
+
+/**
+ * Create the inverse mapping of `obj` with integer keys.
+ * @param {object} obj 
+ * @returns {Map<any, number>}
+ */
+export function inverse_table(obj) {
+	const inverse = new Map();
+	for (const [key, value] of Object.entries(obj)) {
+		if (inverse.has(value)) {
+			console.error('non-invertible', `${key}: ${value}`);
+			return new Map();
+		}
+		inverse.set(value, Number.parseInt(key));
 	}
 	return inverse;
 }
