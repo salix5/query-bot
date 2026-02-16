@@ -33,7 +33,7 @@ for (const command of commands) {
 
 client.once(Events.ClientReady, c => {
 	const currentDate = new Date();
-	console.log(`[${currentDate.toUTCString()}] Ready! Logged in as ${c.user.tag} (total: ${name_table['ja'].size})`);
+	console.log(`[${currentDate.toUTCString()}] Ready! Logged in as ${c.user.tag} (total: ${Object.keys(name_table['ja']).length})`);
 	const test_table = create_name_table();
 	inverse_mapping(test_table);
 });

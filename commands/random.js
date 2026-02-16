@@ -4,7 +4,7 @@ import { SlashCommandBuilder } from 'discord.js';
 import { name_table, get_card, cid_table } from '../ygo-query.mjs';
 import { create_reply } from '../common_query.js';
 const rand = promisify(randomInt);
-const keys = [...name_table['ja'].keys()];
+const keys = Object.keys(name_table['ja']);
 
 export const module_url = import.meta.url;
 export const data = new SlashCommandBuilder()
