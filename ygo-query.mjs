@@ -111,10 +111,10 @@ function generate_card(cdata) {
 	card.tw_name = cdata.name;
 	if (card.cid) {
 		for (const [locale, prop] of Object.entries(official_name)) {
-			if (name_table[locale].has(card.cid))
-				card[prop] = name_table[locale].get(card.cid);
-			else if (md_table[locale] && md_table[locale].has(card.cid))
-				card[game_name[locale]] = md_table[locale].get(card.cid);
+			if (name_table[locale][card.cid])
+				card[prop] = name_table[locale][card.cid];
+			else if (md_table[locale] && md_table[locale][card.cid])
+				card[game_name[locale]] = md_table[locale][card.cid];
 			if (locale === 'ja' && ruby_table[card.cid])
 				card.jp_ruby = ruby_table[card.cid];
 		}

@@ -24,7 +24,7 @@ import lang_en from './lang/en.json' with { type: 'json' };
 import lang_ja from './lang/ja.json' with { type: 'json' };
 import lang_ko from './lang/ko.json' with { type: 'json' };
 import lang_zhtw from './lang/zh-tw.json' with { type: 'json' };
-import { inverse_mapping } from './ygo-utility.mjs';
+import { inverse_mapping, inverse_table } from './ygo-utility.mjs';
 import { CID_BLACK_LUSTER_SOLDIER, CID_RITUAL_BLS, MAX_CARD_ID } from './ygo-constant.mjs';
 
 /**
@@ -47,14 +47,14 @@ function object_to_map(obj) {
 export const cid_table = object_to_map(cid_json);
 
 export const name_table = Object.create(null);
-name_table['ae'] = object_to_map(ae_table);
-name_table['en'] = object_to_map(en_table);
-name_table['ja'] = object_to_map(jp_table);
-name_table['ko'] = object_to_map(kr_table);
+name_table['ae'] = ae_table;
+name_table['en'] = en_table;
+name_table['ja'] = jp_table;
+name_table['ko'] = kr_table;
 
 export const md_table = Object.create(null);
-md_table['en'] = object_to_map(md_en_table);
-md_table['ja'] = object_to_map(md_jp_table);
+md_table['en'] = md_en_table;
+md_table['ja'] = md_jp_table;
 
 export const pre_release = new Map(Object.entries(pre_table));
 export const wiki_link = new Map(Object.entries(wiki_table));
@@ -113,46 +113,42 @@ export const choices_ruby = new Map(ruby_entries);
 
 export const complete_name_table = Object.create(null);
 for (const locale of Object.keys(official_name)) {
-	const table1 = new Map(name_table[locale]);
+	if (!md_table[locale] && !name_table[locale][CID_BLACK_LUSTER_SOLDIER]) {
+		complete_name_table[locale] = name_table[locale];
+		continue;
+	}
+	const table1 = Object.assign({}, name_table[locale]);
 	let valid = true;
 	if (md_table[locale]) {
-		for (const [cid, name] of md_table[locale]) {
-			if (table1.has(cid)) {
+		for (const [cid, name] of Object.entries(md_table[locale])) {
+			if (table1[cid]) {
 				console.error(`duplicate cid: md_table[${locale}]`, cid);
 				valid = false;
 				break;
 			}
-			table1.set(cid, name);
+			table1[cid] = name;
 		}
 		if (!valid) {
-			complete_name_table[locale] = new Map();
+			complete_name_table[locale] = {};
 			continue;
 		}
 	}
-	if (table1.has(CID_BLACK_LUSTER_SOLDIER)) {
-		const bls_name = `${table1.get(CID_BLACK_LUSTER_SOLDIER)}${bls_postfix[locale]}`;
-		table1.set(CID_BLACK_LUSTER_SOLDIER, bls_name);
+	if (table1[CID_BLACK_LUSTER_SOLDIER]) {
+		const bls_name = `${table1[CID_BLACK_LUSTER_SOLDIER]}${bls_postfix[locale]}`;
+		table1[CID_BLACK_LUSTER_SOLDIER] = bls_name;
 	}
 	complete_name_table[locale] = table1;
 }
 
 for (const cid of cid_table.keys()) {
-	if (!complete_name_table['ja'].has(cid) && !complete_name_table['en'].has(cid)) {
+	if (!complete_name_table['ja'][cid] && !complete_name_table['en'][cid]) {
 		console.error('cid_table: invalid cid', cid);
 		cid_table.delete(cid);
 	}
 }
-const ja_set = new Set(complete_name_table['ja'].keys());
-const cid_set = ja_set.union(complete_name_table['en']);
-if (cid_table.size !== cid_set.size) {
-	console.error('cid_table: size mismatch', cid_table.size, cid_set.size);
-}
-for (const locale of Object.keys(name_table)) {
-	if (locale === 'ja' || locale === 'en')
-		continue;
-	if (!cid_set.isSupersetOf(name_table[locale])) {
-		console.error(`invalid cid in name_table[${locale}]`);
-	}
+const full_table = Object.assign({}, complete_name_table['ja'], complete_name_table['en']);
+if (cid_table.size !== Object.keys(full_table).length) {
+	console.error('cid_table: size mismatch', cid_table.size, Object.keys(full_table).length);
 }
 
 /**
@@ -163,7 +159,7 @@ for (const locale of Object.keys(name_table)) {
 function create_choice(request_locale) {
 	if (!complete_name_table[request_locale])
 		return new Map();
-	const inverse = inverse_mapping(complete_name_table[request_locale]);
+	const inverse = inverse_table(complete_name_table[request_locale]);
 	const collator = new Intl.Collator(collator_locale[request_locale]);
 	const entries = [...inverse].sort((a, b) => collator.compare(a[0], b[0]));
 	for (const entry of entries) {
@@ -201,11 +197,11 @@ export function get_pack_name(id) {
  * @returns {string}
  */
 export function get_name(cid, locale) {
-	if (!complete_name_table[locale]?.has(cid))
+	if (!complete_name_table[locale]?.[cid])
 		return '';
-	if (cid === CID_BLACK_LUSTER_SOLDIER && complete_name_table[locale].has(CID_RITUAL_BLS))
-		return complete_name_table[locale].get(CID_RITUAL_BLS);
-	return complete_name_table[locale].get(cid);
+	if (cid === CID_BLACK_LUSTER_SOLDIER && complete_name_table[locale][CID_RITUAL_BLS])
+		return complete_name_table[locale][CID_RITUAL_BLS];
+	return complete_name_table[locale][cid];
 }
 
 /**
@@ -221,14 +217,14 @@ export function load_name_table(db) {
 		db.exec(`BEGIN TRANSACTION;`);
 		for (const cid of cid_table.keys()) {
 			const id = cid_table.get(cid);
-			const en_name = complete_name_table['en'].get(cid) ?? '';
-			const jp_name = complete_name_table['ja'].get(cid) ?? '';
+			const en_name = complete_name_table['en'][cid] ?? '';
+			const jp_name = complete_name_table['ja'][cid] ?? '';
 			const jp_ruby = ruby_table[cid] ?? '';
 			insert_name.run(id, en_name, jp_name, jp_ruby);
 		}
 		const fix_name = db.prepare(`UPDATE ${table_name} SET en_name = ?, jp_name = ?, jp_ruby = ? WHERE id = ?;`);
-		const bls_name_en = complete_name_table['en'].get(CID_RITUAL_BLS) ?? '';
-		const bls_name_jp = complete_name_table['ja'].get(CID_RITUAL_BLS) ?? '';
+		const bls_name_en = complete_name_table['en'][CID_RITUAL_BLS] ?? '';
+		const bls_name_jp = complete_name_table['ja'][CID_RITUAL_BLS] ?? '';
 		const bls_name_ruby = ruby_table[CID_RITUAL_BLS] ?? '';
 		const bls_id = cid_table.get(CID_BLACK_LUSTER_SOLDIER);
 		fix_name.run(bls_name_en, bls_name_jp, bls_name_ruby, bls_id);
