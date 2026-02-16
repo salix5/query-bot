@@ -140,17 +140,6 @@ for (const locale of Object.keys(official_name)) {
 	complete_name_table[locale] = table1;
 }
 
-for (const cid of cid_table.keys()) {
-	if (!complete_name_table['ja'][cid] && !complete_name_table['en'][cid]) {
-		console.error('cid_table: invalid cid', cid);
-		cid_table.delete(cid);
-	}
-}
-const full_table = Object.assign({}, complete_name_table['ja'], complete_name_table['en']);
-if (cid_table.size !== Object.keys(full_table).length) {
-	console.error('cid_table: size mismatch', cid_table.size, Object.keys(full_table).length);
-}
-
 /**
  * Create the [name, id] table of region `request_locale`
  * @param {string} request_locale 
