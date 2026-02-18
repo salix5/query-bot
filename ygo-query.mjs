@@ -698,7 +698,20 @@ export function query_alias(alias) {
  * @param {object} params 
  */
 export function query_card(params) {
-	const meta = {};
+	const meta = {
+		total: 0,
+		limit: 0,
+		offset: 0,
+	};
+	if (Number.isSafeInteger(params.limit) && params.limit > 0) {
+		meta.limit = params.limit;
+		if (Number.isSafeInteger(params.offset) && params.offset >= 0) {
+			meta.offset = params.offset;
+		}
+		else {
+			meta.offset = 0;
+		}
+	}
 	if (Number.isSafeInteger(params.id) || Number.isSafeInteger(params.cid)) {
 		const [condition, arg_condition] = generate_condition(params);
 		const stmt = `${stmt_base}${condition}`;
@@ -736,7 +749,7 @@ export function query_card(params) {
 		result.sort((a, b) => a.pack_index - b.pack_index);
 		is_sorted = true;
 	}
-	if (Number.isSafeInteger(params.limit) && params.limit > 0) {
+	if (meta.limit > 0) {
 		const command = `${stmt_full_count}${condition};`;
 		const arg2 = { ...arg1 };
 		delete arg2.$limit;
@@ -749,16 +762,15 @@ export function query_card(params) {
 			total += (rows[0]?.[0] ?? 0);
 		}
 		meta.total = total;
-		meta.offset = arg1.$offset;
-		meta.limit = arg1.$limit;
+		return { result, meta };
 	}
-	else if (Number.isSafeInteger(params.page) && params.page > 0) {
+	if (Number.isSafeInteger(params.page) && params.page > 0) {
 		if (!is_sorted) {
 			result.sort(compare_card);
 		}
 		const begin = (params.page - 1) * RESULT_PER_PAGE;
 		const section = result.slice(begin, begin + RESULT_PER_PAGE);
-		meta.page = params.page;
+		meta.total = result.length;
 		return { result: section, meta };
 	}
 	return { result, meta };
