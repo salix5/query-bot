@@ -1,6 +1,6 @@
 import { readdirSync } from 'node:fs';
 import { Client, Collection, Events, GatewayIntentBits, ChannelType, Partials, MessageFlags } from 'discord.js';
-import { name_table, create_name_table, inverse_mapping, init_query } from './ygo-query.mjs';
+import { name_table, init_query } from './ygo-query.mjs';
 import { refresh_choice_table } from './common_all.js';
 import { seventh_handler } from './common_query.js';
 import { deploy_command } from './deploy-commands.js';
@@ -34,8 +34,6 @@ for (const command of commands) {
 client.once(Events.ClientReady, c => {
 	const currentDate = new Date();
 	console.log(`[${currentDate.toUTCString()}] Ready! Logged in as ${c.user.tag} (total: ${Object.keys(name_table['ja']).length})`);
-	const test_table = create_name_table();
-	inverse_mapping(test_table);
 });
 
 client.on(Events.MessageCreate, async msg => {
