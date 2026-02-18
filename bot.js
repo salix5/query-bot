@@ -71,7 +71,12 @@ client.on(Events.MessageCreate, async msg => {
 	}
 	else if (msg.channel.type === ChannelType.GuildText) {
 		if (msg.content) {
-			await msg.react('🤖');
+			try {
+				await msg.react('🤖');
+			}
+			catch (error) {
+				console.error(`Failed to react in ${msg.channel.name}:`, error);
+			}
 		}
 	}
 });
