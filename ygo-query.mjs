@@ -703,17 +703,17 @@ export function query_card(params) {
 		limit: 0,
 		offset: 0,
 	};
-	if (Number.isSafeInteger(params.limit) && params.limit > 0) {
-		meta.limit = params.limit;
-		if (Number.isSafeInteger(params.offset) && params.offset >= 0) {
-			meta.offset = params.offset;
-		}
-		else {
-			meta.offset = 0;
+	const [condition, arg_condition] = generate_condition(params);
+	if (Object.keys(arg_condition).length === 0) {
+		return { result: [], meta };
+	}
+	if (arg_condition.$limit) {
+		meta.limit = arg_condition.$limit;
+		if (arg_condition.$offset >= 0) {
+			meta.offset = arg_condition.$offset;
 		}
 	}
-	if (Number.isSafeInteger(params.id) || Number.isSafeInteger(params.cid)) {
-		const [condition, arg_condition] = generate_condition(params);
+	if (arg_condition.$id || arg_condition.$cid) {
 		const stmt = `${stmt_base}${condition}`;
 		const arg = {
 			...arg_base,
@@ -723,7 +723,6 @@ export function query_card(params) {
 		meta.total = result.length;
 		return { result, meta };
 	}
-	const [condition, arg_condition] = generate_condition(params);
 	const stmt1 = `${stmt_full_default}${condition}`;
 	const arg1 = {
 		...arg_default,
