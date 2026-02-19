@@ -315,8 +315,8 @@ export function generate_condition(params, id_list) {
 		}
 	}
 	if (is_string(params.pack)) {
-		if (pack_list[params.pack]) {
-			const pack = pack_list[params.pack].filter(x => Number.isSafeInteger(x) && x > 0);
+		if (pack_list.has(params.pack)) {
+			const pack = pack_list.get(params.pack).filter(x => Number.isSafeInteger(x) && x > 0);
 			qstr += ` AND ${list_condition('id', 'pack', pack, arg)}`;
 			delete params.limit;
 			delete params.offset;
@@ -735,8 +735,8 @@ export function query_card(params) {
 		return { result, meta };
 	}
 	let is_sorted = false;
-	if (is_string(params.pack) && pack_list[params.pack]) {
-		const pack = pack_list[params.pack];
+	if (is_string(params.pack) && pack_list.has(params.pack)) {
+		const pack = pack_list.get(params.pack);
 		const index_table = new Map();
 		for (let i = 0; i < pack.length; i += 1) {
 			if (Number.isSafeInteger(pack[i]) && pack[i] > 0) {
