@@ -1,7 +1,6 @@
 import { readdirSync } from 'node:fs';
 import { Client, Collection, Events, GatewayIntentBits, ChannelType, Partials, MessageFlags } from 'discord.js';
-import { name_table, init_query } from './ygo-query.mjs';
-import { refresh_choice_table } from './common_all.js';
+import { name_table } from './ygo-query.mjs';
 import { seventh_handler } from './common_query.js';
 import { deploy_command } from './deploy-commands.js';
 
@@ -60,9 +59,9 @@ client.on(Events.MessageCreate, async msg => {
 		}
 		if (msg.author.id === process.env.ADMIN) {
 			if (msg.content === 'r!') {
-				await init_query();
-				refresh_choice_table();
 				await msg.channel.send('🤖');
+				await msg.client.destroy();
+				process.exit();
 			}
 			else if (msg.content === 'deploy!') {
 				await deploy_command(commands);
