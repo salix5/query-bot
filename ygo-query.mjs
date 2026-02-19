@@ -232,13 +232,15 @@ export function generate_condition(params, id_list) {
 	const key_list = [];
 	// primary key
 	if (Number.isSafeInteger(params.id)) {
-		key_list.push(params.id);
+		key_list.push('$id');
+		arg.$id = params.id;
 	}
 	if (Number.isSafeInteger(params.cid)) {
-		key_list.push(cid_table.get(params.cid) ?? -1);
+		key_list.push('$cid');
+		arg.$cid = cid_table.get(params.cid) ?? -1;
 	}
 	if (key_list.length) {
-		qstr = ` AND ${list_condition('id', 'id', key_list, arg)}`;
+		qstr = ` AND id IN (${key_list.join(', ')})`;
 		return [qstr, arg];
 	}
 
