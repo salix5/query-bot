@@ -21,7 +21,7 @@ const search_count = new Collection();
 export { reply_text, search_count };
 
 async function fetch_desc(card, request_locale) {
-	if (!card.cid || !ygo.official_name[request_locale])
+	if (!Number.isSafeInteger(card.cid) || !ygo.official_name[request_locale])
 		return '';
 
 	const re_ptext = /<div class="frame pen_effect">.*?<div class="item_box_text">.*?([^\r\n\t]+).*?<\/div>/s;
