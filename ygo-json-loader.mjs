@@ -3,7 +3,7 @@ import ltable_tcg from './data/lflist_tcg.json' with { type: 'json' };
 import ltable_md from './data/lflist_md.json' with { type: 'json' };
 import md_card_list from './data/CardList.json' with { type: 'json' };
 import setname_table from './data/setname.json' with { type: 'json' };
-import pack_list from './pack/pack_list.json' with { type: 'json' };
+import pack_table from './pack/pack_list.json' with { type: 'json' };
 import pre_table from './pack/pre_release.json' with { type: 'json' };
 import wiki_table from './pack/wiki_link.json' with { type: 'json' };
 import genesys_point from './data/genesys_point.json' with { type: 'json' };
@@ -56,6 +56,7 @@ export const md_table = Object.create(null);
 md_table['en'] = md_en_table;
 md_table['ja'] = md_jp_table;
 
+export const pack_list = new Map(Object.entries(pack_table));
 export const pre_release = new Map(Object.entries(pre_table));
 export const wiki_link = new Map(Object.entries(wiki_table));
 export const id_to_cid = inverse_mapping(cid_table);
@@ -232,7 +233,6 @@ export function load_name_table(db) {
 export {
 	ltable_ocg, ltable_tcg, ltable_md,
 	md_card_list,
-	pack_list,
 	setname_table,
 	genesys_point,
 	jp_table,
