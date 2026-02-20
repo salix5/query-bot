@@ -94,9 +94,9 @@ for (const [key, list] of Object.entries(extra_setcodes)) {
 	}
 }
 
-const normalized_setname_table = {};
-for (const [name, code] of Object.entries(setname_table)) {
-	normalized_setname_table[name.toLowerCase()] = code;
+const normalized_setname_table = new Map();
+for (const [name, code] of setname_table) {
+	normalized_setname_table.set(name.toLowerCase(), code);
 }
 
 /**
@@ -354,11 +354,12 @@ export function name_condition(input, arg) {
 	arg.$name = like_pattern(input);
 	arg.$kanji = `%※${like_pattern(input)}`;
 	Object.assign(arg, arg_no_alias);
-	let keyword = '';
-	if (!re_wildcard.test(input))
-		keyword = input.replace(replace_escape, '').toLowerCase();
-	if (keyword && normalized_setname_table[keyword]) {
-		condition += ` OR ${setcode_condition(normalized_setname_table[keyword], arg)}`;
+	if (re_wildcard.test(input)) {
+		return `(${condition})`;
+	}
+	const keyword = input.replace(replace_escape, '').toLowerCase();
+	if (normalized_setname_table.has(keyword)) {
+		condition += ` OR ${setcode_condition(normalized_setname_table.get(keyword), arg)}`;
 	}
 	return `(${condition})`;
 }
