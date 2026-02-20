@@ -311,24 +311,18 @@ export function generate_condition(params, id_list) {
 			arg.$pendulum = monster_types.TYPE_PENDULUM;
 		}
 	}
-	if (is_string(params.pack)) {
-		if (pack_list.has(params.pack)) {
-			const pack = pack_list.get(params.pack).filter(x => Number.isSafeInteger(x) && x > 0);
-			qstr += ` AND ${list_condition('id', 'pack', pack, arg)}`;
-			delete params.limit;
-			delete params.offset;
-		}
-		else if (pre_release.has(params.pack)) {
-			qstr += " AND (id BETWEEN $pack_begin AND $pack_end)";
-			arg.$pack_begin = pre_release.get(params.pack);
-			arg.$pack_end = pre_release.get(params.pack) + 500;
-			delete params.limit;
-			delete params.offset;
-		}
+	if (typeof params.pack === 'string' && pack_list.has(params.pack)) {
+		const pack = pack_list.get(params.pack).filter(x => Number.isSafeInteger(x) && x > 0);
+		qstr += ` AND ${list_condition('id', 'pack', pack, arg)}`;
 	}
-	if (Number.isSafeInteger(params.limit) && params.limit > 0) {
+	else if (typeof params.pack === 'string' && pre_release.has(params.pack)) {
+		qstr += " AND (id BETWEEN $pack_begin AND $pack_end)";
+		arg.$pack_begin = pre_release.get(params.pack);
+		arg.$pack_end = pre_release.get(params.pack) + 500;
+	}
+	else if (Number.isSafeInteger(params.limit) && params.limit > 0) {
 		arg.$limit = params.limit;
-		if (Number.isSafeInteger(params.offset) && params.offset > 0) {
+		if (Number.isSafeInteger(params.offset) && params.offset >= 0) {
 			arg.$offset = params.offset;
 		}
 		else {
@@ -691,12 +685,6 @@ export function query_card(params) {
 	if (Object.keys(arg_condition).length === 0) {
 		return { result: [], meta };
 	}
-	if (arg_condition.$limit) {
-		meta.limit = arg_condition.$limit;
-		if (arg_condition.$offset >= 0) {
-			meta.offset = arg_condition.$offset;
-		}
-	}
 	if (arg_condition.$id || arg_condition.$cid) {
 		const stmt = `${stmt_base}${condition}`;
 		const arg = {
@@ -718,7 +706,7 @@ export function query_card(params) {
 		return { result, meta };
 	}
 	let is_sorted = false;
-	if (is_string(params.pack) && pack_list.has(params.pack)) {
+	if (typeof params.pack === 'string' && pack_list.has(params.pack)) {
 		const pack = pack_list.get(params.pack);
 		const index_table = new Map();
 		for (let i = 0; i < pack.length; i += 1) {
@@ -731,6 +719,13 @@ export function query_card(params) {
 		}
 		result.sort((a, b) => a.pack_index - b.pack_index);
 		is_sorted = true;
+		meta.pack = params.pack;
+	}
+	else if (arg_condition.$limit) {
+		meta.limit = arg_condition.$limit;
+		if (arg_condition.$offset >= 0) {
+			meta.offset = arg_condition.$offset;
+		}
 	}
 	if (meta.limit > 0) {
 		const command = `${stmt_full_count}${condition};`;
