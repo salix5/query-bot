@@ -304,7 +304,7 @@ export function generate_condition(params, id_list) {
 				arg.$mention = `「${escape_regexp(card.tw_name)}」(?!怪|魔|陷|卡|融合怪獸|同步怪獸|超量怪獸|連結怪獸|儀式怪獸|靈擺怪獸|通常|永續|裝備|速攻|儀式魔法|場地|反擊)`;
 			}
 			else {
-				qstr += `${effect_filter} AND "desc" LIKE $mention`;
+				qstr += `${effect_filter} AND "desc" LIKE $mention ESCAPE '$'`;
 				arg.$mention = `%「${escape_wildcard(card.tw_name)}」%`;
 			}
 			arg.$normal = monster_types.TYPE_NORMAL;
