@@ -235,7 +235,6 @@ export {
 	ltable_ocg, ltable_tcg, ltable_md,
 	md_card_list,
 	genesys_point,
-	jp_table,
 	md_table_sc,
 	extra_setcodes,
 	ruby_table,
