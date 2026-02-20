@@ -70,11 +70,6 @@ const RESULT_PER_PAGE = 50;
 
 const mmap_seventh = Object.create(null);
 
-/**
- * @type {Set<number>}
- */
-const ambiguous_name_list = new Set();
-
 const md_exclusive = {
 	22715: true
 };
@@ -304,7 +299,7 @@ export function generate_condition(params, id_list) {
 	if (Number.isSafeInteger(params.mention)) {
 		const card = get_card(params.mention);
 		if (card) {
-			if (ambiguous_name_list.has(params.mention)) {
+			if (setname_table.get(card.tw_name)) {
 				qstr += `${effect_filter} AND "desc" REGEXP $mention`;
 				arg.$mention = `「${escape_regexp(card.tw_name)}」(?!怪|魔|陷|卡|融合怪獸|同步怪獸|超量怪獸|連結怪獸|儀式怪獸|靈擺怪獸|通常|永續|裝備|速攻|儀式魔法|場地|反擊)`;
 			}
@@ -627,11 +622,7 @@ export async function init_query(files) {
 	}
 	// refresh card table
 	const normalized_names = new Map();
-	ambiguous_name_list.clear();
 	for (const card of query()) {
-		if (setname_table[card.tw_name]) {
-			ambiguous_name_list.add(card.id);
-		}
 		const key = (card.cid === CID_BLACK_LUSTER_SOLDIER) ? `${card.tw_name.toLowerCase()}${bls_postfix['zh-tw']}` : card.tw_name.toLowerCase();
 		if (normalized_names.has(key)) {
 			console.error('duplicate normalized name:', card.id, key);
