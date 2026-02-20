@@ -620,15 +620,6 @@ export async function init_query(files) {
 	for (const card of seventh_cards) {
 		multimap_insert(mmap_seventh, card.level, card);
 	}
-	// refresh card table
-	const normalized_names = new Map();
-	for (const card of query()) {
-		const key = (card.cid === CID_BLACK_LUSTER_SOLDIER) ? `${card.tw_name.toLowerCase()}${bls_postfix['zh-tw']}` : card.tw_name.toLowerCase();
-		if (normalized_names.has(key)) {
-			console.error('duplicate normalized name:', card.id, key);
-		}
-		normalized_names.set(key, card.id);
-	}
 }
 
 /**
