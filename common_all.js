@@ -39,7 +39,7 @@ function half_width_entries(choices) {
 }
 
 
-export function refresh_choice_table() {
+function refresh_choice_table() {
 	const choices_tc = create_choice_db();
 	choice_table['zh-tw'] = choices_tc;
 	const choices_tc_full = new Map(choices_tc);
