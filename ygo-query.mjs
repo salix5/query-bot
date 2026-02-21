@@ -721,6 +721,10 @@ export function query_card(params) {
 		is_sorted = true;
 		meta.pack = params.pack;
 	}
+	else if (typeof params.pack === 'string' && pre_release.has(params.pack)) {
+		is_sorted = true;
+		meta.pack = params.pack;
+	}
 	else if (arg_condition.$limit) {
 		meta.limit = arg_condition.$limit;
 		if (arg_condition.$offset >= 0) {
