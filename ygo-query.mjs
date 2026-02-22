@@ -311,8 +311,8 @@ export function generate_condition(params, id_list) {
 			arg.$pendulum = monster_types.TYPE_PENDULUM;
 		}
 	}
-	if (typeof params.pack === 'string' && pack_list.has(params.pack)) {
-		const pack = pack_list.get(params.pack).filter(x => Number.isSafeInteger(x) && x > 0);
+	if (typeof params.pack === 'string' && Object.hasOwn(pack_list, params.pack)) {
+		const pack = pack_list[params.pack].filter(x => Number.isSafeInteger(x) && x > 0);
 		qstr += ` AND ${list_condition('id', 'pack', pack, arg)}`;
 	}
 	else if (typeof params.pack === 'string' && pre_release.has(params.pack)) {
@@ -706,8 +706,8 @@ export function query_card(params) {
 		return { result, meta };
 	}
 	let is_sorted = false;
-	if (typeof params.pack === 'string' && pack_list.has(params.pack)) {
-		const pack = pack_list.get(params.pack);
+	if (typeof params.pack === 'string' && Object.hasOwn(pack_list, params.pack)) {
+		const pack = pack_list[params.pack];
 		const index_table = new Map();
 		for (let i = 0; i < pack.length; i += 1) {
 			if (Number.isSafeInteger(pack[i]) && pack[i] > 0) {
