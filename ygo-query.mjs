@@ -114,7 +114,7 @@ function generate_card(cdata) {
 				card.jp_ruby = ruby_table[card.cid];
 		}
 	}
-	for (const [column, value] of Object.entries(cdata)) {
+	for (const column in cdata) {
 		switch (column) {
 			case "id":
 			case "name":
@@ -122,16 +122,16 @@ function generate_card(cdata) {
 				continue;
 			case "scale":
 				if (cdata.type & monster_types.TYPE_PENDULUM)
-					card[column] = value;
+					card.scale = cdata.scale;
 				break;
 			case "def":
 				if (cdata.type & monster_types.TYPE_LINK)
-					card.marker = value;
+					card.marker = cdata.def;
 				else
-					card[column] = value;
+					card.def = cdata.def;
 				break;
 			default:
-				card[column] = value;
+				card[column] = cdata[column];
 				break;
 		}
 	}
