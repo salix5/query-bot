@@ -57,7 +57,7 @@ md_table['en'] = md_en_table;
 md_table['ja'] = md_jp_table;
 
 export const setname_table = new Map(Object.entries(setname_json));
-export const pack_list = new Map(Object.entries(pack_table));
+export const pack_list = pack_table;
 export const pre_release = new Map(Object.entries(pre_table));
 export const wiki_link = new Map(Object.entries(wiki_table));
 export const id_to_cid = inverse_mapping(cid_table);
