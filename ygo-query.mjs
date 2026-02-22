@@ -997,21 +997,13 @@ export function print_data(card, newline, locale) {
 	else if (card.type & card_types.TYPE_SPELL) {
 		const extype = card.type & ~card_types.TYPE_SPELL;
 		const mtype = `${strings.type_name[card_types.TYPE_SPELL]}`;
-		let subtype = '';
-		if (spell_colors[extype])
-			subtype = `/${strings.type_name[extype]}`;
-		else
-			subtype = `/???`;
+		const subtype = strings.type_name[extype] ? `/${strings.type_name[extype]}` : `/???`;
 		data = `[${mtype}${subtype}]${newline}`;
 	}
 	else if (card.type & card_types.TYPE_TRAP) {
 		const extype = card.type & ~card_types.TYPE_TRAP;
 		const mtype = `${strings.type_name[card_types.TYPE_TRAP]}`;
-		let subtype = '';
-		if (trap_colors[extype])
-			subtype = `/${strings.type_name[extype]}`;
-		else
-			subtype = `/???`;
+		const subtype = strings.type_name[extype] ? `/${strings.type_name[extype]}` : `/???`;
 		data = `[${mtype}${subtype}]${newline}`;
 	}
 	return data;
@@ -1095,9 +1087,9 @@ export function print_card(card, locale) {
 		md_status = `MD：${md_rarity[card.md_rarity]}\n`;
 
 	let lfstr = '';
-	let lfstr_ocg = '';
-	let lfstr_tcg = '';
-	let lfstr_md = '';
+	let lfstr_ocg;
+	let lfstr_tcg;
+	let lfstr_md;
 	let show_lflist = false;
 	if (Number.isSafeInteger(ltable_ocg[card.id])) {
 		lfstr_ocg = `OCG：${strings.limit_name[ltable_ocg[card.id]]}`;
