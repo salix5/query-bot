@@ -204,29 +204,23 @@ export function merge_db(base_db, db_list) {
 	return base;
 }
 
-const convert_table = new Map();
 /**
  * Write int64 `setcode` to an array.
  * @param {number[]} list 
  * @param {bigint} setcode 
  */
 function write_setcode(list, setcode) {
-	list.length = 0;
 	if (!setcode) {
 		return;
 	}
-	if (convert_table.has(setcode)) {
-		list.push(...convert_table.get(setcode));
-		return;
-	}
 	const result = new Set();
+	list.length = 0;
 	for (let i = 0n; i < 4n; i += 1n) {
 		const section = (setcode >> (i * 16n)) & 0xffffn;
 		if (section) {
 			result.add(Number(section));
 		}
 	}
-	convert_table.set(setcode, result);
 	list.push(...result);
 }
 
