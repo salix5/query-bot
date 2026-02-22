@@ -25,7 +25,7 @@ export const ALT_POLYMERIZATION = 27847700;
 export const ID_TYLER_THE_GREAT_WARRIOR = 68811206;
 export const ID_DECOY = 20240828;
 
-const column_names = `id, datas.ot, datas.alias, datas.setcode, datas.type, datas.atk, datas.def, datas.level, datas.race, datas.attribute, texts.name, texts."desc"`;
+const column_names = `id, datas.ot, datas.alias, CAST(datas.setcode AS TEXT) AS setcode, datas.type, datas.atk, datas.def, datas.level, datas.race, datas.attribute, texts.name, texts."desc"`;
 export const select_all = `SELECT ${column_names} FROM datas JOIN texts USING (id) WHERE 1 = 1`;
 export const select_id = `SELECT id FROM datas JOIN texts USING (id) WHERE 1 = 1`;
 export const select_name = `SELECT id, texts.name FROM datas JOIN texts USING (id) WHERE 1 = 1`;
@@ -215,7 +215,6 @@ function write_setcode(list, setcode) {
 		return;
 	}
 	const result = new Set();
-	list.length = 0;
 	for (let i = 0n; i < 4n; i += 1n) {
 		const section = (setcode >> (i * 16n)) & 0xffffn;
 		if (section) {
@@ -242,28 +241,18 @@ export function query_db(db, sql = stmt_default, arg = arg_default) {
 	}
 	const full_sql = `${sql} ORDER BY id${page_filter}`;
 	const stmt = db.prepare(full_sql);
-	stmt.setReadBigInts(true);
 	const result = stmt.all(arg);
 	for (const card of result) {
-		for (const [column, value] of Object.entries(card)) {
-			switch (column) {
-				case 'level':
-					card.level = Number(BigInt.asUintN(32, value) & 0xffffn);
-					card.scale = Number((BigInt.asUintN(32, value) & 0xff000000n) >> 24n);
-					break;
-				case 'setcode':
-				case 'race':
-				case 'category':
-					card[column] = BigInt.asIntN(64, value);
-					break;
-				default:
-					if (typeof value === 'bigint')
-						card[column] = Number(value);
-					break;
-			}
+		if (Object.hasOwn(card, 'level')) {
+			const value = card.level;
+			card.level = value & 0xffff;
+			card.scale = value >>> 24;
+		}
+		if (Object.hasOwn(card, 'race')) {
+			card.race = BigInt(card.race);
 		}
 		if (Object.hasOwn(card, 'setcode')) {
-			const setcode = card.setcode;
+			const setcode = BigInt(card.setcode);
 			card.setcode = [];
 			const list = extra_setcodes[card.id];
 			if (list)
