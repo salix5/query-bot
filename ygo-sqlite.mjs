@@ -197,6 +197,7 @@ export function merge_db(base_db, db_list) {
 		catch (error) {
 			console.error('Failed to merge database:', db);
 			console.error(error);
+			base.exec('ROLLBACK;');
 			base.close();
 			return null;
 		}
