@@ -1141,10 +1141,8 @@ export function create_choice_prerelease() {
 export function create_choice_db() {
 	const choices = new Map();
 	const re_kanji = /※.*/;
-	for (const card of query()) {
-		if (!card.cid) {
-			continue;
-		}
+	const stmt_db = `${stmt_full_default} AND cid IS NOT NULL;`;
+	for (const card of query(stmt_db)) {
 		const res = card.text.desc.match(re_kanji);
 		const kanji = res ? res[0] : '';
 		let key = card.tw_name;
@@ -1164,9 +1162,9 @@ export function create_choice_db() {
 
 export function create_name_table() {
 	const table1 = new Map();
-	for (const card of query()) {
-		if (card.cid)
-			table1.set(card.cid, card.tw_name);
+	const stmt_name = `${stmt_full_default} AND cid IS NOT NULL;`;
+	for (const card of query(stmt_name)) {
+		table1.set(card.cid, card.tw_name);
 	}
 	table1.set(CID_BLACK_LUSTER_SOLDIER, `${table1.get(CID_BLACK_LUSTER_SOLDIER)}${bls_postfix['zh-tw']}`);
 	if (table1.size !== cid_table.size)
