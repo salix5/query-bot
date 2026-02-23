@@ -56,9 +56,9 @@ export const md_table = Object.create(null);
 md_table['en'] = md_en_table;
 md_table['ja'] = md_jp_table;
 
-export const pre_release = new Map(Object.entries(pre_table));
+export const pre_release = pre_table;
 export const id_to_cid = inverse_mapping(cid_table);
-const pack_id_table = inverse_mapping(pre_release);
+const pack_id_table = Object.fromEntries(Object.entries(pre_release).map(([k, v]) => [v, k]));
 
 export const official_name = {
 	__proto__: null,
@@ -174,7 +174,7 @@ export function get_pack_name(id) {
 	if (id <= MAX_CARD_ID)
 		return '';
 	const pack_id = id - id % 1000;
-	const pack_name = pack_id_table.get(pack_id);
+	const pack_name = pack_id_table[pack_id];
 	if (!pack_name)
 		return '';
 	if (pack_name.charAt(0) === '_')
