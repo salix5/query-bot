@@ -1,11 +1,11 @@
 import { rename, rm, writeFile } from 'node:fs/promises';
 import { ltable_ocg, ltable_tcg, ltable_md, pack_list, pre_release, genesys_point, setname_table, load_name_table, ruby_table } from './ygo-json-loader.mjs';
 import { lang, bls_postfix, official_name, game_name } from './ygo-json-loader.mjs';
-import { id_to_cid, cid_table, name_table, md_table, md_card_list } from './ygo-json-loader.mjs';
+import { cid_table, name_table, md_table } from './ygo-json-loader.mjs';
 import { escape_regexp, escape_wildcard, zh_collator, zh_compare } from './ygo-utility.mjs';
 import { db_url1, db_url2, fetch_db } from './ygo-fetch.mjs';
 import { card_types, monster_types, link_markers, md_rarity, spell_colors, trap_colors, CID_BLACK_LUSTER_SOLDIER, spell_types, trap_types, MAX_CARD_ID, marker_char } from "./ygo-constant.mjs";
-import { arg_base, arg_default, arg_seventh, effect_filter, merge_db, stmt_base, stmt_default, stmt_full_count, stmt_full_default, stmt_seventh } from './ygo-sqlite.mjs';
+import { arg_base, arg_default, arg_full, arg_seventh, effect_filter, merge_db, stmt_base, stmt_default, stmt_full_count, stmt_full_default, stmt_seventh } from './ygo-sqlite.mjs';
 import { is_alternative, like_pattern, name_condition, list_condition, query_db, setcode_condition, sqlite3_open, } from './ygo-sqlite.mjs';
 
 export const regexp_mention = `(?<=「)[^「」]*「?[^「」]*」?[^「」]*(?=」)`;
@@ -100,9 +100,9 @@ function generate_card(cdata) {
 		cdata.alias = 0;
 	}
 	const card = Object.create(null);
-	if (id_to_cid.has(cdata.id))
-		card.cid = id_to_cid.get(cdata.id);
 	card.id = cdata.id;
+	if (cdata.cid)
+		card.cid = cdata.cid;
 	card.tw_name = cdata.name;
 	if (card.cid) {
 		for (const [locale, prop] of Object.entries(official_name)) {
@@ -135,8 +135,8 @@ function generate_card(cdata) {
 				break;
 		}
 	}
-	if (card.cid && md_card_list[card.cid])
-		card.md_rarity = md_card_list[card.cid];
+	if (cdata.md_rarity)
+		card.md_rarity = cdata.md_rarity;
 	card.text = Object.create(null);
 	card.text.desc = cdata.desc;
 	card.artid = artid;
@@ -647,7 +647,7 @@ export function is_setcode(card, value) {
  * @param {object} arg 
  * @returns {Card[]}
  */
-export function query(qstr = stmt_default, arg = arg_default) {
+export function query(qstr = stmt_full_default, arg = arg_full) {
 	const ret = [];
 	for (const db of db_list) {
 		for (const cdata of query_db(db, qstr, arg)) {
