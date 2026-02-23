@@ -1,5 +1,5 @@
 import { DatabaseSync } from "node:sqlite";
-import { monster_types } from "./ygo-constant.mjs";
+import { MAX_CARD_ID, monster_types } from "./ygo-constant.mjs";
 import { inverse_mapping } from "./ygo-utility.mjs";
 import { id_to_cid, extra_setcodes, setname_table } from "./ygo-json-loader.mjs";
 
@@ -249,15 +249,15 @@ export function query_db(db, sql = stmt_default, arg = arg_default) {
 	const stmt = db.prepare(full_sql);
 	const result = stmt.all(arg);
 	for (const card of result) {
-		if (Object.hasOwn(card, 'level')) {
+		if ('level' in card) {
 			const value = card.level;
 			card.level = value & 0xffff;
 			card.scale = value >>> 24;
 		}
-		if (Object.hasOwn(card, 'race')) {
+		if ('race' in card) {
 			card.race = BigInt(card.race);
 		}
-		if (Object.hasOwn(card, 'setcode')) {
+		if ('setcode' in card) {
 			const setcode = BigInt(card.setcode);
 			card.setcode = [];
 			const list = extra_setcodes[card.id];
