@@ -1181,11 +1181,4 @@ export {
 
 export * from './ygo-json-loader.mjs';
 
-export {
-	select_all, select_id, select_name,
-	base_filter, no_alt_filter, default_filter, effect_filter,
-	stmt_default, stmt_base,
-	arg_default, arg_base,
-} from './ygo-sqlite.mjs';
-
 export * from './ygo-utility.mjs';
