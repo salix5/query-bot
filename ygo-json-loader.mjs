@@ -200,10 +200,10 @@ export function get_name(cid, locale) {
  * @param {DatabaseSync} db 
  */
 export function load_name_table(db) {
-	const table_name = 'card_names';
+	const table_name = 'extension';
 	db.exec(`DROP TABLE IF EXISTS ${table_name};`);
-	db.exec(`CREATE TABLE ${table_name} ("id" INTEGER PRIMARY KEY, "en_name" TEXT, "jp_name" TEXT, "jp_ruby" TEXT);`);
-	const insert_name = db.prepare(`INSERT INTO ${table_name} VALUES (?, ?, ?, ?);`);
+	db.exec(`CREATE TABLE ${table_name} ("id" INTEGER PRIMARY KEY, "cid" INTEGER, "en_name" TEXT, "jp_name" TEXT, "jp_ruby" TEXT, "md_rarity" INTEGER);`);
+	const insert_name = db.prepare(`INSERT INTO ${table_name} VALUES (?, ?, ?, ?, ?, ?);`);
 	try {
 		db.exec(`BEGIN TRANSACTION;`);
 		for (const cid of cid_table.keys()) {
@@ -211,7 +211,8 @@ export function load_name_table(db) {
 			const en_name = complete_name_table['en'][cid] ?? '';
 			const jp_name = complete_name_table['ja'][cid] ?? '';
 			const jp_ruby = ruby_table[cid] ?? '';
-			insert_name.run(id, en_name, jp_name, jp_ruby);
+			const rarity = md_card_list[cid] ?? 0;
+			insert_name.run(id, cid, en_name, jp_name, jp_ruby, rarity);
 		}
 		const fix_name = db.prepare(`UPDATE ${table_name} SET en_name = ?, jp_name = ?, jp_ruby = ? WHERE id = ?;`);
 		const bls_name_en = complete_name_table['en'][CID_RITUAL_BLS] ?? '';
@@ -223,7 +224,7 @@ export function load_name_table(db) {
 	}
 	catch (error) {
 		db.exec(`ROLLBACK;`);
-		console.error('Failed to load card_names table:', error);
+		console.error('Failed to load extension table:', error);
 	}
 }
 
