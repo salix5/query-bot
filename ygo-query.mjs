@@ -1,7 +1,7 @@
 import { rename, rm, writeFile } from 'node:fs/promises';
 import { ltable_ocg, ltable_tcg, ltable_md, pack_list, pre_release, genesys_point, setname_table, load_name_table, ruby_table } from './ygo-json-loader.mjs';
 import { lang, bls_postfix, official_name, game_name } from './ygo-json-loader.mjs';
-import { cid_table, name_table, md_table } from './ygo-json-loader.mjs';
+import { id_to_cid, cid_table, name_table, md_table, md_card_list } from './ygo-json-loader.mjs';
 import { escape_regexp, escape_wildcard, zh_collator, zh_compare } from './ygo-utility.mjs';
 import { db_url1, db_url2, fetch_db } from './ygo-fetch.mjs';
 import { card_types, monster_types, link_markers, md_rarity, spell_colors, trap_colors, CID_BLACK_LUSTER_SOLDIER, spell_types, trap_types, marker_char } from "./ygo-constant.mjs";
@@ -101,8 +101,8 @@ function generate_card(cdata) {
 	}
 	const card = Object.create(null);
 	card.id = cdata.id;
-	if (cdata.cid)
-		card.cid = cdata.cid;
+	if (id_to_cid.has(cdata.id))
+		card.cid = id_to_cid.get(cdata.id);
 	card.tw_name = cdata.name;
 	if (card.cid) {
 		for (const [locale, prop] of Object.entries(official_name)) {
@@ -135,8 +135,8 @@ function generate_card(cdata) {
 				break;
 		}
 	}
-	if (cdata.md_rarity)
-		card.md_rarity = cdata.md_rarity;
+	if (card.cid && md_card_list[card.cid])
+		card.md_rarity = md_card_list[card.cid];
 	card.text = Object.create(null);
 	card.text.desc = cdata.desc;
 	card.artid = artid;
