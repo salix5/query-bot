@@ -25,28 +25,26 @@ export const ALT_POLYMERIZATION = 27847700;
 export const ID_TYLER_THE_GREAT_WARRIOR = 68811206;
 export const ID_DECOY = 20240828;
 
-const column_names = `id, datas.ot, datas.alias, CAST(datas.setcode AS TEXT) AS setcode, datas.type, datas.atk, datas.def, datas.level, datas.race, datas.attribute, texts.name, texts."desc"`;
-export const select_all = `SELECT ${column_names} FROM datas JOIN texts USING (id) WHERE 1 = 1`;
-export const select_id = `SELECT id FROM datas JOIN texts USING (id) WHERE 1 = 1`;
-export const select_name = `SELECT id, texts.name FROM datas JOIN texts USING (id) WHERE 1 = 1`;
-export const select_count = `SELECT count(*) FROM datas JOIN texts USING (id) WHERE 1 = 1`;
+// basic tables
+export const basic_columns = `id, datas.ot, datas.alias, CAST(datas.setcode AS TEXT) AS setcode, datas.type, datas.atk, datas.def, datas.level, datas.race, datas.attribute, texts.name, texts."desc"`;
+export const basic_tables = `datas JOIN texts USING (id)`;
+export const select_all = `SELECT ${basic_columns} FROM ${basic_tables} WHERE 1 = 1`;
 
 export const base_filter = ` AND NOT id IN ($tyler, $decoy) AND NOT type & $token`;
-export const no_alt_filter = ` AND (id = $luster OR abs(id - alias) >= $artwork_offset)`;
-export const default_filter = `${base_filter}${no_alt_filter}`;
+export const default_filter = `${base_filter} AND (id = $luster OR abs(id - alias) >= $artwork_offset)`;
 export const effect_filter = ` AND (NOT type & $normal OR type & $pendulum)`;
 
-export const stmt_default = `${select_all}${default_filter}`;
-export const stmt_count = `${select_count}${default_filter}`;
+export const stmt_default = `SELECT ${basic_columns} FROM ${basic_tables} WHERE 1 = 1${default_filter}`;
+export const stmt_count = `SELECT count(*) FROM ${basic_tables} WHERE 1 = 1${default_filter}`;
 export const arg_default = {
 	$tyler: ID_TYLER_THE_GREAT_WARRIOR,
 	$decoy: ID_DECOY,
+	$token: monster_types.TYPE_TOKEN,
 	$luster: ID_BLACK_LUSTER_SOLDIER,
 	$artwork_offset: CARD_ARTWORK_VERSIONS_OFFSET,
-	$token: monster_types.TYPE_TOKEN,
 };
 
-export const stmt_base = `${select_all}${base_filter}`;
+export const stmt_base = `SELECT ${basic_columns} FROM ${basic_tables} WHERE 1 = 1${base_filter}`;
 export const arg_base = {
 	$tyler: ID_TYLER_THE_GREAT_WARRIOR,
 	$decoy: ID_DECOY,
@@ -377,7 +375,7 @@ export function read_db(path, sql = stmt_default, arg = arg_default) {
  */
 export function check_uniqueness(path, id_luster = ID_BLACK_LUSTER_SOLDIER) {
 	const condition = ` AND (NOT type & $token OR alias = $none) AND (type & $token OR id = $luster OR abs(id - alias) >= $artwork_offset)`;
-	const stmt1 = `${select_name}${condition}`;
+	const stmt1 = `SELECT id, texts.name FROM ${basic_tables} WHERE 1 = 1${condition}`;
 	const arg1 = {
 		$token: arg_default.$token,
 		$luster: id_luster,
