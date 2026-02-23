@@ -299,7 +299,7 @@ export function generate_condition(params, id_list) {
 	if (Number.isSafeInteger(params.mention)) {
 		const card = get_card(params.mention);
 		if (card) {
-			if (setname_table.get(card.tw_name)) {
+			if (Object.hasOwn(setname_table, card.tw_name)) {
 				qstr += `${effect_filter} AND "desc" REGEXP $mention`;
 				arg.$mention = `「${escape_regexp(card.tw_name)}」(?!怪|魔|陷|卡|融合怪獸|同步怪獸|超量怪獸|連結怪獸|儀式怪獸|靈擺怪獸|通常|永續|裝備|速攻|儀式魔法|場地|反擊)`;
 			}

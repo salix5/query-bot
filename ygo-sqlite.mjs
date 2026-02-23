@@ -94,9 +94,9 @@ for (const [key, list] of Object.entries(extra_setcodes)) {
 	}
 }
 
-const normalized_setname_table = new Map();
-for (const [name, code] of setname_table) {
-	normalized_setname_table.set(name.toLowerCase(), code);
+const normalized_setname_table = Object.create(null);
+for (const [name, code] of Object.entries(setname_table)) {
+	normalized_setname_table[name.toLowerCase()] = code;
 }
 
 /**
@@ -342,8 +342,8 @@ export function name_condition(input, arg) {
 		return `(${condition})`;
 	}
 	const keyword = input.replace(replace_escape, '').toLowerCase();
-	if (normalized_setname_table.has(keyword)) {
-		condition += ` OR ${setcode_condition(normalized_setname_table.get(keyword), arg)}`;
+	if (Object.hasOwn(normalized_setname_table, keyword)) {
+		condition += ` OR ${setcode_condition(normalized_setname_table[keyword], arg)}`;
 	}
 	return `(${condition})`;
 }
