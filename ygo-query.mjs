@@ -697,7 +697,7 @@ export function query_card(params) {
 	}
 	const stmt1 = `${stmt_full_default}${condition}`;
 	const arg1 = {
-		...arg_default,
+		...arg_full,
 		...arg_condition,
 	};
 	const result = query(stmt1, arg1);
@@ -821,9 +821,9 @@ export function get_card(id) {
 		id = Number.parseInt(id, 10);
 	if (!Number.isSafeInteger(id))
 		return null;
-	const stmt_id = `${stmt_default} AND id = $id;`;
+	const stmt_id = `${stmt_full_default} AND id = $id;`;
 	const arg_id = {
-		...arg_default,
+		...arg_full,
 		$id: id,
 	};
 	const result = query(stmt_id, arg_id);
@@ -1131,17 +1131,10 @@ export function print_card(card, locale) {
  */
 export function create_choice_prerelease() {
 	const choices = new Map();
-	const stmt_pre = `${stmt_default} AND id > $ub`;
-	const arg_pre = {
-		...arg_default,
-		$ub: MAX_CARD_ID,
-	};
+	const stmt_pre = `${stmt_full_default} AND cid IS NULL;`;
 	const re_kanji = /※.*/;
-	const cards = query(stmt_pre, arg_pre);
+	const cards = query(stmt_pre);
 	for (const card of cards) {
-		if (card.cid) {
-			continue;
-		}
 		const res = card.text.desc.match(re_kanji);
 		const kanji = res ? res[0] : '';
 		if (choices.has(card.tw_name) || kanji && choices.has(kanji)) {
