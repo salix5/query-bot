@@ -315,10 +315,10 @@ export function generate_condition(params, id_list) {
 		const pack = pack_list[params.pack].filter(x => Number.isSafeInteger(x) && x > 0);
 		qstr += ` AND ${list_condition('id', 'pack', pack, arg)}`;
 	}
-	else if (typeof params.pack === 'string' && pre_release.has(params.pack)) {
+	else if (typeof params.pack === 'string' && Object.hasOwn(pre_release, params.pack)) {
 		qstr += " AND (id BETWEEN $pack_begin AND $pack_end)";
-		arg.$pack_begin = pre_release.get(params.pack);
-		arg.$pack_end = pre_release.get(params.pack) + 500;
+		arg.$pack_begin = pre_release[params.pack];
+		arg.$pack_end = pre_release[params.pack] + 500;
 	}
 	else if (Number.isSafeInteger(params.limit) && params.limit > 0) {
 		arg.$limit = params.limit;
@@ -721,7 +721,7 @@ export function query_card(params) {
 		is_sorted = true;
 		meta.pack = params.pack;
 	}
-	else if (typeof params.pack === 'string' && pre_release.has(params.pack)) {
+	else if (typeof params.pack === 'string' && Object.hasOwn(pre_release, params.pack)) {
 		is_sorted = true;
 		meta.pack = params.pack;
 	}
