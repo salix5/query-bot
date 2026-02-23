@@ -51,9 +51,11 @@ export const arg_base = {
 	$token: monster_types.TYPE_TOKEN,
 };
 
-const full_tables = `datas JOIN texts USING (id) LEFT JOIN extension USING (id)`;
-const full_filter = ` AND (cid IS NOT NULL OR id > $max_id)`;
-export const stmt_full_default = `SELECT ${column_names}, extension.cid, extension.md_rarity FROM ${full_tables} WHERE 1 = 1${full_filter}`;
+
+// full tables
+export const full_tables = `datas JOIN texts USING (id) LEFT JOIN extension USING (id)`;
+export const full_filter = ` AND (cid IS NOT NULL OR id > $max_id)`;
+export const stmt_full_default = `SELECT ${basic_columns} FROM ${full_tables} WHERE 1 = 1${full_filter}`;
 export const stmt_full_count = `SELECT count(*) FROM ${full_tables} WHERE 1 = 1${full_filter}`;
 export const arg_full = {
 	$max_id: MAX_CARD_ID,
