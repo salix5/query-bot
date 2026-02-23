@@ -4,7 +4,7 @@ import ltable_md from './data/lflist_md.json' with { type: 'json' };
 import md_card_list from './data/CardList.json' with { type: 'json' };
 import setname_table from './data/setname.json' with { type: 'json' };
 import pack_list from './pack/pack_list.json' with { type: 'json' };
-import pre_table from './pack/pre_release.json' with { type: 'json' };
+import pre_release from './pack/pre_release.json' with { type: 'json' };
 import wiki_link from './pack/wiki_link.json' with { type: 'json' };
 import genesys_point from './data/genesys_point.json' with { type: 'json' };
 
@@ -56,7 +56,6 @@ export const md_table = Object.create(null);
 md_table['en'] = md_en_table;
 md_table['ja'] = md_jp_table;
 
-export const pre_release = pre_table;
 export const id_to_cid = inverse_mapping(cid_table);
 const pack_id_table = Object.fromEntries(Object.entries(pre_release).map(([k, v]) => [v, k]));
 
@@ -237,5 +236,6 @@ export {
 	ruby_table,
 	setname_table,
 	pack_list,
+	pre_release,
 	wiki_link,
 }
