@@ -5,7 +5,7 @@ import { id_to_cid, cid_table, name_table, md_table, md_card_list } from './ygo-
 import { escape_regexp, escape_wildcard, zh_collator, zh_compare } from './ygo-utility.mjs';
 import { db_url1, db_url2, fetch_db } from './ygo-fetch.mjs';
 import { card_types, monster_types, link_markers, md_rarity, spell_colors, trap_colors, CID_BLACK_LUSTER_SOLDIER, spell_types, trap_types, marker_char } from "./ygo-constant.mjs";
-import { arg_base, arg_full, arg_seventh, effect_filter, merge_db, stmt_base, stmt_full_count, stmt_full_default, stmt_seventh } from './ygo-sqlite.mjs';
+import { arg_base, arg_full, arg_seventh, base_filter, basic_columns, effect_filter, full_tables, merge_db, stmt_full_count, stmt_full_default, stmt_seventh } from './ygo-sqlite.mjs';
 import { is_alternative, like_pattern, name_condition, list_condition, query_db, setcode_condition, sqlite3_open, } from './ygo-sqlite.mjs';
 
 export const regexp_mention = `(?<=「)[^「」]*「?[^「」]*」?[^「」]*(?=」)`;
@@ -224,18 +224,18 @@ function is_string(str) {
 export function generate_condition(params, id_list) {
 	let qstr = "";
 	const arg = {};
-	const key_list = [];
+	const key_condition = [];
 	// primary key
 	if (Number.isSafeInteger(params.id)) {
-		key_list.push('$id');
+		key_condition.push('id = $id');
 		arg.$id = params.id;
 	}
 	if (Number.isSafeInteger(params.cid)) {
-		key_list.push('$cid');
-		arg.$cid = cid_table.get(params.cid) ?? -1;
+		key_condition.push('cid = $cid');
+		arg.$cid = params.cid;
 	}
-	if (key_list.length) {
-		qstr = ` AND id IN (${key_list.join(', ')})`;
+	if (key_condition.length) {
+		qstr = ` AND (${key_condition.join(' OR ')})`;
 		return [qstr, arg];
 	}
 
@@ -671,8 +671,8 @@ export function query_card(params) {
 	if (Object.keys(arg_condition).length === 0) {
 		return { result: [], meta };
 	}
-	if (arg_condition.$id || arg_condition.$cid) {
-		const stmt = `${stmt_base}${condition}`;
+	if (Number.isSafeInteger(params.id) || Number.isSafeInteger(params.cid)) {
+		const stmt = `SELECT ${basic_columns} FROM ${full_tables} WHERE 1 = 1${base_filter}${condition}`;
 		const arg = {
 			...arg_base,
 			...arg_condition,
