@@ -313,6 +313,10 @@ export function generate_condition(params, id_list) {
 			arg.$pendulum = monster_types.TYPE_PENDULUM;
 		}
 	}
+	if (Number.isSafeInteger(params.md_rarity)) {
+		qstr += " AND md_rarity = $md_rarity";
+		arg.$md_rarity = params.md_rarity;
+	}
 	if (typeof params.pack === 'string' && Object.hasOwn(pack_list, params.pack)) {
 		const pack = pack_list[params.pack].filter(x => Number.isSafeInteger(x) && x > 0);
 		qstr += ` AND ${list_condition('id', 'pack', pack, arg)}`;
