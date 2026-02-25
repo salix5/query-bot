@@ -62,9 +62,9 @@ export const arg_full = {
 };
 
 const over_hundred = '(name like $n101 OR name like $n102 OR name like $n103 OR name like $n104 OR name like $n105 OR name like $n106 OR name like $n107)';
-export const stmt_seventh = `${stmt_default} AND type & $xyz AND ${over_hundred}`;
+export const stmt_seventh = `${stmt_full_default} AND type & $xyz AND ${over_hundred}`;
 export const arg_seventh = {
-	...arg_default,
+	...arg_full,
 	$xyz: monster_types.TYPE_XYZ,
 };
 for (let i = 0; i < 7; i += 1) {
