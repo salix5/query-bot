@@ -603,6 +603,7 @@ export async function init_query(files) {
 		await rm(current_path, { force: true });
 		await rename(base, current_path);
 		db_list.push(sqlite3_open(current_path));
+		await rm(ext1, { force: true });
 	}
 	else {
 		for (const db of db_list) {
