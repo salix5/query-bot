@@ -5,7 +5,7 @@ import { id_to_cid, cid_table, name_table, md_table, md_card_list } from './ygo-
 import { escape_regexp, escape_wildcard, zh_collator, zh_compare } from './ygo-utility.mjs';
 import { db_url1, db_url2, fetch_db } from './ygo-fetch.mjs';
 import { card_types, monster_types, link_markers, md_rarity, spell_colors, trap_colors, CID_BLACK_LUSTER_SOLDIER, spell_types, trap_types, marker_char } from "./ygo-constant.mjs";
-import { arg_base, arg_full, arg_seventh, base_filter, basic_columns, effect_filter, full_tables, merge_db, stmt_full_count, stmt_full_default, stmt_seventh } from './ygo-sqlite.mjs';
+import { arg_base, arg_full, arg_seventh, base_filter, basic_columns, effect_filter, full_filter, full_tables, merge_db, stmt_full_count, stmt_full_default, stmt_seventh } from './ygo-sqlite.mjs';
 import { is_alternative, like_pattern, name_condition, list_condition, query_db, setcode_condition, sqlite3_open, } from './ygo-sqlite.mjs';
 
 export const regexp_mention = `(?<=「)[^「」]*「?[^「」]*」?[^「」]*(?=」)`;
@@ -73,6 +73,8 @@ const mmap_seventh = Object.create(null);
 const md_exclusive = {
 	22715: true
 };
+
+const card_names = new Map();
 
 //workaround
 await init_query();
@@ -297,15 +299,15 @@ export function generate_condition(params, id_list) {
 		arg.$ttype = subtype;
 	}
 	if (Number.isSafeInteger(params.mention)) {
-		const card = get_card(params.mention);
-		if (card) {
-			if (Object.hasOwn(setname_table, card.tw_name)) {
+		const tw_name = card_names.get(params.mention);
+		if (tw_name) {
+			if (Object.hasOwn(setname_table, tw_name)) {
 				qstr += `${effect_filter} AND "desc" REGEXP $mention`;
-				arg.$mention = `「${escape_regexp(card.tw_name)}」(?!怪|魔|陷|卡|融合怪獸|同步怪獸|超量怪獸|連結怪獸|儀式怪獸|靈擺怪獸|通常|永續|裝備|速攻|儀式魔法|場地|反擊)`;
+				arg.$mention = `「${escape_regexp(tw_name)}」(?!怪|魔|陷|卡|融合怪獸|同步怪獸|超量怪獸|連結怪獸|儀式怪獸|靈擺怪獸|通常|永續|裝備|速攻|儀式魔法|場地|反擊)`;
 			}
 			else {
 				qstr += `${effect_filter} AND "desc" LIKE $mention ESCAPE '$'`;
-				arg.$mention = `%「${escape_wildcard(card.tw_name)}」%`;
+				arg.$mention = `%「${escape_wildcard(tw_name)}」%`;
 			}
 			arg.$normal = monster_types.TYPE_NORMAL;
 			arg.$pendulum = monster_types.TYPE_PENDULUM;
@@ -362,9 +364,9 @@ export function generate_condition(params, id_list) {
 	if (!arg.$cardtype || arg.$cardtype === card_types.TYPE_MONSTER) {
 		let is_monster = false;
 		if (Number.isSafeInteger(params.material)) {
-			const card = get_card(params.material);
-			if (card) {
-				const material = escape_wildcard(card.tw_name);
+			const tw_name = card_names.get(params.material);
+			if (tw_name) {
+				const material = escape_wildcard(tw_name);
 				let material_condition = "0";
 				for (let i = 0; i < 4; i += 1) {
 					material_condition += ` OR "desc" LIKE $mat${i} ESCAPE '$'`;
@@ -613,6 +615,10 @@ export async function init_query(files) {
 	seventh_cards.sort((c1, c2) => zh_collator.compare(c1.tw_name, c2.tw_name));
 	for (const card of seventh_cards) {
 		multimap_insert(mmap_seventh, card.level, card);
+	}
+	const stmt1 = `SELECT id, name FROM ${full_tables} WHERE 1 = 1${full_filter}`;
+	for (const entry of query_db(db_list[0], stmt1, arg_full)) {
+		card_names.set(entry.id, entry.name);
 	}
 }
 
