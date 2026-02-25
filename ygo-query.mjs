@@ -628,15 +628,6 @@ export async function init_query(files) {
 }
 
 /**
- * Check if the card has an official card name.
- * @param {Card} card
- * @returns {boolean}
- */
-export function is_released(card) {
-	return !!(card.jp_name || card.en_name);
-}
-
-/**
  * Check if `card.setcode` contains `value`.
  * @param {Card} card 
  * @param {number} value 
