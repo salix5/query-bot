@@ -9,8 +9,12 @@ import { arg_base, arg_full, arg_seventh, base_filter, basic_columns, effect_fil
 import { is_alternative, like_pattern, name_condition, list_condition, merge_db, query_db, setcode_condition, sqlite3_open, } from './ygo-sqlite.mjs';
 
 export const regexp_mention = `(?<=「)[^「」]*「?[^「」]*」?[^「」]*(?=」)`;
-const db_list = [];
 const RESULT_PER_PAGE = 50;
+
+/**
+ * @type {import('node:sqlite').DatabaseSync}
+ */
+let db = null;
 
 /**
  * @typedef {object} Entry
@@ -574,10 +578,10 @@ export function generate_condition(params, id_list) {
 }
 
 /**
- * @param {string[]} [files] 
+ * @param {string[]?} files
  */
-export async function init_query(files) {
-	if (!files) {
+export async function init_query(files = null) {
+	if (files === null || files.length === 0) {
 		const current_path = `${import.meta.dirname}/db/query.cdb`;
 		const base = `${import.meta.dirname}/db/main.cdb`;
 		const ext1 = `${import.meta.dirname}/db/pre.cdb`;
@@ -596,23 +600,21 @@ export async function init_query(files) {
 		}
 		load_name_table(full_db);
 		full_db.close();
-		for (const db of db_list) {
-			db.close();
-		}
-		db_list.length = 0;
+		db?.close();
 		await rm(current_path, { force: true });
 		await rename(base, current_path);
-		db_list.push(sqlite3_open(current_path));
+		db = sqlite3_open(current_path);
 		await rm(ext1, { force: true });
 	}
 	else {
-		for (const db of db_list) {
-			db.close();
+		db?.close();
+		const full_db = merge_db(files[0], files.slice(1));
+		if (!full_db) {
+			return;
 		}
-		db_list.length = 0;
-		for (const file of files) {
-			db_list.push(sqlite3_open(file));
-		}
+		load_name_table(full_db);
+		full_db.close();
+		db = sqlite3_open(files[0]);
 	}
 	// refresh multimap of No.101 ~ No.107
 	multimap_clear(mmap_seventh);
@@ -622,7 +624,7 @@ export async function init_query(files) {
 		multimap_insert(mmap_seventh, card.level, card);
 	}
 	const stmt1 = `SELECT id, name FROM ${full_tables} WHERE 1 = 1${full_filter}`;
-	for (const entry of query_db(db_list[0], stmt1, arg_full)) {
+	for (const entry of query_db(db, stmt1, arg_full)) {
 		card_names.set(entry.id, entry.name);
 	}
 }
@@ -651,10 +653,8 @@ export function is_setcode(card, value) {
  */
 export function query(qstr = stmt_full_default, arg = arg_full) {
 	const ret = [];
-	for (const db of db_list) {
-		for (const cdata of query_db(db, qstr, arg)) {
-			ret.push(generate_card(cdata));
-		}
+	for (const cdata of query_db(db, qstr, arg)) {
+		ret.push(generate_card(cdata));
 	}
 	return ret;
 }
@@ -724,14 +724,10 @@ export function query_card(params) {
 		const arg2 = { ...arg1 };
 		delete arg2.$limit;
 		delete arg2.$offset;
-		let total = 0;
-		for (const db of db_list) {
-			const st = db.prepare(command);
-			st.setReturnArrays(true);
-			const rows = st.all(arg2);
-			total += (rows[0]?.[0] ?? 0);
-		}
-		meta.total = total;
+		const st = db.prepare(command);
+		st.setReturnArrays(true);
+		const rows = st.all(arg2);
+		meta.total = rows[0]?.[0] ?? 0;
 		return { result, meta };
 	}
 	if (Number.isSafeInteger(params.page) && params.page > 0) {
