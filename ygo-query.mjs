@@ -5,8 +5,8 @@ import { id_to_cid, cid_table, name_table, md_table, md_card_list } from './ygo-
 import { escape_regexp, escape_wildcard, zh_collator, zh_compare } from './ygo-utility.mjs';
 import { db_url1, db_url2, fetch_db } from './ygo-fetch.mjs';
 import { card_types, monster_types, link_markers, md_rarity, spell_colors, trap_colors, CID_BLACK_LUSTER_SOLDIER, spell_types, trap_types, marker_char } from "./ygo-constant.mjs";
-import { arg_base, arg_full, arg_seventh, base_filter, basic_columns, effect_filter, full_filter, full_tables, merge_db, stmt_full_count, stmt_full_default, stmt_seventh } from './ygo-sqlite.mjs';
-import { is_alternative, like_pattern, name_condition, list_condition, query_db, setcode_condition, sqlite3_open, } from './ygo-sqlite.mjs';
+import { arg_base, arg_full, arg_seventh, base_filter, basic_columns, effect_filter, full_filter, full_tables, stmt_full_count, stmt_full_default, stmt_seventh } from './ygo-sqlite.mjs';
+import { is_alternative, like_pattern, name_condition, list_condition, merge_db, query_db, setcode_condition, sqlite3_open, } from './ygo-sqlite.mjs';
 
 export const regexp_mention = `(?<=「)[^「」]*「?[^「」]*」?[^「」]*(?=」)`;
 const db_list = [];
