@@ -843,16 +843,14 @@ export function get_request_locale(card, locale) {
  * @returns {Card[]}
  */
 export function get_seventh_xyz(card) {
-	const result = [];
 	if (!(card.type & card_types.TYPE_MONSTER))
-		return result;
+		return [];
 	if (card.type & monster_types.TYPES_EXTRA)
-		return result;
+		return [];
 	if (!mmap_seventh[card.level])
-		return result;
+		return [];
+	const result = [];
 	for (const seventh of mmap_seventh[card.level]) {
-		if (!seventh.cid)
-			continue;
 		if ((seventh.race & card.race) || (seventh.attribute & card.attribute)) {
 			result.push(seventh);
 		}
