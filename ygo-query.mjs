@@ -73,10 +73,6 @@ let db = null;
  */
 
 const mmap_seventh = Object.create(null);
-
-const md_exclusive = {
-};
-
 const card_names = new Map();
 
 //workaround
@@ -828,7 +824,10 @@ export function get_request_locale(card, locale) {
 	if (card.ot === 2) {
 		return 'en';
 	}
-	if (md_exclusive[card.cid]) {
+	if (card.jp_name) {
+		return 'ja';
+	}
+	if (card.md_rarity) {
 		return 'md';
 	}
 	return 'ja';
