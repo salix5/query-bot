@@ -2,23 +2,21 @@ import { SlashCommandBuilder } from 'discord.js';
 
 export const module_url = import.meta.url;
 export const data = new SlashCommandBuilder()
-	.setName('stamp')
-	.setDescription('發送貼圖');
+	.setName('react')
+	.setDescription('Send a reaction.');
 data.integration_types = [0];
 data.contexts = [0];
-const stickerId = '1051036645866098719';
+const emoji = '<:Hondoni:1068552863405592666>';
 
 /**
  * @param {import('discord.js').ChatInputCommandInteraction} interaction 
  */
 export async function execute(interaction) {
-	await interaction.reply({ content: '已發送貼圖！', ephemeral: true });
+	await interaction.reply({ content: 'Done.', ephemeral: true });
 	try {
-		await interaction.channel.send({
-			stickers: [stickerId]
-		});
+		await interaction.channel.send({ content: emoji });
 	}
 	catch { 
-		console.error('Failed to send sticker in:', interaction.channel.name);
+		console.error('Failed to send the reaction in:', interaction.channel.name);
 	}
 }
