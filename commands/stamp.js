@@ -4,8 +4,8 @@ export const module_url = import.meta.url;
 export const data = new SlashCommandBuilder()
 	.setName('stamp')
 	.setDescription('發送貼圖');
-data.integration_types = [0, 1];
-data.contexts = [0, 1, 2];
+data.integration_types = [0];
+data.contexts = [0];
 const stickerId = '1051036645866098719';
 
 /**
