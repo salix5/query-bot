@@ -75,7 +75,6 @@ let db = null;
 const mmap_seventh = Object.create(null);
 
 const md_exclusive = {
-	22715: true
 };
 
 const card_names = new Map();
