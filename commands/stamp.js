@@ -2,7 +2,7 @@ import { SlashCommandBuilder } from 'discord.js';
 
 export const module_url = import.meta.url;
 export const data = new SlashCommandBuilder()
-	.setName('sticker')
+	.setName('stamp')
 	.setDescription('發送貼圖');
 data.integration_types = [0, 1];
 data.contexts = [0, 1, 2];
