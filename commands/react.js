@@ -4,8 +4,8 @@ export const module_url = import.meta.url;
 export const data = new SlashCommandBuilder()
 	.setName('react')
 	.setDescription('Send a reaction.');
-data.integration_types = [0];
-data.contexts = [0];
+data.integration_types = [0, 1];
+data.contexts = [0, 1, 2];
 const emoji = '<:Hondoni:1068552863405592666>';
 
 /**
