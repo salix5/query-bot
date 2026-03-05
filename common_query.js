@@ -138,7 +138,7 @@ export async function query_command(interaction, input_locale, output_locale) {
 				const reply_msg = create_reply(card, output_locale);
 				reply_msg.withResponse = true;
 				const response = await interaction.reply(reply_msg);
-				if (card.cid && ygo.genesys_point[card.cid] == 100) {
+				if (card.cid && ygo.genesys_point[card.cid] == 100 && interaction.appPermissions.has('AddReactions')) {
 					const message = response.resource.message;
 					await message?.react('💯');
 				}
