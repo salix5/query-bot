@@ -5,8 +5,8 @@ import { seventh_handler } from './common_query.js';
 import { deploy_command } from './deploy-commands.js';
 
 const client = new Client({
-	intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.DirectMessages],
-	partials: [Partials.Channel]
+	intents: [GatewayIntentBits.Guilds, GatewayIntentBits.DirectMessages],
+	partials: [Partials.Channel],
 });
 
 client.cooldowns = new Collection();
