@@ -94,16 +94,18 @@ function multimap_clear(mmap) {
  * @returns {Card}
  */
 function generate_card(cdata) {
+	let id = cdata.id;
+	let alias = cdata.alias;
 	let artid = 0;
 	if (is_alternative(cdata)) {
+		id = cdata.alias;
+		alias = 0;
 		artid = cdata.id;
-		cdata.id = cdata.alias;
-		cdata.alias = 0;
 	}
 	const card = Object.create(null);
-	card.id = cdata.id;
-	if (id_to_cid.has(cdata.id))
-		card.cid = id_to_cid.get(cdata.id);
+	card.id = id;
+	if (id_to_cid.has(id))
+		card.cid = id_to_cid.get(id);
 	card.tw_name = cdata.name;
 	if (card.cid) {
 		for (const [locale, prop] of Object.entries(official_name)) {
@@ -115,9 +117,11 @@ function generate_card(cdata) {
 				card.jp_ruby = ruby_table[card.cid];
 		}
 	}
+	card.alias = alias;
 	for (const column in cdata) {
 		switch (column) {
 			case "id":
+			case "alias":
 			case "name":
 			case "desc":
 				continue;
