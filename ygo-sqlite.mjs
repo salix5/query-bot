@@ -54,11 +54,12 @@ export const arg_base = {
 
 // full tables
 export const full_tables = `datas JOIN texts USING (id) LEFT JOIN extension USING (id)`;
-export const full_filter = ` AND (cid IS NOT NULL OR id > $max_id)`;
+export const full_filter = ` AND (cid IS NOT NULL OR id > $max_id AND NOT (type & $token))`;
 export const stmt_full_default = `SELECT ${basic_columns} FROM ${full_tables} WHERE 1 = 1${full_filter}`;
 export const stmt_full_count = `SELECT count(*) FROM ${full_tables} WHERE 1 = 1${full_filter}`;
 export const arg_full = {
 	$max_id: MAX_CARD_ID,
+	$token: monster_types.TYPE_TOKEN,
 };
 
 const over_hundred = '(name like $n101 OR name like $n102 OR name like $n103 OR name like $n104 OR name like $n105 OR name like $n106 OR name like $n107)';
