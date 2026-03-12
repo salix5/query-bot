@@ -258,7 +258,7 @@ function write_setcode(list, setcode) {
 }
 
 /**
- * Query cards from `db` with statement `qstr` and binding object `arg`.
+ * Query cards from `db` using statement `qstr` and binding object `arg`.
  * @param {DatabaseSync} db 
  * @param {string} sql 
  * @param {object} arg 
@@ -383,7 +383,7 @@ export function name_condition(input, arg) {
 
 // database tool
 /**
- * Get cards from databases file at `path` with statement `sql` and binding object `arg`.
+ * Get cards from databases file at `path` using statement `sql` and binding object `arg`.
  * @param {string} path
  * @param {string} sql 
  * @param {object} arg 
