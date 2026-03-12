@@ -74,11 +74,6 @@ for (let i = 0; i < 7; i += 1) {
 	arg_seventh[`$n${101 + i}`] = `%No.${101 + i}%`;
 }
 
-const stmt_no_alias = `SELECT id FROM datas JOIN texts USING (id) WHERE NOT type & $token AND alias = $none`;
-const arg_no_alias = {
-	$token: monster_types.TYPE_TOKEN,
-	$none: 0,
-};
 const stmt_attach = `ATTACH DATABASE ? AS sub;`;
 const stmt_detach = `DETACH DATABASE sub;`;
 const stmt_merge = `BEGIN TRANSACTION;
@@ -89,7 +84,7 @@ COMMIT;`;
 const stmt_alter1 = `BEGIN TRANSACTION;
 ALTER TABLE datas ADD COLUMN rule_code INTEGER DEFAULT 0;
 UPDATE datas SET rule_code = alias, alias = 0
-WHERE id IN ( SELECT id	FROM datas WHERE NOT type & 0x4000 AND alias != 0 AND abs(id - alias) >= 20);
+WHERE id IN ( SELECT id	FROM datas WHERE NOT (type & 0x4000) AND alias != 0 AND abs(id - alias) >= 20);
 UPDATE datas SET rule_code = alias, alias = 0 WHERE id = 5405695;
 UPDATE datas SET rule_code = 13331639 WHERE alias = 6218704;
 COMMIT;`;
@@ -405,10 +400,9 @@ export function like_pattern(str) {
  * @returns {string}
  */
 export function name_condition(input, arg) {
-	let condition = `name LIKE $name ESCAPE '$' OR "desc" LIKE $kanji ESCAPE '$' OR alias IN (${stmt_no_alias} AND name LIKE $name ESCAPE '$')`;
+	let condition = `name LIKE $name ESCAPE '$' OR "desc" LIKE $kanji ESCAPE '$' OR rule_code IN (SELECT id FROM ${full_tables} WHERE 1 = 1${full_filter} AND name LIKE $name ESCAPE '$')`;
 	arg.$name = like_pattern(input);
 	arg.$kanji = `%※${like_pattern(input)}`;
-	Object.assign(arg, arg_no_alias);
 	if (re_wildcard.test(input)) {
 		return `(${condition})`;
 	}
