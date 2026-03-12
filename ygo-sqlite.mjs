@@ -32,7 +32,6 @@ export const select_all = `SELECT ${basic_columns} FROM ${basic_tables} WHERE 1 
 
 export const base_filter = ` AND NOT id IN ($tyler, $decoy) AND NOT type & $token`;
 export const default_filter = `${base_filter} AND (id = $luster OR abs(id - alias) >= $artwork_offset)`;
-export const effect_filter = ` AND (NOT type & $normal OR type & $pendulum)`;
 
 export const stmt_default = `SELECT ${basic_columns} FROM ${basic_tables} WHERE 1 = 1${default_filter}`;
 export const stmt_count = `SELECT count(*) FROM ${basic_tables} WHERE 1 = 1${default_filter}`;
@@ -53,9 +52,12 @@ export const arg_base = {
 
 
 // full tables
+export const full_columns = `id, datas.ot, datas.alias, datas.rule_code, CAST(datas.setcode AS TEXT) AS setcode, datas.type, datas.atk, datas.def, datas.level, datas.scale, datas.race, datas.attribute, texts.name, texts."desc", extension.cid`;
 export const full_tables = `datas JOIN texts USING (id) LEFT JOIN extension USING (id)`;
 export const full_filter = ` AND (cid IS NOT NULL OR id > $max_id AND NOT (type & $token))`;
-export const stmt_full_default = `SELECT ${basic_columns} FROM ${full_tables} WHERE 1 = 1${full_filter}`;
+export const effect_filter = ` AND (NOT type & $normal OR type & $pendulum)`;
+
+export const stmt_full_default = `SELECT ${full_columns} FROM ${full_tables} WHERE 1 = 1${full_filter}`;
 export const stmt_full_count = `SELECT count(*) FROM ${full_tables} WHERE 1 = 1${full_filter}`;
 export const arg_full = {
 	$max_id: MAX_CARD_ID,
@@ -125,6 +127,7 @@ for (const [name, code] of Object.entries(setname_table)) {
  * @property {number} id
  * @property {number} ot
  * @property {number} alias
+ * @property {number} rule_code
  * @property {number[]} setcode
  * @property {number} type
  * @property {number} atk
@@ -262,7 +265,7 @@ function write_setcode(list, setcode) {
  * @param {DatabaseSync} db 
  * @param {string} sql 
  * @param {object} arg 
- * @returns {Entry[]}
+ * @returns {object[]}
  */
 export function query_db(db, sql = stmt_default, arg = arg_default) {
 	let page_filter = '';
@@ -281,6 +284,41 @@ export function query_db(db, sql = stmt_default, arg = arg_default) {
 			card.level = value & 0xffff;
 			card.scale = value >>> 24;
 		}
+		if ('race' in card) {
+			card.race = BigInt(card.race);
+		}
+		if ('setcode' in card) {
+			const setcode = BigInt(card.setcode);
+			card.setcode = [];
+			const list = extra_setcodes[card.id];
+			if (list)
+				card.setcode.push(...list);
+			else
+				write_setcode(card.setcode, setcode);
+		}
+	}
+	return result;
+}
+
+/**
+ * Query cards from `db` with schema v2 using statement `qstr` and binding object `arg`.
+ * @param {DatabaseSync} db 
+ * @param {string} sql 
+ * @param {object} arg 
+ * @returns {Entry[]}
+ */
+export function query_db_v2(db, sql = stmt_full_default, arg = arg_full) {
+	let page_filter = '';
+	if (Number.isSafeInteger(arg.$limit)) {
+		page_filter = ` LIMIT $limit`;
+		if (Number.isSafeInteger(arg.$offset)) {
+			page_filter += ` OFFSET $offset`;
+		}
+	}
+	const full_sql = `${sql} ORDER BY id${page_filter}`;
+	const stmt = db.prepare(full_sql);
+	const result = stmt.all(arg);
+	for (const card of result) {
 		if ('race' in card) {
 			card.race = BigInt(card.race);
 		}

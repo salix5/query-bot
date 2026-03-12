@@ -21,6 +21,7 @@ let db = null;
  * @property {number} id
  * @property {number} ot
  * @property {number} alias
+ * @property {number} rule_code
  * @property {number[]} setcode
  * @property {number} type
  * @property {number} atk
