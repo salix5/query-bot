@@ -43,8 +43,9 @@ let db = null;
 
 /**
  * @typedef {object} Card
- * @property {number} [cid]
  * @property {number} id
+ * @property {number} [cid]
+ * @property {number} [rule_code]
  * @property {string} tw_name
  * @property {string} [ae_name]
  * @property {string} [en_name]
@@ -55,7 +56,6 @@ let db = null;
  * @property {string} [md_name_jp]
  * 
  * @property {number} ot
- * @property {number} alias
  * @property {number[]} setcode
  * @property {number} type
  * @property {number} atk
@@ -105,6 +105,8 @@ function generate_card(cdata) {
 	card.id = id;
 	if (cdata.cid)
 		card.cid = cdata.cid;
+	if (cdata.rule_code)
+		card.rule_code = cdata.rule_code;
 	card.tw_name = cdata.name;
 	if (card.cid) {
 		for (const [locale, prop] of Object.entries(official_name)) {
@@ -121,12 +123,10 @@ function generate_card(cdata) {
 			case "id":
 			case "cid":
 			case "alias":
+			case "rule_code":
 			case "name":
 			case "desc":
 				continue;
-			case "rule_code":
-				card.alias = cdata.rule_code;
-				break;
 			case "scale":
 				if (cdata.type & monster_types.TYPE_PENDULUM)
 					card.scale = cdata.scale;
@@ -259,10 +259,6 @@ export function generate_condition(params, id_list) {
 		qstr += " AND ot & $ot_mask != $ot_exclude";
 		arg.$ot_mask = 0x3;
 		arg.$ot_exclude = params.ot_exclude;
-	}
-	if (Number.isSafeInteger(params.alias)) {
-		qstr += " AND alias = $alias";
-		arg.$alias = params.alias;
 	}
 	if (Number.isSafeInteger(params.type) && params.type > 0) {
 		qstr += " AND type & $type";
