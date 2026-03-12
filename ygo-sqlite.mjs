@@ -84,6 +84,20 @@ INSERT OR REPLACE INTO datas SELECT * FROM sub.datas;
 INSERT OR REPLACE INTO texts SELECT * FROM sub.texts;
 COMMIT;`;
 
+const stmt_alter1 = `BEGIN TRANSACTION;
+ALTER TABLE datas ADD COLUMN rule_code INTEGER DEFAULT 0;
+UPDATE datas SET rule_code = alias, alias = 0
+WHERE id IN ( SELECT id	FROM datas WHERE NOT type & 0x4000 AND alias != 0 AND abs(id - alias) >= 20);
+UPDATE datas SET rule_code = alias, alias = 0 WHERE id = 5405695;
+UPDATE datas SET rule_code = 13331639 WHERE alias = 6218704;
+COMMIT;`;
+
+const stmt_alter2 = `BEGIN TRANSACTION;
+ALTER TABLE datas ADD COLUMN scale INTEGER DEFAULT 0;
+UPDATE datas SET scale =  (level >> 24) & 0xff WHERE type & 0x1000000;
+UPDATE datas SET level = level & 0xffff WHERE type & 0x1000000;
+COMMIT;`;
+
 export const re_wildcard = /(?<!\$)[%_]/;
 const replace_dollar = /\$(?![%_])/g;
 const replace_escape = /\$(?=[%_])/g;
@@ -213,6 +227,15 @@ export function merge_db(base_db, db_list) {
 		}
 	}
 	return base;
+}
+
+/**
+ * Alter the database schema using `alter.sql`.
+ * @param {DatabaseSync} db 
+ */
+export function alter_db(db) {
+	db.exec(stmt_alter1);
+	db.exec(stmt_alter2);
 }
 
 /**
