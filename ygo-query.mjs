@@ -1,12 +1,12 @@
 import { rename, rm, writeFile } from 'node:fs/promises';
 import { ltable_ocg, ltable_tcg, ltable_md, pack_list, pre_release, genesys_point, setname_table, load_name_table, ruby_table } from './ygo-json-loader.mjs';
 import { lang, bls_postfix, official_name, game_name } from './ygo-json-loader.mjs';
-import { id_to_cid, cid_table, name_table, md_table, md_card_list } from './ygo-json-loader.mjs';
+import { cid_table, name_table, md_table, md_card_list } from './ygo-json-loader.mjs';
 import { escape_regexp, escape_wildcard, zh_collator, zh_compare } from './ygo-utility.mjs';
 import { db_url1, db_url2, fetch_db } from './ygo-fetch.mjs';
 import { card_types, monster_types, link_markers, md_rarity, spell_colors, trap_colors, CID_BLACK_LUSTER_SOLDIER, spell_types, trap_types, marker_char } from "./ygo-constant.mjs";
 import { arg_base, arg_full, arg_seventh, base_filter, basic_columns, effect_filter, full_filter, full_tables, stmt_full_count, stmt_full_default, stmt_seventh } from './ygo-sqlite.mjs';
-import { is_alternative, like_pattern, name_condition, list_condition, merge_db, query_db, setcode_condition, sqlite3_open, } from './ygo-sqlite.mjs';
+import { like_pattern, name_condition, list_condition, alter_db, merge_db, query_db_v2, setcode_condition, sqlite3_open } from './ygo-sqlite.mjs';
 
 export const regexp_mention = `(?<=「)[^「」]*「?[^「」]*」?[^「」]*(?=」)`;
 const RESULT_PER_PAGE = 50;
@@ -96,17 +96,15 @@ function multimap_clear(mmap) {
  */
 function generate_card(cdata) {
 	let id = cdata.id;
-	let alias = cdata.alias;
 	let artid = 0;
-	if (is_alternative(cdata)) {
+	if (cdata.alias) {
 		id = cdata.alias;
-		alias = 0;
 		artid = cdata.id;
 	}
 	const card = Object.create(null);
 	card.id = id;
-	if (id_to_cid.has(id))
-		card.cid = id_to_cid.get(id);
+	if (cdata.cid)
+		card.cid = cdata.cid;
 	card.tw_name = cdata.name;
 	if (card.cid) {
 		for (const [locale, prop] of Object.entries(official_name)) {
@@ -118,14 +116,17 @@ function generate_card(cdata) {
 				card.jp_ruby = ruby_table[card.cid];
 		}
 	}
-	card.alias = alias;
 	for (const column in cdata) {
 		switch (column) {
 			case "id":
+			case "cid":
 			case "alias":
 			case "name":
 			case "desc":
 				continue;
+			case "rule_code":
+				card.alias = cdata.rule_code;
+				break;
 			case "scale":
 				if (cdata.type & monster_types.TYPE_PENDULUM)
 					card.scale = cdata.scale;
@@ -470,8 +471,7 @@ export function generate_condition(params, id_list) {
 
 		// lv, rank, link
 		if (Array.isArray(params.level) && params.level.length) {
-			qstr += ` AND ${list_condition('level & $level_mask', 'level', params.level, arg)}`;
-			arg.$level_mask = 0xffff;
+			qstr += ` AND ${list_condition('level', 'level', params.level, arg)}`;
 			is_monster = true;
 		}
 		else {
@@ -482,21 +482,18 @@ export function generate_condition(params, id_list) {
 			if (Number.isSafeInteger(params.level_to) && params.level_to >= 0)
 				level_to = params.level_to;
 			if (level_from >= 0 && level_to >= 0) {
-				qstr += " AND ((level & $level_mask) BETWEEN $level_from AND $level_to)";
-				arg.$level_mask = 0xffff;
+				qstr += " AND (level BETWEEN $level_from AND $level_to)";
 				arg.$level_from = level_from;
 				arg.$level_to = level_to;
 				is_monster = true;
 			}
 			else if (level_from >= 0) {
-				qstr += " AND (level & $level_mask) >= $level_from";
-				arg.$level_mask = 0xffff;
+				qstr += " AND level >= $level_from";
 				arg.$level_from = level_from;
 				is_monster = true;
 			}
 			else if (level_to >= 0) {
-				qstr += " AND (level & $level_mask) <= $level_to";
-				arg.$level_mask = 0xffff;
+				qstr += " AND level <= $level_to";
 				arg.$level_to = level_to;
 				is_monster = true;
 			}
@@ -504,11 +501,8 @@ export function generate_condition(params, id_list) {
 
 		// scale, pendulum monster only
 		let has_scale = false;
-		const scale_column = "level >> $scale_pos & $scale_mask";
 		if (Array.isArray(params.scale) && params.scale.length) {
-			qstr += ` AND ${list_condition(scale_column, 'scale', params.scale, arg)}`;
-			arg.$scale_pos = 24;
-			arg.$scale_mask = 0xff;
+			qstr += ` AND ${list_condition('scale', 'scale', params.scale, arg)}`;
 			has_scale = true;
 		}
 		else {
@@ -519,24 +513,18 @@ export function generate_condition(params, id_list) {
 			if (Number.isSafeInteger(params.scale_to) && params.scale_to >= 0)
 				scale_to = params.scale_to;
 			if (scale_from >= 0 && scale_to >= 0) {
-				qstr += ` AND (${scale_column} BETWEEN $scale_from AND $scale_to)`;
-				arg.$scale_pos = 24;
-				arg.$scale_mask = 0xff;
+				qstr += ` AND (scale BETWEEN $scale_from AND $scale_to)`;
 				arg.$scale_from = scale_from;
 				arg.$scale_to = scale_to;
 				has_scale = true;
 			}
 			else if (scale_from >= 0) {
-				qstr += ` AND ${scale_column} >= $scale_from`;
-				arg.$scale_pos = 24;
-				arg.$scale_mask = 0xff;
+				qstr += ` AND scale >= $scale_from`;
 				arg.$scale_from = scale_from;
 				has_scale = true;
 			}
 			else if (scale_to >= 0) {
-				qstr += ` AND ${scale_column} <= $scale_to`;
-				arg.$scale_pos = 24;
-				arg.$scale_mask = 0xff;
+				qstr += ` AND scale <= $scale_to`;
 				arg.$scale_to = scale_to;
 				has_scale = true;
 			}
@@ -598,6 +586,7 @@ export async function init_query(files = null) {
 		if (!full_db) {
 			return;
 		}
+		alter_db(full_db);
 		load_name_table(full_db);
 		full_db.close();
 		db?.close();
@@ -612,6 +601,7 @@ export async function init_query(files = null) {
 		if (!full_db) {
 			return;
 		}
+		alter_db(full_db);
 		load_name_table(full_db);
 		full_db.close();
 		db = sqlite3_open(files[0]);
@@ -624,7 +614,7 @@ export async function init_query(files = null) {
 		multimap_insert(mmap_seventh, card.level, card);
 	}
 	const stmt1 = `SELECT id, name FROM ${full_tables} WHERE 1 = 1${full_filter}`;
-	for (const entry of query_db(db, stmt1, arg_full)) {
+	for (const entry of query_db_v2(db, stmt1, arg_full)) {
 		card_names.set(entry.id, entry.name);
 	}
 }
@@ -653,7 +643,7 @@ export function is_setcode(card, value) {
  */
 export function query(qstr = stmt_full_default, arg = arg_full) {
 	const ret = [];
-	for (const cdata of query_db(db, qstr, arg)) {
+	for (const cdata of query_db_v2(db, qstr, arg)) {
 		ret.push(generate_card(cdata));
 	}
 	return ret;
