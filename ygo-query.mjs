@@ -526,7 +526,7 @@ export function generate_condition(params, id_list) {
 		}
 
 		// attribute, race
-		if (Number.isSafeInteger(params.attribute)) {
+		if (Number.isSafeInteger(params.attribute) && params.attribute > 0) {
 			qstr += " AND attribute & $attribute";
 			arg.$attribute = params.attribute;
 			is_monster = true;
@@ -537,7 +537,7 @@ export function generate_condition(params, id_list) {
 			is_monster = true;
 		}
 		// marker
-		if (Number.isSafeInteger(params.marker)) {
+		if (Number.isSafeInteger(params.marker) && params.marker > 0) {
 			qstr += " AND type & $link";
 			arg.$link = monster_types.TYPE_LINK;
 			if (Number.isSafeInteger(params.marker_op) && params.marker_op)
@@ -548,8 +548,8 @@ export function generate_condition(params, id_list) {
 			is_monster = true;
 		}
 		if (is_monster) {
-			qstr += " AND type & $cardtype";
-			arg.$cardtype = card_types.TYPE_MONSTER;
+			qstr += " AND type & $monster";
+			arg.$monster = card_types.TYPE_MONSTER;
 		}
 	}
 	return [qstr, arg];
