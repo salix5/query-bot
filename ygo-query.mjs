@@ -1,11 +1,11 @@
 import { rename, rm, writeFile } from 'node:fs/promises';
-import { ltable_ocg, ltable_tcg, ltable_md, pack_list, pre_release, genesys_point, setname_table, load_name_table, ruby_table } from './ygo-json-loader.mjs';
+import { ltable_ocg, ltable_tcg, ltable_md, pack_list, pre_release, genesys_point, setname_table, load_name_table, ruby_table, id_to_cid } from './ygo-json-loader.mjs';
 import { lang, bls_postfix, official_name, game_name } from './ygo-json-loader.mjs';
 import { cid_table, name_table, md_table, md_card_list } from './ygo-json-loader.mjs';
 import { escape_regexp, escape_wildcard, zh_collator, zh_compare } from './ygo-utility.mjs';
 import { db_url1, db_url2, fetch_db } from './ygo-fetch.mjs';
 import { card_types, monster_types, link_markers, md_rarity, spell_colors, trap_colors, CID_BLACK_LUSTER_SOLDIER, spell_types, trap_types, marker_char } from "./ygo-constant.mjs";
-import { arg_base, arg_full, arg_seventh, base_filter, basic_columns, effect_filter, full_filter, full_tables, stmt_full_count, stmt_full_default, stmt_seventh } from './ygo-sqlite.mjs';
+import { arg_full, arg_seventh, effect_filter, full_columns, full_filter, full_tables, stmt_full_count, stmt_full_default, stmt_seventh } from './ygo-sqlite.mjs';
 import { like_pattern, name_condition, list_condition, alter_db, merge_db, query_db_v2, setcode_condition, sqlite3_open } from './ygo-sqlite.mjs';
 
 export const regexp_mention = `(?<=「)[^「」]*「?[^「」]*」?[^「」]*(?=」)`;
@@ -103,8 +103,9 @@ function generate_card(cdata) {
 	}
 	const card = Object.create(null);
 	card.id = id;
-	if (cdata.cid)
-		card.cid = cdata.cid;
+	// table lookup for alternative art
+	if (id_to_cid.has(id))
+		card.cid = id_to_cid.get(id);
 	if (cdata.rule_code)
 		card.rule_code = cdata.rule_code;
 	card.tw_name = cdata.name;
@@ -660,9 +661,9 @@ export function query_card(params) {
 		return { result: [], meta };
 	}
 	if (Number.isSafeInteger(params.id) || Number.isSafeInteger(params.cid)) {
-		const stmt = `SELECT ${basic_columns} FROM ${full_tables} WHERE 1 = 1${base_filter}${condition}`;
+		const stmt = `SELECT ${full_columns} FROM ${full_tables} WHERE NOT (type & $token) AND (cid IS NOT NULL OR alias != 0 OR id > $max_id)${condition}`;
 		const arg = {
-			...arg_base,
+			...arg_full,
 			...arg_condition,
 		};
 		const result = query(stmt, arg);
