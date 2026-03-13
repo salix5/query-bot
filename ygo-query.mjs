@@ -360,197 +360,195 @@ export function generate_condition(params, id_list) {
 		arg.$jp_ruby = params.jp_ruby;
 	}
 
-	if (!arg.$cardtype || arg.$cardtype === card_types.TYPE_MONSTER) {
-		let is_monster = false;
-		if (Number.isSafeInteger(params.material)) {
-			const tw_name = card_names.get(params.material);
-			if (tw_name) {
-				const material = escape_wildcard(tw_name);
-				let material_condition = "0";
-				for (let i = 0; i < 4; i += 1) {
-					material_condition += ` OR "desc" LIKE $mat${i} ESCAPE '$'`;
-				}
-				qstr += ` AND (${material_condition})`;
-				arg.$mat0 = `「${material}」+%`;
-				arg.$mat1 = `「${material}」（%）+%`;
-				arg.$mat2 = `%+「${material}」%`;
-				arg.$mat3 = `%「${material}」×%`;
-				is_monster = true;
+	let is_monster = false;
+	if (Number.isSafeInteger(params.material)) {
+		const tw_name = card_names.get(params.material);
+		if (tw_name) {
+			const material = escape_wildcard(tw_name);
+			let material_condition = "0";
+			for (let i = 0; i < 4; i += 1) {
+				material_condition += ` OR "desc" LIKE $mat${i} ESCAPE '$'`;
 			}
+			qstr += ` AND (${material_condition})`;
+			arg.$mat0 = `「${material}」+%`;
+			arg.$mat1 = `「${material}」（%）+%`;
+			arg.$mat2 = `%+「${material}」%`;
+			arg.$mat3 = `%「${material}」×%`;
+			is_monster = true;
 		}
+	}
 
-		// atk
-		let atk_from = -10;
-		let atk_to = -10;
-		let atk_condition = "";
-		if (Number.isSafeInteger(params.atk_from) && params.atk_from >= -1)
-			atk_from = params.atk_from;
-		if (Number.isSafeInteger(params.atk_to) && params.atk_to >= -1)
-			atk_to = params.atk_to;
-		if (atk_from === -1 || atk_to === -1) {
-			atk_condition = "atk = $unknown";
-			arg.$unknown = -2;
-			is_monster = true;
-		}
-		else if (atk_to >= 0) {
-			if (atk_from < 0)
-				atk_from = 0;
-			atk_condition = "(atk BETWEEN $atk_from AND $atk_to)";
-			arg.$atk_from = atk_from;
-			arg.$atk_to = atk_to;
-			is_monster = true;
-		}
-		else if (atk_from >= 0) {
-			atk_condition = "atk >= $atk_from";
-			arg.$atk_from = atk_from;
-			is_monster = true;
-		}
+	// atk
+	let atk_from = -10;
+	let atk_to = -10;
+	let atk_condition = "";
+	if (Number.isSafeInteger(params.atk_from) && params.atk_from >= -1)
+		atk_from = params.atk_from;
+	if (Number.isSafeInteger(params.atk_to) && params.atk_to >= -1)
+		atk_to = params.atk_to;
+	if (atk_from === -1 || atk_to === -1) {
+		atk_condition = "atk = $unknown";
+		arg.$unknown = -2;
+		is_monster = true;
+	}
+	else if (atk_to >= 0) {
+		if (atk_from < 0)
+			atk_from = 0;
+		atk_condition = "(atk BETWEEN $atk_from AND $atk_to)";
+		arg.$atk_from = atk_from;
+		arg.$atk_to = atk_to;
+		is_monster = true;
+	}
+	else if (atk_from >= 0) {
+		atk_condition = "atk >= $atk_from";
+		arg.$atk_from = atk_from;
+		is_monster = true;
+	}
 
-		// def, exclude link monsters
-		let has_def = false;
-		let def_from = -10;
-		let def_to = -10;
-		let def_condition = "";
-		if (Number.isSafeInteger(params.def_from) && params.def_from >= -2)
-			def_from = params.def_from;
-		if (Number.isSafeInteger(params.def_to) && params.def_to >= -1)
-			def_to = params.def_to;
-		if (def_from === -1 || def_to === -1) {
-			def_condition = "def = $unknown";
-			arg.$unknown = -2;
-			has_def = true;
-		}
-		else if (def_from === -2) {
-			def_condition = "def = atk AND def >= $zero";
-			arg.$zero = 0;
-			has_def = true;
-		}
-		else if (def_to >= 0) {
-			if (def_from < 0)
-				def_from = 0;
-			def_condition = "(def BETWEEN $def_from AND $def_to)";
-			arg.$def_from = def_from;
-			arg.$def_to = def_to;
-			has_def = true;
-		}
-		else if (def_from >= 0) {
-			def_condition = "def >= $def_from";
-			arg.$def_from = def_from;
-			has_def = true;
-		}
-		if (atk_condition && def_condition) {
-			qstr += ` AND (${atk_condition} AND ${def_condition})`;
-		}
-		else if (atk_condition) {
-			qstr += ` AND ${atk_condition}`;
-		}
-		else if (def_condition) {
-			qstr += ` AND ${def_condition}`;
-		}
-		if (Number.isSafeInteger(params.sum) && params.sum >= 0) {
-			qstr += " AND atk >= $zero AND def >= $zero AND atk + def = $sum";
-			arg.$zero = 0;
-			arg.$sum = params.sum;
-			has_def = true;
-		}
-		if (has_def) {
-			qstr += " AND NOT type & $link";
-			arg.$link = monster_types.TYPE_LINK;
+	// def, exclude link monsters
+	let has_def = false;
+	let def_from = -10;
+	let def_to = -10;
+	let def_condition = "";
+	if (Number.isSafeInteger(params.def_from) && params.def_from >= -2)
+		def_from = params.def_from;
+	if (Number.isSafeInteger(params.def_to) && params.def_to >= -1)
+		def_to = params.def_to;
+	if (def_from === -1 || def_to === -1) {
+		def_condition = "def = $unknown";
+		arg.$unknown = -2;
+		has_def = true;
+	}
+	else if (def_from === -2) {
+		def_condition = "def = atk AND def >= $zero";
+		arg.$zero = 0;
+		has_def = true;
+	}
+	else if (def_to >= 0) {
+		if (def_from < 0)
+			def_from = 0;
+		def_condition = "(def BETWEEN $def_from AND $def_to)";
+		arg.$def_from = def_from;
+		arg.$def_to = def_to;
+		has_def = true;
+	}
+	else if (def_from >= 0) {
+		def_condition = "def >= $def_from";
+		arg.$def_from = def_from;
+		has_def = true;
+	}
+	if (atk_condition && def_condition) {
+		qstr += ` AND (${atk_condition} AND ${def_condition})`;
+	}
+	else if (atk_condition) {
+		qstr += ` AND ${atk_condition}`;
+	}
+	else if (def_condition) {
+		qstr += ` AND ${def_condition}`;
+	}
+	if (Number.isSafeInteger(params.sum) && params.sum >= 0) {
+		qstr += " AND atk >= $zero AND def >= $zero AND atk + def = $sum";
+		arg.$zero = 0;
+		arg.$sum = params.sum;
+		has_def = true;
+	}
+	if (has_def) {
+		qstr += " AND NOT type & $link";
+		arg.$link = monster_types.TYPE_LINK;
+		is_monster = true;
+	}
+
+	// lv, rank, link
+	if (Array.isArray(params.level) && params.level.length) {
+		qstr += ` AND ${list_condition('level', 'level', params.level, arg)}`;
+		is_monster = true;
+	}
+	else {
+		let level_from = -10;
+		let level_to = -10;
+		if (Number.isSafeInteger(params.level_from) && params.level_from >= 0)
+			level_from = params.level_from;
+		if (Number.isSafeInteger(params.level_to) && params.level_to >= 0)
+			level_to = params.level_to;
+		if (level_from >= 0 && level_to >= 0) {
+			qstr += " AND (level BETWEEN $level_from AND $level_to)";
+			arg.$level_from = level_from;
+			arg.$level_to = level_to;
 			is_monster = true;
 		}
-
-		// lv, rank, link
-		if (Array.isArray(params.level) && params.level.length) {
-			qstr += ` AND ${list_condition('level', 'level', params.level, arg)}`;
+		else if (level_from >= 0) {
+			qstr += " AND level >= $level_from";
+			arg.$level_from = level_from;
 			is_monster = true;
 		}
-		else {
-			let level_from = -10;
-			let level_to = -10;
-			if (Number.isSafeInteger(params.level_from) && params.level_from >= 0)
-				level_from = params.level_from;
-			if (Number.isSafeInteger(params.level_to) && params.level_to >= 0)
-				level_to = params.level_to;
-			if (level_from >= 0 && level_to >= 0) {
-				qstr += " AND (level BETWEEN $level_from AND $level_to)";
-				arg.$level_from = level_from;
-				arg.$level_to = level_to;
-				is_monster = true;
-			}
-			else if (level_from >= 0) {
-				qstr += " AND level >= $level_from";
-				arg.$level_from = level_from;
-				is_monster = true;
-			}
-			else if (level_to >= 0) {
-				qstr += " AND level <= $level_to";
-				arg.$level_to = level_to;
-				is_monster = true;
-			}
+		else if (level_to >= 0) {
+			qstr += " AND level <= $level_to";
+			arg.$level_to = level_to;
+			is_monster = true;
 		}
+	}
 
-		// scale, pendulum monster only
-		let has_scale = false;
-		if (Array.isArray(params.scale) && params.scale.length) {
-			qstr += ` AND ${list_condition('scale', 'scale', params.scale, arg)}`;
+	// scale, pendulum monster only
+	let has_scale = false;
+	if (Array.isArray(params.scale) && params.scale.length) {
+		qstr += ` AND ${list_condition('scale', 'scale', params.scale, arg)}`;
+		has_scale = true;
+	}
+	else {
+		let scale_from = -10;
+		let scale_to = -10;
+		if (Number.isSafeInteger(params.scale_from) && params.scale_from >= 0)
+			scale_from = params.scale_from;
+		if (Number.isSafeInteger(params.scale_to) && params.scale_to >= 0)
+			scale_to = params.scale_to;
+		if (scale_from >= 0 && scale_to >= 0) {
+			qstr += ` AND (scale BETWEEN $scale_from AND $scale_to)`;
+			arg.$scale_from = scale_from;
+			arg.$scale_to = scale_to;
 			has_scale = true;
 		}
-		else {
-			let scale_from = -10;
-			let scale_to = -10;
-			if (Number.isSafeInteger(params.scale_from) && params.scale_from >= 0)
-				scale_from = params.scale_from;
-			if (Number.isSafeInteger(params.scale_to) && params.scale_to >= 0)
-				scale_to = params.scale_to;
-			if (scale_from >= 0 && scale_to >= 0) {
-				qstr += ` AND (scale BETWEEN $scale_from AND $scale_to)`;
-				arg.$scale_from = scale_from;
-				arg.$scale_to = scale_to;
-				has_scale = true;
-			}
-			else if (scale_from >= 0) {
-				qstr += ` AND scale >= $scale_from`;
-				arg.$scale_from = scale_from;
-				has_scale = true;
-			}
-			else if (scale_to >= 0) {
-				qstr += ` AND scale <= $scale_to`;
-				arg.$scale_to = scale_to;
-				has_scale = true;
-			}
+		else if (scale_from >= 0) {
+			qstr += ` AND scale >= $scale_from`;
+			arg.$scale_from = scale_from;
+			has_scale = true;
 		}
-		if (has_scale) {
-			qstr += " AND type & $pendulum";
-			arg.$pendulum = monster_types.TYPE_PENDULUM;
-			is_monster = true;
+		else if (scale_to >= 0) {
+			qstr += ` AND scale <= $scale_to`;
+			arg.$scale_to = scale_to;
+			has_scale = true;
 		}
+	}
+	if (has_scale) {
+		qstr += " AND type & $pendulum";
+		arg.$pendulum = monster_types.TYPE_PENDULUM;
+		is_monster = true;
+	}
 
-		// attribute, race
-		if (Number.isSafeInteger(params.attribute) && params.attribute > 0) {
-			qstr += " AND attribute & $attribute";
-			arg.$attribute = params.attribute;
-			is_monster = true;
-		}
-		if (typeof params.race === 'bigint' && params.race > 0) {
-			qstr += " AND race & $race";
-			arg.$race = BigInt.asUintN(64, params.race);
-			is_monster = true;
-		}
-		// marker
-		if (Number.isSafeInteger(params.marker) && params.marker > 0) {
-			qstr += " AND type & $link";
-			arg.$link = monster_types.TYPE_LINK;
-			if (Number.isSafeInteger(params.marker_op) && params.marker_op)
-				qstr += " AND def & $marker = $marker";
-			else
-				qstr += " AND def & $marker";
-			arg.$marker = params.marker;
-			is_monster = true;
-		}
-		if (is_monster) {
-			qstr += " AND type & $monster";
-			arg.$monster = card_types.TYPE_MONSTER;
-		}
+	// attribute, race
+	if (Number.isSafeInteger(params.attribute) && params.attribute > 0) {
+		qstr += " AND attribute & $attribute";
+		arg.$attribute = params.attribute;
+		is_monster = true;
+	}
+	if (typeof params.race === 'bigint' && params.race > 0) {
+		qstr += " AND race & $race";
+		arg.$race = BigInt.asUintN(64, params.race);
+		is_monster = true;
+	}
+	// marker
+	if (Number.isSafeInteger(params.marker) && params.marker > 0) {
+		qstr += " AND type & $link";
+		arg.$link = monster_types.TYPE_LINK;
+		if (Number.isSafeInteger(params.marker_op) && params.marker_op)
+			qstr += " AND def & $marker = $marker";
+		else
+			qstr += " AND def & $marker";
+		arg.$marker = params.marker;
+		is_monster = true;
+	}
+	if (is_monster) {
+		qstr += " AND type & $monster";
+		arg.$monster = card_types.TYPE_MONSTER;
 	}
 	return [qstr, arg];
 }
