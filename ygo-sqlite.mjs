@@ -438,9 +438,9 @@ export function check_uniqueness(path, id_luster = ID_BLACK_LUSTER_SOLDIER) {
 	const condition = ` AND (NOT type & $token OR alias = $none) AND (type & $token OR id = $luster OR abs(id - alias) >= $artwork_offset)`;
 	const stmt1 = `SELECT id, texts.name FROM ${basic_tables} WHERE 1 = 1${condition}`;
 	const arg1 = {
-		$token: arg_default.$token,
+		$token: monster_types.TYPE_TOKEN,
 		$luster: id_luster,
-		$artwork_offset: arg_default.$artwork_offset,
+		$artwork_offset: CARD_ARTWORK_VERSIONS_OFFSET,
 		$none: 0,
 	};
 	const cards = read_db(path, stmt1, arg1);
