@@ -682,9 +682,7 @@ export function query_card(params) {
 	}
 	else if (arg_condition.$limit) {
 		meta.limit = arg_condition.$limit;
-		if (arg_condition.$offset >= 0) {
-			meta.offset = arg_condition.$offset;
-		}
+		meta.offset = arg_condition.$offset;
 	}
 	if (meta.limit > 0) {
 		const command = `${stmt_full_count}${condition};`;
