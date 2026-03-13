@@ -170,7 +170,7 @@ function setcode_match(value, setcode) {
 }
 
 /**
- * Open a database file.
+ * Open a database file and add custom functions `regexp` and `match`.
  * @param {string} filename 
  * @returns {DatabaseSync}
  */
