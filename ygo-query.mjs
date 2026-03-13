@@ -360,7 +360,7 @@ export function generate_condition(params, id_list) {
 		arg.$jp_ruby = params.jp_ruby;
 	}
 
-	let is_monster = false;
+	const command_length = qstr.length;
 	if (Number.isSafeInteger(params.material)) {
 		const tw_name = card_names.get(params.material);
 		if (tw_name) {
@@ -374,7 +374,6 @@ export function generate_condition(params, id_list) {
 			arg.$mat1 = `「${material}」（%）+%`;
 			arg.$mat2 = `%+「${material}」%`;
 			arg.$mat3 = `%「${material}」×%`;
-			is_monster = true;
 		}
 	}
 
@@ -389,7 +388,6 @@ export function generate_condition(params, id_list) {
 	if (atk_from === -1 || atk_to === -1) {
 		atk_condition = "atk = $unknown";
 		arg.$unknown = -2;
-		is_monster = true;
 	}
 	else if (atk_to >= 0) {
 		if (atk_from < 0)
@@ -397,12 +395,10 @@ export function generate_condition(params, id_list) {
 		atk_condition = "(atk BETWEEN $atk_from AND $atk_to)";
 		arg.$atk_from = atk_from;
 		arg.$atk_to = atk_to;
-		is_monster = true;
 	}
 	else if (atk_from >= 0) {
 		atk_condition = "atk >= $atk_from";
 		arg.$atk_from = atk_from;
-		is_monster = true;
 	}
 
 	// def, exclude link monsters
@@ -455,13 +451,11 @@ export function generate_condition(params, id_list) {
 	if (has_def) {
 		qstr += " AND NOT type & $link";
 		arg.$link = monster_types.TYPE_LINK;
-		is_monster = true;
 	}
 
 	// lv, rank, link
 	if (Array.isArray(params.level) && params.level.length) {
 		qstr += ` AND ${list_condition('level', 'level', params.level, arg)}`;
-		is_monster = true;
 	}
 	else {
 		let level_from = -10;
@@ -474,17 +468,14 @@ export function generate_condition(params, id_list) {
 			qstr += " AND (level BETWEEN $level_from AND $level_to)";
 			arg.$level_from = level_from;
 			arg.$level_to = level_to;
-			is_monster = true;
 		}
 		else if (level_from >= 0) {
 			qstr += " AND level >= $level_from";
 			arg.$level_from = level_from;
-			is_monster = true;
 		}
 		else if (level_to >= 0) {
 			qstr += " AND level <= $level_to";
 			arg.$level_to = level_to;
-			is_monster = true;
 		}
 	}
 
@@ -521,19 +512,16 @@ export function generate_condition(params, id_list) {
 	if (has_scale) {
 		qstr += " AND type & $pendulum";
 		arg.$pendulum = monster_types.TYPE_PENDULUM;
-		is_monster = true;
 	}
 
 	// attribute, race
 	if (Number.isSafeInteger(params.attribute) && params.attribute > 0) {
 		qstr += " AND attribute & $attribute";
 		arg.$attribute = params.attribute;
-		is_monster = true;
 	}
 	if (typeof params.race === 'bigint' && params.race > 0) {
 		qstr += " AND race & $race";
 		arg.$race = BigInt.asUintN(64, params.race);
-		is_monster = true;
 	}
 	// marker
 	if (Number.isSafeInteger(params.marker) && params.marker > 0) {
@@ -544,9 +532,8 @@ export function generate_condition(params, id_list) {
 		else
 			qstr += " AND def & $marker";
 		arg.$marker = params.marker;
-		is_monster = true;
 	}
-	if (is_monster) {
+	if (qstr.length !== command_length && !arg.$monster) {
 		qstr += " AND type & $monster";
 		arg.$monster = card_types.TYPE_MONSTER;
 	}
