@@ -73,22 +73,15 @@ let db = null;
  * @property {number} [pack_index]
  */
 
-const mmap_seventh = Object.create(null);
+/**
+ * @type {Map<number, Card[]>}
+ */
+const multimap_seventh = new Map();
 const card_names = new Map();
 
 //workaround
 await init_query();
 
-function multimap_insert(mmap, key, value) {
-	if (!mmap[key])
-		mmap[key] = [];
-	mmap[key].push(value);
-}
-
-function multimap_clear(mmap) {
-	for (const key of Object.keys(mmap))
-		delete mmap[key];
-}
 
 /**
  * @param {Entry} cdata 
@@ -203,15 +196,15 @@ function generate_card(cdata) {
 function seventh_condition() {
 	let condition1 = '0';
 	for (let i = 1; i <= 13; i += 1) {
-		if (!mmap_seventh[i])
+		if (!multimap_seventh.has(i))
 			continue;
 		let attr_value = 0;
 		let race_value = 0n;
-		for (const card of mmap_seventh[i]) {
+		for (const card of multimap_seventh.get(i)) {
 			attr_value |= card.attribute;
 			race_value |= card.race;
 		}
-		condition1 += ` OR (level & 0xffff) = ${i} AND (attribute & ${attr_value} OR race & ${race_value})`;
+		condition1 += ` OR level = ${i} AND (attribute & ${attr_value} OR race & ${race_value})`;
 	}
 	const ret = ` AND type & $monster AND NOT type & $extra AND (${condition1})`;
 	return ret;
@@ -604,11 +597,13 @@ export async function init_query(files = null) {
 		db = sqlite3_open(files[0]);
 	}
 	// refresh multimap of No.101 ~ No.107
-	multimap_clear(mmap_seventh);
+	multimap_seventh.clear();
 	const seventh_cards = query(stmt_seventh, arg_seventh);
 	seventh_cards.sort((c1, c2) => zh_collator.compare(c1.tw_name, c2.tw_name));
 	for (const card of seventh_cards) {
-		multimap_insert(mmap_seventh, card.level, card);
+		if (!multimap_seventh.has(card.level))
+			multimap_seventh.set(card.level, []);
+		multimap_seventh.get(card.level).push(card);
 	}
 	const stmt1 = `SELECT id, name FROM ${full_tables} WHERE 1 = 1${full_filter}`;
 	for (const entry of query_db_v2(db, stmt1, arg_full)) {
@@ -835,10 +830,10 @@ export function get_seventh_xyz(card) {
 		return [];
 	if (card.type & monster_types.TYPES_EXTRA)
 		return [];
-	if (!mmap_seventh[card.level])
+	if (!multimap_seventh.has(card.level))
 		return [];
 	const result = [];
-	for (const seventh of mmap_seventh[card.level]) {
+	for (const seventh of multimap_seventh.get(card.level)) {
 		if ((seventh.race & card.race) || (seventh.attribute & card.attribute)) {
 			result.push(seventh);
 		}
