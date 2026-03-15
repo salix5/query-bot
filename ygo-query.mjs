@@ -853,12 +853,15 @@ export function print_data(card, newline, locale) {
 		const mtype = strings.type_name[card_types.TYPE_MONSTER];
 		let subtype = '';
 		let lvstr = '\u2605';
-		if (card.type & monster_types.TYPE_RITUAL)
+		if (card.type & monster_types.TYPE_RITUAL) {
 			subtype = `/${strings.type_name[monster_types.TYPE_RITUAL]}`;
-		else if (card.type & monster_types.TYPE_FUSION)
+		}
+		else if (card.type & monster_types.TYPE_FUSION) {
 			subtype = `/${strings.type_name[monster_types.TYPE_FUSION]}`;
-		else if (card.type & monster_types.TYPE_SYNCHRO)
+		}
+		else if (card.type & monster_types.TYPE_SYNCHRO) {
 			subtype = `/${strings.type_name[monster_types.TYPE_SYNCHRO]}`;
+		}
 		else if (card.type & monster_types.TYPE_XYZ) {
 			subtype = `/${strings.type_name[monster_types.TYPE_XYZ]}`;
 			lvstr = `\u2606`;
@@ -866,6 +869,9 @@ export function print_data(card, newline, locale) {
 		else if (card.type & monster_types.TYPE_LINK) {
 			subtype = `/${strings.type_name[monster_types.TYPE_LINK]}`;
 			lvstr = `LINK-`;
+		}
+		else if (card.type & monster_types.TYPE_SPSUMMON) {
+			subtype = `/${strings.type_name[monster_types.TYPE_SPSUMMON]}`;
 		}
 		if (card.type & monster_types.TYPE_PENDULUM) {
 			subtype += `/${strings.type_name[monster_types.TYPE_PENDULUM]}`;
@@ -886,8 +892,6 @@ export function print_data(card, newline, locale) {
 			subtype += `/${strings.type_name[monster_types.TYPE_FLIP]}`;
 		if (card.type & monster_types.TYPE_TOON)
 			subtype += `/${strings.type_name[monster_types.TYPE_TOON]}`;
-		if (card.type & monster_types.TYPE_SPSUMMON)
-			subtype += `/${strings.type_name[monster_types.TYPE_SPSUMMON]}`;
 		if (card.type & monster_types.TYPE_EFFECT)
 			subtype += `/${strings.type_name[monster_types.TYPE_EFFECT]}`;
 		data = `[${mtype}${subtype}]${newline}`;
