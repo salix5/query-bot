@@ -52,7 +52,8 @@ export const arg_base = {
 
 
 // full tables
-export const full_columns = `id, datas.ot, datas.alias, datas.rule_code, CAST(datas.setcode AS TEXT) AS setcode, datas.type, datas.atk, datas.def, datas.level, datas.scale, datas.race, datas.attribute, texts.name, texts."desc", extension.cid`;
+export const full_columns = `id, datas.ot, datas.alias, datas.rule_code, datas.type, datas.atk, datas.def, datas.level, datas.scale, datas.race, datas.attribute,
+CAST(datas.setcode1 AS TEXT) AS setcode1, CAST(datas.setcode2 AS TEXT) AS setcode2, CAST(datas.setcode3 AS TEXT) AS setcode3, CAST(datas.setcode4 AS TEXT) AS setcode4, texts.name, texts."desc", extension.cid`;
 export const full_tables = `datas JOIN texts USING (id) LEFT JOIN extension USING (id)`;
 export const full_filter = ` AND (cid IS NOT NULL OR id > $max_id AND NOT (type & $token))`;
 export const effect_filter = ` AND (NOT type & $normal OR type & $pendulum)`;
@@ -95,22 +96,17 @@ UPDATE datas SET scale =  (level >> 24) & 0xff WHERE type & 0x1000000;
 UPDATE datas SET level = level & 0xffff WHERE type & 0x1000000;
 COMMIT;`;
 
+const stmt_alter3 = `BEGIN TRANSACTION;
+ALTER TABLE datas RENAME COLUMN setcode TO setcode1;
+ALTER TABLE datas ADD COLUMN setcode2 INTEGER DEFAULT 0;
+ALTER TABLE datas ADD COLUMN setcode3 INTEGER DEFAULT 0;
+ALTER TABLE datas ADD COLUMN setcode4 INTEGER DEFAULT 0;
+UPDATE datas SET setcode2 = 0x13a WHERE id IN (8512558, 55088578);
+COMMIT;`;
+
 export const re_wildcard = /(?<!\$)[%_]/;
 const replace_dollar = /\$(?![%_])/g;
 const replace_escape = /\$(?=[%_])/g;
-
-/**
- * @type {Map<number, number[]>}
- */
-const code_table = new Map();
-for (const [key, list] of Object.entries(extra_setcodes)) {
-	for (const code of list) {
-		if (!code_table.has(code))
-			code_table.set(code, []);
-		const id_list = code_table.get(code);
-		id_list.push(Number.parseInt(key, 10));
-	}
-}
 
 const normalized_setname_table = Object.create(null);
 for (const [name, code] of Object.entries(setname_table)) {
@@ -234,6 +230,7 @@ export function merge_db(base_db, db_list) {
 export function alter_db(db) {
 	db.exec(stmt_alter1);
 	db.exec(stmt_alter2);
+	db.exec(stmt_alter3);
 }
 
 /**
@@ -317,14 +314,13 @@ export function query_db_v2(db, sql = stmt_full_default, arg = arg_full) {
 		if ('race' in card) {
 			card.race = BigInt(card.race);
 		}
-		if ('setcode' in card) {
-			const setcode = BigInt(card.setcode);
-			card.setcode = [];
-			const list = extra_setcodes[card.id];
-			if (list)
-				card.setcode.push(...list);
-			else
+		card.setcode = [];
+		for (let i = 0; i < 4; i++) {
+			if (`setcode${i + 1}` in card) {
+				const setcode = BigInt(card[`setcode${i + 1}`]);
 				write_setcode(card.setcode, setcode);
+				delete card[`setcode${i + 1}`];
+			}
 		}
 	}
 	return result;
@@ -348,12 +344,8 @@ export function is_alternative(cdata) {
  * @returns {string}
  */
 export function setcode_condition(setcode, arg) {
-	let condition = `setcode MATCH $setcode`;
+	const condition = `setcode1 MATCH $setcode OR setcode2 MATCH $setcode OR setcode3 MATCH $setcode OR setcode4 MATCH $setcode`;
 	arg.$setcode = BigInt(setcode);
-	const id_list = code_table.get(setcode);
-	if (id_list) {
-		condition += ` OR ${list_condition('id', 'sid', id_list, arg)}`;
-	}
 	return `(${condition})`;
 }
 
