@@ -1,6 +1,7 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Collection, MessageFlags } from 'discord.js';
 import * as ygo from './ygo-query.mjs';
 import { choice_table } from './common_all.js';
+import { fetch_text } from './ygo-fetch.mjs';
 
 const reply_text = {
 	'zh-tw': {
@@ -20,36 +21,35 @@ const search_count = new Collection();
 
 export { reply_text, search_count };
 
+const max_size = 1 * 1024 * 1024;
+const timeout = 5000;
+
 async function fetch_desc(card, request_locale) {
 	if (!Number.isSafeInteger(card.cid) || !ygo.official_name[request_locale])
 		return '';
-
+	const raw_data = await fetch_text(ygo.print_db_link(card.cid, request_locale), max_size, timeout);
 	const re_ptext = /<div class="frame pen_effect">.*?<div class="item_box_text">.*?([^\r\n\t]+).*?<\/div>/s;
 	const re_text = /<div class="text_title">.*?<\/div>.*?([^\r\n\t]+).*?<\/div>/s;
-	const resp = await fetch(ygo.print_db_link(card.cid, request_locale), { referrer: '' });
-	if (!resp.ok) {
-		console.error('fetch_desc', card.cid, request_locale, resp.status);
-		return `Status code: ${resp.status}`;
-	}
-	const raw_data = await resp.text();
 	const res_text = re_text.exec(raw_data);
-	let ctext = '';
-	if (res_text) {
-		ctext = res_text[1].replaceAll('<br>', '\n');
+	if (!res_text) {
+		console.error('Failed to extract text:', card.cid, request_locale);
+		return '';
 	}
+	const ctext = res_text[1].replaceAll('<br>', '\n');
 	if (card.type & ygo.monster_types.TYPE_PENDULUM) {
-		let ptext = '';
 		const res_ptext = re_ptext.exec(raw_data);
-		if (res_ptext) {
-			if (res_ptext[1] === '</div>')
-				res_ptext[1] = '';
-			ptext = res_ptext[1].replaceAll('<br>', '\n');
+		let ptext;
+		if (!res_ptext) {
+			console.error('Failed to extract pendulum text:', card.cid, request_locale);
+			ptext = '???';
+		}
+		else {
+			const raw_ptext = (res_ptext[1] === '</div>') ? '' : res_ptext[1];
+			ptext = raw_ptext.replaceAll('<br>', '\n');
 		}
 		return `【${ygo.lang[request_locale].text_name.pendulum_effect}】\n${ptext}\n【${ygo.lang[request_locale].type_name[ygo.monster_types.TYPE_EFFECT]}】\n${ctext}\n`;
 	}
-	else {
-		return `${ctext}\n`;
-	}
+	return `${ctext}\n`;
 }
 
 /**
@@ -145,7 +145,20 @@ export async function query_command(interaction, input_locale, output_locale) {
 			}
 			else {
 				await interaction.deferReply();
-				card.text.db_desc = await fetch_desc(card, ygo.get_request_locale(card, output_locale));
+				let db_desc;
+				try {
+					db_desc = await fetch_desc(card, ygo.get_request_locale(card, output_locale));
+				}
+				catch (error) {
+					console.error(error);
+					await interaction.editReply('Network error.');
+					return;
+				}
+				if(!db_desc) {
+					await interaction.editReply('Parse error.');
+					return;
+				}
+				card.text.db_desc = db_desc;
 				await interaction.editReply(create_reply(card, output_locale));
 			}
 		}
