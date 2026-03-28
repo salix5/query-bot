@@ -1,9 +1,7 @@
-import { randomInt } from 'node:crypto';
-import { promisify } from 'node:util';
 import { SlashCommandBuilder } from 'discord.js';
 import { name_table, get_card, cid_table } from '../ygo-query.mjs';
+import { random_integer } from '../ygo-utility.mjs';
 import { create_reply } from '../common_query.js';
-const rand = promisify(randomInt);
 const keys = Object.keys(name_table['ja']);
 
 export const module_url = import.meta.url;
@@ -13,7 +11,7 @@ export const data = new SlashCommandBuilder()
 data.integration_types = [0, 1];
 data.contexts = [0, 1, 2];
 export async function execute(interaction) {
-	const cid = keys[await rand(keys.length)];
+	const cid = keys[await random_integer(keys.length)];
 	const card = get_card(cid_table.get(cid));
 	if (card) {
 		await interaction.reply(create_reply(card, 'zh-tw'));
