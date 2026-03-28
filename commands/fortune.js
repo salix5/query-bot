@@ -1,7 +1,5 @@
 import { SlashCommandBuilder } from 'discord.js';
-import { randomInt } from 'node:crypto';
-import { promisify } from 'node:util';
-const rand = promisify(randomInt);
+import { random_integer } from '../ygo-utility.mjs';
 
 const major_arcana = {
 	0: '0 愚者',
@@ -40,8 +38,8 @@ export const data = new SlashCommandBuilder()
 data.integration_types = [0, 1];
 data.contexts = [0, 1, 2];
 export async function execute(interaction) {
-	const card = await rand(22);
-	const position = await rand(2);
+	const card = await random_integer(22);
+	const position = await random_integer(2);
 	const msg_id = card * 10 + position;
 	const text = msg[msg_id] ? msg[msg_id] : '';
 	const result = `${major_arcana[card]}，${position ? '正位' : '逆位'}\n${text}\n`;
