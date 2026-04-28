@@ -1,15 +1,16 @@
 {
     "attribute_name": {
+        "0": "?",
         "1": "EARTH",
         "2": "WATER",
         "4": "FIRE",
         "8": "WIND",
         "16": "LIGHT",
         "32": "DARK",
-        "64": "DIVINE",
-        "unknown": "?"
+        "64": "DIVINE"
     },
     "race_name": {
+        "0": "???",
         "1": "Warrior",
         "2": "Spellcaster",
         "4": "Fairy",
@@ -35,8 +36,7 @@
         "4194304": "Creator God",
         "8388608": "Wyrm",
         "16777216": "Cyberse",
-        "33554432": "Illusion",
-        "unknown": "???"
+        "33554432": "Illusion"
     },
     "type_name": {
         "0": "Normal",
