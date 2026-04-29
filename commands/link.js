@@ -20,7 +20,7 @@ export async function autocomplete(interaction) {
 export async function execute(interaction) {
 	const input = interaction.options.getString('input');
 	const id = choice_table['zh-tw'].get(input);
-	if (id) {
+	if (Number.isSafeInteger(id)) {
 		const cid = id_to_cid.get(id);
 		const row1 = new ActionRowBuilder();
 		const button1 = new ButtonBuilder()
