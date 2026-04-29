@@ -89,14 +89,6 @@ export function create_reply(card, locale) {
 		}
 		msg.components.push(row_db);
 	}
-	else if (card.cid === 0) {
-		const button1 = new ButtonBuilder()
-			.setStyle(ButtonStyle.Link)
-			.setLabel('Yugipedia')
-			.setURL(ygo.print_yp_link(card.id));
-		const row1 = new ActionRowBuilder().addComponents(button1);
-		msg.components.push(row1);
-	}
 	else if (pack_name) {
 		const card_locale = (card.ot === 2) ? 'EN' : 'JP';
 		const pack_index = (card.id % 1000).toString().padStart(3, '0');
