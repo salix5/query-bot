@@ -37,6 +37,8 @@ export function print_qa_link(cid) {
 }
 
 export function print_history_link(cid) {
+	if (!Number.isSafeInteger(cid))
+		return "";
 	return `https://github.com/salix5/ygodb/commits/master/${cid}.txt`;
 }
 
