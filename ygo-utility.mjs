@@ -7,16 +7,33 @@ import { promisify } from 'node:util';
  * @returns 
  */
 export function print_db_link(cid, request_locale) {
-	return `https://www.db.yugioh-card.com/yugiohdb/card_search.action?ope=2&cid=${cid}&request_locale=${request_locale}`;
+	if (!Number.isSafeInteger(cid))
+		return "";
+	const params = new URLSearchParams({
+        ope: "2",
+        cid: cid.toString(),
+        request_locale: request_locale
+    });
+    return `https://www.db.yugioh-card.com/yugiohdb/card_search.action?${params.toString()}`;
 }
 
 export function print_yp_link(id) {
-	const link_id = `${id}`.padStart(8, '0');
+	if (!Number.isSafeInteger(id))
+		return "";
+	const link_id = id.toString().padStart(8, '0');
 	return `https://yugipedia.com/wiki/${link_id}`;
 }
 
 export function print_qa_link(cid) {
-	return `https://www.db.yugioh-card.com/yugiohdb/faq_search.action?ope=4&cid=${cid}&sort=2&request_locale=ja`;
+	if (!Number.isSafeInteger(cid))
+		return "";
+	const params = new URLSearchParams({
+        ope: "4",
+        cid: cid.toString(),
+        sort: "2",
+        request_locale: "ja"
+    });
+    return `https://www.db.yugioh-card.com/yugiohdb/faq_search.action?${params.toString()}`;
 }
 
 export function print_history_link(cid) {
