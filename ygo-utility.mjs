@@ -1,5 +1,5 @@
-import { randomInt } from 'node:crypto';
-import { promisify } from 'node:util';
+import { randomInt } from "node:crypto";
+import { promisify } from "node:util";
 
 /**
  * @param {number} cid 
@@ -10,17 +10,17 @@ export function print_db_link(cid, request_locale) {
 	if (!Number.isSafeInteger(cid))
 		return "";
 	const params = new URLSearchParams({
-        ope: "2",
-        cid: cid.toString(),
-        request_locale: request_locale
-    });
-    return `https://www.db.yugioh-card.com/yugiohdb/card_search.action?${params.toString()}`;
+		ope: "2",
+		cid: cid.toString(),
+		request_locale: request_locale
+	});
+	return `https://www.db.yugioh-card.com/yugiohdb/card_search.action?${params.toString()}`;
 }
 
 export function print_yp_link(id) {
 	if (!Number.isSafeInteger(id))
 		return "";
-	const link_id = id.toString().padStart(8, '0');
+	const link_id = id.toString().padStart(8, "0");
 	return `https://yugipedia.com/wiki/${link_id}`;
 }
 
@@ -28,12 +28,12 @@ export function print_qa_link(cid) {
 	if (!Number.isSafeInteger(cid))
 		return "";
 	const params = new URLSearchParams({
-        ope: "4",
-        cid: cid.toString(),
-        sort: "2",
-        request_locale: "ja"
-    });
-    return `https://www.db.yugioh-card.com/yugiohdb/faq_search.action?${params.toString()}`;
+		ope: "4",
+		cid: cid.toString(),
+		sort: "2",
+		request_locale: "ja"
+	});
+	return `https://www.db.yugioh-card.com/yugiohdb/faq_search.action?${params.toString()}`;
 }
 
 export function print_history_link(cid) {
@@ -49,7 +49,7 @@ export function inverse_mapping(table) {
 	const inverse = new Map();
 	for (const [key, value] of table) {
 		if (inverse.has(value)) {
-			console.error('non-invertible', `${key}: ${value}`);
+			console.error("non-invertible", `${key}: ${value}`);
 			return new Map();
 		}
 		inverse.set(value, key);
@@ -67,7 +67,7 @@ export function inverse_table(obj) {
 	const inverse = new Map();
 	for (const [key, value] of Object.entries(obj)) {
 		if (inverse.has(value)) {
-			console.error('non-invertible', `${key}: ${value}`);
+			console.error("non-invertible", `${key}: ${value}`);
 			return new Map();
 		}
 		inverse.set(value, Number.parseInt(key));
@@ -81,7 +81,7 @@ const replace_regexp = /[|\\{}()[\]^$+*?.]/g;
  * @returns {string}
  */
 export function escape_regexp(str) {
-	return str.replace(replace_regexp, '\\$&');
+	return str.replace(replace_regexp, "\\$&");
 }
 
 const replace_wildcard = /[%_$]/g;
@@ -90,7 +90,7 @@ const replace_wildcard = /[%_$]/g;
  * @returns {string}
  */
 export function escape_wildcard(str) {
-	return str.replace(replace_wildcard, '$$$&');
+	return str.replace(replace_wildcard, "$$$&");
 }
 
 /**
@@ -102,7 +102,7 @@ export function table_stringify(map) {
 	return JSON.stringify(Object.fromEntries(map), null, 1);
 }
 
-export const zh_collator = new Intl.Collator('zh-Hant');
+export const zh_collator = new Intl.Collator("zh-Hant");
 /**
  * @param {[string, number]} a 
  * @param {[string, number]} b 
@@ -110,14 +110,14 @@ export const zh_collator = new Intl.Collator('zh-Hant');
 export function zh_compare(a, b) {
 	const a0 = a[0].substring(0, 1);
 	const b0 = b[0].substring(0, 1);
-	if (a0 === '※') {
-		if (b0 === '※')
+	if (a0 === "※") {
+		if (b0 === "※")
 			return zh_collator.compare(a[0].substring(1), b[0].substring(1));
 		else
 			return 1;
 	}
 	else {
-		if (b0 === '※')
+		if (b0 === "※")
 			return -1;
 		else
 			return zh_collator.compare(a[0], b[0]);
@@ -125,7 +125,7 @@ export function zh_compare(a, b) {
 }
 
 export function bigint_replacer(key, value) {
-	if (typeof value === 'bigint') {
+	if (typeof value === "bigint") {
 		return JSON.rawJSON(value.toString());
 	}
 	return value;
