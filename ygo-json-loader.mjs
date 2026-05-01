@@ -37,15 +37,19 @@ function object_to_map(obj) {
 
 export const cid_table = object_to_map(cid_json);
 
-export const name_table = Object.create(null);
-name_table['ae'] = ae_table;
-name_table['en'] = en_table;
-name_table['ja'] = jp_table;
-name_table['ko'] = kr_table;
+export const name_table = {
+	__proto__: null,
+	'ae': ae_table,
+	'en': en_table,
+	'ja': jp_table,
+	'ko': kr_table,
+};
 
-export const md_table = Object.create(null);
-md_table['en'] = md_en_table;
-md_table['ja'] = md_jp_table;
+export const md_table = {
+	__proto__: null,
+	'en': md_en_table,
+	'ja': md_jp_table,
+};
 
 export const id_to_cid = inverse_mapping(cid_table);
 const pack_id_table = Object.fromEntries(Object.entries(pre_release).map(([k, v]) => [v, k]));
