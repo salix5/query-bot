@@ -233,4 +233,4 @@ export {
 	md_card_list,
 	ruby_table,
 	pre_release,
-}
+};
