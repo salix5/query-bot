@@ -1,12 +1,5 @@
-import ltable_ocg from './data/lflist.json' with { type: 'json' };
-import ltable_tcg from './data/lflist_tcg.json' with { type: 'json' };
-import ltable_md from './data/lflist_md.json' with { type: 'json' };
 import md_card_list from './data/CardList.json' with { type: 'json' };
-import setname_table from './data/setname.json' with { type: 'json' };
-import pack_list from './pack/pack_list.json' with { type: 'json' };
 import pre_release from './pack/pre_release.json' with { type: 'json' };
-import wiki_link from './pack/wiki_link.json' with { type: 'json' };
-import genesys_point from './data/genesys_point.json' with { type: 'json' };
 
 import cid_json from './data/cid_table.json' with { type: 'json' };
 import ae_table from './data/name_table_ae.json' with { type: 'json' };
@@ -15,9 +8,7 @@ import jp_table from './data/name_table_jp.json' with { type: 'json' };
 import kr_table from './data/name_table_kr.json' with { type: 'json' };
 import md_en_table from './data/md_name_en.json' with { type: 'json' };
 import md_jp_table from './data/md_name_jp.json' with { type: 'json' };
-import md_table_sc from './data/md_name.json' with { type: 'json' };
 import ruby_table from './data/name_table_ruby.json' with { type: 'json' };
-import extra_setcodes from './data/extra_setcodes.json' with { type: 'json' };
 
 import lang_ae from './lang/ae.json' with { type: 'json' };
 import lang_en from './lang/en.json' with { type: 'json' };
@@ -228,15 +219,18 @@ export function load_name_table(db) {
 	}
 }
 
+export { default as ltable_ocg } from './data/lflist.json' with { type: 'json' };
+export { default as ltable_tcg } from './data/lflist_tcg.json' with { type: 'json' };
+export { default as ltable_md } from './data/lflist_md.json' with { type: 'json' };
+export { default as setname_table } from './data/setname.json' with { type: 'json' };
+export { default as pack_list } from './pack/pack_list.json' with { type: 'json' };
+export { default as wiki_link } from './pack/wiki_link.json' with { type: 'json' };
+export { default as genesys_point } from './data/genesys_point.json' with { type: 'json' };
+export { default as extra_setcodes } from './data/extra_setcodes.json' with { type: 'json' };
+export { default as md_table_sc } from './data/md_name.json' with { type: 'json' };
+
 export {
-	ltable_ocg, ltable_tcg, ltable_md,
 	md_card_list,
-	genesys_point,
-	md_table_sc,
-	extra_setcodes,
 	ruby_table,
-	setname_table,
-	pack_list,
 	pre_release,
-	wiki_link,
 }
