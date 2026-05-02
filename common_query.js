@@ -96,7 +96,7 @@ export function create_reply(card, locale) {
 		const row1 = new ActionRowBuilder();
 		const button1 = new ButtonBuilder()
 			.setStyle(ButtonStyle.Link)
-			.setURL("https://salix5.github.io/wiki/")
+			.setURL(`https://yugipedia.com/wiki/${card_number}`)
 			.setLabel(card_number);
 		row1.addComponents(button1);
 		if (ygo.get_seventh_xyz(card).length) {
