@@ -168,8 +168,19 @@ export function get_pack_name(id) {
 	if (!Number.isSafeInteger(id) || id <= MAX_CARD_ID)
 		return '';
 	const pack_id = id - id % 1000;
-	const pack_name = pack_id_table[pack_id];
-	return pack_name.substring(0, 4);
+	if (!Object.hasOwn(pack_id_table, pack_id))
+		return 'XXXX';
+	return pack_id_table[pack_id].substring(0, 4);
+}
+
+export function get_card_number(card) {
+	const pack_name = get_pack_name(card.id);
+	if (pack_name.length === 0)
+		return '';
+	const card_locale = (card.ot === 2) ? 'EN' : 'JP';
+	const pack_index = card.id % 1000;
+	const card_number = `${pack_name}-${card_locale}${pack_index.toString().padStart(3, '0')}`;
+	return card_number;
 }
 
 /**
