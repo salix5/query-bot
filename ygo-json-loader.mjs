@@ -16,7 +16,7 @@ import lang_ja from './lang/ja.json' with { type: 'json' };
 import lang_ko from './lang/ko.json' with { type: 'json' };
 import lang_zhtw from './lang/zh-tw.json' with { type: 'json' };
 import { inverse_mapping, inverse_table } from './ygo-utility.mjs';
-import { CID_BLACK_LUSTER_SOLDIER, CID_RITUAL_BLS, MAX_CARD_ID } from './ygo-constant.mjs';
+import { CID_BLACK_LUSTER_SOLDIER, CID_RITUAL_BLS } from './ygo-constant.mjs';
 
 /**
  * @param {object} obj 
@@ -162,14 +162,14 @@ export const choices_ruby = create_ruby_choice();
 /**
  * Get the pack name for pre-release id.
  * @param {number} id
- * @returns {string}
+ * @returns {string?}
  */
 export function get_pack_name(id) {
-	if (!Number.isSafeInteger(id) || id <= MAX_CARD_ID)
-		return '';
+	if (!Number.isSafeInteger(id))
+		return null;
 	const pack_id = id - id % 1000;
 	const pack_name = pack_id_table[pack_id];
-	return pack_name.substring(0, 4);
+	return pack_name?.substring(0, 4) ?? null;
 }
 
 /**
