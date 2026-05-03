@@ -63,7 +63,7 @@ export function create_reply(card, locale) {
 	const msg = Object.create(null);
 	msg.content = ygo.print_card(card, locale);
 	msg.components = [];
-	const card_number = ygo.get_card_number(card);
+	const pack_name = ygo.get_pack_name(card.id);
 	const request_locale = ygo.get_request_locale(card, locale);
 	if (card.cid && request_locale !== 'md') {
 		const db_text = request_locale === 'en' ? 'DB (TCG)' : 'DB';
@@ -89,7 +89,10 @@ export function create_reply(card, locale) {
 		}
 		msg.components.push(row_db);
 	}
-	else if (card_number) {
+	else if (pack_name) {
+		const card_locale = (card.ot === 2) ? 'EN' : 'JP';
+		const pack_index = (card.id % 1000).toString().padStart(3, '0');
+		const card_number = `${pack_name}-${card_locale}${pack_index}`;
 		const row1 = new ActionRowBuilder();
 		const button1 = new ButtonBuilder()
 			.setStyle(ButtonStyle.Link)
@@ -143,7 +146,7 @@ export async function query_command(interaction, input_locale, output_locale) {
 					await interaction.editReply('Network error.');
 					return;
 				}
-				if (!db_desc) {
+				if(!db_desc) {
 					await interaction.editReply('Parse error.');
 					return;
 				}
