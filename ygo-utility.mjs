@@ -7,8 +7,6 @@ import { promisify } from "node:util";
  * @returns 
  */
 export function print_db_link(cid, request_locale) {
-	if (!Number.isSafeInteger(cid))
-		return "";
 	const params = new URLSearchParams({
 		ope: "2",
 		cid: cid.toString(),
@@ -25,8 +23,6 @@ export function print_yp_link(id) {
 }
 
 export function print_qa_link(cid) {
-	if (!Number.isSafeInteger(cid))
-		return "";
 	const params = new URLSearchParams({
 		ope: "4",
 		cid: cid.toString(),
