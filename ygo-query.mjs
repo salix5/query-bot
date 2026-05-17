@@ -65,7 +65,7 @@ let db = null;
  * @property {bigint} race
  * @property {number} attribute
  * @property {number} [scale]
- * @property {number} [md_rarity]
+ * @property {string} [md_rarity]
  * @property {CardText} text
  * 
  * @property {number} artid
@@ -136,8 +136,8 @@ function generate_card(cdata) {
 				break;
 		}
 	}
-	if (card.cid && md_card_list[card.cid])
-		card.md_rarity = md_card_list[card.cid];
+	if (card.cid && rarity[md_card_list[card.cid]])
+		card.md_rarity = rarity[md_card_list[card.cid]];
 	card.text = Object.create(null);
 	card.text.desc = cdata.desc;
 	card.artid = artid;
@@ -1026,10 +1026,7 @@ export function print_card(card, locale) {
 			break;
 	}
 
-	let md_status = '';
-	if (card.md_rarity)
-		md_status = `MD：${md_rarity[card.md_rarity]}\n`;
-
+	const md_status = card.md_rarity ? `MD：${card.md_rarity}\n` : '';
 	let lfstr = '';
 	let lfstr_ocg;
 	let lfstr_tcg;
