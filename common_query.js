@@ -167,10 +167,10 @@ export async function query_command(interaction, input_locale, output_locale) {
 
 /**
  * Seventh button handler
- * @param {ButtonInteraction} interaction 
+ * @param {import('discord.js').ButtonInteraction} interaction 
  */
 export async function seventh_handler(interaction) {
-	const msg = Object.create(null);
+	const msg = {};
 	msg.flags = MessageFlags.Ephemeral;
 	const re_number = /\w?No.10[1-7]/;
 	const request_locale = interaction.customId.substring(0, 2);
