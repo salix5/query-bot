@@ -52,8 +52,9 @@ export const arg_base = {
 
 
 // full tables
-export const full_columns = `id, datas.ot, datas.alias, datas.rule_code, datas.type, datas.atk, datas.def, datas.level, datas.scale, datas.race, datas.attribute,
-CAST(datas.setcode AS TEXT) AS setcode1, CAST(datas.setcode2 AS TEXT) AS setcode2, CAST(datas.setcode3 AS TEXT) AS setcode3, CAST(datas.setcode4 AS TEXT) AS setcode4, texts.name, texts."desc", extension.cid`;
+export const full_columns = `id, datas.ot, datas.alias, datas.rule_code, datas.another_code datas.type, datas.atk, datas.def, datas.level, datas.scale, datas.race, datas.attribute,
+CAST(datas.setcode AS TEXT) AS setcode1, CAST(datas.setcode2 AS TEXT) AS setcode2, CAST(datas.setcode3 AS TEXT) AS setcode3, CAST(datas.setcode4 AS TEXT) AS setcode4,
+texts.name, texts."desc", extension.cid`;
 export const full_tables = `datas JOIN texts USING (id) LEFT JOIN extension USING (id)`;
 export const full_filter = ` AND (cid IS NOT NULL OR id > $max_id AND NOT (type & $token))`;
 export const effect_filter = ` AND (NOT type & $normal OR type & $pendulum)`;
@@ -103,6 +104,12 @@ ALTER TABLE datas ADD COLUMN setcode4 INTEGER DEFAULT 0;
 UPDATE datas SET setcode2 = 0x13a WHERE id IN (8512558, 55088578);
 COMMIT;`;
 
+const stmt_alter4 = `BEGIN TRANSACTION;
+ALTER TABLE datas ADD COLUMN another_code INTEGER DEFAULT 0;
+UPDATE datas SET another_code = 17955766 WHERE id = 78734254;
+UPDATE datas SET another_code = 17732278 WHERE id = 13857930;
+COMMIT;`;
+
 export const re_wildcard = /(?<!\$)[%_]/;
 const replace_dollar = /\$(?![%_])/g;
 const replace_escape = /\$(?=[%_])/g;
@@ -118,6 +125,7 @@ for (const [name, code] of Object.entries(setname_table)) {
  * @property {number} ot
  * @property {number} alias
  * @property {number} rule_code
+ * @property {number} another_code
  * @property {number[]} setcode
  * @property {number} type
  * @property {number} atk
@@ -230,6 +238,7 @@ export function alter_db(db) {
 	db.exec(stmt_alter1);
 	db.exec(stmt_alter2);
 	db.exec(stmt_alter3);
+	db.exec(stmt_alter4);
 }
 
 /**

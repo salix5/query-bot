@@ -22,6 +22,7 @@ let db = null;
  * @property {number} ot
  * @property {number} alias
  * @property {number} rule_code
+ * @property {number} another_code
  * @property {number[]} setcode
  * @property {number} type
  * @property {number} atk
@@ -46,6 +47,7 @@ let db = null;
  * @property {number} id
  * @property {number} [cid]
  * @property {number} [rule_code]
+ * @property {number} [another_code]
  * @property {string} tw_name
  * @property {string} [ae_name]
  * @property {string} [en_name]
@@ -101,6 +103,8 @@ function generate_card(cdata) {
 		card.cid = id_to_cid.get(id);
 	if (cdata.rule_code)
 		card.rule_code = cdata.rule_code;
+	if (cdata.another_code)
+		card.another_code = cdata.another_code;
 	card.tw_name = cdata.name;
 	if (card.cid) {
 		for (const [locale, prop] of Object.entries(official_name)) {
@@ -118,6 +122,7 @@ function generate_card(cdata) {
 			case "cid":
 			case "alias":
 			case "rule_code":
+			case "another_code":
 			case "name":
 			case "desc":
 				continue;
