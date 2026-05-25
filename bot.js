@@ -11,7 +11,7 @@ const client = new Client({
 
 client.cooldowns = new Collection();
 client.commands = new Collection();
-client.frequency = new Collection();
+client.counts = new Collection();
 const commandsURL = new URL('./commands/', import.meta.url);
 const commandFiles = readdirSync(commandsURL).filter(file => file.endsWith('.js'));
 const import_list = [];
@@ -24,7 +24,7 @@ const commands = await Promise.all(import_list);
 for (const command of commands) {
 	if (Object.hasOwn(command, 'data') && Object.hasOwn(command, 'execute')) {
 		client.commands.set(command.data.name, command);
-		client.frequency.set(command.data.name, 0);
+		client.counts.set(command.data.name, 0);
 	} else {
 		console.error(`[WARNING] The command at ${command.module_url} is missing a required "data" or "execute" property.`);
 	}
@@ -72,15 +72,15 @@ client.on(Events.MessageCreate, async msg => {
 
 client.on(Events.InteractionCreate, async interaction => {
 	const command = interaction.client.commands.get(interaction.commandName);
-	const { cooldowns, frequency } = interaction.client;
+	const { cooldowns, counts } = interaction.client;
 	if (interaction.isChatInputCommand()) {
 		if (!command) {
 			console.error(`No command matching ${interaction.commandName} was found.`);
 			return;
 		}
-		let x = frequency.get(command.data.name);
+		let x = counts.get(command.data.name);
 		x++;
-		frequency.set(command.data.name, x);
+		counts.set(command.data.name, x);
 		if (x == 1)
 			console.log('start:', command.data.name);
 		else if (x % 10 === 0)
@@ -150,9 +150,9 @@ client.on(Events.InteractionCreate, async interaction => {
 			console.error(`No command matching ${interaction.commandName} was found.`);
 			return;
 		}
-		let x = frequency.get(command.data.name);
+		let x = counts.get(command.data.name);
 		x++;
-		frequency.set(command.data.name, x);
+		counts.set(command.data.name, x);
 		if (x == 1)
 			console.log('start:', command.data.name);
 		else if (x % 10 === 0)
