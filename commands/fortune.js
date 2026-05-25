@@ -27,8 +27,14 @@ const major_arcana = {
 };
 
 const msg = {
-	120: '顛倒，欺騙，完全相反！\n世間一切都不過是瑣事！有你的《自我滿足》就好！ ',
-	121: '我是《倒吊人》！掌管《自我犧牲》！\n顛倒，欺騙，完全相反！',
+	0: [
+		'顛倒，欺騙，完全相反！\n世間一切都不過是瑣事！有你的《自我滿足》就好！ ',
+		'顛倒，欺騙，完全相反！\n正因落敗才能得到的《自我滿足》更為重要！'
+	],
+	1: [
+		'我是《倒吊人》！掌管《自我犧牲》！\n顛倒，欺騙，完全相反！',
+		'《自我犧牲》！沒人收下鬼牌遊戲就不會結束！\n顛倒，欺騙，完全相反！',
+	],
 };
 
 export const module_url = import.meta.url;
@@ -40,8 +46,7 @@ data.contexts = [0, 1, 2];
 export async function execute(interaction) {
 	const card = await random_integer(22);
 	const position = await random_integer(2);
-	const msg_id = card * 10 + position;
-	const text = msg[msg_id] ? msg[msg_id] : '';
+	const text = card === 12 ? msg[position][await random_integer(msg[position].length)] : '';
 	const result = `${major_arcana[card]}，${position ? '正位' : '逆位'}\n${text}\n`;
 	await interaction.reply(result);
 }
