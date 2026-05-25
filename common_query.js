@@ -57,10 +57,10 @@ async function fetch_desc(card, request_locale) {
  * @param {ygo.Card} card 
  * @param {string} locale 
  * @param {boolean} seventh
- * @returns {{ content: string, components: any[] }}
+ * @returns
  */
 export function create_reply(card, locale) {
-	const msg = Object.create(null);
+	const msg = {};
 	msg.content = ygo.print_card(card, locale);
 	msg.components = [];
 	const pack_name = ygo.get_pack_name(card.id);
@@ -127,12 +127,13 @@ export async function query_command(interaction, input_locale, output_locale) {
 			count++;
 			search_count.set(card.id, count);
 			if (output_locale === 'zh-tw') {
-				const reply_msg = create_reply(card, output_locale);
-				reply_msg.withResponse = true;
-				const response = await interaction.reply(reply_msg);
-				if (card.cid && ygo.genesys_point[card.cid] == 100 && interaction.appPermissions.has('AddReactions')) {
-					const message = response.resource.message;
-					await message?.react('💯');
+				const response = await interaction.reply({
+					...create_reply(card, output_locale),
+					withResponse: true,
+				});
+				const can_react = interaction.appPermissions.has('ReadMessageHistory') && interaction.appPermissions.has('AddReactions');
+				if (card.cid && ygo.genesys_point[card.cid] == 100 && can_react) {
+					await response.resource?.message?.react('💯');
 				}
 			}
 			else {
