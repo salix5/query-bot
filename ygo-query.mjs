@@ -383,38 +383,28 @@ export function generate_condition(params, id_list) {
 	}
 
 	// atk
-	let atk_from = -10;
-	let atk_to = -10;
+	const atk_from = (Number.isSafeInteger(params.atk_from) && params.atk_from >= -1) ? params.atk_from : null;
+	const atk_to = (Number.isSafeInteger(params.atk_to) && params.atk_to >= -1) ? params.atk_to : null;
 	let atk_condition = "";
-	if (Number.isSafeInteger(params.atk_from) && params.atk_from >= -1)
-		atk_from = params.atk_from;
-	if (Number.isSafeInteger(params.atk_to) && params.atk_to >= -1)
-		atk_to = params.atk_to;
 	if (atk_from === -1 || atk_to === -1) {
 		atk_condition = "atk = $unknown";
 		arg.$unknown = -2;
 	}
-	else if (atk_to >= 0) {
-		if (atk_from < 0)
-			atk_from = 0;
+	else if (atk_to !== null && atk_to >= 0) {
 		atk_condition = "(atk BETWEEN $atk_from AND $atk_to)";
-		arg.$atk_from = atk_from;
+		arg.$atk_from = atk_from ?? 0;
 		arg.$atk_to = atk_to;
 	}
-	else if (atk_from >= 0) {
+	else if (atk_from !== null && atk_from >= 0) {
 		atk_condition = "atk >= $atk_from";
 		arg.$atk_from = atk_from;
 	}
 
 	// def, exclude link monsters
 	let has_def = false;
-	let def_from = -10;
-	let def_to = -10;
+	const def_from = (Number.isSafeInteger(params.def_from) && params.def_from >= -2) ? params.def_from : null;
+	const def_to = (Number.isSafeInteger(params.def_to) && params.def_to >= -1) ? params.def_to : null;
 	let def_condition = "";
-	if (Number.isSafeInteger(params.def_from) && params.def_from >= -2)
-		def_from = params.def_from;
-	if (Number.isSafeInteger(params.def_to) && params.def_to >= -1)
-		def_to = params.def_to;
 	if (def_from === -1 || def_to === -1) {
 		def_condition = "def = $unknown";
 		arg.$unknown = -2;
@@ -425,15 +415,13 @@ export function generate_condition(params, id_list) {
 		arg.$zero = 0;
 		has_def = true;
 	}
-	else if (def_to >= 0) {
-		if (def_from < 0)
-			def_from = 0;
+	else if (def_to !== null && def_to >= 0) {
 		def_condition = "(def BETWEEN $def_from AND $def_to)";
-		arg.$def_from = def_from;
+		arg.$def_from = def_from ?? 0;
 		arg.$def_to = def_to;
 		has_def = true;
 	}
-	else if (def_from >= 0) {
+	else if (def_from !== null && def_from >= 0) {
 		def_condition = "def >= $def_from";
 		arg.$def_from = def_from;
 		has_def = true;
