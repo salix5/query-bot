@@ -35,6 +35,9 @@ function object_to_map(obj) {
 	return result;
 }
 
+/**
+ * @type {Map<number, number>}
+ */
 export const cid_table = object_to_map(cid_json);
 
 export const name_table = {
@@ -51,6 +54,9 @@ export const md_table = {
 	'ja': md_jp_table,
 };
 
+/**
+ * @type {Map<number, number>}
+ */
 export const id_to_cid = inverse_mapping(cid_table);
 const pack_id_table = Object.fromEntries(Object.entries(pre_release).map(([k, v]) => [v, k]));
 
@@ -132,9 +138,8 @@ for (const locale of Object.keys(official_name)) {
 function create_choice(request_locale) {
 	if (!complete_name_table[request_locale])
 		return new Map();
-	const inverse = inverse_table(complete_name_table[request_locale]);
 	const collator = new Intl.Collator(collator_locale[request_locale]);
-	const entries = [...inverse].sort((a, b) => collator.compare(a[0], b[0]));
+	const entries = [...inverse_table(complete_name_table[request_locale])].sort((a, b) => collator.compare(a[0], b[0]));
 	for (const entry of entries) {
 		entry[1] = cid_table.get(entry[1]);
 	}
@@ -147,10 +152,11 @@ for (const locale of Object.keys(official_name)) {
 }
 
 function create_ruby_choice() {
-	const convert_map1 = object_to_map(ruby_table);
-	convert_map1.delete(CID_BLACK_LUSTER_SOLDIER);
+	const obj1 = {};
+	Object.assign(obj1, ruby_table);
+	delete obj1[CID_BLACK_LUSTER_SOLDIER];
 	const jp_collator = new Intl.Collator('ja-JP');
-	const ruby_entries = [...inverse_mapping(convert_map1)].sort((a, b) => jp_collator.compare(jp_table[a[1]], jp_table[b[1]]));
+	const ruby_entries = [...inverse_table(obj1)].sort((a, b) => jp_collator.compare(jp_table[a[1]], jp_table[b[1]]));
 	for (const entry of ruby_entries) {
 		entry[1] = cid_table.get(entry[1]);
 	}
