@@ -68,7 +68,7 @@ export function inverse_table(obj) {
 			console.error("non-invertible", `${key}: ${value}`);
 			return new Map();
 		}
-		inverse.set(value, Number.parseInt(key));
+		inverse.set(value, Number.parseInt(key, 10));
 	}
 	return inverse;
 }

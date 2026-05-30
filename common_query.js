@@ -174,7 +174,7 @@ export async function seventh_handler(interaction) {
 	msg.flags = MessageFlags.Ephemeral;
 	const re_number = /\w?No.10[1-7]/;
 	const request_locale = interaction.customId.substring(0, 2);
-	const id = Number.parseInt(interaction.customId.substring(2)) ?? 0;
+	const id = Number.parseInt(interaction.customId.substring(2), 10) || 0;
 	const card = ygo.get_card(id);
 	if (!card) {
 		console.error('invalid customId', interaction.customId);
