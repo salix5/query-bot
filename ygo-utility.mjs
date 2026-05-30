@@ -39,7 +39,7 @@ export function print_history_link(cid) {
 }
 
 /**
- * Create the inverse mapping of `table`.
+ * Create the inverse mapping of a Map `table`.
  * @param {Map} table 
  * @returns {Map}
  */
@@ -57,8 +57,8 @@ export function inverse_mapping(table) {
 
 
 /**
- * Create the inverse mapping of `obj` with integer keys.
- * @param {object} obj 
+ * Create the inverse mapping of a JSON object `obj`.
+ * @param {object} obj JSON object with integer keys
  * @returns {Map<any, number>}
  */
 export function inverse_table(obj) {
