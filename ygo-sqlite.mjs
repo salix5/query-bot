@@ -25,8 +25,8 @@ export const ALT_DARK_MAGICIAN = 36996508;
 export const ALT_POLYMERIZATION = 27847700;
 
 // excluded cards
-export const ID_TYLER_THE_GREAT_WARRIOR = 68811206;
-export const ID_DECOY = 20240828;
+const ID_TYLER_THE_GREAT_WARRIOR = 68811206;
+const ID_DECOY = 20240828;
 
 // basic tables
 export const basic_columns = `id, datas.ot, datas.alias, CAST(datas.setcode AS TEXT) AS setcode, datas.type, datas.atk, datas.def, datas.level, datas.race, datas.attribute, texts.name, texts."desc"`;
