@@ -18,6 +18,9 @@ export {
 
 export const CARD_ARTWORK_VERSIONS_OFFSET = 20;
 export const ID_BLACK_LUSTER_SOLDIER = 5405695;
+export const ID_TIMAEUS = 10000050;
+export const ID_CRITIAS = 10000060;
+export const ID_HERMOS = 10000070;
 export const ALT_DARK_MAGICIAN = 36996508;
 export const ALT_POLYMERIZATION = 27847700;
 
@@ -108,6 +111,9 @@ const stmt_alter4 = `BEGIN TRANSACTION;
 ALTER TABLE datas ADD COLUMN another_code INTEGER DEFAULT 0;
 UPDATE datas SET another_code = 17955766 WHERE id = 78734254;
 UPDATE datas SET another_code = 17732278 WHERE id = 13857930;
+UPDATE datas SET another_code = ${ID_TIMAEUS} WHERE id = 1784686;
+UPDATE datas SET another_code = ${ID_CRITIAS} WHERE id = 11082056;
+UPDATE datas SET another_code = ${ID_HERMOS} WHERE id = 46232525;
 COMMIT;`;
 
 export const re_wildcard = /(?<!\$)[%_]/;
