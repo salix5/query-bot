@@ -225,6 +225,7 @@ export const interface_types = {
 	cid: 0,
 	ot: 0,
 	ot_exclude: 0,
+	released: 0,
 	setcode: 0,
 	type: 0,
 	monster_type: 0,

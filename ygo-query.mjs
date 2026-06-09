@@ -259,6 +259,9 @@ export function generate_condition(params, id_list) {
 		arg.$ot_mask = 0x3;
 		arg.$ot_exclude = params.ot_exclude;
 	}
+	if (Number.isSafeInteger(params.released) && params.released > 0) {
+		qstr += " AND cid IS NOT NULL";
+	}
 	if (Number.isSafeInteger(params.type) && params.type > 0) {
 		qstr += " AND type & $type";
 		arg.$type = params.type;
