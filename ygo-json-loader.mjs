@@ -230,7 +230,6 @@ export { default as ltable_tcg } from './data/lflist_tcg.json' with { type: 'jso
 export { default as ltable_md } from './data/lflist_md.json' with { type: 'json' };
 export { default as setname_table } from './data/setname.json' with { type: 'json' };
 export { default as pack_list } from './pack/pack_list.json' with { type: 'json' };
-export { default as wiki_link } from './pack/wiki_link.json' with { type: 'json' };
 export { default as genesys_point } from './data/genesys_point.json' with { type: 'json' };
 export { default as extra_setcodes } from './data/extra_setcodes.json' with { type: 'json' };
 export { default as md_table_sc } from './data/md_name.json' with { type: 'json' };
