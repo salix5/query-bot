@@ -131,10 +131,6 @@ export async function query_command(interaction, input_locale, output_locale) {
 					...create_reply(card, output_locale),
 					withResponse: true,
 				});
-				const can_react = interaction.appPermissions.has('ReadMessageHistory') && interaction.appPermissions.has('AddReactions');
-				if (card.cid && ygo.genesys_point[card.cid] == 100 && can_react) {
-					await response.resource?.message?.react('💯');
-				}
 			}
 			else {
 				await interaction.deferReply();
