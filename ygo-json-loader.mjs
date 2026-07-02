@@ -40,7 +40,6 @@ export const cid_table = object_to_map(cid_json);
 
 export const name_table = {
 	__proto__: null,
-	'ae': ae_table,
 	'en': en_table,
 	'ja': jp_table,
 	'ko': kr_table,
