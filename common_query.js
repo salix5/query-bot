@@ -128,10 +128,7 @@ export async function query_command(interaction, input_locale, output_locale) {
 			count++;
 			search_count.set(card.id, count);
 			if (output_locale === 'zh-tw') {
-				const response = await interaction.reply({
-					...create_reply(card, output_locale),
-					withResponse: true,
-				});
+				await interaction.reply(create_reply(card, output_locale));
 			}
 			else {
 				await interaction.deferReply();
