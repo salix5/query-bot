@@ -64,6 +64,12 @@ export const official_name = {
 	'ko': 'kr_name',
 };
 
+export const game_name = {
+	__proto__: null,
+	'en': 'md_name_en',
+	'ja': 'md_name_jp',
+};
+
 export const language_pack = {
 	__proto__: null,
 	'en': {
@@ -86,12 +92,6 @@ export const language_pack = {
 		collator: 'zh-Hant',
 		bls_postfix: '（通常怪獸）',
 	},
-};
-
-export const game_name = {
-	__proto__: null,
-	'en': 'md_name_en',
-	'ja': 'md_name_jp',
 };
 
 export const complete_name_table = Object.create(null);
