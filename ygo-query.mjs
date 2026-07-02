@@ -49,7 +49,6 @@ let db = null;
  * @property {number} [rule_code]
  * @property {number} [another_code]
  * @property {string} tw_name
- * @property {string} [ae_name]
  * @property {string} [en_name]
  * @property {string} [jp_name]
  * @property {string} [jp_ruby]
@@ -974,15 +973,6 @@ export function print_card(card, locale) {
 			else if (card.md_name_en)
 				other_name += `${card.md_name_en}    (MD)\n`;
 			desc = `${card.text.desc}\n--`;
-			break;
-		case 'ae':
-			card_name = card.ae_name;
-
-			if (card.jp_name)
-				other_name = `${card.jp_name}\n`;
-			else if (card.md_name_jp)
-				other_name = `${card.md_name_jp}    (MD)\n`;
-			desc = card.text.db_desc ?? '';
 			break;
 		case 'ja':
 			if (card.jp_name)
