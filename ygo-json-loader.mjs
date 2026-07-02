@@ -64,28 +64,28 @@ export const official_name = {
 	'ko': 'kr_name',
 };
 
-export const lang = {
+export const language_pack = {
 	__proto__: null,
-	'en': lang_en,
-	'ja': lang_ja,
-	'ko': lang_ko,
-	'zh-tw': lang_zhtw,
-};
-
-export const collator_locale = {
-	__proto__: null,
-	'en': 'en-US',
-	'ja': 'ja-JP',
-	'ko': 'ko-KR',
-	'zh-tw': 'zh-Hant',
-};
-
-export const bls_postfix = {
-	__proto__: null,
-	'en': ' (Normal)',
-	'ja': '（通常モンスター）',
-	'ko': ' (일반)',
-	'zh-tw': '（通常怪獸）',
+	'en': {
+		strings: lang_en,
+		collator: 'en-US',
+		bls_postfix: ' (Normal)',
+	},
+	'ja': {
+		strings: lang_ja,
+		collator: 'ja-JP',
+		bls_postfix: '（通常モンスター）',
+	},
+	'ko': {
+		strings: lang_ko,
+		collator: 'ko-KR',
+		bls_postfix: ' (일반)',
+	},
+	'zh-tw': {
+		strings: lang_zhtw,
+		collator: 'zh-Hant',
+		bls_postfix: '（通常怪獸）',
+	},
 };
 
 export const game_name = {
@@ -117,7 +117,7 @@ for (const locale of Object.keys(official_name)) {
 		}
 	}
 	if (table1[CID_BLACK_LUSTER_SOLDIER]) {
-		const bls_name = `${table1[CID_BLACK_LUSTER_SOLDIER]}${bls_postfix[locale]}`;
+		const bls_name = `${table1[CID_BLACK_LUSTER_SOLDIER]}${language_pack[locale].bls_postfix}`;
 		table1[CID_BLACK_LUSTER_SOLDIER] = bls_name;
 	}
 	complete_name_table[locale] = table1;
@@ -131,7 +131,7 @@ for (const locale of Object.keys(official_name)) {
 function create_choice(request_locale) {
 	if (!complete_name_table[request_locale])
 		return new Map();
-	const collator = new Intl.Collator(collator_locale[request_locale]);
+	const collator = new Intl.Collator(language_pack[request_locale].collator);
 	const entries = [...inverse_table(complete_name_table[request_locale])].sort((a, b) => collator.compare(a[0], b[0]));
 	for (const entry of entries) {
 		entry[1] = cid_table.get(entry[1]);

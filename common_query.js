@@ -47,7 +47,8 @@ async function fetch_desc(card, request_locale) {
 			const raw_ptext = (res_ptext[1] === '</div>') ? '' : res_ptext[1];
 			ptext = raw_ptext.replaceAll('<br>', '\n');
 		}
-		return `【${ygo.lang[request_locale].text_name.pendulum_effect}】\n${ptext}\n【${ygo.lang[request_locale].type_name[ygo.monster_types.TYPE_EFFECT]}】\n${ctext}\n`;
+		const strings = ygo.language_pack[request_locale].strings;
+		return `【${strings.text_name.pendulum_effect}】\n${ptext}\n【${strings.type_name[ygo.monster_types.TYPE_EFFECT]}】\n${ctext}\n`;
 	}
 	return `${ctext}\n`;
 }
@@ -143,7 +144,7 @@ export async function query_command(interaction, input_locale, output_locale) {
 					await interaction.editReply('Network error.');
 					return;
 				}
-				if(!db_desc) {
+				if (!db_desc) {
 					await interaction.editReply('Parse error.');
 					return;
 				}

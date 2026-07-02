@@ -1,6 +1,6 @@
 import { rename, rm, writeFile } from 'node:fs/promises';
 import { ltable_ocg, ltable_tcg, ltable_md, pack_list, pre_release, genesys_point, setname_table, load_name_table, ruby_table, id_to_cid } from './ygo-json-loader.mjs';
-import { lang, bls_postfix, official_name, game_name } from './ygo-json-loader.mjs';
+import { language_pack, official_name, game_name } from './ygo-json-loader.mjs';
 import { cid_table, name_table, md_table, md_card_list } from './ygo-json-loader.mjs';
 import { escape_regexp, escape_wildcard, zh_collator, zh_compare } from './ygo-utility.mjs';
 import { db_url1, db_url2, fetch_db } from './ygo-fetch.mjs';
@@ -840,7 +840,7 @@ export function print_ad(x) {
  * @returns {string[]}
  */
 export function print_data(card, locale) {
-	const strings = lang[locale];
+	const strings = language_pack[locale].strings;
 	const result = [];
 	if (card.type & card_types.TYPE_MONSTER) {
 		const mtype = strings.type_name[card_types.TYPE_MONSTER];
@@ -955,7 +955,7 @@ export function print_data(card, locale) {
  * @returns {string}
  */
 export function print_card(card, locale) {
-	const strings = lang[locale];
+	const strings = language_pack[locale].strings;
 
 	let card_name = 'null';
 	let other_name = '';
@@ -1088,7 +1088,7 @@ export function create_choice_db() {
 		const kanji = res ? res[0] : '';
 		let key = card.tw_name;
 		if (card.cid === CID_BLACK_LUSTER_SOLDIER) {
-			key += bls_postfix['zh-tw'];
+			key += language_pack['zh-tw'].bls_postfix;
 		}
 		if (choices.has(key) || kanji && choices.has(kanji)) {
 			console.error('choice_db', card.id);
@@ -1107,7 +1107,7 @@ export function create_name_table() {
 	for (const card of query(stmt_name)) {
 		table1.set(card.cid, card.tw_name);
 	}
-	table1.set(CID_BLACK_LUSTER_SOLDIER, `${table1.get(CID_BLACK_LUSTER_SOLDIER)}${bls_postfix['zh-tw']}`);
+	table1.set(CID_BLACK_LUSTER_SOLDIER, `${table1.get(CID_BLACK_LUSTER_SOLDIER)}${language_pack['zh-tw'].bls_postfix}`);
 	if (table1.size !== cid_table.size)
 		console.error('invalid name_table_tw:', cid_table.size, table1.size);
 	return table1;
