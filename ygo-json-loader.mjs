@@ -2,7 +2,6 @@ import md_card_list from './data/md_card_list.json' with { type: 'json' };
 import pre_release from './pack/pre_release.json' with { type: 'json' };
 
 import cid_json from './data/cid_table.json' with { type: 'json' };
-import ae_table from './data/name_table_ae.json' with { type: 'json' };
 import en_table from './data/name_table_en.json' with { type: 'json' };
 import jp_table from './data/name_table_jp.json' with { type: 'json' };
 import kr_table from './data/name_table_kr.json' with { type: 'json' };
@@ -10,7 +9,6 @@ import md_en_table from './data/md_name_en.json' with { type: 'json' };
 import md_jp_table from './data/md_name_jp.json' with { type: 'json' };
 import ruby_table from './data/name_table_ruby.json' with { type: 'json' };
 
-import lang_ae from './lang/ae.json' with { type: 'json' };
 import lang_en from './lang/en.json' with { type: 'json' };
 import lang_ja from './lang/ja.json' with { type: 'json' };
 import lang_ko from './lang/ko.json' with { type: 'json' };
@@ -62,7 +60,6 @@ const pack_id_table = Object.fromEntries(Object.entries(pre_release).map(([k, v]
 
 export const official_name = {
 	__proto__: null,
-	'ae': 'ae_name',
 	'en': 'en_name',
 	'ja': 'jp_name',
 	'ko': 'kr_name',
@@ -70,7 +67,6 @@ export const official_name = {
 
 export const lang = {
 	__proto__: null,
-	'ae': lang_ae,
 	'en': lang_en,
 	'ja': lang_ja,
 	'ko': lang_ko,
@@ -79,7 +75,6 @@ export const lang = {
 
 export const collator_locale = {
 	__proto__: null,
-	'ae': 'en-US',
 	'en': 'en-US',
 	'ja': 'ja-JP',
 	'ko': 'ko-KR',
@@ -88,7 +83,6 @@ export const collator_locale = {
 
 export const bls_postfix = {
 	__proto__: null,
-	'ae': ' (Normal)',
 	'en': ' (Normal)',
 	'ja': '（通常モンスター）',
 	'ko': ' (일반)',
