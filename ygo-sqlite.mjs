@@ -31,11 +31,7 @@ const ID_DECOY = 20240828;
 // basic tables
 const basic_columns = `id, datas.ot, datas.alias, CAST(datas.setcode AS TEXT) AS setcode, datas.type, datas.atk, datas.def, datas.level, datas.race, datas.attribute, texts.name, texts."desc"`;
 const basic_tables = `FROM datas JOIN texts USING (id)`;
-const base_filter = `WHERE NOT id IN ($tyler, $decoy) AND NOT type & $token`;
-const default_filter = `WHERE NOT id IN ($tyler, $decoy) AND NOT type & $token AND (id = $luster OR abs(id - alias) >= $artwork_offset)`;
-const base_clause = `${basic_tables} ${base_filter}`;
-const default_clause = `${basic_tables} ${default_filter}`;
-
+const default_clause = `${basic_tables} WHERE NOT id IN ($tyler, $decoy) AND NOT type & $token AND (id = $luster OR abs(id - alias) >= $artwork_offset)`;
 export const sql_default = `SELECT ${basic_columns} ${default_clause}`;
 export const sql_count = `SELECT count(*) ${default_clause}`;
 export const arg_default = {
@@ -46,6 +42,7 @@ export const arg_default = {
 	$artwork_offset: CARD_ARTWORK_VERSIONS_OFFSET,
 };
 
+const base_clause = `${basic_tables} WHERE NOT id IN ($tyler, $decoy) AND NOT type & $token`;
 export const sql_base = `SELECT ${basic_columns} ${base_clause}`;
 export const arg_base = {
 	$tyler: ID_TYLER_THE_GREAT_WARRIOR,
@@ -59,19 +56,21 @@ const full_columns = `id, datas.ot, datas.alias, datas.rule_code, datas.another_
 CAST(datas.setcode AS TEXT) AS setcode1, CAST(datas.setcode2 AS TEXT) AS setcode2, CAST(datas.setcode3 AS TEXT) AS setcode3, CAST(datas.setcode4 AS TEXT) AS setcode4,
 texts.name, texts."desc", extension.cid`;
 const full_tables = `FROM datas JOIN texts USING (id) LEFT JOIN extension USING (id)`;
-const full_default_filter = `WHERE (cid IS NOT NULL OR id > $max_id AND NOT type & $token)`;
-const full_default_clause = `${full_tables} ${full_default_filter}`;
-export const effect_filter = ` AND (NOT type & $normal OR type & $pendulum)`;
 
+const full_default_clause = `${full_tables} WHERE NOT type & $token AND (cid IS NOT NULL OR id > ${MAX_CARD_ID})`;
 export const sql_full_default = `SELECT ${full_columns} ${full_default_clause}`;
 export const sql_full_count = `SELECT count(*) ${full_default_clause}`;
 export const arg_full = {
-	$max_id: MAX_CARD_ID,
 	$token: monster_types.TYPE_TOKEN,
 };
 
-const over_hundred = '(name like $n101 OR name like $n102 OR name like $n103 OR name like $n104 OR name like $n105 OR name like $n106 OR name like $n107)';
-export const sql_seventh = `${sql_full_default} AND type & $xyz AND ${over_hundred}`;
+const full_base_clause = `${full_tables} WHERE NOT type & $token`;
+export const sql_full_base = `SELECT ${full_columns} ${full_base_clause}`;
+
+export const effect_filter = ` AND (NOT type & $normal OR type & $pendulum)`;
+
+const over_hundred = ' AND (name like $n101 OR name like $n102 OR name like $n103 OR name like $n104 OR name like $n105 OR name like $n106 OR name like $n107)';
+export const sql_seventh = `${sql_full_default} AND type & $xyz${over_hundred}`;
 export const arg_seventh = {
 	...arg_full,
 	$xyz: monster_types.TYPE_XYZ,
@@ -415,7 +414,7 @@ export function like_pattern(str) {
  * @returns {string}
  */
 export function name_condition(input, arg) {
-	let condition = `name LIKE $name ESCAPE '$' OR "desc" LIKE $kanji ESCAPE '$' OR rule_code IN (SELECT id ${full_default_clause} AND name LIKE $name ESCAPE '$')`;
+	let condition = `name LIKE $name ESCAPE '$' OR "desc" LIKE $kanji ESCAPE '$' OR rule_code IN (SELECT id ${1} AND name LIKE $name ESCAPE '$')`;
 	arg.$name = like_pattern(input);
 	arg.$kanji = `%※${like_pattern(input)}`;
 	if (re_wildcard.test(input)) {
