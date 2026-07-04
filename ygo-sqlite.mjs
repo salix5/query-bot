@@ -79,14 +79,14 @@ for (let i = 0; i < 7; i += 1) {
 	arg_seventh[`$n${101 + i}`] = `%No.${101 + i}%`;
 }
 
-const stmt_attach = `ATTACH DATABASE ? AS sub;`;
-const stmt_detach = `DETACH DATABASE sub;`;
-const stmt_merge = `BEGIN TRANSACTION;
+const sql_attach = `ATTACH DATABASE ? AS sub;`;
+const sql_detach = `DETACH DATABASE sub;`;
+const sql_merge = `BEGIN TRANSACTION;
 INSERT OR REPLACE INTO datas SELECT * FROM sub.datas;
 INSERT OR REPLACE INTO texts SELECT * FROM sub.texts;
 COMMIT;`;
 
-const stmt_alter1 = `BEGIN TRANSACTION;
+const sql_alter1 = `BEGIN TRANSACTION;
 ALTER TABLE datas ADD COLUMN rule_code INTEGER DEFAULT 0;
 UPDATE datas SET rule_code = alias, alias = 0
 WHERE id IN ( SELECT id	FROM datas WHERE NOT (type & 0x4000) AND alias != 0 AND abs(id - alias) >= 20);
@@ -94,20 +94,20 @@ UPDATE datas SET rule_code = alias, alias = 0 WHERE id = 5405695;
 UPDATE datas SET rule_code = 13331639 WHERE alias = 6218704;
 COMMIT;`;
 
-const stmt_alter2 = `BEGIN TRANSACTION;
+const sql_alter2 = `BEGIN TRANSACTION;
 ALTER TABLE datas ADD COLUMN scale INTEGER DEFAULT 0;
 UPDATE datas SET scale =  (level >> 24) & 0xff WHERE type & 0x1000000;
 UPDATE datas SET level = level & 0xffff WHERE type & 0x1000000;
 COMMIT;`;
 
-const stmt_alter3 = `BEGIN TRANSACTION;
+const sql_alter3 = `BEGIN TRANSACTION;
 ALTER TABLE datas ADD COLUMN setcode2 INTEGER DEFAULT 0;
 ALTER TABLE datas ADD COLUMN setcode3 INTEGER DEFAULT 0;
 ALTER TABLE datas ADD COLUMN setcode4 INTEGER DEFAULT 0;
 UPDATE datas SET setcode2 = 0x13a WHERE id IN (8512558, 55088578);
 COMMIT;`;
 
-const stmt_alter4 = `BEGIN TRANSACTION;
+const sql_alter4 = `BEGIN TRANSACTION;
 ALTER TABLE datas ADD COLUMN another_code INTEGER DEFAULT 0;
 UPDATE datas SET another_code = 17955766 WHERE id = 78734254;
 UPDATE datas SET another_code = 17732278 WHERE id = 13857930;
@@ -215,12 +215,12 @@ export function merge_db(base_db, db_list) {
 	}
 	const base = new DatabaseSync(base_db);
 	base.exec("PRAGMA trusted_schema = OFF;");
-	const stmt1 = base.prepare(stmt_attach);
+	const stmt1 = base.prepare(sql_attach);
 	for (const db of db_list) {
 		try {
 			stmt1.run(db);
-			base.exec(stmt_merge);
-			base.exec(stmt_detach);
+			base.exec(sql_merge);
+			base.exec(sql_detach);
 		}
 		catch (error) {
 			console.error('Failed to merge database:', db);
@@ -241,10 +241,10 @@ export function merge_db(base_db, db_list) {
  * @param {DatabaseSync} db 
  */
 export function alter_db(db) {
-	db.exec(stmt_alter1);
-	db.exec(stmt_alter2);
-	db.exec(stmt_alter3);
-	db.exec(stmt_alter4);
+	db.exec(sql_alter1);
+	db.exec(sql_alter2);
+	db.exec(sql_alter3);
+	db.exec(sql_alter4);
 }
 
 /**
