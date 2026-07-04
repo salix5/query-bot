@@ -645,12 +645,12 @@ export function query_card(params) {
 		meta.total = result.length;
 		return { result, meta };
 	}
-	const stmt1 = `${stmt_full_default}${condition}`;
+	const sql1 = `${stmt_full_default}${condition}`;
 	const arg1 = {
 		...arg_full,
 		...arg_condition,
 	};
-	const result = query(stmt1, arg1);
+	const result = query(sql1, arg1);
 	meta.total = result.length;
 	if (result.length === 0) {
 		return { result, meta };
@@ -765,12 +765,12 @@ export function get_card(id) {
 		id = Number.parseInt(id, 10);
 	if (!Number.isSafeInteger(id))
 		return null;
-	const stmt_id = `${stmt_full_default} AND id = $id;`;
+	const sql_id = `${stmt_full_default} AND id = $id;`;
 	const arg_id = {
 		...arg_full,
 		$id: id,
 	};
-	const result = query(stmt_id, arg_id);
+	const result = query(sql_id, arg_id);
 	if (result.length === 0)
 		return null;
 	return result[0];
@@ -1058,9 +1058,9 @@ export function print_card(card, locale) {
  */
 export function create_choice_prerelease() {
 	const choices = new Map();
-	const stmt_pre = `${stmt_full_default} AND cid IS NULL;`;
+	const sql_pre = `${stmt_full_default} AND cid IS NULL;`;
 	const re_kanji = /※.*/;
-	const cards = query(stmt_pre);
+	const cards = query(sql_pre);
 	for (const card of cards) {
 		const res = card.text.desc.match(re_kanji);
 		const kanji = res ? res[0] : '';
@@ -1082,8 +1082,8 @@ export function create_choice_prerelease() {
 export function create_choice_db() {
 	const choices = new Map();
 	const re_kanji = /※.*/;
-	const stmt_db = `${stmt_full_default} AND cid IS NOT NULL;`;
-	for (const card of query(stmt_db)) {
+	const sql_db = `${stmt_full_default} AND cid IS NOT NULL;`;
+	for (const card of query(sql_db)) {
 		const res = card.text.desc.match(re_kanji);
 		const kanji = res ? res[0] : '';
 		let key = card.tw_name;
@@ -1103,8 +1103,8 @@ export function create_choice_db() {
 
 export function create_name_table() {
 	const table1 = new Map();
-	const stmt_name = `${stmt_full_default} AND cid IS NOT NULL;`;
-	for (const card of query(stmt_name)) {
+	const sql_name = `${stmt_full_default} AND cid IS NOT NULL;`;
+	for (const card of query(sql_name)) {
 		table1.set(card.cid, card.tw_name);
 	}
 	table1.set(CID_BLACK_LUSTER_SOLDIER, `${table1.get(CID_BLACK_LUSTER_SOLDIER)}${language_pack['zh-tw'].bls_postfix}`);
