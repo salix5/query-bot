@@ -29,15 +29,15 @@ const ID_TYLER_THE_GREAT_WARRIOR = 68811206;
 const ID_DECOY = 20240828;
 
 // basic tables
-export const basic_columns = `id, datas.ot, datas.alias, CAST(datas.setcode AS TEXT) AS setcode, datas.type, datas.atk, datas.def, datas.level, datas.race, datas.attribute, texts.name, texts."desc"`;
+const basic_columns = `id, datas.ot, datas.alias, CAST(datas.setcode AS TEXT) AS setcode, datas.type, datas.atk, datas.def, datas.level, datas.race, datas.attribute, texts.name, texts."desc"`;
 export const basic_tables = `datas JOIN texts USING (id)`;
 export const select_all = `SELECT ${basic_columns} FROM ${basic_tables} WHERE 1 = 1`;
 
 export const base_filter = ` AND NOT id IN ($tyler, $decoy) AND NOT type & $token`;
 export const default_filter = `${base_filter} AND (id = $luster OR abs(id - alias) >= $artwork_offset)`;
 
-export const stmt_default = `SELECT ${basic_columns} FROM ${basic_tables} WHERE 1 = 1${default_filter}`;
-export const stmt_count = `SELECT count(*) FROM ${basic_tables} WHERE 1 = 1${default_filter}`;
+export const sql_default = `SELECT ${basic_columns} FROM ${basic_tables} WHERE 1 = 1${default_filter}`;
+export const sql_count = `SELECT count(*) FROM ${basic_tables} WHERE 1 = 1${default_filter}`;
 export const arg_default = {
 	$tyler: ID_TYLER_THE_GREAT_WARRIOR,
 	$decoy: ID_DECOY,
@@ -46,7 +46,7 @@ export const arg_default = {
 	$artwork_offset: CARD_ARTWORK_VERSIONS_OFFSET,
 };
 
-export const stmt_base = `SELECT ${basic_columns} FROM ${basic_tables} WHERE 1 = 1${base_filter}`;
+export const sql_base = `SELECT ${basic_columns} FROM ${basic_tables} WHERE 1 = 1${base_filter}`;
 export const arg_base = {
 	$tyler: ID_TYLER_THE_GREAT_WARRIOR,
 	$decoy: ID_DECOY,
@@ -273,7 +273,7 @@ function write_setcode(list, setcode) {
  * @param {object} arg 
  * @returns {object[]}
  */
-export function query_db(db, sql = stmt_default, arg = arg_default) {
+export function query_db(db, sql = sql_default, arg = arg_default) {
 	let page_filter = '';
 	if (Number.isSafeInteger(arg.$limit)) {
 		page_filter = ` LIMIT $limit`;
@@ -427,7 +427,7 @@ export function name_condition(input, arg) {
  * @param {object} arg 
  * @returns 
  */
-export function read_db(path, sql = stmt_default, arg = arg_default) {
+export function read_db(path, sql = sql_default, arg = arg_default) {
 	const db = sqlite3_open(path);
 	const ret = query_db(db, sql, arg);
 	db.close();
