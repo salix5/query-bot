@@ -57,7 +57,7 @@ CAST(datas.setcode AS TEXT) AS setcode1, CAST(datas.setcode2 AS TEXT) AS setcode
 texts.name, texts."desc", extension.cid`;
 const full_tables = `FROM datas JOIN texts USING (id) LEFT JOIN extension USING (id)`;
 
-const full_default_clause = `${full_tables} WHERE NOT type & $token AND (cid IS NOT NULL OR id > ${MAX_CARD_ID})`;
+export const full_default_clause = `${full_tables} WHERE NOT type & $token AND (cid IS NOT NULL OR id > ${MAX_CARD_ID})`;
 export const sql_full_default = `SELECT ${full_columns} ${full_default_clause}`;
 export const sql_full_count = `SELECT count(*) ${full_default_clause}`;
 export const arg_full = {
