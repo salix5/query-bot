@@ -588,8 +588,6 @@ export async function init_query(files = null) {
 		await rm(ext1, { force: true });
 	}
 	else {
-		stmt_name = null;
-		db?.close();
 		const full_db = merge_db(files[0], files.slice(1));
 		if (!full_db) {
 			return;
@@ -597,6 +595,8 @@ export async function init_query(files = null) {
 		alter_db(full_db);
 		load_name_table(full_db);
 		full_db.close();
+		stmt_name = null;
+		db?.close();
 		db = sqlite3_open(files[0]);
 	}
 	stmt_name = db.prepare(`SELECT id, name ${full_default_clause} AND id = $id`);
