@@ -31,8 +31,6 @@ const ID_DECOY = 20240828;
 // basic tables
 const basic_columns = `id, datas.ot, datas.alias, CAST(datas.setcode AS TEXT) AS setcode, datas.type, datas.atk, datas.def, datas.level, datas.race, datas.attribute, texts.name, texts."desc"`;
 export const basic_tables = `datas JOIN texts USING (id)`;
-export const select_all = `SELECT ${basic_columns} FROM ${basic_tables} WHERE 1 = 1`;
-
 export const base_filter = ` AND NOT id IN ($tyler, $decoy) AND NOT type & $token`;
 export const default_filter = `${base_filter} AND (id = $luster OR abs(id - alias) >= $artwork_offset)`;
 
