@@ -66,7 +66,6 @@ export const arg_full = {
 
 const full_base_clause = `${full_tables} WHERE (type & $token) = 0`;
 export const sql_full_base = `SELECT ${full_columns} ${full_base_clause}`;
-
 export const effect_filter = ` AND ((type & $normal) = 0 OR (type & $pendulum) != 0)`;
 
 const over_hundred = ' AND (name like $n101 OR name like $n102 OR name like $n103 OR name like $n104 OR name like $n105 OR name like $n106 OR name like $n107)';
@@ -74,10 +73,14 @@ export const sql_seventh = `${sql_full_default} AND type & $xyz${over_hundred}`;
 export const arg_seventh = {
 	...arg_full,
 	$xyz: monster_types.TYPE_XYZ,
+	$n101: '%No.101%',
+	$n102: '%No.102%',
+	$n103: '%No.103%',
+	$n104: '%No.104%',
+	$n105: '%No.105%',
+	$n106: '%No.106%',
+	$n107: '%No.107%',
 };
-for (let i = 0; i < 7; i += 1) {
-	arg_seventh[`$n${101 + i}`] = `%No.${101 + i}%`;
-}
 
 const sql_attach = `ATTACH DATABASE ? AS sub;`;
 const sql_detach = `DETACH DATABASE sub;`;
