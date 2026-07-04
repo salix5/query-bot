@@ -32,6 +32,7 @@ const ID_DECOY = 20240828;
 const basic_columns = `id, datas.ot, datas.alias, CAST(datas.setcode AS TEXT) AS setcode, datas.type, datas.atk, datas.def, datas.level, datas.race, datas.attribute, texts.name, texts."desc"`;
 const basic_tables = `FROM datas JOIN texts USING (id)`;
 const default_clause_v1 = `WHERE id NOT IN ($tyler, $decoy) AND (type & $token) = 0 AND (id = $luster OR abs(id - alias) >= $artwork_offset)`;
+
 export const sql_default_v1 = `SELECT ${basic_columns} ${basic_tables} ${default_clause_v1}`;
 export const sql_count_v1 = `SELECT count(*) ${basic_tables} ${default_clause_v1}`;
 export const arg_default_v1 = {
