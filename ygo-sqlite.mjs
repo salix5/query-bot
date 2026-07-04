@@ -31,10 +31,10 @@ const ID_DECOY = 20240828;
 // basic tables
 const basic_columns = `id, datas.ot, datas.alias, CAST(datas.setcode AS TEXT) AS setcode, datas.type, datas.atk, datas.def, datas.level, datas.race, datas.attribute, texts.name, texts."desc"`;
 const basic_tables = `FROM datas JOIN texts USING (id)`;
-const default_clause = `${basic_tables} WHERE id NOT IN ($tyler, $decoy) AND (type & $token) = 0 AND (id = $luster OR abs(id - alias) >= $artwork_offset)`;
-export const sql_default = `SELECT ${basic_columns} ${default_clause}`;
-export const sql_count = `SELECT count(*) ${default_clause}`;
-export const arg_default = {
+const default_clause = `WHERE id NOT IN ($tyler, $decoy) AND (type & $token) = 0 AND (id = $luster OR abs(id - alias) >= $artwork_offset)`;
+export const sql_default_v1 = `SELECT ${basic_columns} ${basic_tables} ${default_clause}`;
+export const sql_count_v1 = `SELECT count(*) ${basic_tables} ${default_clause}`;
+export const arg_default_v1 = {
 	$tyler: ID_TYLER_THE_GREAT_WARRIOR,
 	$decoy: ID_DECOY,
 	$token: monster_types.TYPE_TOKEN,
@@ -42,9 +42,9 @@ export const arg_default = {
 	$artwork_offset: CARD_ARTWORK_VERSIONS_OFFSET,
 };
 
-const base_clause = `${basic_tables} WHERE id NOT IN ($tyler, $decoy) AND (type & $token) = 0`;
-export const sql_base = `SELECT ${basic_columns} ${base_clause}`;
-export const arg_base = {
+const base_clause = `WHERE id NOT IN ($tyler, $decoy) AND (type & $token) = 0`;
+export const sql_base_v1 = `SELECT ${basic_columns} ${basic_tables} ${base_clause}`;
+export const arg_base_v1 = {
 	$tyler: ID_TYLER_THE_GREAT_WARRIOR,
 	$decoy: ID_DECOY,
 	$token: monster_types.TYPE_TOKEN,
@@ -284,7 +284,7 @@ function write_setcode(list, setcode) {
  * @param {object} arg 
  * @returns {object[]}
  */
-export function query_db(db, sql = sql_default, arg = arg_default) {
+export function query_db(db, sql = sql_default_v1, arg = arg_default_v1) {
 	let page_filter = '';
 	if (Number.isSafeInteger(arg.$limit)) {
 		page_filter = ` LIMIT $limit`;
@@ -438,7 +438,7 @@ export function name_condition(input, arg) {
  * @param {object} arg 
  * @returns 
  */
-export function read_db(path, sql = sql_default, arg = arg_default) {
+export function read_db(path, sql = sql_default_v1, arg = arg_default_v1) {
 	const db = sqlite3_open(path);
 	const ret = query_db(db, sql, arg);
 	db.close();
