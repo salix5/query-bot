@@ -117,6 +117,13 @@ UPDATE datas SET another_code = ${ID_CRITIAS} WHERE id = 11082056;
 UPDATE datas SET another_code = ${ID_HERMOS} WHERE id = 46232525;
 COMMIT;`;
 
+const sql_delete = `BEGIN TRANSACTION;
+DELETE FROM datas WHERE id = ${ID_TYLER_THE_GREAT_WARRIOR};
+DELETE FROM texts WHERE id = ${ID_TYLER_THE_GREAT_WARRIOR};
+DELETE FROM datas WHERE id = ${ID_DECOY};
+DELETE FROM texts WHERE id = ${ID_DECOY};
+COMMIT;`;
+
 export const re_wildcard = /(?<!\$)[%_]/;
 const replace_dollar = /\$(?![%_])/g;
 const replace_escape = /\$(?=[%_])/g;
@@ -242,6 +249,7 @@ export function merge_db(base_db, db_list) {
  * @param {DatabaseSync} db 
  */
 export function alter_db(db) {
+	db.exec(sql_delete);
 	db.exec(sql_alter1);
 	db.exec(sql_alter2);
 	db.exec(sql_alter3);
