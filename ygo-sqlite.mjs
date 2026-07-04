@@ -60,15 +60,15 @@ export const full_tables = `datas JOIN texts USING (id) LEFT JOIN extension USIN
 export const full_filter = ` AND (cid IS NOT NULL OR id > $max_id AND NOT (type & $token))`;
 export const effect_filter = ` AND (NOT type & $normal OR type & $pendulum)`;
 
-export const stmt_full_default = `SELECT ${full_columns} FROM ${full_tables} WHERE 1 = 1${full_filter}`;
-export const stmt_full_count = `SELECT count(*) FROM ${full_tables} WHERE 1 = 1${full_filter}`;
+export const sql_full_default = `SELECT ${full_columns} FROM ${full_tables} WHERE 1 = 1${full_filter}`;
+export const sql_full_count = `SELECT count(*) FROM ${full_tables} WHERE 1 = 1${full_filter}`;
 export const arg_full = {
 	$max_id: MAX_CARD_ID,
 	$token: monster_types.TYPE_TOKEN,
 };
 
 const over_hundred = '(name like $n101 OR name like $n102 OR name like $n103 OR name like $n104 OR name like $n105 OR name like $n106 OR name like $n107)';
-export const stmt_seventh = `${stmt_full_default} AND type & $xyz AND ${over_hundred}`;
+export const sql_seventh = `${sql_full_default} AND type & $xyz AND ${over_hundred}`;
 export const arg_seventh = {
 	...arg_full,
 	$xyz: monster_types.TYPE_XYZ,
@@ -311,7 +311,7 @@ export function query_db(db, sql = sql_default, arg = arg_default) {
  * @param {object} arg 
  * @returns {Entry[]}
  */
-export function query_db_v2(db, sql = stmt_full_default, arg = arg_full) {
+export function query_db_v2(db, sql = sql_full_default, arg = arg_full) {
 	let page_filter = '';
 	if (Number.isSafeInteger(arg.$limit)) {
 		page_filter = ` LIMIT $limit`;

@@ -5,7 +5,7 @@ import { cid_table, name_table, md_table, md_card_list } from './ygo-json-loader
 import { escape_regexp, escape_wildcard, zh_collator, zh_compare } from './ygo-utility.mjs';
 import { db_url1, db_url2, fetch_db } from './ygo-fetch.mjs';
 import { card_types, monster_types, link_markers, rarity, spell_colors, trap_colors, CID_BLACK_LUSTER_SOLDIER, spell_types, trap_types, marker_char } from "./ygo-constant.mjs";
-import { arg_full, arg_seventh, effect_filter, full_columns, full_filter, full_tables, stmt_full_count, stmt_full_default, stmt_seventh } from './ygo-sqlite.mjs';
+import { arg_full, arg_seventh, effect_filter, full_columns, full_filter, full_tables, sql_full_count, sql_full_default, sql_seventh } from './ygo-sqlite.mjs';
 import { like_pattern, name_condition, list_condition, alter_db, merge_db, query_db_v2, setcode_condition, sqlite3_open } from './ygo-sqlite.mjs';
 
 export const regexp_mention = `(?<=「)[^「」]*「?[^「」]*」?[^「」]*(?=」)`;
@@ -578,7 +578,7 @@ export async function init_query(files = null) {
 	}
 	// refresh multimap of No.101 ~ No.107
 	multimap_seventh.clear();
-	const seventh_cards = query(stmt_seventh, arg_seventh);
+	const seventh_cards = query(sql_seventh, arg_seventh);
 	seventh_cards.sort((c1, c2) => zh_collator.compare(c1.tw_name, c2.tw_name));
 	for (const card of seventh_cards) {
 		if (!multimap_seventh.has(card.level))
@@ -613,7 +613,7 @@ export function is_setcode(card, value) {
  * @param {object} arg 
  * @returns {Card[]}
  */
-export function query(qstr = stmt_full_default, arg = arg_full) {
+export function query(qstr = sql_full_default, arg = arg_full) {
 	const ret = [];
 	for (const cdata of query_db_v2(db, qstr, arg)) {
 		ret.push(generate_card(cdata));
@@ -645,7 +645,7 @@ export function query_card(params) {
 		meta.total = result.length;
 		return { result, meta };
 	}
-	const sql1 = `${stmt_full_default}${condition}`;
+	const sql1 = `${sql_full_default}${condition}`;
 	const arg1 = {
 		...arg_full,
 		...arg_condition,
@@ -680,7 +680,7 @@ export function query_card(params) {
 		meta.offset = arg_condition.$offset;
 	}
 	if (meta.limit > 0) {
-		const command = `${stmt_full_count}${condition};`;
+		const command = `${sql_full_count}${condition};`;
 		const arg2 = { ...arg1 };
 		delete arg2.$limit;
 		delete arg2.$offset;
@@ -765,7 +765,7 @@ export function get_card(id) {
 		id = Number.parseInt(id, 10);
 	if (!Number.isSafeInteger(id))
 		return null;
-	const sql_id = `${stmt_full_default} AND id = $id;`;
+	const sql_id = `${sql_full_default} AND id = $id;`;
 	const arg_id = {
 		...arg_full,
 		$id: id,
@@ -1058,7 +1058,7 @@ export function print_card(card, locale) {
  */
 export function create_choice_prerelease() {
 	const choices = new Map();
-	const sql_pre = `${stmt_full_default} AND cid IS NULL;`;
+	const sql_pre = `${sql_full_default} AND cid IS NULL;`;
 	const re_kanji = /※.*/;
 	const cards = query(sql_pre);
 	for (const card of cards) {
@@ -1082,7 +1082,7 @@ export function create_choice_prerelease() {
 export function create_choice_db() {
 	const choices = new Map();
 	const re_kanji = /※.*/;
-	const sql_db = `${stmt_full_default} AND cid IS NOT NULL;`;
+	const sql_db = `${sql_full_default} AND cid IS NOT NULL;`;
 	for (const card of query(sql_db)) {
 		const res = card.text.desc.match(re_kanji);
 		const kanji = res ? res[0] : '';
@@ -1103,7 +1103,7 @@ export function create_choice_db() {
 
 export function create_name_table() {
 	const table1 = new Map();
-	const sql_name = `${stmt_full_default} AND cid IS NOT NULL;`;
+	const sql_name = `${sql_full_default} AND cid IS NOT NULL;`;
 	for (const card of query(sql_name)) {
 		table1.set(card.cid, card.tw_name);
 	}
