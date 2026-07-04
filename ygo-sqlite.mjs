@@ -89,6 +89,13 @@ INSERT OR REPLACE INTO datas SELECT * FROM sub.datas;
 INSERT OR REPLACE INTO texts SELECT * FROM sub.texts;
 COMMIT;`;
 
+const sql_delete = `BEGIN TRANSACTION;
+DELETE FROM datas WHERE id = ${ID_TYLER_THE_GREAT_WARRIOR};
+DELETE FROM texts WHERE id = ${ID_TYLER_THE_GREAT_WARRIOR};
+DELETE FROM datas WHERE id = ${ID_DECOY};
+DELETE FROM texts WHERE id = ${ID_DECOY};
+COMMIT;`;
+
 const sql_alter1 = `BEGIN TRANSACTION;
 ALTER TABLE datas ADD COLUMN rule_code INTEGER DEFAULT 0;
 UPDATE datas SET rule_code = alias, alias = 0
@@ -117,13 +124,6 @@ UPDATE datas SET another_code = 17732278 WHERE id = 13857930;
 UPDATE datas SET another_code = ${ID_TIMAEUS} WHERE id = 1784686;
 UPDATE datas SET another_code = ${ID_CRITIAS} WHERE id = 11082056;
 UPDATE datas SET another_code = ${ID_HERMOS} WHERE id = 46232525;
-COMMIT;`;
-
-const sql_delete = `BEGIN TRANSACTION;
-DELETE FROM datas WHERE id = ${ID_TYLER_THE_GREAT_WARRIOR};
-DELETE FROM texts WHERE id = ${ID_TYLER_THE_GREAT_WARRIOR};
-DELETE FROM datas WHERE id = ${ID_DECOY};
-DELETE FROM texts WHERE id = ${ID_DECOY};
 COMMIT;`;
 
 export const re_wildcard = /(?<!\$)[%_]/;
