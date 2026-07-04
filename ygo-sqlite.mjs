@@ -55,11 +55,11 @@ export const arg_base = {
 
 
 // full tables
-export const full_columns = `id, datas.ot, datas.alias, datas.rule_code, datas.another_code, datas.type, datas.atk, datas.def, datas.level, datas.scale, datas.race, datas.attribute,
+const full_columns = `id, datas.ot, datas.alias, datas.rule_code, datas.another_code, datas.type, datas.atk, datas.def, datas.level, datas.scale, datas.race, datas.attribute,
 CAST(datas.setcode AS TEXT) AS setcode1, CAST(datas.setcode2 AS TEXT) AS setcode2, CAST(datas.setcode3 AS TEXT) AS setcode3, CAST(datas.setcode4 AS TEXT) AS setcode4,
 texts.name, texts."desc", extension.cid`;
-export const full_tables = `datas JOIN texts USING (id) LEFT JOIN extension USING (id)`;
-export const full_filter = ` AND (cid IS NOT NULL OR id > $max_id AND NOT (type & $token))`;
+const full_tables = `datas JOIN texts USING (id) LEFT JOIN extension USING (id)`;
+const full_filter = ` AND (cid IS NOT NULL OR id > $max_id AND NOT (type & $token))`;
 export const effect_filter = ` AND (NOT type & $normal OR type & $pendulum)`;
 
 export const sql_full_default = `SELECT ${full_columns} FROM ${full_tables} WHERE 1 = 1${full_filter}`;
