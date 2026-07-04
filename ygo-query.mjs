@@ -5,7 +5,7 @@ import { cid_table, name_table, md_table, md_card_list } from './ygo-json-loader
 import { escape_regexp, escape_wildcard, zh_collator, zh_compare } from './ygo-utility.mjs';
 import { db_url1, db_url2, fetch_db } from './ygo-fetch.mjs';
 import { card_types, monster_types, link_markers, rarity, spell_colors, trap_colors, CID_BLACK_LUSTER_SOLDIER, spell_types, trap_types, marker_char } from "./ygo-constant.mjs";
-import { arg_full, arg_seventh, effect_filter, full_columns, full_filter, full_tables, sql_full_count, sql_full_default, sql_seventh } from './ygo-sqlite.mjs';
+import { arg_full, arg_seventh, effect_filter, sql_full_base, sql_full_count, sql_full_default, sql_seventh } from './ygo-sqlite.mjs';
 import { like_pattern, name_condition, list_condition, alter_db, merge_db, query_db_v2, setcode_condition, sqlite3_open } from './ygo-sqlite.mjs';
 
 export const regexp_mention = `(?<=「)[^「」]*「?[^「」]*」?[^「」]*(?=」)`;
@@ -636,7 +636,7 @@ export function query_card(params) {
 		return { result: [], meta };
 	}
 	if (Number.isSafeInteger(params.id) || Number.isSafeInteger(params.cid)) {
-		const stmt = `SELECT ${full_columns} FROM ${full_tables} WHERE NOT (type & $token) AND (cid IS NOT NULL OR alias != 0 OR id > $max_id)${condition}`;
+		const stmt = `${sql_full_base}${condition}`;
 		const arg = {
 			...arg_full,
 			...arg_condition,
