@@ -30,12 +30,14 @@ const ID_DECOY = 20240828;
 
 // basic tables
 const basic_columns = `id, datas.ot, datas.alias, CAST(datas.setcode AS TEXT) AS setcode, datas.type, datas.atk, datas.def, datas.level, datas.race, datas.attribute, texts.name, texts."desc"`;
-export const basic_tables = `datas JOIN texts USING (id)`;
-export const base_filter = ` AND NOT id IN ($tyler, $decoy) AND NOT type & $token`;
-export const default_filter = `${base_filter} AND (id = $luster OR abs(id - alias) >= $artwork_offset)`;
+const basic_tables = `FROM datas JOIN texts USING (id)`;
+const base_filter = `WHERE NOT id IN ($tyler, $decoy) AND NOT type & $token`;
+const default_filter = `WHERE NOT id IN ($tyler, $decoy) AND NOT type & $token AND (id = $luster OR abs(id - alias) >= $artwork_offset)`;
+const base_clause = `${basic_tables} ${base_filter}`;
+const default_clause = `${basic_tables} ${default_filter}`;
 
-export const sql_default = `SELECT ${basic_columns} FROM ${basic_tables} WHERE 1 = 1${default_filter}`;
-export const sql_count = `SELECT count(*) FROM ${basic_tables} WHERE 1 = 1${default_filter}`;
+export const sql_default = `SELECT ${basic_columns} ${default_clause}`;
+export const sql_count = `SELECT count(*) ${default_clause}`;
 export const arg_default = {
 	$tyler: ID_TYLER_THE_GREAT_WARRIOR,
 	$decoy: ID_DECOY,
@@ -44,7 +46,7 @@ export const arg_default = {
 	$artwork_offset: CARD_ARTWORK_VERSIONS_OFFSET,
 };
 
-export const sql_base = `SELECT ${basic_columns} FROM ${basic_tables} WHERE 1 = 1${base_filter}`;
+export const sql_base = `SELECT ${basic_columns} ${base_clause}`;
 export const arg_base = {
 	$tyler: ID_TYLER_THE_GREAT_WARRIOR,
 	$decoy: ID_DECOY,
@@ -439,8 +441,8 @@ export function read_db(path, sql = sql_default, arg = arg_default) {
  * @returns 
  */
 export function check_uniqueness(path, id_luster = ID_BLACK_LUSTER_SOLDIER) {
-	const condition = ` AND (NOT type & $token OR alias = $none) AND (type & $token OR id = $luster OR abs(id - alias) >= $artwork_offset)`;
-	const stmt1 = `SELECT id, texts.name FROM ${basic_tables} WHERE 1 = 1${condition}`;
+	const condition = `WHERE (NOT type & $token OR alias = $none) AND (type & $token OR id = $luster OR abs(id - alias) >= $artwork_offset)`;
+	const stmt1 = `SELECT id, texts.name ${basic_tables} ${condition}`;
 	const arg1 = {
 		$token: monster_types.TYPE_TOKEN,
 		$luster: id_luster,
