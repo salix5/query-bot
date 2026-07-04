@@ -58,12 +58,13 @@ export const arg_base = {
 const full_columns = `id, datas.ot, datas.alias, datas.rule_code, datas.another_code, datas.type, datas.atk, datas.def, datas.level, datas.scale, datas.race, datas.attribute,
 CAST(datas.setcode AS TEXT) AS setcode1, CAST(datas.setcode2 AS TEXT) AS setcode2, CAST(datas.setcode3 AS TEXT) AS setcode3, CAST(datas.setcode4 AS TEXT) AS setcode4,
 texts.name, texts."desc", extension.cid`;
-const full_tables = `datas JOIN texts USING (id) LEFT JOIN extension USING (id)`;
-const full_filter = ` AND (cid IS NOT NULL OR id > $max_id AND NOT (type & $token))`;
+const full_tables = `FROM datas JOIN texts USING (id) LEFT JOIN extension USING (id)`;
+const full_default_filter = `WHERE (cid IS NOT NULL OR id > $max_id AND NOT type & $token)`;
+const full_default_clause = `${full_tables} ${full_default_filter}`;
 export const effect_filter = ` AND (NOT type & $normal OR type & $pendulum)`;
 
-export const sql_full_default = `SELECT ${full_columns} FROM ${full_tables} WHERE 1 = 1${full_filter}`;
-export const sql_full_count = `SELECT count(*) FROM ${full_tables} WHERE 1 = 1${full_filter}`;
+export const sql_full_default = `SELECT ${full_columns} ${full_default_clause}`;
+export const sql_full_count = `SELECT count(*) ${full_default_clause}`;
 export const arg_full = {
 	$max_id: MAX_CARD_ID,
 	$token: monster_types.TYPE_TOKEN,
@@ -406,7 +407,7 @@ export function like_pattern(str) {
  * @returns {string}
  */
 export function name_condition(input, arg) {
-	let condition = `name LIKE $name ESCAPE '$' OR "desc" LIKE $kanji ESCAPE '$' OR rule_code IN (SELECT id FROM ${full_tables} WHERE 1 = 1${full_filter} AND name LIKE $name ESCAPE '$')`;
+	let condition = `name LIKE $name ESCAPE '$' OR "desc" LIKE $kanji ESCAPE '$' OR rule_code IN (SELECT id ${full_default_clause} AND name LIKE $name ESCAPE '$')`;
 	arg.$name = like_pattern(input);
 	arg.$kanji = `%※${like_pattern(input)}`;
 	if (re_wildcard.test(input)) {
