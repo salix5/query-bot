@@ -93,7 +93,7 @@ await init_query();
 
 /**
  * @param {number} id 
- * @returns {string?}
+ * @returns {?string}
  */
 function get_db_name(id) {
 	if (!stmt_name)
