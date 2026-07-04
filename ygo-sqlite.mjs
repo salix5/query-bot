@@ -31,7 +31,7 @@ const ID_DECOY = 20240828;
 // basic tables
 const basic_columns = `id, datas.ot, datas.alias, CAST(datas.setcode AS TEXT) AS setcode, datas.type, datas.atk, datas.def, datas.level, datas.race, datas.attribute, texts.name, texts."desc"`;
 const basic_tables = `FROM datas JOIN texts USING (id)`;
-const default_clause = `${basic_tables} WHERE NOT id IN ($tyler, $decoy) AND NOT type & $token AND (id = $luster OR abs(id - alias) >= $artwork_offset)`;
+const default_clause = `${basic_tables} WHERE id NOT IN ($tyler, $decoy) AND (type & $token) = 0 AND (id = $luster OR abs(id - alias) >= $artwork_offset)`;
 export const sql_default = `SELECT ${basic_columns} ${default_clause}`;
 export const sql_count = `SELECT count(*) ${default_clause}`;
 export const arg_default = {
@@ -42,7 +42,7 @@ export const arg_default = {
 	$artwork_offset: CARD_ARTWORK_VERSIONS_OFFSET,
 };
 
-const base_clause = `${basic_tables} WHERE NOT id IN ($tyler, $decoy) AND NOT type & $token`;
+const base_clause = `${basic_tables} WHERE id NOT IN ($tyler, $decoy) AND (type & $token) = 0`;
 export const sql_base = `SELECT ${basic_columns} ${base_clause}`;
 export const arg_base = {
 	$tyler: ID_TYLER_THE_GREAT_WARRIOR,
@@ -57,17 +57,17 @@ CAST(datas.setcode AS TEXT) AS setcode1, CAST(datas.setcode2 AS TEXT) AS setcode
 texts.name, texts."desc", extension.cid`;
 const full_tables = `FROM datas JOIN texts USING (id) LEFT JOIN extension USING (id)`;
 
-export const full_default_clause = `${full_tables} WHERE NOT type & $token AND (cid IS NOT NULL OR id > ${MAX_CARD_ID})`;
+export const full_default_clause = `${full_tables} WHERE (type & $token) = 0 AND (cid IS NOT NULL OR id > ${MAX_CARD_ID})`;
 export const sql_full_default = `SELECT ${full_columns} ${full_default_clause}`;
 export const sql_full_count = `SELECT count(*) ${full_default_clause}`;
 export const arg_full = {
 	$token: monster_types.TYPE_TOKEN,
 };
 
-const full_base_clause = `${full_tables} WHERE NOT type & $token`;
+const full_base_clause = `${full_tables} WHERE (type & $token) = 0`;
 export const sql_full_base = `SELECT ${full_columns} ${full_base_clause}`;
 
-export const effect_filter = ` AND (NOT type & $normal OR type & $pendulum)`;
+export const effect_filter = ` AND ((type & $normal) = 0 OR (type & $pendulum) != 0)`;
 
 const over_hundred = ' AND (name like $n101 OR name like $n102 OR name like $n103 OR name like $n104 OR name like $n105 OR name like $n106 OR name like $n107)';
 export const sql_seventh = `${sql_full_default} AND type & $xyz${over_hundred}`;
@@ -449,7 +449,7 @@ export function read_db(path, sql = sql_default, arg = arg_default) {
  * @returns 
  */
 export function check_uniqueness(path, id_luster = ID_BLACK_LUSTER_SOLDIER) {
-	const condition = `WHERE (NOT type & $token OR alias = $none) AND (type & $token OR id = $luster OR abs(id - alias) >= $artwork_offset)`;
+	const condition = `WHERE ((type & $token) = 0 OR alias = $none) AND ((type & $token) != 0 OR id = $luster OR abs(id - alias) >= $artwork_offset)`;
 	const stmt1 = `SELECT id, texts.name ${basic_tables} ${condition}`;
 	const arg1 = {
 		$token: monster_types.TYPE_TOKEN,
