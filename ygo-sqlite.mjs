@@ -52,26 +52,26 @@ export const arg_base_v1 = {
 
 
 // full tables
-const full_columns = `id, datas.ot, datas.alias, datas.rule_code, datas.another_code, datas.type, datas.atk, datas.def, datas.level, datas.scale, datas.race, datas.attribute,
+export const full_columns = `id, datas.ot, datas.alias, datas.rule_code, datas.another_code, datas.type, datas.atk, datas.def, datas.level, datas.scale, datas.race, datas.attribute,
 CAST(datas.setcode AS TEXT) AS setcode1, CAST(datas.setcode2 AS TEXT) AS setcode2, CAST(datas.setcode3 AS TEXT) AS setcode3, CAST(datas.setcode4 AS TEXT) AS setcode4,
 texts.name, texts."desc", extension.cid`;
-const full_tables = `FROM datas JOIN texts USING (id) LEFT JOIN extension USING (id)`;
+export const full_tables = `FROM datas JOIN texts USING (id) LEFT JOIN extension USING (id)`;
+export const default_clause_v2 = `WHERE (type & $token) = 0 AND (cid IS NOT NULL OR id > ${MAX_CARD_ID})`;
 
-export const full_default_clause = `${full_tables} WHERE (type & $token) = 0 AND (cid IS NOT NULL OR id > ${MAX_CARD_ID})`;
-export const sql_full_default = `SELECT ${full_columns} ${full_default_clause}`;
-export const sql_full_count = `SELECT count(*) ${full_default_clause}`;
-export const arg_full = {
+export const sql_default_v2 = `SELECT ${full_columns} ${full_tables} ${default_clause_v2}`;
+export const sql_count_v2 = `SELECT count(*) ${full_tables} ${default_clause_v2}`;
+export const arg_default_v2 = {
 	$token: monster_types.TYPE_TOKEN,
 };
 
-const full_base_clause = `${full_tables} WHERE (type & $token) = 0`;
-export const sql_full_base = `SELECT ${full_columns} ${full_base_clause}`;
+const base_clause_v2 = `WHERE (type & $token) = 0`;
+export const sql_base_v2 = `SELECT ${full_columns} ${full_tables} ${base_clause_v2}`;
 export const effect_filter = ` AND ((type & $normal) = 0 OR (type & $pendulum) != 0)`;
 
 const over_hundred = ' AND (name like $n101 OR name like $n102 OR name like $n103 OR name like $n104 OR name like $n105 OR name like $n106 OR name like $n107)';
-export const sql_seventh = `${sql_full_default} AND type & $xyz${over_hundred}`;
+export const sql_seventh = `${sql_default_v2} AND type & $xyz${over_hundred}`;
 export const arg_seventh = {
-	...arg_full,
+	...arg_default_v2,
 	$xyz: monster_types.TYPE_XYZ,
 	$n101: '%No.101%',
 	$n102: '%No.102%',
@@ -324,7 +324,7 @@ export function query_db(db, sql = sql_default_v1, arg = arg_default_v1) {
  * @param {object} arg 
  * @returns {Entry[]}
  */
-export function query_db_v2(db, sql = sql_full_default, arg = arg_full) {
+export function query_db_v2(db, sql = sql_default_v2, arg = arg_default_v2) {
 	let page_filter = '';
 	if (Number.isSafeInteger(arg.$limit)) {
 		page_filter = ` LIMIT $limit`;
@@ -417,7 +417,7 @@ export function like_pattern(str) {
  * @returns {string}
  */
 export function name_condition(input, arg) {
-	let condition = `name LIKE $name ESCAPE '$' OR "desc" LIKE $kanji ESCAPE '$' OR rule_code IN (SELECT id ${full_default_clause} AND name LIKE $name ESCAPE '$')`;
+	let condition = `name LIKE $name ESCAPE '$' OR "desc" LIKE $kanji ESCAPE '$' OR rule_code IN (SELECT id ${default_clause_v2} AND name LIKE $name ESCAPE '$')`;
 	arg.$name = like_pattern(input);
 	arg.$kanji = `%※${like_pattern(input)}`;
 	if (re_wildcard.test(input)) {
