@@ -29,10 +29,10 @@ const ID_TYLER_THE_GREAT_WARRIOR = 68811206;
 const ID_DECOY = 20240828;
 
 // basic tables
-const basic_columns = `id, datas.ot, datas.alias, CAST(datas.setcode AS TEXT) AS setcode, datas.type, datas.atk, datas.def, datas.level, datas.race, datas.attribute, texts.name, texts."desc"`;
-const basic_tables = `FROM datas JOIN texts USING (id)`;
-const default_clause_v1 = `WHERE id NOT IN ($tyler, $decoy) AND (type & $token) = 0 AND (id = $luster OR abs(id - alias) >= $artwork_offset)`;
+export const basic_columns = `id, datas.ot, datas.alias, CAST(datas.setcode AS TEXT) AS setcode, datas.type, datas.atk, datas.def, datas.level, datas.race, datas.attribute, texts.name, texts."desc"`;
+export const basic_tables = `FROM datas JOIN texts USING (id)`;
 
+export const default_clause_v1 = `WHERE id NOT IN ($tyler, $decoy) AND (type & $token) = 0 AND (id = $luster OR abs(id - alias) >= $artwork_offset)`;
 export const sql_default_v1 = `SELECT ${basic_columns} ${basic_tables} ${default_clause_v1}`;
 export const sql_count_v1 = `SELECT count(*) ${basic_tables} ${default_clause_v1}`;
 export const arg_default_v1 = {
@@ -43,7 +43,7 @@ export const arg_default_v1 = {
 	$artwork_offset: CARD_ARTWORK_VERSIONS_OFFSET,
 };
 
-const base_clause_v1 = `WHERE id NOT IN ($tyler, $decoy) AND (type & $token) = 0`;
+export const base_clause_v1 = `WHERE id NOT IN ($tyler, $decoy) AND (type & $token) = 0`;
 export const sql_base_v1 = `SELECT ${basic_columns} ${basic_tables} ${base_clause_v1}`;
 export const arg_base_v1 = {
 	$tyler: ID_TYLER_THE_GREAT_WARRIOR,
@@ -57,15 +57,15 @@ export const full_columns = `id, datas.ot, datas.alias, datas.rule_code, datas.a
 CAST(datas.setcode AS TEXT) AS setcode1, CAST(datas.setcode2 AS TEXT) AS setcode2, CAST(datas.setcode3 AS TEXT) AS setcode3, CAST(datas.setcode4 AS TEXT) AS setcode4,
 texts.name, texts."desc", extension.cid`;
 export const full_tables = `FROM datas JOIN texts USING (id) LEFT JOIN extension USING (id)`;
-export const default_clause_v2 = `WHERE (type & $token) = 0 AND (cid IS NOT NULL OR id > ${MAX_CARD_ID})`;
 
+export const default_clause_v2 = `WHERE (type & $token) = 0 AND (cid IS NOT NULL OR id > ${MAX_CARD_ID})`;
 export const sql_default_v2 = `SELECT ${full_columns} ${full_tables} ${default_clause_v2}`;
 export const sql_count_v2 = `SELECT count(*) ${full_tables} ${default_clause_v2}`;
 export const arg_default_v2 = {
 	$token: monster_types.TYPE_TOKEN,
 };
 
-const base_clause_v2 = `WHERE (type & $token) = 0`;
+export const base_clause_v2 = `WHERE (type & $token) = 0`;
 export const sql_base_v2 = `SELECT ${full_columns} ${full_tables} ${base_clause_v2}`;
 export const effect_filter = ` AND ((type & $normal) = 0 OR (type & $pendulum) != 0)`;
 
