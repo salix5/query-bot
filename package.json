@@ -1,6 +1,6 @@
 {
   "name": "query-bot",
-  "version": "3.0.0",
+  "version": "4.0.0",
   "description": "Discord card query bot",
   "type": "module",
   "main": "./bot.js",
