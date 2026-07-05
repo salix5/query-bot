@@ -30,15 +30,12 @@ const ID_DECOY = 20240828;
 
 // basic tables
 export const basic_columns = `id, datas.ot, datas.alias, CAST(datas.setcode AS TEXT) AS setcode, datas.type, datas.atk, datas.def, datas.level, datas.race, datas.attribute, texts.name, texts."desc"`;
-export const basic_tables = `datas JOIN texts USING (id)`;
-export const select_all = `SELECT ${basic_columns} FROM ${basic_tables} WHERE 1 = 1`;
+export const basic_tables = `FROM datas JOIN texts USING (id)`;
 
-export const base_filter = ` AND NOT id IN ($tyler, $decoy) AND NOT type & $token`;
-export const default_filter = `${base_filter} AND (id = $luster OR abs(id - alias) >= $artwork_offset)`;
-
-export const stmt_default = `SELECT ${basic_columns} FROM ${basic_tables} WHERE 1 = 1${default_filter}`;
-export const stmt_count = `SELECT count(*) FROM ${basic_tables} WHERE 1 = 1${default_filter}`;
-export const arg_default = {
+export const default_clause_v1 = `WHERE id NOT IN ($tyler, $decoy) AND (type & $token) = 0 AND (id = $luster OR abs(id - alias) >= $artwork_offset)`;
+export const sql_default_v1 = `SELECT ${basic_columns} ${basic_tables} ${default_clause_v1}`;
+export const sql_count_v1 = `SELECT count(*) ${basic_tables} ${default_clause_v1}`;
+export const arg_default_v1 = {
 	$tyler: ID_TYLER_THE_GREAT_WARRIOR,
 	$decoy: ID_DECOY,
 	$token: monster_types.TYPE_TOKEN,
@@ -46,8 +43,9 @@ export const arg_default = {
 	$artwork_offset: CARD_ARTWORK_VERSIONS_OFFSET,
 };
 
-export const stmt_base = `SELECT ${basic_columns} FROM ${basic_tables} WHERE 1 = 1${base_filter}`;
-export const arg_base = {
+export const base_clause_v1 = `WHERE id NOT IN ($tyler, $decoy) AND (type & $token) = 0`;
+export const sql_base_v1 = `SELECT ${basic_columns} ${basic_tables} ${base_clause_v1}`;
+export const arg_base_v1 = {
 	$tyler: ID_TYLER_THE_GREAT_WARRIOR,
 	$decoy: ID_DECOY,
 	$token: monster_types.TYPE_TOKEN,
@@ -58,35 +56,48 @@ export const arg_base = {
 export const full_columns = `id, datas.ot, datas.alias, datas.rule_code, datas.another_code, datas.type, datas.atk, datas.def, datas.level, datas.scale, datas.race, datas.attribute,
 CAST(datas.setcode AS TEXT) AS setcode1, CAST(datas.setcode2 AS TEXT) AS setcode2, CAST(datas.setcode3 AS TEXT) AS setcode3, CAST(datas.setcode4 AS TEXT) AS setcode4,
 texts.name, texts."desc", extension.cid`;
-export const full_tables = `datas JOIN texts USING (id) LEFT JOIN extension USING (id)`;
-export const full_filter = ` AND (cid IS NOT NULL OR id > $max_id AND NOT (type & $token))`;
-export const effect_filter = ` AND (NOT type & $normal OR type & $pendulum)`;
+export const full_tables = `FROM datas JOIN texts USING (id) LEFT JOIN extension USING (id)`;
 
-export const stmt_full_default = `SELECT ${full_columns} FROM ${full_tables} WHERE 1 = 1${full_filter}`;
-export const stmt_full_count = `SELECT count(*) FROM ${full_tables} WHERE 1 = 1${full_filter}`;
-export const arg_full = {
-	$max_id: MAX_CARD_ID,
+export const default_clause_v2 = `WHERE (type & $token) = 0 AND (cid IS NOT NULL OR id > ${MAX_CARD_ID})`;
+export const sql_default_v2 = `SELECT ${full_columns} ${full_tables} ${default_clause_v2}`;
+export const sql_count_v2 = `SELECT count(*) ${full_tables} ${default_clause_v2}`;
+export const arg_default_v2 = {
 	$token: monster_types.TYPE_TOKEN,
 };
 
-const over_hundred = '(name like $n101 OR name like $n102 OR name like $n103 OR name like $n104 OR name like $n105 OR name like $n106 OR name like $n107)';
-export const stmt_seventh = `${stmt_full_default} AND type & $xyz AND ${over_hundred}`;
-export const arg_seventh = {
-	...arg_full,
-	$xyz: monster_types.TYPE_XYZ,
-};
-for (let i = 0; i < 7; i += 1) {
-	arg_seventh[`$n${101 + i}`] = `%No.${101 + i}%`;
-}
+export const base_clause_v2 = `WHERE (type & $token) = 0`;
+export const sql_base_v2 = `SELECT ${full_columns} ${full_tables} ${base_clause_v2}`;
+export const effect_filter = ` AND ((type & $normal) = 0 OR (type & $pendulum) != 0)`;
 
-const stmt_attach = `ATTACH DATABASE ? AS sub;`;
-const stmt_detach = `DETACH DATABASE sub;`;
-const stmt_merge = `BEGIN TRANSACTION;
+const over_hundred = ' AND (name like $n101 OR name like $n102 OR name like $n103 OR name like $n104 OR name like $n105 OR name like $n106 OR name like $n107)';
+export const sql_seventh = `${sql_default_v2} AND type & $xyz${over_hundred}`;
+export const arg_seventh = {
+	...arg_default_v2,
+	$xyz: monster_types.TYPE_XYZ,
+	$n101: '%No.101%',
+	$n102: '%No.102%',
+	$n103: '%No.103%',
+	$n104: '%No.104%',
+	$n105: '%No.105%',
+	$n106: '%No.106%',
+	$n107: '%No.107%',
+};
+
+const sql_attach = `ATTACH DATABASE ? AS sub;`;
+const sql_detach = `DETACH DATABASE sub;`;
+const sql_merge = `BEGIN TRANSACTION;
 INSERT OR REPLACE INTO datas SELECT * FROM sub.datas;
 INSERT OR REPLACE INTO texts SELECT * FROM sub.texts;
 COMMIT;`;
 
-const stmt_alter1 = `BEGIN TRANSACTION;
+const sql_delete = `BEGIN TRANSACTION;
+DELETE FROM datas WHERE id = ${ID_TYLER_THE_GREAT_WARRIOR};
+DELETE FROM texts WHERE id = ${ID_TYLER_THE_GREAT_WARRIOR};
+DELETE FROM datas WHERE id = ${ID_DECOY};
+DELETE FROM texts WHERE id = ${ID_DECOY};
+COMMIT;`;
+
+const sql_alter1 = `BEGIN TRANSACTION;
 ALTER TABLE datas ADD COLUMN rule_code INTEGER DEFAULT 0;
 UPDATE datas SET rule_code = alias, alias = 0
 WHERE id IN ( SELECT id	FROM datas WHERE NOT (type & 0x4000) AND alias != 0 AND abs(id - alias) >= 20);
@@ -94,20 +105,20 @@ UPDATE datas SET rule_code = alias, alias = 0 WHERE id = 5405695;
 UPDATE datas SET rule_code = 13331639 WHERE alias = 6218704;
 COMMIT;`;
 
-const stmt_alter2 = `BEGIN TRANSACTION;
+const sql_alter2 = `BEGIN TRANSACTION;
 ALTER TABLE datas ADD COLUMN scale INTEGER DEFAULT 0;
 UPDATE datas SET scale =  (level >> 24) & 0xff WHERE type & 0x1000000;
 UPDATE datas SET level = level & 0xffff WHERE type & 0x1000000;
 COMMIT;`;
 
-const stmt_alter3 = `BEGIN TRANSACTION;
+const sql_alter3 = `BEGIN TRANSACTION;
 ALTER TABLE datas ADD COLUMN setcode2 INTEGER DEFAULT 0;
 ALTER TABLE datas ADD COLUMN setcode3 INTEGER DEFAULT 0;
 ALTER TABLE datas ADD COLUMN setcode4 INTEGER DEFAULT 0;
 UPDATE datas SET setcode2 = 0x13a WHERE id IN (8512558, 55088578);
 COMMIT;`;
 
-const stmt_alter4 = `BEGIN TRANSACTION;
+const sql_alter4 = `BEGIN TRANSACTION;
 ALTER TABLE datas ADD COLUMN another_code INTEGER DEFAULT 0;
 UPDATE datas SET another_code = 17955766 WHERE id = 78734254;
 UPDATE datas SET another_code = 17732278 WHERE id = 13857930;
@@ -215,12 +226,12 @@ export function merge_db(base_db, db_list) {
 	}
 	const base = new DatabaseSync(base_db);
 	base.exec("PRAGMA trusted_schema = OFF;");
-	const stmt1 = base.prepare(stmt_attach);
+	const stmt1 = base.prepare(sql_attach);
 	for (const db of db_list) {
 		try {
 			stmt1.run(db);
-			base.exec(stmt_merge);
-			base.exec(stmt_detach);
+			base.exec(sql_merge);
+			base.exec(sql_detach);
 		}
 		catch (error) {
 			console.error('Failed to merge database:', db);
@@ -241,10 +252,11 @@ export function merge_db(base_db, db_list) {
  * @param {DatabaseSync} db 
  */
 export function alter_db(db) {
-	db.exec(stmt_alter1);
-	db.exec(stmt_alter2);
-	db.exec(stmt_alter3);
-	db.exec(stmt_alter4);
+	db.exec(sql_delete);
+	db.exec(sql_alter1);
+	db.exec(sql_alter2);
+	db.exec(sql_alter3);
+	db.exec(sql_alter4);
 }
 
 /**
@@ -273,7 +285,7 @@ function write_setcode(list, setcode) {
  * @param {object} arg 
  * @returns {object[]}
  */
-export function query_db(db, sql = stmt_default, arg = arg_default) {
+export function query_db(db, sql = sql_default_v1, arg = arg_default_v1) {
 	let page_filter = '';
 	if (Number.isSafeInteger(arg.$limit)) {
 		page_filter = ` LIMIT $limit`;
@@ -313,7 +325,7 @@ export function query_db(db, sql = stmt_default, arg = arg_default) {
  * @param {object} arg 
  * @returns {Entry[]}
  */
-export function query_db_v2(db, sql = stmt_full_default, arg = arg_full) {
+export function query_db_v2(db, sql = sql_default_v2, arg = arg_default_v2) {
 	let page_filter = '';
 	if (Number.isSafeInteger(arg.$limit)) {
 		page_filter = ` LIMIT $limit`;
@@ -406,7 +418,7 @@ export function like_pattern(str) {
  * @returns {string}
  */
 export function name_condition(input, arg) {
-	let condition = `name LIKE $name ESCAPE '$' OR "desc" LIKE $kanji ESCAPE '$' OR rule_code IN (SELECT id FROM ${full_tables} WHERE 1 = 1${full_filter} AND name LIKE $name ESCAPE '$')`;
+	let condition = `name LIKE $name ESCAPE '$' OR "desc" LIKE $kanji ESCAPE '$' OR rule_code IN (SELECT id ${full_tables} ${default_clause_v2} AND name LIKE $name ESCAPE '$')`;
 	arg.$name = like_pattern(input);
 	arg.$kanji = `%※${like_pattern(input)}`;
 	if (re_wildcard.test(input)) {
@@ -427,7 +439,7 @@ export function name_condition(input, arg) {
  * @param {object} arg 
  * @returns 
  */
-export function read_db(path, sql = stmt_default, arg = arg_default) {
+export function read_db(path, sql = sql_default_v1, arg = arg_default_v1) {
 	const db = sqlite3_open(path);
 	const ret = query_db(db, sql, arg);
 	db.close();
@@ -441,8 +453,8 @@ export function read_db(path, sql = stmt_default, arg = arg_default) {
  * @returns 
  */
 export function check_uniqueness(path, id_luster = ID_BLACK_LUSTER_SOLDIER) {
-	const condition = ` AND (NOT type & $token OR alias = $none) AND (type & $token OR id = $luster OR abs(id - alias) >= $artwork_offset)`;
-	const stmt1 = `SELECT id, texts.name FROM ${basic_tables} WHERE 1 = 1${condition}`;
+	const condition = `WHERE ((type & $token) = 0 OR alias = $none) AND ((type & $token) != 0 OR id = $luster OR abs(id - alias) >= $artwork_offset)`;
+	const stmt1 = `SELECT id, texts.name ${basic_tables} ${condition}`;
 	const arg1 = {
 		$token: monster_types.TYPE_TOKEN,
 		$luster: id_luster,
