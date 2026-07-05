@@ -270,12 +270,12 @@ export function generate_condition(params, id_list) {
 		qstr += ` AND ${list_condition('id', 'id', id_list, arg)}`;
 	}
 	if (Number.isSafeInteger(params.ot) && params.ot > 0) {
-		qstr += " AND ot & $ot_mask = $ot";
+		qstr += " AND (ot & $ot_mask) = $ot";
 		arg.$ot_mask = 0x3;
 		arg.$ot = params.ot;
 	}
 	if (Number.isSafeInteger(params.ot_exclude) && params.ot_exclude > 0) {
-		qstr += " AND ot & $ot_mask != $ot_exclude";
+		qstr += " AND (ot & $ot_mask) != $ot_exclude";
 		arg.$ot_mask = 0x3;
 		arg.$ot_exclude = params.ot_exclude;
 	}
@@ -283,41 +283,41 @@ export function generate_condition(params, id_list) {
 		qstr += " AND cid IS NOT NULL";
 	}
 	if (Number.isSafeInteger(params.type) && params.type > 0) {
-		qstr += " AND type & $type";
+		qstr += " AND (type & $type) != 0";
 		arg.$type = params.type;
 	}
 	if (Number.isSafeInteger(params.monster_type) && params.monster_type > 0) {
-		qstr += " AND type & $monster";
+		qstr += " AND (type & $monster) != 0";
 		arg.$monster = card_types.TYPE_MONSTER;
 		if (Number.isSafeInteger(params.monster_type_op) && params.monster_type_op)
-			qstr += " AND type & $monster_type = $monster_type";
+			qstr += " AND (type & $monster_type) = $monster_type";
 		else
-			qstr += " AND type & $monster_type";
+			qstr += " AND (type & $monster_type) != 0";
 		arg.$monster_type = params.monster_type;
 	}
 	if (Number.isSafeInteger(params.excluded_type) && params.excluded_type > 0) {
-		qstr += " AND NOT type & $excluded_type";
+		qstr += " AND (type & $excluded_type) = 0";
 		arg.$excluded_type = params.excluded_type;
 	}
 	if (Number.isSafeInteger(params.spell_type) && params.spell_type > 0) {
 		let subtype = params.spell_type;
-		let subtype_condition = "type & $stype";
+		let subtype_condition = "(type & $stype) != 0";
 		if (subtype & spell_types.TYPE_NORMAL) {
 			subtype_condition += " OR type = $spell";
 			subtype = (subtype & ~spell_types.TYPE_NORMAL) >>> 0;
 		}
-		qstr += ` AND type & $spell AND (${subtype_condition})`;
+		qstr += ` AND (type & $spell) != 0 AND (${subtype_condition})`;
 		arg.$spell = card_types.TYPE_SPELL;
 		arg.$stype = subtype;
 	}
 	if (Number.isSafeInteger(params.trap_type) && params.trap_type > 0) {
 		let subtype = params.trap_type;
-		let subtype_condition = "type & $ttype";
+		let subtype_condition = "(type & $ttype) != 0";
 		if (subtype & trap_types.TYPE_NORMAL) {
 			subtype_condition += " OR type = $trap";
 			subtype = (subtype & ~trap_types.TYPE_NORMAL) >>> 0;
 		}
-		qstr += ` AND type & $trap AND (${subtype_condition})`;
+		qstr += ` AND (type & $trap) != 0 AND (${subtype_condition})`;
 		arg.$trap = card_types.TYPE_TRAP;
 		arg.$ttype = subtype;
 	}
