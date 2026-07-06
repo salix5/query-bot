@@ -189,6 +189,27 @@ function setcode_match(value, setcode) {
 	return 0;
 }
 
+function generate_entry(row) {
+	const setcode = [];
+	for (let i = 1; i <= 4; i += 1) {
+		const key = `setcode${i}`;
+		if (key in row) {
+			write_setcode(setcode, BigInt(row[key]));
+		}
+	}
+	// eslint-disable-next-line no-unused-vars
+	const { setcode1, setcode2, setcode3, setcode4, ...rest } = row;
+	const entry = {
+		__proto__: null,
+		...rest
+	};
+	if ('race' in entry) {
+		entry.race = BigInt(entry.race);
+	}
+	entry.setcode = setcode;
+	return entry;
+}
+
 /**
  * Open a database file and add custom functions `regexp` and `match`.
  * @param {string} filename 
@@ -334,21 +355,8 @@ export function query_db_v2(db, sql = sql_default_v2, arg = arg_default_v2) {
 	}
 	const full_sql = `${sql} ORDER BY id${page_filter}`;
 	const stmt = db.prepare(full_sql);
-	const result = stmt.all(arg);
-	for (const card of result) {
-		if ('race' in card) {
-			card.race = BigInt(card.race);
-		}
-		card.setcode = [];
-		for (let i = 0; i < 4; i++) {
-			if (`setcode${i + 1}` in card) {
-				const setcode = BigInt(card[`setcode${i + 1}`]);
-				write_setcode(card.setcode, setcode);
-				delete card[`setcode${i + 1}`];
-			}
-		}
-	}
-	return result;
+	const rows = stmt.all(arg);
+	return rows.map(generate_entry);
 }
 
 /**
