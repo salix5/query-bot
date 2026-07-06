@@ -181,8 +181,8 @@ function setcode_match(value, setcode) {
 		return 0;
 	const setname = value & 0x0fffn;
 	const settype = value & 0xf000n;
-	for (let i = 0n; i < 4n; i += 1n) {
-		const section = (setcode >> (i * 16n)) & 0xffffn;
+	for (let i = 0; i < 4; i += 1) {
+		const section = (setcode >> BigInt(i * 16)) & 0xffffn;
 		if ((section & 0x0fffn) === setname && (section & settype) === settype)
 			return 1;
 	}
@@ -289,8 +289,8 @@ function write_setcode(list, setcode) {
 	if (!setcode) {
 		return;
 	}
-	for (let i = 0n; i < 4n; i += 1n) {
-		const section = (setcode >> (i * 16n)) & 0xffffn;
+	for (let i = 0; i < 4; i += 1) {
+		const section = (setcode >> BigInt(i * 16)) & 0xffffn;
 		if (!section) {
 			return;
 		}
@@ -400,7 +400,7 @@ export function list_condition(column, prefix, list, arg) {
 		}
 		tokens.push(`@${prefix}${index}`);
 		arg[`@${prefix}${index}`] = value;
-		index++;
+		index += 1;
 	}
 	return `${column} IN (${tokens.join(', ')})`;
 }
