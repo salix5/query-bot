@@ -268,14 +268,13 @@ function write_setcode(list, setcode) {
 	if (!setcode) {
 		return;
 	}
-	const result = new Set();
 	for (let i = 0n; i < 4n; i += 1n) {
 		const section = (setcode >> (i * 16n)) & 0xffffn;
-		if (section) {
-			result.add(Number(section));
+		if (!section) {
+			return;
 		}
+		list.push(Number(section));
 	}
-	list.push(...result);
 }
 
 /**
