@@ -315,8 +315,13 @@ export function query_db(db, sql = sql_default_v1, arg = arg_default_v1) {
 	}
 	const full_sql = `${sql} ORDER BY id${page_filter}`;
 	const stmt = db.prepare(full_sql);
-	const result = stmt.all(arg);
-	for (const card of result) {
+	const rows = stmt.all(arg);
+	return rows.map(row => {
+		const { setcode, ...rest } = row;
+		const card = {
+			__proto__: null,
+			...rest,
+		};
 		if ('level' in card) {
 			const value = card.level;
 			card.level = value & 0xffff;
@@ -325,17 +330,17 @@ export function query_db(db, sql = sql_default_v1, arg = arg_default_v1) {
 		if ('race' in card) {
 			card.race = BigInt(card.race);
 		}
-		if ('setcode' in card) {
-			const setcode = BigInt(card.setcode);
-			card.setcode = [];
-			const list = extra_setcodes[card.id];
-			if (list)
-				card.setcode.push(...list);
+		if (setcode) {
+			const setcode_list = [];
+			const value = BigInt(setcode);
+			if (extra_setcodes[card.id])
+				setcode_list.push(...extra_setcodes[card.id]);
 			else
-				write_setcode(card.setcode, setcode);
+				write_setcode(setcode_list, value);
+			card.setcode = setcode_list;
 		}
-	}
-	return result;
+		return card;
+	});
 }
 
 /**
@@ -448,9 +453,9 @@ export function name_condition(input, arg) {
  */
 export function read_db(path, sql = sql_default_v1, arg = arg_default_v1) {
 	const db = sqlite3_open(path);
-	const ret = query_db(db, sql, arg);
+	const rows = query_db(db, sql, arg);
 	db.close();
-	return ret;
+	return rows;
 }
 
 /**
