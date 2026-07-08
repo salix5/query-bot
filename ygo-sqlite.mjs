@@ -327,9 +327,6 @@ export function query_db(db, sql = sql_default_v1, arg = arg_default_v1) {
 			card.level = value & 0xffff;
 			card.scale = value >>> 24;
 		}
-		if (Object.hasOwn(card, 'race')) {
-			card.race = BigInt(card.race);
-		}
 		if (typeof setcode === 'string') {
 			const setcode_list = [];
 			const value = BigInt(setcode);
