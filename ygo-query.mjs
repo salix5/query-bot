@@ -5,7 +5,7 @@ import { cid_table, name_table, md_table, md_card_list } from './ygo-json-loader
 import { escape_regexp, escape_wildcard, zh_collator, zh_compare } from './ygo-utility.mjs';
 import { db_url1, db_url2, fetch_db } from './ygo-fetch.mjs';
 import { card_types, monster_types, link_markers, rarity, spell_colors, trap_colors, CID_BLACK_LUSTER_SOLDIER, spell_types, trap_types, marker_char } from "./ygo-constant.mjs";
-import { arg_default_v2, arg_seventh, effect_filter, default_clause_v2, sql_base_v2, sql_count_v2, sql_default_v2, sql_seventh, full_tables } from './ygo-sqlite.mjs';
+import { arg_default_v2, arg_seventh, effect_filter, default_clause_v2, sql_base_v2, sql_count_v2, sql_default_v2, sql_seventh, full_tables, write_setcode } from './ygo-sqlite.mjs';
 import { like_pattern, name_condition, list_condition, alter_db, merge_db, query_db_v2, setcode_condition, sqlite3_open } from './ygo-sqlite.mjs';
 
 export const regexp_mention = `(?<=「)[^「」]*「?[^「」]*」?[^「」]*(?=」)`;
@@ -31,14 +31,15 @@ const arg_name = {
  * @property {number} alias
  * @property {number} rule_code
  * @property {number} another_code
- * @property {number[]} setcode
  * @property {number} type
  * @property {number} atk
  * @property {number} def
  * @property {number} level
- * @property {bigint} race
- * @property {number} attribute
  * @property {number} scale
+ * @property {number} race
+ * @property {number} attribute
+ * @property {bigint} setcode1
+ * @property {bigint} setcode2
  * 
  * @property {string} name
  * @property {string} desc
@@ -136,16 +137,9 @@ function generate_card(cdata) {
 				card.jp_ruby = ruby_table[card.cid];
 		}
 	}
-	for (const column in cdata) {
+	const columns = ["ot", "type", "atk", "def", "level", "scale", "race", "attribute"];
+	for (const column of columns) {
 		switch (column) {
-			case "id":
-			case "cid":
-			case "alias":
-			case "rule_code":
-			case "another_code":
-			case "name":
-			case "desc":
-				continue;
 			case "scale":
 				if (cdata.type & monster_types.TYPE_PENDULUM)
 					card.scale = cdata.scale;
@@ -161,6 +155,10 @@ function generate_card(cdata) {
 				break;
 		}
 	}
+	const setcode_list = [];
+	write_setcode(setcode_list, cdata.setcode1);
+	write_setcode(setcode_list, cdata.setcode2);
+	card.setcode = setcode_list;
 	if (card.cid && rarity[md_card_list[card.cid]])
 		card.md_rarity = rarity[md_card_list[card.cid]];
 	card.text = Object.create(null);

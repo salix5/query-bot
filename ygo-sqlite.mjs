@@ -143,7 +143,6 @@ for (const [name, code] of Object.entries(setname_table)) {
  * @property {number} alias
  * @property {number} rule_code
  * @property {number} another_code
- * @property {number[]} setcode
  * @property {number} type
  * @property {number} atk
  * @property {number} def
@@ -151,6 +150,8 @@ for (const [name, code] of Object.entries(setname_table)) {
  * @property {number} scale
  * @property {bigint} race
  * @property {number} attribute
+ * @property {bigint} setcode1
+ * @property {bigint} setcode2
  * 
  * @property {string} name
  * @property {string} desc
@@ -187,27 +188,6 @@ function setcode_match(value, setcode) {
 			return 1;
 	}
 	return 0;
-}
-
-function generate_entry(row) {
-	const setcode = [];
-	for (let i = 1; i <= 4; i += 1) {
-		const key = `setcode${i}`;
-		if (key in row) {
-			write_setcode(setcode, BigInt(row[key]));
-		}
-	}
-	// eslint-disable-next-line no-unused-vars
-	const { setcode1, setcode2, setcode3, setcode4, ...rest } = row;
-	const entry = {
-		__proto__: null,
-		...rest
-	};
-	if ('race' in entry) {
-		entry.race = BigInt(entry.race);
-	}
-	entry.setcode = setcode;
-	return entry;
 }
 
 /**
@@ -285,7 +265,7 @@ export function alter_db(db) {
  * @param {number[]} list 
  * @param {bigint} setcode 
  */
-function write_setcode(list, setcode) {
+export function write_setcode(list, setcode) {
 	if (!setcode) {
 		return;
 	}
@@ -358,7 +338,17 @@ export function query_db_v2(db, sql = sql_default_v2, arg = arg_default_v2) {
 	const full_sql = `${sql} ORDER BY id${page_filter}`;
 	const stmt = db.prepare(full_sql);
 	const rows = stmt.all(arg);
-	return rows.map(generate_entry);
+	return rows.map(row => { 
+		const { race, setcode1, setcode2, ...rest } = row;
+		const entry = {
+			__proto__: null,
+			...rest,
+			race: BigInt(race),
+			setcode1: BigInt(setcode1),
+			setcode2: BigInt(setcode2),
+		};
+		return entry;
+	});
 }
 
 /**
