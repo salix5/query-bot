@@ -100,7 +100,7 @@ COMMIT;`;
 const sql_alter1 = `BEGIN TRANSACTION;
 ALTER TABLE datas ADD COLUMN rule_code INTEGER DEFAULT 0;
 UPDATE datas SET rule_code = alias, alias = 0
-WHERE id IN ( SELECT id	FROM datas WHERE NOT (type & 0x4000) AND alias != 0 AND abs(id - alias) >= 20);
+WHERE id IN (SELECT id FROM datas WHERE NOT (type & 0x4000) AND alias != 0 AND abs(id - alias) >= 20);
 UPDATE datas SET rule_code = alias, alias = 0 WHERE id = 5405695;
 UPDATE datas SET rule_code = 13331639 WHERE alias = 6218704;
 COMMIT;`;
@@ -338,7 +338,7 @@ export function query_db_v2(db, sql = sql_default_v2, arg = arg_default_v2) {
 	const full_sql = `${sql} ORDER BY id${page_filter}`;
 	const stmt = db.prepare(full_sql);
 	const rows = stmt.all(arg);
-	return rows.map(row => { 
+	return rows.map(row => {
 		const { race, setcode1, setcode2, ...rest } = row;
 		const entry = {
 			__proto__: null,
