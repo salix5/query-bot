@@ -765,43 +765,6 @@ export function compare_card(a, b) {
 }
 
 /**
- * @param {string} target_name 
- * @param {string} locale 
- * @returns {(card: Card) => number}
- */
-function get_match_function(target_name, locale) {
-	if (locale === 'en') {
-		return (card) => {
-			const en_name = card.en_name ?? card.md_name_en;
-			return en_name.toLowerCase() === target_name ? 1 : 0;
-		};
-	}
-	return card => card.tw_name.toLowerCase() === target_name ? 1 : 0;
-}
-
-/**
- * @param {string?} name 
- * @param {string} locale 
- * @returns {(a: Card, b: Card) => number}
- */
-// eslint-disable-next-line no-unused-vars
-function get_compare_function(name, locale) {
-	const target_name = name?.toLowerCase();
-	if (!target_name) {
-		return compare_card;
-	}
-	const match = get_match_function(target_name, locale);
-	return (a, b) => {
-		const scoreA = match(a);
-		const scoreB = match(b);
-		if (scoreA !== scoreB) {
-			return scoreB - scoreA;
-		}
-		return compare_card(a, b);
-	}
-}
-
-/**
  * Get a card with id from all databases.
  * @param {number|string} id 
  * @returns {?Card}
