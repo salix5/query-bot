@@ -139,6 +139,7 @@ for (const [name, code] of Object.entries(setname_table)) {
 /**
  * @typedef {object} Entry
  * @property {number} id
+ * @property {number} cid
  * @property {number} ot
  * @property {number} alias
  * @property {number} rule_code
