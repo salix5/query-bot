@@ -341,14 +341,13 @@ export function query_db_v2(db, sql = sql_default_v2, arg = arg_default_v2) {
 	const rows = stmt.all(arg);
 	return rows.map(row => {
 		const { race, setcode1, setcode2, ...rest } = row;
-		const entry = {
+		return {
 			__proto__: null,
 			...rest,
 			race: BigInt(race),
 			setcode1: BigInt(setcode1),
 			setcode2: BigInt(setcode2),
 		};
-		return entry;
 	});
 }
 
