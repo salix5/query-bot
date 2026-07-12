@@ -1,5 +1,5 @@
 import { rename, rm, writeFile } from 'node:fs/promises';
-import { ltable_ocg, ltable_tcg, ltable_md, pack_list, pre_release, genesys_point, setname_table, load_name_table, ruby_table, id_to_cid } from './ygo-json-loader.mjs';
+import { ltable_ocg, ltable_tcg, ltable_md, pack_list, pre_release, genesys_point, setname_table, load_name_table, ruby_table } from './ygo-json-loader.mjs';
 import { language_pack, official_name, game_name } from './ygo-json-loader.mjs';
 import { cid_table, name_table, md_table, md_card_list } from './ygo-json-loader.mjs';
 import { escape_regexp, escape_wildcard, zh_collator, zh_compare } from './ygo-utility.mjs';
@@ -27,6 +27,7 @@ const arg_name = {
 /**
  * @typedef {object} Entry
  * @property {number} id
+ * @property {number} cid
  * @property {number} ot
  * @property {number} alias
  * @property {number} rule_code
@@ -36,7 +37,7 @@ const arg_name = {
  * @property {number} def
  * @property {number} level
  * @property {number} scale
- * @property {number} race
+ * @property {bigint} race
  * @property {number} attribute
  * @property {bigint} setcode1
  * @property {bigint} setcode2
@@ -117,16 +118,18 @@ function generate_card(cdata) {
 		id = cdata.alias;
 		artid = cdata.id;
 	}
-	const card = Object.create(null);
-	card.id = id;
-	// table lookup for alternative art
-	if (id_to_cid.has(id))
-		card.cid = id_to_cid.get(id);
-	if (cdata.rule_code)
-		card.rule_code = cdata.rule_code;
-	if (cdata.another_code)
-		card.another_code = cdata.another_code;
-	card.tw_name = cdata.name;
+	const { cid, rule_code, another_code, name } = cdata;
+	const card = {
+		__proto__: null,
+		id,
+	};
+	if (cid)
+		card.cid = cid;
+	if (rule_code)
+		card.rule_code = rule_code;
+	if (another_code)
+		card.another_code = another_code;
+	card.tw_name = name;
 	if (card.cid) {
 		for (const [locale, prop] of Object.entries(official_name)) {
 			if (name_table[locale][card.cid])
@@ -161,53 +164,46 @@ function generate_card(cdata) {
 	card.setcode = setcode_list;
 	if (card.cid && rarity[md_card_list[card.cid]])
 		card.md_rarity = rarity[md_card_list[card.cid]];
-	card.text = Object.create(null);
-	card.text.desc = cdata.desc;
+	card.text = {
+		__proto__: null,
+		desc: cdata.desc,
+	};
 	card.artid = artid;
 	// color
+	let color = -1;
 	if (card.type & card_types.TYPE_MONSTER) {
 		if (!(card.type & monster_types.TYPES_EXTRA)) {
 			if (card.type & monster_types.TYPE_TOKEN)
-				card.color = 0;
+				color = 0;
 			else if (card.type & monster_types.TYPE_NORMAL)
-				card.color = 1;
+				color = 1;
 			else if (card.type & monster_types.TYPE_RITUAL)
-				card.color = 3;
+				color = 3;
 			else if (card.type & monster_types.TYPE_EFFECT)
-				card.color = 2;
-			else
-				card.color = -1;
+				color = 2;
 		}
 		else {
 			if (card.type & monster_types.TYPE_FUSION)
-				card.color = 4;
+				color = 4;
 			else if (card.type & monster_types.TYPE_SYNCHRO)
-				card.color = 5;
+				color = 5;
 			else if (card.type & monster_types.TYPE_XYZ)
-				card.color = 6;
+				color = 6;
 			else if (card.type & monster_types.TYPE_LINK)
-				card.color = 7;
-			else
-				card.color = -1;
+				color = 7;
 		}
 	}
 	else if (card.type & card_types.TYPE_SPELL) {
 		const extype = card.type & ~card_types.TYPE_SPELL;
 		if (spell_colors[extype])
-			card.color = spell_colors[extype];
-		else
-			card.color = -1;
+			color = spell_colors[extype];
 	}
 	else if (card.type & card_types.TYPE_TRAP) {
 		const extype = card.type & ~card_types.TYPE_TRAP;
 		if (trap_colors[extype])
-			card.color = trap_colors[extype];
-		else
-			card.color = -1;
+			color = trap_colors[extype];
 	}
-	else {
-		card.color = -1;
-	}
+	card.color = color;
 	return card;
 }
 
