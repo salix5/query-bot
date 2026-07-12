@@ -23,6 +23,14 @@ const arg_name = {
 	...arg_default_v2,
 	$id: 0,
 };
+/**
+ * @type {import('node:sqlite').StatementSync}
+ */
+let stmt_entry = null;
+const arg_entry = {
+	...arg_default_v2,
+	$id: 0,
+};
 
 /**
  * @typedef {object} Entry
@@ -95,7 +103,28 @@ await init_query();
 
 /**
  * @param {number} id 
- * @returns {?string}
+ * @returns {Entry|null}
+ */
+function get_entry(id) {
+	if (!stmt_entry)
+		return null;
+	arg_entry.$id = id;
+	const row = stmt_entry.get(arg_entry);
+	if (!row)
+		return null;
+	const { race, setcode1, setcode2, ...rest } = row;
+	return {
+		__proto__: null,
+		...rest,
+		race: BigInt(race),
+		setcode1: BigInt(setcode1),
+		setcode2: BigInt(setcode2),
+	};
+}
+
+/**
+ * @param {number} id 
+ * @returns {string|null}
  */
 function get_db_name(id) {
 	if (!stmt_name)
@@ -575,6 +604,7 @@ export async function init_query(files = null) {
 		load_name_table(full_db);
 		full_db.close();
 		stmt_name = null;
+		stmt_entry = null;
 		db?.close();
 		await rm(current_path, { force: true });
 		await rename(base, current_path);
@@ -590,11 +620,12 @@ export async function init_query(files = null) {
 		load_name_table(full_db);
 		full_db.close();
 		stmt_name = null;
+		stmt_entry = null;
 		db?.close();
 		db = sqlite3_open(files[0]);
 	}
-	const sql1 = `SELECT id, name ${full_tables} ${default_clause_v2} AND id = $id`;
-	stmt_name = db.prepare(sql1);
+	stmt_name = db.prepare(`SELECT id, name ${full_tables} ${default_clause_v2} AND id = $id;`);
+	stmt_entry = db.prepare(`${sql_default_v2} AND id = $id;`);
 	// refresh multimap of No.101 ~ No.107
 	multimap_seventh.clear();
 	const seventh_cards = query(sql_seventh, arg_seventh);
@@ -780,15 +811,10 @@ export function get_card(id) {
 		id = Number.parseInt(id, 10);
 	if (!Number.isSafeInteger(id))
 		return null;
-	const sql_id = `${sql_default_v2} AND id = $id;`;
-	const arg_id = {
-		...arg_default_v2,
-		$id: id,
-	};
-	const result = query(sql_id, arg_id);
-	if (result.length === 0)
+	const entry = get_entry(id);
+	if (!entry)
 		return null;
-	return result[0];
+	return generate_card(entry);
 }
 
 /**
