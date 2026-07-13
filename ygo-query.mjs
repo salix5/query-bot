@@ -5,7 +5,7 @@ import { cid_table, name_table, md_table, md_card_list } from './ygo-json-loader
 import { escape_regexp, escape_wildcard, zh_collator, zh_compare } from './ygo-utility.mjs';
 import { db_url1, db_url2, fetch_db } from './ygo-fetch.mjs';
 import { card_types, monster_types, link_markers, rarity, spell_colors, trap_colors, CID_BLACK_LUSTER_SOLDIER, spell_types, trap_types, marker_char } from "./ygo-constant.mjs";
-import { arg_default_v2, arg_seventh, effect_filter, default_clause_v2, sql_base_v2, sql_count_v2, sql_default_v2, sql_seventh, full_tables, write_setcode } from './ygo-sqlite.mjs';
+import { arg_default_v2, arg_seventh, effect_filter, default_clause_v2, sql_base_v2, sql_count_v2, sql_default_v2, sql_seventh, full_tables, write_setcode, generate_entry } from './ygo-sqlite.mjs';
 import { like_pattern, name_condition, list_condition, alter_db, merge_db, query_db_v2, setcode_condition, sqlite3_open } from './ygo-sqlite.mjs';
 
 export const regexp_mention = `(?<=「)[^「」]*「?[^「」]*」?[^「」]*(?=」)`;
@@ -112,14 +112,7 @@ function get_entry(id) {
 	const row = stmt_entry.get(arg_entry);
 	if (!row)
 		return null;
-	const { race, setcode1, setcode2, ...rest } = row;
-	return {
-		__proto__: null,
-		...rest,
-		race: BigInt(race),
-		setcode1: BigInt(setcode1),
-		setcode2: BigInt(setcode2),
-	};
+	return generate_entry(row);
 }
 
 /**
@@ -625,7 +618,7 @@ export async function init_query(files = null) {
 		db = sqlite3_open(files[0]);
 	}
 	stmt_name = db.prepare(`SELECT id, name ${full_tables} ${default_clause_v2} AND id = $id;`);
-	stmt_entry = db.prepare(`${sql_default_v2} AND id = $id;`);
+	stmt_entry = db.prepare(`${sql_default_v2} AND id = $id;`, { readBigInts: true });
 	// refresh multimap of No.101 ~ No.107
 	multimap_seventh.clear();
 	const seventh_cards = query(sql_seventh, arg_seventh);
