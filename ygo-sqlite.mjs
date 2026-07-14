@@ -54,7 +54,7 @@ export const arg_base_v1 = {
 
 // full tables
 export const full_columns = `id, datas.ot, datas.alias, datas.rule_code, datas.another_code, datas.type, datas.atk, datas.def, datas.level, datas.scale, datas.race, datas.attribute,
-datas.setcode AS setcode1, datas.setcode2,
+CAST(datas.setcode AS TEXT) AS setcode1, CAST(datas.setcode2 AS TEXT) AS setcode2,
 texts.name, texts."desc", extension.cid`;
 export const full_tables = `FROM datas JOIN texts USING (id) LEFT JOIN extension USING (id)`;
 
@@ -280,29 +280,14 @@ export function write_setcode(list, setcode) {
 }
 
 export function generate_entry(row) {
-	const entry = {
+	const { race, setcode1, setcode2, ...rest } = row;
+	return {
 		__proto__: null,
-		id: Number(row.id),
-		ot: Number(row.ot),
-		alias: Number(row.alias),
-		rule_code: Number(row.rule_code),
-		another_code: Number(row.another_code),
-		type: Number(row.type),
-		atk: Number(row.atk),
-		def: Number(row.def),
-		level: Number(row.level),
-		scale: Number(row.scale),
-		race: BigInt.asUintN(64, row.race),
-		attribute: Number(row.attribute),
-		setcode1: BigInt.asUintN(64, row.setcode1),
-		setcode2: BigInt.asUintN(64, row.setcode2),
-		name: row.name,
-		desc: row.desc,
+		...rest,
+		race: BigInt.asUintN(64, BigInt(race)),
+		setcode1: BigInt.asUintN(64, BigInt(setcode1)),
+		setcode2: BigInt.asUintN(64, BigInt(setcode2)),
 	};
-	if (row.cid !== null) {
-		entry.cid = Number(row.cid);
-	}
-	return entry;
 }
 
 /**
@@ -363,7 +348,7 @@ export function query_db_v2(db, sql = sql_default_v2, arg = arg_default_v2) {
 		}
 	}
 	const full_sql = `${sql} ORDER BY id${page_filter}`;
-	const stmt = db.prepare(full_sql, { readBigInts: true });
+	const stmt = db.prepare(full_sql);
 	const rows = stmt.all(arg);
 	return rows.map(generate_entry);
 }

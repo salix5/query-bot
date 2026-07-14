@@ -618,7 +618,7 @@ export async function init_query(files = null) {
 		db = sqlite3_open(files[0]);
 	}
 	stmt_name = db.prepare(`SELECT id, name ${full_tables} ${default_clause_v2} AND id = $id;`);
-	stmt_entry = db.prepare(`${sql_default_v2} AND id = $id;`, { readBigInts: true });
+	stmt_entry = db.prepare(`${sql_default_v2} AND id = $id;`);
 	// refresh multimap of No.101 ~ No.107
 	multimap_seventh.clear();
 	const seventh_cards = query(sql_seventh, arg_seventh);
