@@ -284,7 +284,7 @@ export function generate_entry(row) {
 	return {
 		__proto__: null,
 		...rest,
-		race: BigInt.asUintN(64, BigInt(race)),
+		race: BigInt(race),
 		setcode1: BigInt.asUintN(64, BigInt(setcode1)),
 		setcode2: BigInt.asUintN(64, BigInt(setcode2)),
 	};
