@@ -1,3 +1,4 @@
+import { readFile } from "node:fs/promises";
 import { DatabaseSync } from "node:sqlite";
 import { MAX_CARD_ID, monster_types } from "./ygo-constant.mjs";
 import { inverse_mapping } from "./ygo-utility.mjs";
@@ -97,34 +98,11 @@ DELETE FROM datas WHERE id = ${ID_DECOY};
 DELETE FROM texts WHERE id = ${ID_DECOY};
 COMMIT;`;
 
-const sql_alter1 = `BEGIN TRANSACTION;
-ALTER TABLE datas ADD COLUMN rule_code INTEGER DEFAULT 0;
-UPDATE datas SET rule_code = alias, alias = 0
-WHERE id IN (SELECT id FROM datas WHERE NOT (type & 0x4000) AND alias != 0 AND abs(id - alias) >= 20);
-UPDATE datas SET rule_code = alias, alias = 0 WHERE id = 5405695;
-UPDATE datas SET rule_code = 13331639 WHERE alias = 6218704;
-COMMIT;`;
-
-const sql_alter2 = `BEGIN TRANSACTION;
-ALTER TABLE datas ADD COLUMN scale INTEGER DEFAULT 0;
-UPDATE datas SET scale =  (level >> 24) & 0xff WHERE type & 0x1000000;
-UPDATE datas SET level = level & 0xffff WHERE type & 0x1000000;
-COMMIT;`;
-
 const sql_alter3 = `BEGIN TRANSACTION;
 ALTER TABLE datas ADD COLUMN setcode2 INTEGER DEFAULT 0;
 ALTER TABLE datas ADD COLUMN setcode3 INTEGER DEFAULT 0;
 ALTER TABLE datas ADD COLUMN setcode4 INTEGER DEFAULT 0;
 UPDATE datas SET setcode2 = 0x13a WHERE id IN (8512558, 55088578);
-COMMIT;`;
-
-const sql_alter4 = `BEGIN TRANSACTION;
-ALTER TABLE datas ADD COLUMN another_code INTEGER DEFAULT 0;
-UPDATE datas SET another_code = 17955766 WHERE id = 78734254;
-UPDATE datas SET another_code = 17732278 WHERE id = 13857930;
-UPDATE datas SET another_code = ${ID_TIMAEUS} WHERE id = 1784686;
-UPDATE datas SET another_code = ${ID_CRITIAS} WHERE id = 11082056;
-UPDATE datas SET another_code = ${ID_HERMOS} WHERE id = 46232525;
 COMMIT;`;
 
 export const re_wildcard = /(?<!\$)[%_]/;
@@ -279,11 +257,10 @@ export function merge_db(base_db, db_list) {
  * @param {DatabaseSync} db 
  */
 export function alter_db(db) {
+	const sql_alter = await readFile('./sql/schema.sql', 'utf8');
 	db.exec(sql_delete);
-	db.exec(sql_alter1);
-	db.exec(sql_alter2);
+	db.exec(sql_alter);
 	db.exec(sql_alter3);
-	db.exec(sql_alter4);
 }
 
 /**
