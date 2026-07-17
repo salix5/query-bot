@@ -246,7 +246,7 @@ export function merge_db(base_db, db_list) {
 }
 
 /**
- * Alter the database schema using `alter.sql`.
+ * Update the database to the new schema.
  * @param {DatabaseSync} db 
  */
 export async function alter_db(db) {
