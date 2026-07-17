@@ -84,13 +84,6 @@ export const arg_seventh = {
 	$n107: '%No.107%',
 };
 
-const sql_attach = `ATTACH DATABASE ? AS sub;`;
-const sql_detach = `DETACH DATABASE sub;`;
-const sql_merge = `BEGIN TRANSACTION;
-INSERT OR REPLACE INTO datas SELECT * FROM sub.datas;
-INSERT OR REPLACE INTO texts SELECT * FROM sub.texts;
-COMMIT;`;
-
 const sql_delete = `BEGIN TRANSACTION;
 DELETE FROM datas WHERE id = ${ID_TYLER_THE_GREAT_WARRIOR};
 DELETE FROM texts WHERE id = ${ID_TYLER_THE_GREAT_WARRIOR};
@@ -217,7 +210,7 @@ export function sqlite3_open(filename) {
  * Merge databases in `db_list` into `base_db`.
  * @param {string} base_db
  * @param {string[]} db_list
- * @returns {DatabaseSync?}
+ * @returns {DatabaseSync|null}
  */
 export function merge_db(base_db, db_list) {
 	if (db_list.length === 0) {
@@ -225,12 +218,16 @@ export function merge_db(base_db, db_list) {
 	}
 	const base = new DatabaseSync(base_db);
 	base.exec("PRAGMA trusted_schema = OFF;");
-	const stmt1 = base.prepare(sql_attach);
+	const stmt_attach = base.prepare("ATTACH DATABASE ? AS sub;");
+	const sql_merge = `BEGIN TRANSACTION;
+	INSERT OR REPLACE INTO datas SELECT * FROM sub.datas;
+	INSERT OR REPLACE INTO texts SELECT * FROM sub.texts;
+	COMMIT;`;
 	for (const db of db_list) {
 		try {
-			stmt1.run(db);
+			stmt_attach.run(db);
 			base.exec(sql_merge);
-			base.exec(sql_detach);
+			base.exec("DETACH DATABASE sub;");
 		}
 		catch (error) {
 			console.error('Failed to merge database:', db);
@@ -239,8 +236,7 @@ export function merge_db(base_db, db_list) {
 				base.exec('ROLLBACK;');
 			}
 			catch { /* empty */ }
-			base.close();
-			return null;
+			break;
 		}
 	}
 	return base;
