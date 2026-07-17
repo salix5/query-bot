@@ -593,7 +593,7 @@ export async function init_query(files = null) {
 		if (!full_db) {
 			return;
 		}
-		alter_db(full_db);
+		await alter_db(full_db);
 		load_name_table(full_db);
 		full_db.close();
 		stmt_name = null;
@@ -609,7 +609,7 @@ export async function init_query(files = null) {
 		if (!full_db) {
 			return;
 		}
-		alter_db(full_db);
+		await alter_db(full_db);
 		load_name_table(full_db);
 		full_db.close();
 		stmt_name = null;

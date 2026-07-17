@@ -1,8 +1,8 @@
-import { readFile } from "node:fs/promises";
 import { DatabaseSync } from "node:sqlite";
 import { MAX_CARD_ID, monster_types } from "./ygo-constant.mjs";
 import { inverse_mapping } from "./ygo-utility.mjs";
 import { id_to_cid, extra_setcodes, setname_table } from "./ygo-json-loader.mjs";
+import { update_schema } from "./schema/update-schema.mjs";
 
 export {
 	CID_RITUAL_BLS,
@@ -96,13 +96,6 @@ DELETE FROM datas WHERE id = ${ID_TYLER_THE_GREAT_WARRIOR};
 DELETE FROM texts WHERE id = ${ID_TYLER_THE_GREAT_WARRIOR};
 DELETE FROM datas WHERE id = ${ID_DECOY};
 DELETE FROM texts WHERE id = ${ID_DECOY};
-COMMIT;`;
-
-const sql_alter3 = `BEGIN TRANSACTION;
-ALTER TABLE datas ADD COLUMN setcode2 INTEGER DEFAULT 0;
-ALTER TABLE datas ADD COLUMN setcode3 INTEGER DEFAULT 0;
-ALTER TABLE datas ADD COLUMN setcode4 INTEGER DEFAULT 0;
-UPDATE datas SET setcode2 = 0x13a WHERE id IN (8512558, 55088578);
 COMMIT;`;
 
 export const re_wildcard = /(?<!\$)[%_]/;
@@ -256,11 +249,9 @@ export function merge_db(base_db, db_list) {
  * Alter the database schema using `alter.sql`.
  * @param {DatabaseSync} db 
  */
-export function alter_db(db) {
-	const sql_alter = await readFile('./sql/schema.sql', 'utf8');
+export async function alter_db(db) {
 	db.exec(sql_delete);
-	db.exec(sql_alter);
-	db.exec(sql_alter3);
+	await update_schema(db);
 }
 
 /**
