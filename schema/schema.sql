@@ -12,5 +12,5 @@ UPDATE datas SET another_code = 10000060 WHERE id = 11082056;
 UPDATE datas SET another_code = 10000070 WHERE id = 46232525;
 
 ALTER TABLE datas ADD COLUMN scale INTEGER DEFAULT 0;
-UPDATE datas SET scale =  (level >> 24) & 0xff, level = level & 0xffff WHERE (type & 0x1000000) != 0;
+UPDATE datas SET scale = (level >> 24) & 0xff, level = level & 0xffff WHERE (type & 0x1000000) != 0;
 COMMIT;
