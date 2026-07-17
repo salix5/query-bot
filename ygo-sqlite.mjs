@@ -168,6 +168,7 @@ function setcode_match(value, setcode) {
  * @param {Function} fn 
  * @returns
  */
+// eslint-disable-next-line no-unused-vars
 function execute_transaction(db, fn) {
 	if (db.isTransaction) {
 		return fn();
