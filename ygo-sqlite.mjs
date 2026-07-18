@@ -70,8 +70,8 @@ export const base_clause_v2 = `WHERE (type & $token) = 0`;
 export const sql_base_v2 = `SELECT ${full_columns} ${full_tables} ${base_clause_v2}`;
 export const effect_filter = ` AND ((type & $normal) = 0 OR (type & $pendulum) != 0)`;
 
-const over_hundred = ' AND (name like $n101 OR name like $n102 OR name like $n103 OR name like $n104 OR name like $n105 OR name like $n106 OR name like $n107)';
-export const sql_seventh = `${sql_default_v2} AND type & $xyz${over_hundred}`;
+const over_hundred = ` AND (name like $n101 OR name like $n102 OR name like $n103 OR name like $n104 OR name like $n105 OR name like $n106 OR name like $n107)`;
+export const sql_seventh = `${sql_default_v2} AND (type & $xyz) != 0${over_hundred}`;
 export const arg_seventh = {
 	...arg_default_v2,
 	$xyz: monster_types.TYPE_XYZ,
@@ -166,15 +166,15 @@ function execute_transaction(db, fn) {
 	if (db.isTransaction) {
 		return fn();
 	}
-	db.exec("BEGIN TRANSACTION;");
+	db.exec(`BEGIN TRANSACTION;`);
 	try {
 		const result = fn();
-		db.exec("COMMIT;");
+		db.exec(`COMMIT;`);
 		return result;
 	}
 	catch (error) {
 		try {
-			db.exec("ROLLBACK;");
+			db.exec(`ROLLBACK;`);
 		}
 		catch { /* empty */ }
 		throw error;
@@ -200,7 +200,7 @@ export function sqlite3_open(filename) {
 		useBigIntArguments: true,
 	};
 	const db = new DatabaseSync(filename, db_option);
-	db.exec("PRAGMA trusted_schema = OFF;");
+	db.exec(`PRAGMA trusted_schema = OFF;`);
 	db.function('regexp', regexp_option, regexp_test);
 	db.function('match', match_option, setcode_match);
 	return db;
@@ -217,8 +217,8 @@ export function merge_db(base_db, db_list) {
 		return null;
 	}
 	const base = new DatabaseSync(base_db);
-	base.exec("PRAGMA trusted_schema = OFF;");
-	const stmt_attach = base.prepare("ATTACH DATABASE ? AS sub;");
+	base.exec(`PRAGMA trusted_schema = OFF;`);
+	const stmt_attach = base.prepare(`ATTACH DATABASE ? AS sub;`);
 	const sql_merge = `BEGIN TRANSACTION;
 	INSERT OR REPLACE INTO datas SELECT * FROM sub.datas;
 	INSERT OR REPLACE INTO texts SELECT * FROM sub.texts;
@@ -227,13 +227,13 @@ export function merge_db(base_db, db_list) {
 		try {
 			stmt_attach.run(db);
 			base.exec(sql_merge);
-			base.exec("DETACH DATABASE sub;");
+			base.exec(`DETACH DATABASE sub;`);
 		}
 		catch (error) {
 			console.error('Failed to merge database:', db);
 			console.error(error);
 			try {
-				base.exec('ROLLBACK;');
+				base.exec(`ROLLBACK;`);
 			}
 			catch { /* empty */ }
 			break;
@@ -462,8 +462,9 @@ export function check_uniqueness(path, id_luster = ID_BLACK_LUSTER_SOLDIER) {
 	for (const card of cards) {
 		table1.set(card.id, card.name)
 	}
-	if (table1.has(id_luster))
+	if (table1.has(id_luster)) {
 		table1.set(id_luster, `${table1.get(id_luster)}${postfix}`);
+	}
 	if (table1.has(ALT_POLYMERIZATION)) {
 		console.log('alternative Polymerization');
 		table1.delete(ALT_POLYMERIZATION);
