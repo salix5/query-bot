@@ -15,6 +15,9 @@ UPDATE datas SET another_code = 10000050 WHERE id = 1784686;
 UPDATE datas SET another_code = 10000060 WHERE id = 11082056;
 UPDATE datas SET another_code = 10000070 WHERE id = 46232525;
 
+ALTER TABLE datas ADD COLUMN scale INTEGER DEFAULT 0;
+UPDATE datas SET scale = (level >> 24) & 0xff, level = level & 0xffff WHERE (type & 0x1000000) != 0;
+
 ALTER TABLE datas ADD COLUMN setcode1 TEXT DEFAULT '[]';
 UPDATE datas 
 SET setcode1 = CASE
@@ -34,6 +37,7 @@ UPDATE datas SET setcode1 = json_array(143, 84, 89, 130, 314) WHERE id IN (85125
 ALTER TABLE datas DROP COLUMN setcode;
 ALTER TABLE datas RENAME COLUMN setcode1 TO setcode;
 
-ALTER TABLE datas ADD COLUMN scale INTEGER DEFAULT 0;
-UPDATE datas SET scale = (level >> 24) & 0xff, level = level & 0xffff WHERE (type & 0x1000000) != 0;
+CREATE TABLE IF NOT EXISTS schema_version (version INTEGER NOT NULL);
+DELETE FROM schema_version;
+INSERT INTO schema_version (version) VALUES (2);
 COMMIT;
