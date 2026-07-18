@@ -29,7 +29,7 @@ export const ALT_POLYMERIZATION = 27847700;
 const ID_TYLER_THE_GREAT_WARRIOR = 68811206;
 const ID_DECOY = 20240828;
 
-// basic tables
+// old schema tables
 export const basic_columns = `id, datas.ot, datas.alias, CAST(datas.setcode AS TEXT) AS setcode, datas.type, datas.atk, datas.def, datas.level, datas.race, datas.attribute, texts.name, texts."desc"`;
 export const basic_tables = `FROM datas JOIN texts USING (id)`;
 
@@ -53,7 +53,7 @@ export const arg_base_v1 = {
 };
 
 
-// full tables
+// schema v2 tables
 export const full_columns = `id, datas.ot, datas.alias, datas.rule_code, datas.another_code, datas.type, datas.atk, datas.def, datas.level, datas.scale, datas.race, datas.attribute,
 datas.setcode, texts.name, texts."desc", extension.cid`;
 export const full_tables = `FROM datas JOIN texts USING (id) LEFT JOIN extension USING (id)`;
