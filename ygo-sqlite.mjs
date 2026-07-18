@@ -55,8 +55,7 @@ export const arg_base_v1 = {
 
 // full tables
 export const full_columns = `id, datas.ot, datas.alias, datas.rule_code, datas.another_code, datas.type, datas.atk, datas.def, datas.level, datas.scale, datas.race, datas.attribute,
-CAST(datas.setcode AS TEXT) AS setcode1, CAST(datas.setcode2 AS TEXT) AS setcode2,
-texts.name, texts."desc", extension.cid`;
+datas.setcode, texts.name, texts."desc", extension.cid`;
 export const full_tables = `FROM datas JOIN texts USING (id) LEFT JOIN extension USING (id)`;
 
 export const default_clause_v2 = `WHERE (type & $token) = 0 AND (cid IS NOT NULL OR id > ${MAX_CARD_ID})`;
@@ -115,8 +114,7 @@ for (const [name, code] of Object.entries(setname_table)) {
  * @property {number} scale
  * @property {bigint} race
  * @property {number} attribute
- * @property {bigint} setcode1
- * @property {bigint} setcode2
+ * @property {number[]} setcode
  * 
  * @property {string} name
  * @property {string} desc
@@ -270,13 +268,12 @@ export function write_setcode(list, setcode) {
 }
 
 export function generate_entry(row) {
-	const { race, setcode1, setcode2, ...rest } = row;
+	const { race, setcode, ...rest } = row;
 	return {
 		__proto__: null,
 		...rest,
 		race: BigInt(race),
-		setcode1: BigInt.asUintN(64, BigInt(setcode1)),
-		setcode2: BigInt.asUintN(64, BigInt(setcode2)),
+		setcode: JSON.parse(setcode),
 	};
 }
 

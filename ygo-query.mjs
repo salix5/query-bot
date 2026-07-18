@@ -5,7 +5,7 @@ import { cid_table, name_table, md_table, md_card_list } from './ygo-json-loader
 import { escape_regexp, escape_wildcard, zh_collator, zh_compare } from './ygo-utility.mjs';
 import { db_url1, db_url2, fetch_db } from './ygo-fetch.mjs';
 import { card_types, monster_types, link_markers, rarity, spell_colors, trap_colors, CID_BLACK_LUSTER_SOLDIER, spell_types, trap_types, marker_char } from "./ygo-constant.mjs";
-import { arg_default_v2, arg_seventh, effect_filter, default_clause_v2, sql_base_v2, sql_count_v2, sql_default_v2, sql_seventh, full_tables, write_setcode, generate_entry } from './ygo-sqlite.mjs';
+import { arg_default_v2, arg_seventh, effect_filter, default_clause_v2, sql_base_v2, sql_count_v2, sql_default_v2, sql_seventh, full_tables, generate_entry } from './ygo-sqlite.mjs';
 import { like_pattern, name_condition, list_condition, alter_db, merge_db, query_db_v2, setcode_condition, sqlite3_open } from './ygo-sqlite.mjs';
 
 export const regexp_mention = `(?<=「)[^「」]*「?[^「」]*」?[^「」]*(?=」)`;
@@ -47,8 +47,7 @@ const arg_entry = {
  * @property {number} scale
  * @property {bigint} race
  * @property {number} attribute
- * @property {bigint} setcode1
- * @property {bigint} setcode2
+ * @property {number[]} setcode
  * 
  * @property {string} name
  * @property {string} desc
@@ -162,7 +161,7 @@ function generate_card(cdata) {
 				card.jp_ruby = ruby_table[card.cid];
 		}
 	}
-	const columns = ["ot", "type", "atk", "def", "level", "scale", "race", "attribute"];
+	const columns = ["ot", "type", "atk", "def", "level", "scale", "race", "attribute", "setcode"];
 	for (const column of columns) {
 		switch (column) {
 			case "scale":
@@ -180,10 +179,6 @@ function generate_card(cdata) {
 				break;
 		}
 	}
-	const setcode_list = [];
-	write_setcode(setcode_list, cdata.setcode1);
-	write_setcode(setcode_list, cdata.setcode2);
-	card.setcode = setcode_list;
 	if (card.cid && rarity[md_card_list[card.cid]])
 		card.md_rarity = rarity[md_card_list[card.cid]];
 	card.text = {
