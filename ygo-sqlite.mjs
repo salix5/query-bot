@@ -334,7 +334,7 @@ export function is_alternative(cdata) {
  * @returns {string}
  */
 export function setcode_condition(setcode, arg) {
-	const condition = "EXISTS (SELECT 1 FROM json_each(setcode) WHERE value & $mask = $setcode)";
+	const condition = "EXISTS (SELECT 1 FROM json_each(setcode) WHERE (value & $mask) = $setcode)";
 	arg.$mask = 0x0fff | setcode;
 	arg.$setcode = setcode;
 	return condition;
