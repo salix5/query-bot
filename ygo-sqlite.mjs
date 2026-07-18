@@ -136,24 +136,6 @@ function regexp_test(pattern, str) {
 }
 
 /**
- * @param {bigint} value 
- * @param {bigint} setcode 
- * @returns {number}
- */
-function setcode_match(value, setcode) {
-	if (setcode === 0n || value === 0n)
-		return 0;
-	const setname = value & 0x0fffn;
-	const settype = value & 0xf000n;
-	for (let i = 0; i < 4; i += 1) {
-		const section = (setcode >> BigInt(i * 16)) & 0xffffn;
-		if ((section & 0x0fffn) === setname && (section & settype) === settype)
-			return 1;
-	}
-	return 0;
-}
-
-/**
  * Execute a callback within a database transaction.
  * @param {DatabaseSync} db 
  * @param {Function} fn 
@@ -192,15 +174,9 @@ export function sqlite3_open(filename) {
 		deterministic: true,
 		directOnly: true,
 	};
-	const match_option = {
-		deterministic: true,
-		directOnly: true,
-		useBigIntArguments: true,
-	};
 	const db = new DatabaseSync(filename, db_option);
 	db.exec(`PRAGMA trusted_schema = OFF;`);
 	db.function('regexp', regexp_option, regexp_test);
-	db.function('match', match_option, setcode_match);
 	return db;
 }
 
@@ -358,9 +334,10 @@ export function is_alternative(cdata) {
  * @returns {string}
  */
 export function setcode_condition(setcode, arg) {
-	const condition = `setcode MATCH $setcode OR setcode2 MATCH $setcode OR setcode3 MATCH $setcode OR setcode4 MATCH $setcode`;
-	arg.$setcode = BigInt(setcode);
-	return `(${condition})`;
+	const condition = "EXISTS (SELECT 1 FROM json_each(setcode) WHERE value & $mask = $setcode)";
+	arg.$mask = 0x0fff | setcode;
+	arg.$setcode = setcode;
+	return condition;
 }
 
 /**
