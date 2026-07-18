@@ -11,6 +11,25 @@ UPDATE datas SET another_code = 10000050 WHERE id = 1784686;
 UPDATE datas SET another_code = 10000060 WHERE id = 11082056;
 UPDATE datas SET another_code = 10000070 WHERE id = 46232525;
 
+ALTER TABLE datas ADD COLUMN setcode1 TEXT DEFAULT '[]';
+UPDATE datas 
+SET setcode1 = CASE 
+    WHEN (setcode & 0xffff) = 0 
+        THEN '[]'
+    WHEN ((setcode >> 16) & 0xffff) = 0 
+        THEN json_array(setcode & 0xffff)
+    WHEN ((setcode >> 32) & 0xffff) = 0 
+        THEN json_array(setcode & 0xffff, (setcode >> 16) & 0xffff)
+    WHEN ((setcode >> 48) & 0xffff) = 0 
+        THEN json_array(setcode & 0xffff, (setcode >> 16) & 0xffff, (setcode >> 32) & 0xffff)
+    ELSE 
+        json_array(setcode & 0xffff, (setcode >> 16) & 0xffff, (setcode >> 32) & 0xffff, (setcode >> 48) & 0xffff)
+END
+WHERE setcode != 0;
+UPDATE datas SET setcode1 = json_array(143, 84, 89, 130, 314) WHERE id IN (8512558, 55088578);
+ALTER TABLE datas DROP COLUMN setcode;
+ALTER TABLE datas RENAME COLUMN setcode1 TO setcode;
+
 ALTER TABLE datas ADD COLUMN scale INTEGER DEFAULT 0;
 UPDATE datas SET scale = (level >> 24) & 0xff, level = level & 0xffff WHERE (type & 0x1000000) != 0;
 COMMIT;
