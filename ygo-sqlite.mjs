@@ -29,7 +29,7 @@ export const ALT_POLYMERIZATION = 27847700;
 const ID_TYLER_THE_GREAT_WARRIOR = 68811206;
 const ID_DECOY = 20240828;
 
-// basic tables
+// old schema tables
 export const basic_columns = `id, datas.ot, datas.alias, CAST(datas.setcode AS TEXT) AS setcode, datas.type, datas.atk, datas.def, datas.level, datas.race, datas.attribute, texts.name, texts."desc"`;
 export const basic_tables = `FROM datas JOIN texts USING (id)`;
 
@@ -53,10 +53,9 @@ export const arg_base_v1 = {
 };
 
 
-// full tables
+// schema v2 tables
 export const full_columns = `id, datas.ot, datas.alias, datas.rule_code, datas.another_code, datas.type, datas.atk, datas.def, datas.level, datas.scale, datas.race, datas.attribute,
-CAST(datas.setcode AS TEXT) AS setcode1, CAST(datas.setcode2 AS TEXT) AS setcode2,
-texts.name, texts."desc", extension.cid`;
+datas.setcode, texts.name, texts."desc", extension.cid`;
 export const full_tables = `FROM datas JOIN texts USING (id) LEFT JOIN extension USING (id)`;
 
 export const default_clause_v2 = `WHERE (type & $token) = 0 AND (cid IS NOT NULL OR id > ${MAX_CARD_ID})`;
@@ -115,8 +114,7 @@ for (const [name, code] of Object.entries(setname_table)) {
  * @property {number} scale
  * @property {bigint} race
  * @property {number} attribute
- * @property {bigint} setcode1
- * @property {bigint} setcode2
+ * @property {number[]} setcode
  * 
  * @property {string} name
  * @property {string} desc
@@ -135,24 +133,6 @@ function regexp_test(pattern, str) {
 	catch {
 		return 0;
 	}
-}
-
-/**
- * @param {bigint} value 
- * @param {bigint} setcode 
- * @returns {number}
- */
-function setcode_match(value, setcode) {
-	if (setcode === 0n || value === 0n)
-		return 0;
-	const setname = value & 0x0fffn;
-	const settype = value & 0xf000n;
-	for (let i = 0; i < 4; i += 1) {
-		const section = (setcode >> BigInt(i * 16)) & 0xffffn;
-		if ((section & 0x0fffn) === setname && (section & settype) === settype)
-			return 1;
-	}
-	return 0;
 }
 
 /**
@@ -194,15 +174,9 @@ export function sqlite3_open(filename) {
 		deterministic: true,
 		directOnly: true,
 	};
-	const match_option = {
-		deterministic: true,
-		directOnly: true,
-		useBigIntArguments: true,
-	};
 	const db = new DatabaseSync(filename, db_option);
 	db.exec(`PRAGMA trusted_schema = OFF;`);
 	db.function('regexp', regexp_option, regexp_test);
-	db.function('match', match_option, setcode_match);
 	return db;
 }
 
@@ -270,13 +244,12 @@ export function write_setcode(list, setcode) {
 }
 
 export function generate_entry(row) {
-	const { race, setcode1, setcode2, ...rest } = row;
+	const { race, setcode, ...rest } = row;
 	return {
 		__proto__: null,
 		...rest,
 		race: BigInt(race),
-		setcode1: BigInt.asUintN(64, BigInt(setcode1)),
-		setcode2: BigInt.asUintN(64, BigInt(setcode2)),
+		setcode: JSON.parse(setcode),
 	};
 }
 
@@ -361,9 +334,10 @@ export function is_alternative(cdata) {
  * @returns {string}
  */
 export function setcode_condition(setcode, arg) {
-	const condition = `setcode MATCH $setcode OR setcode2 MATCH $setcode OR setcode3 MATCH $setcode OR setcode4 MATCH $setcode`;
-	arg.$setcode = BigInt(setcode);
-	return `(${condition})`;
+	const condition = "EXISTS (SELECT 1 FROM json_each(setcode) WHERE (value & $mask) = $setcode)";
+	arg.$mask = 0x0fff | setcode;
+	arg.$setcode = setcode;
+	return condition;
 }
 
 /**
