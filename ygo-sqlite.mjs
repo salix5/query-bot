@@ -70,7 +70,7 @@ export const sql_base_v2 = `SELECT ${full_columns} ${full_tables} ${base_clause_
 export const effect_filter = ` AND ((type & $normal) = 0 OR (type & $pendulum) != 0)`;
 
 const over_hundred = ` AND (name like $n101 OR name like $n102 OR name like $n103 OR name like $n104 OR name like $n105 OR name like $n106 OR name like $n107)`;
-export const sql_seventh = `${sql_default_v2} AND (type & $xyz) != 0${over_hundred}`;
+export const sql_seventh = `${sql_default_v2} AND cid IS NOT NULL AND (type & $xyz) != 0${over_hundred}`;
 export const arg_seventh = {
 	...arg_default_v2,
 	$xyz: monster_types.TYPE_XYZ,
