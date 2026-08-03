@@ -226,66 +226,6 @@ export async function alter_db(db) {
 }
 
 /**
- * Write int64 `setcode` to an array.
- * @param {number[]} list 
- * @param {bigint} setcode 
- */
-export function write_setcode(list, setcode) {
-	if (!setcode) {
-		return;
-	}
-	for (let i = 0; i < 4; i += 1) {
-		const section = (setcode >> BigInt(i * 16)) & 0xffffn;
-		if (!section) {
-			return;
-		}
-		list.push(Number(section));
-	}
-}
-
-/**
- * Query cards from `db` using statement `qstr` and binding object `arg`.
- * @param {DatabaseSync} db 
- * @param {string} sql 
- * @param {object} arg 
- * @returns {object[]}
- */
-export function query_db(db, sql = sql_default_v1, arg = arg_default_v1) {
-	let page_filter = '';
-	if (Number.isSafeInteger(arg.$limit)) {
-		page_filter = ` LIMIT $limit`;
-		if (Number.isSafeInteger(arg.$offset)) {
-			page_filter += ` OFFSET $offset`;
-		}
-	}
-	const full_sql = `${sql} ORDER BY id${page_filter}`;
-	const stmt = db.prepare(full_sql);
-	const rows = stmt.all(arg);
-	return rows.map(row => {
-		const { setcode, ...rest } = row;
-		const card = {
-			__proto__: null,
-			...rest,
-		};
-		if (Object.hasOwn(card, 'level')) {
-			const value = card.level;
-			card.level = value & 0xffff;
-			card.scale = value >>> 24;
-		}
-		if (typeof setcode === 'string') {
-			const setcode_list = [];
-			const value = BigInt(setcode);
-			if (extra_setcodes[card.id])
-				setcode_list.push(...extra_setcodes[card.id]);
-			else
-				write_setcode(setcode_list, value);
-			card.setcode = setcode_list;
-		}
-		return card;
-	});
-}
-
-/**
  * Query cards from `db` with schema v2 using statement `qstr` and binding object `arg`.
  * @param {DatabaseSync} db 
  * @param {string} sql 
@@ -385,7 +325,68 @@ export function name_condition(input, arg) {
 	return `(${condition})`;
 }
 
+
 // database tool
+/**
+ * Write int64 `setcode` to an array.
+ * @param {number[]} list 
+ * @param {bigint} setcode 
+ */
+export function write_setcode(list, setcode) {
+	if (!setcode) {
+		return;
+	}
+	for (let i = 0; i < 4; i += 1) {
+		const section = (setcode >> BigInt(i * 16)) & 0xffffn;
+		if (!section) {
+			return;
+		}
+		list.push(Number(section));
+	}
+}
+
+/**
+ * Query cards from `db` using statement `qstr` and binding object `arg`.
+ * @param {DatabaseSync} db 
+ * @param {string} sql 
+ * @param {object} arg 
+ * @returns {object[]}
+ */
+export function query_db(db, sql = sql_default_v1, arg = arg_default_v1) {
+	let page_filter = '';
+	if (Number.isSafeInteger(arg.$limit)) {
+		page_filter = ` LIMIT $limit`;
+		if (Number.isSafeInteger(arg.$offset)) {
+			page_filter += ` OFFSET $offset`;
+		}
+	}
+	const full_sql = `${sql} ORDER BY id${page_filter}`;
+	const stmt = db.prepare(full_sql);
+	const rows = stmt.all(arg);
+	return rows.map(row => {
+		const { setcode, ...rest } = row;
+		const card = {
+			__proto__: null,
+			...rest,
+		};
+		if (Object.hasOwn(card, 'level')) {
+			const value = card.level;
+			card.level = value & 0xffff;
+			card.scale = value >>> 24;
+		}
+		if (typeof setcode === 'string') {
+			const setcode_list = [];
+			const value = BigInt(setcode);
+			if (extra_setcodes[card.id])
+				setcode_list.push(...extra_setcodes[card.id]);
+			else
+				write_setcode(setcode_list, value);
+			card.setcode = setcode_list;
+		}
+		return card;
+	});
+}
+
 /**
  * Get cards from databases file at `path` using statement `sql` and binding object `arg`.
  * @param {string} path
