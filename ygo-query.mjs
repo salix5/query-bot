@@ -53,6 +53,23 @@ const arg_entry = {
  * @property {string} desc
  */
 
+
+/**
+ * @typedef {object} CardData
+ * @property {number} ot
+ * @property {number} type
+ * @property {number} atk
+ * @property {number} def
+ * @property {number} level
+ * @property {number} scale
+ * @property {number} race
+ * @property {number} attribute
+ * @property {number[]} setcode
+ * @property {number} [rule_code]
+ * @property {number} [another_code]
+ * @property {string} [md_rarity]
+ */
+
 /**
  * @typedef {object} CardText
  * @property {string} desc
@@ -63,8 +80,6 @@ const arg_entry = {
  * @typedef {object} Card
  * @property {number} id
  * @property {number} [cid]
- * @property {number} [rule_code]
- * @property {number} [another_code]
  * @property {string} tw_name
  * @property {string} [en_name]
  * @property {string} [jp_name]
@@ -73,17 +88,7 @@ const arg_entry = {
  * @property {string} [md_name_en]
  * @property {string} [md_name_jp]
  * 
- * @property {number} ot
- * @property {number[]} setcode
- * @property {number} type
- * @property {number} atk
- * @property {number} [def]
- * @property {number} [marker]
- * @property {number} level
- * @property {number} race
- * @property {number} attribute
- * @property {number} [scale]
- * @property {string} [md_rarity]
+ * @property {CardData} data
  * @property {CardText} text
  * 
  * @property {number} artid
