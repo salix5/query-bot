@@ -5,7 +5,7 @@ import { cid_table, name_table, md_table, md_card_list } from './ygo-json-loader
 import { escape_regexp, escape_wildcard, zh_collator, zh_compare } from './ygo-utility.mjs';
 import { db_url1, db_url2, fetch_db } from './ygo-fetch.mjs';
 import { card_types, monster_types, link_markers, rarity, spell_colors, trap_colors, CID_BLACK_LUSTER_SOLDIER, spell_types, trap_types, marker_char } from "./ygo-constant.mjs";
-import { arg_default_v2, arg_seventh, effect_filter, default_clause_v2, sql_base_v2, sql_count_v2, sql_default_v2, sql_seventh, full_tables, generate_entry } from './ygo-sqlite.mjs';
+import { arg_default_v2, arg_seventh, effect_filter, default_clause_v2, sql_base_v2, sql_count_v2, sql_default_v2, sql_seventh, full_tables } from './ygo-sqlite.mjs';
 import { like_pattern, name_condition, list_condition, alter_db, merge_db, query_db_v2, setcode_condition, sqlite3_open } from './ygo-sqlite.mjs';
 
 export const regexp_mention = `(?<=「)[^「」]*「?[^「」]*」?[^「」]*(?=」)`;
@@ -45,9 +45,9 @@ const arg_entry = {
  * @property {number} def
  * @property {number} level
  * @property {number} scale
- * @property {bigint} race
+ * @property {number} race
  * @property {number} attribute
- * @property {number[]} setcode
+ * @property {string} setcode
  * 
  * @property {string} name
  * @property {string} desc
@@ -80,7 +80,7 @@ const arg_entry = {
  * @property {number} [def]
  * @property {number} [marker]
  * @property {number} level
- * @property {bigint} race
+ * @property {number} race
  * @property {number} attribute
  * @property {number} [scale]
  * @property {string} [md_rarity]
@@ -109,9 +109,7 @@ function get_entry(id) {
 		return null;
 	arg_entry.$id = id;
 	const row = stmt_entry.get(arg_entry);
-	if (!row)
-		return null;
-	return generate_entry(row);
+	return row ?? null;
 }
 
 /**
@@ -161,7 +159,7 @@ function generate_card(cdata) {
 				card.jp_ruby = ruby_table[card.cid];
 		}
 	}
-	const columns = ["ot", "type", "atk", "def", "level", "scale", "race", "attribute", "setcode"];
+	const columns = ["ot", "type", "atk", "def", "level", "scale", "race", "attribute"];
 	for (const column of columns) {
 		switch (column) {
 			case "scale":
@@ -179,6 +177,7 @@ function generate_card(cdata) {
 				break;
 		}
 	}
+	card.setcode = JSON.parse(cdata.setcode);
 	if (card.cid && rarity[md_card_list[card.cid]])
 		card.md_rarity = rarity[md_card_list[card.cid]];
 	card.text = {
