@@ -112,9 +112,9 @@ for (const [name, code] of Object.entries(setname_table)) {
  * @property {number} def
  * @property {number} level
  * @property {number} scale
- * @property {bigint} race
+ * @property {number} race
  * @property {number} attribute
- * @property {number[]} setcode
+ * @property {string} setcode
  * 
  * @property {string} name
  * @property {string} desc
@@ -243,16 +243,6 @@ export function write_setcode(list, setcode) {
 	}
 }
 
-export function generate_entry(row) {
-	const { race, setcode, ...rest } = row;
-	return {
-		__proto__: null,
-		...rest,
-		race: BigInt(race),
-		setcode: JSON.parse(setcode),
-	};
-}
-
 /**
  * Query cards from `db` using statement `qstr` and binding object `arg`.
  * @param {DatabaseSync} db 
@@ -312,8 +302,7 @@ export function query_db_v2(db, sql = sql_default_v2, arg = arg_default_v2) {
 	}
 	const full_sql = `${sql} ORDER BY id${page_filter}`;
 	const stmt = db.prepare(full_sql);
-	const rows = stmt.all(arg);
-	return rows.map(generate_entry);
+	return stmt.all(arg);
 }
 
 /**
