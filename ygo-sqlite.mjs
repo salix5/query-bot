@@ -246,17 +246,6 @@ export function query_db_v2(db, sql = sql_default_v2, arg = arg_default_v2) {
 }
 
 /**
- * Check if the card is an alternative artwork card.
- * @param {Entry} cdata
- * @returns 
- */
-export function is_alternative(cdata) {
-	if (cdata.id === ID_BLACK_LUSTER_SOLDIER)
-		return false;
-	return Math.abs(cdata.id - cdata.alias) < CARD_ARTWORK_VERSIONS_OFFSET;
-}
-
-/**
  * The sqlite condition of setcode.
  * @param {number} setcode
  * @param {object} arg
