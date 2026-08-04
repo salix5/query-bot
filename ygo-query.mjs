@@ -159,25 +159,18 @@ function generate_card(cdata) {
 				card.jp_ruby = ruby_table[cid];
 		}
 	}
-	const data = (type & card_types.TYPE_MONSTER)
-		? {
-			__proto__: null,
-			ot: cdata.ot,
-			type: cdata.type,
-			atk: cdata.atk,
-			def: cdata.def,
-			level: cdata.level,
-			scale: cdata.scale,
-			race: cdata.race,
-			attribute: cdata.attribute,
-			setcode: JSON.parse(cdata.setcode),
-		}
-		: {
-			__proto__: null,
-			ot: cdata.ot,
-			type: cdata.type,
-			setcode: JSON.parse(cdata.setcode),
-		};
+	const data = {
+		__proto__: null,
+		ot: cdata.ot,
+		type: cdata.type,
+		atk: cdata.atk,
+		def: cdata.def,
+		level: cdata.level,
+		scale: cdata.scale,
+		race: cdata.race,
+		attribute: cdata.attribute,
+		setcode: JSON.parse(cdata.setcode),
+	};
 	if (cdata.rule_code)
 		data.rule_code = cdata.rule_code;
 	if (cdata.another_code)
