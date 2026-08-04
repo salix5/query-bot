@@ -142,18 +142,12 @@ function generate_card(cdata) {
 		id = cdata.alias;
 		artid = cdata.id;
 	}
-	const { cid, rule_code, another_code, name } = cdata;
 	const card = {
 		__proto__: null,
 		id,
+		cid: cdata.cid,
+		tw_name: cdata.name,
 	};
-	if (cid)
-		card.cid = cid;
-	if (rule_code)
-		card.rule_code = rule_code;
-	if (another_code)
-		card.another_code = another_code;
-	card.tw_name = name;
 	if (card.cid) {
 		for (const [locale, prop] of Object.entries(official_name)) {
 			if (name_table[locale][card.cid])
@@ -164,27 +158,25 @@ function generate_card(cdata) {
 				card.jp_ruby = ruby_table[card.cid];
 		}
 	}
-	const columns = ["ot", "type", "atk", "def", "level", "scale", "race", "attribute"];
-	for (const column of columns) {
-		switch (column) {
-			case "scale":
-				if (cdata.type & monster_types.TYPE_PENDULUM)
-					card.scale = cdata.scale;
-				break;
-			case "def":
-				if (cdata.type & monster_types.TYPE_LINK)
-					card.marker = cdata.def;
-				else
-					card.def = cdata.def;
-				break;
-			default:
-				card[column] = cdata[column];
-				break;
-		}
-	}
-	card.setcode = JSON.parse(cdata.setcode);
+	const data = {
+		__proto__: null,
+		ot: cdata.ot,
+		type: cdata.type,
+		atk: cdata.atk,
+		def: cdata.def,
+		level: cdata.level,
+		scale: cdata.scale,
+		race: cdata.race,
+		attribute: cdata.attribute,
+		setcode: JSON.parse(cdata.setcode),
+	};
+	if (cdata.rule_code)
+		data.rule_code = cdata.rule_code;
+	if (cdata.another_code)
+		data.another_code = cdata.another_code;
 	if (card.cid && rarity[md_card_list[card.cid]])
-		card.md_rarity = rarity[md_card_list[card.cid]];
+		data.md_rarity = rarity[md_card_list[card.cid]];
+	card.data = data;
 	card.text = {
 		__proto__: null,
 		desc: cdata.desc,
