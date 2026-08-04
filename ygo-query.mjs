@@ -142,81 +142,91 @@ function generate_card(cdata) {
 		id = cdata.alias;
 		artid = cdata.id;
 	}
+	const { cid, type } = cdata;
 	const card = {
 		__proto__: null,
 		id,
 		cid: cdata.cid,
 		tw_name: cdata.name,
 	};
-	if (card.cid) {
+	if (cid) {
 		for (const [locale, prop] of Object.entries(official_name)) {
-			if (name_table[locale][card.cid])
-				card[prop] = name_table[locale][card.cid];
-			else if (md_table[locale] && md_table[locale][card.cid])
-				card[game_name[locale]] = md_table[locale][card.cid];
-			if (locale === 'ja' && ruby_table[card.cid])
-				card.jp_ruby = ruby_table[card.cid];
+			if (name_table[locale][cid])
+				card[prop] = name_table[locale][cid];
+			else if (md_table[locale] && md_table[locale][cid])
+				card[game_name[locale]] = md_table[locale][cid];
+			if (locale === 'ja' && ruby_table[cid])
+				card.jp_ruby = ruby_table[cid];
 		}
 	}
-	const data = {
-		__proto__: null,
-		ot: cdata.ot,
-		type: cdata.type,
-		atk: cdata.atk,
-		def: cdata.def,
-		level: cdata.level,
-		scale: cdata.scale,
-		race: cdata.race,
-		attribute: cdata.attribute,
-		setcode: JSON.parse(cdata.setcode),
-	};
+	const data = (type & card_types.TYPE_MONSTER)
+		? {
+			__proto__: null,
+			ot: cdata.ot,
+			type: cdata.type,
+			atk: cdata.atk,
+			def: cdata.def,
+			level: cdata.level,
+			scale: cdata.scale,
+			race: cdata.race,
+			attribute: cdata.attribute,
+			setcode: JSON.parse(cdata.setcode),
+		}
+		: {
+			__proto__: null,
+			ot: cdata.ot,
+			type: cdata.type,
+			setcode: JSON.parse(cdata.setcode),
+		};
 	if (cdata.rule_code)
 		data.rule_code = cdata.rule_code;
 	if (cdata.another_code)
 		data.another_code = cdata.another_code;
-	if (card.cid && rarity[md_card_list[card.cid]])
-		data.md_rarity = rarity[md_card_list[card.cid]];
-	card.data = data;
-	card.text = {
-		__proto__: null,
-		desc: cdata.desc,
-	};
-	card.artid = artid;
+	if (cid && rarity[md_card_list[cid]])
+		data.md_rarity = rarity[md_card_list[cid]];
 	// color
 	let color = -1;
-	if (card.type & card_types.TYPE_MONSTER) {
-		if (!(card.type & monster_types.TYPES_EXTRA)) {
-			if (card.type & monster_types.TYPE_TOKEN)
+	if (type & card_types.TYPE_MONSTER) {
+		if (!(type & monster_types.TYPES_EXTRA)) {
+			if (type & monster_types.TYPE_TOKEN)
 				color = 0;
-			else if (card.type & monster_types.TYPE_NORMAL)
+			else if (type & monster_types.TYPE_NORMAL)
 				color = 1;
-			else if (card.type & monster_types.TYPE_RITUAL)
+			else if (type & monster_types.TYPE_RITUAL)
 				color = 3;
-			else if (card.type & monster_types.TYPE_EFFECT)
+			else if (type & monster_types.TYPE_EFFECT)
 				color = 2;
 		}
 		else {
-			if (card.type & monster_types.TYPE_FUSION)
+			if (type & monster_types.TYPE_FUSION)
 				color = 4;
-			else if (card.type & monster_types.TYPE_SYNCHRO)
+			else if (type & monster_types.TYPE_SYNCHRO)
 				color = 5;
-			else if (card.type & monster_types.TYPE_XYZ)
+			else if (type & monster_types.TYPE_XYZ)
 				color = 6;
-			else if (card.type & monster_types.TYPE_LINK)
+			else if (type & monster_types.TYPE_LINK)
 				color = 7;
 		}
 	}
-	else if (card.type & card_types.TYPE_SPELL) {
-		const extype = card.type & ~card_types.TYPE_SPELL;
+	else if (type & card_types.TYPE_SPELL) {
+		const extype = type & ~card_types.TYPE_SPELL;
 		if (spell_colors[extype])
 			color = spell_colors[extype];
 	}
-	else if (card.type & card_types.TYPE_TRAP) {
-		const extype = card.type & ~card_types.TYPE_TRAP;
+	else if (type & card_types.TYPE_TRAP) {
+		const extype = type & ~card_types.TYPE_TRAP;
 		if (trap_colors[extype])
 			color = trap_colors[extype];
 	}
-	card.color = color;
+	Object.assign(card, {
+		data,
+		text: {
+			__proto__: null,
+			desc: cdata.desc,
+		},
+		artid,
+		color,
+	});
 	return card;
 }
 
