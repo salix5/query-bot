@@ -79,7 +79,7 @@ const arg_entry = {
 /**
  * @typedef {object} Card
  * @property {number} id
- * @property {number} [cid]
+ * @property {number|null} cid
  * @property {string} tw_name
  * @property {string} [en_name]
  * @property {string} [jp_name]
