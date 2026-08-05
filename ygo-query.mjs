@@ -1,7 +1,6 @@
 import { rename, rm, writeFile } from 'node:fs/promises';
 import { ltable_ocg, ltable_tcg, ltable_md, pack_list, pre_release, genesys_point, setname_table, load_name_table, ruby_table } from './ygo-json-loader.mjs';
-import { language_pack, official_name, game_name } from './ygo-json-loader.mjs';
-import { cid_table, name_table, md_table, md_card_list } from './ygo-json-loader.mjs';
+import { language_pack, official_name, game_name, cid_table, name_table, md_table } from './ygo-json-loader.mjs';
 import { escape_regexp, escape_wildcard, zh_collator, zh_compare } from './ygo-utility.mjs';
 import { db_url1, db_url2, fetch_db } from './ygo-fetch.mjs';
 import { card_types, monster_types, link_markers, rarity, spell_colors, trap_colors, CID_BLACK_LUSTER_SOLDIER, spell_types, trap_types, marker_char } from "./ygo-constant.mjs";
@@ -48,6 +47,7 @@ const arg_entry = {
  * @property {number} race
  * @property {number} attribute
  * @property {string} setcode
+ * @property {number} md_rarity
  * 
  * @property {string} name
  * @property {string} desc
@@ -62,9 +62,7 @@ const arg_entry = {
 /**
  * @typedef {object} Card
  * @property {number} id
- * @property {number} [cid]
- * @property {number} [rule_code]
- * @property {number} [another_code]
+ * @property {number|null} cid
  * @property {string} tw_name
  * @property {string} [en_name]
  * @property {string} [jp_name]
@@ -74,16 +72,17 @@ const arg_entry = {
  * @property {string} [md_name_jp]
  * 
  * @property {number} ot
- * @property {number[]} setcode
+ * @property {number} rule_code
+ * @property {number} another_code
  * @property {number} type
  * @property {number} atk
- * @property {number} [def]
- * @property {number} [marker]
+ * @property {number} def
  * @property {number} level
+ * @property {number} scale
  * @property {number} race
  * @property {number} attribute
- * @property {number} [scale]
- * @property {string} [md_rarity]
+ * @property {string} setcode
+ * @property {number} md_rarity
  * @property {CardText} text
  * 
  * @property {number} artid
@@ -137,89 +136,77 @@ function generate_card(cdata) {
 		id = cdata.alias;
 		artid = cdata.id;
 	}
-	const { cid, rule_code, another_code, name } = cdata;
-	const card = {
-		__proto__: null,
-		id,
-	};
-	if (cid)
-		card.cid = cid;
-	if (rule_code)
-		card.rule_code = rule_code;
-	if (another_code)
-		card.another_code = another_code;
-	card.tw_name = name;
-	if (card.cid) {
-		for (const [locale, prop] of Object.entries(official_name)) {
-			if (name_table[locale][card.cid])
-				card[prop] = name_table[locale][card.cid];
-			else if (md_table[locale] && md_table[locale][card.cid])
-				card[game_name[locale]] = md_table[locale][card.cid];
-			if (locale === 'ja' && ruby_table[card.cid])
-				card.jp_ruby = ruby_table[card.cid];
-		}
-	}
-	const columns = ["ot", "type", "atk", "def", "level", "scale", "race", "attribute"];
-	for (const column of columns) {
-		switch (column) {
-			case "scale":
-				if (cdata.type & monster_types.TYPE_PENDULUM)
-					card.scale = cdata.scale;
-				break;
-			case "def":
-				if (cdata.type & monster_types.TYPE_LINK)
-					card.marker = cdata.def;
-				else
-					card.def = cdata.def;
-				break;
-			default:
-				card[column] = cdata[column];
-				break;
-		}
-	}
-	card.setcode = JSON.parse(cdata.setcode);
-	if (card.cid && rarity[md_card_list[card.cid]])
-		card.md_rarity = rarity[md_card_list[card.cid]];
-	card.text = {
-		__proto__: null,
-		desc: cdata.desc,
-	};
-	card.artid = artid;
+	const { cid, type } = cdata;
 	// color
 	let color = -1;
-	if (card.type & card_types.TYPE_MONSTER) {
-		if (!(card.type & monster_types.TYPES_EXTRA)) {
-			if (card.type & monster_types.TYPE_TOKEN)
+	if (type & card_types.TYPE_MONSTER) {
+		if (!(type & monster_types.TYPES_EXTRA)) {
+			if (type & monster_types.TYPE_TOKEN)
 				color = 0;
-			else if (card.type & monster_types.TYPE_NORMAL)
+			else if (type & monster_types.TYPE_NORMAL)
 				color = 1;
-			else if (card.type & monster_types.TYPE_RITUAL)
+			else if (type & monster_types.TYPE_RITUAL)
 				color = 3;
-			else if (card.type & monster_types.TYPE_EFFECT)
+			else if (type & monster_types.TYPE_EFFECT)
 				color = 2;
 		}
 		else {
-			if (card.type & monster_types.TYPE_FUSION)
+			if (type & monster_types.TYPE_FUSION)
 				color = 4;
-			else if (card.type & monster_types.TYPE_SYNCHRO)
+			else if (type & monster_types.TYPE_SYNCHRO)
 				color = 5;
-			else if (card.type & monster_types.TYPE_XYZ)
+			else if (type & monster_types.TYPE_XYZ)
 				color = 6;
-			else if (card.type & monster_types.TYPE_LINK)
+			else if (type & monster_types.TYPE_LINK)
 				color = 7;
 		}
 	}
-	else if (card.type & card_types.TYPE_SPELL) {
-		const extype = card.type & ~card_types.TYPE_SPELL;
+	else if (type & card_types.TYPE_SPELL) {
+		const extype = type & ~card_types.TYPE_SPELL;
 		if (spell_colors[extype])
 			color = spell_colors[extype];
 	}
-	else if (card.type & card_types.TYPE_TRAP) {
-		const extype = card.type & ~card_types.TYPE_TRAP;
+	else if (type & card_types.TYPE_TRAP) {
+		const extype = type & ~card_types.TYPE_TRAP;
 		if (trap_colors[extype])
 			color = trap_colors[extype];
 	}
-	card.color = color;
+	const locale_names = Object.create(null);
+	if (cid) {
+		for (const [locale, prop] of Object.entries(official_name)) {
+			if (name_table[locale][cid])
+				locale_names[prop] = name_table[locale][cid];
+			else if (md_table[locale] && md_table[locale][cid])
+				locale_names[game_name[locale]] = md_table[locale][cid];
+		}
+		if (ruby_table[cid])
+			locale_names.jp_ruby = ruby_table[cid];
+	}
+	const card = {
+		__proto__: null,
+		id,
+		cid: cdata.cid,
+		tw_name: cdata.name,
+		locale_names,
+		ot: cdata.ot,
+		type: cdata.type,
+		atk: cdata.atk,
+		def: cdata.def,
+		level: cdata.level,
+		scale: cdata.scale,
+		race: cdata.race,
+		attribute: cdata.attribute,
+		setcode: cdata.setcode,
+		rule_code: cdata.rule_code,
+		another_code: cdata.another_code,
+		md_rarity: cdata.md_rarity,
+		text: {
+			__proto__: null,
+			desc: cdata.desc,
+		},
+		artid,
+		color,
+	};
 	return card;
 }
 
@@ -633,7 +620,8 @@ export async function init_query(files = null) {
 export function is_setcode(card, value) {
 	const settype = value & 0x0fff;
 	const setsubtype = value & 0xf000;
-	for (const x of card.setcode) {
+	const setcode = JSON.parse(card.setcode);
+	for (const x of setcode) {
 		if ((x & 0x0fff) === settype && (x & setsubtype) === setsubtype)
 			return true;
 	}
@@ -895,7 +883,7 @@ export function print_data(card, locale) {
 		if (card.type & monster_types.TYPE_LINK) {
 			let marker_text = '';
 			for (let marker = link_markers.LINK_MARKER_TOP_LEFT; marker <= link_markers.LINK_MARKER_TOP_RIGHT; marker <<= 1) {
-				if (card.marker & marker)
+				if (card.def & marker)
 					marker_text += marker_char[marker];
 				else
 					marker_text += marker_char['default'];
@@ -903,12 +891,12 @@ export function print_data(card, locale) {
 			result.push(marker_text);
 
 			marker_text = '';
-			if (card.marker & link_markers.LINK_MARKER_LEFT)
+			if (card.def & link_markers.LINK_MARKER_LEFT)
 				marker_text += marker_char[link_markers.LINK_MARKER_LEFT];
 			else
 				marker_text += marker_char['default'];
 			marker_text += marker_char.center;
-			if (card.marker & link_markers.LINK_MARKER_RIGHT)
+			if (card.def & link_markers.LINK_MARKER_RIGHT)
 				marker_text += marker_char[link_markers.LINK_MARKER_RIGHT];
 			else
 				marker_text += marker_char['default'];
@@ -916,7 +904,7 @@ export function print_data(card, locale) {
 
 			marker_text = '';
 			for (let marker = link_markers.LINK_MARKER_BOTTOM_LEFT; marker <= link_markers.LINK_MARKER_BOTTOM_RIGHT; marker <<= 1) {
-				if (card.marker & marker)
+				if (card.def & marker)
 					marker_text += marker_char[marker];
 				else
 					marker_text += marker_char['default'];
@@ -1003,7 +991,7 @@ export function print_card(card, locale) {
 			break;
 	}
 
-	const md_status = card.md_rarity ? `MD：${card.md_rarity}\n` : '';
+	const md_status = card.md_rarity ? `MD：${rarity[card.md_rarity]}\n` : '';
 	let lfstr = '';
 	let lfstr_ocg;
 	let lfstr_tcg;
