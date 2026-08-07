@@ -68,7 +68,7 @@ export function create_reply(card, locale) {
 	const pack_name = get_pack_name(card.id);
 	const request_locale = get_request_locale(card, locale);
 	const seventh_list = get_seventh_xyz(card);
-	if (card.cid && request_locale !== 'md') {
+	if (card.cid) {
 		const db_text = request_locale === 'en' ? 'DB (TCG)' : 'DB';
 		const row_db = new ActionRowBuilder();
 		const button1 = new ButtonBuilder()
