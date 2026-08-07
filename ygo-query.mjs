@@ -171,23 +171,25 @@ function generate_card(cdata) {
 		if (trap_colors[extype])
 			color = trap_colors[extype];
 	}
-	const locale_names = Object.create(null);
+	const text = {
+		__proto__: null,
+		desc: cdata.desc,
+	};
 	if (cid) {
 		for (const [locale, prop] of Object.entries(official_name)) {
 			if (name_table[locale][cid])
-				locale_names[prop] = name_table[locale][cid];
+				text[prop] = name_table[locale][cid];
 			else if (md_table[locale] && md_table[locale][cid])
-				locale_names[game_name[locale]] = md_table[locale][cid];
+				text[game_name[locale]] = md_table[locale][cid];
 		}
 		if (ruby_table[cid])
-			locale_names.jp_ruby = ruby_table[cid];
+			text.jp_ruby = ruby_table[cid];
 	}
 	const card = {
 		__proto__: null,
 		id,
 		cid: cdata.cid,
 		tw_name: cdata.name,
-		locale_names,
 		ot: cdata.ot,
 		type: cdata.type,
 		atk: cdata.atk,
@@ -200,10 +202,7 @@ function generate_card(cdata) {
 		rule_code: cdata.rule_code,
 		another_code: cdata.another_code,
 		md_rarity: cdata.md_rarity,
-		text: {
-			__proto__: null,
-			desc: cdata.desc,
-		},
+		text,
 		artid,
 		color,
 	};
