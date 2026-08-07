@@ -764,14 +764,11 @@ export function get_request_locale(card, locale) {
 	if (card[official_name[locale]]) {
 		return locale;
 	}
-	if (card.ot === 2) {
-		return 'en';
-	}
-	if (card.jp_name) {
+	if (card.ot & 0x1) {
 		return 'ja';
 	}
-	if (card.md_rarity) {
-		return 'md';
+	if (card.ot & 0x2) {
+		return 'en';
 	}
 	return 'ja';
 }
@@ -942,48 +939,48 @@ export function print_card(card, locale) {
 	switch (locale) {
 		case 'zh-tw':
 			card_name = card.tw_name;
-			if (card.jp_name)
-				other_name += `${card.jp_name}\n`;
-			else if (card.md_name_jp)
-				other_name += `${card.md_name_jp}    (MD)\n`;
-			if (card.en_name)
-				other_name += `${card.en_name}\n`;
-			else if (card.md_name_en)
-				other_name += `${card.md_name_en}    (MD)\n`;
+			if (card.text.jp_name)
+				other_name += `${card.text.jp_name}\n`;
+			else if (card.text.md_name_jp)
+				other_name += `${card.text.md_name_jp}    (MD)\n`;
+			if (card.text.en_name)
+				other_name += `${card.text.en_name}\n`;
+			else if (card.text.md_name_en)
+				other_name += `${card.text.md_name_en}    (MD)\n`;
 			desc = `${card.text.desc}\n--`;
 			break;
 		case 'ja':
-			if (card.jp_name)
-				card_name = card.jp_name;
-			else if (card.md_name_jp)
-				card_name = `${card.md_name_jp}    (MD)`;
+			if (card.text.jp_name)
+				card_name = card.text.jp_name;
+			else if (card.text.md_name_jp)
+				card_name = `${card.text.md_name_jp}    (MD)`;
 
-			if (card.en_name)
-				other_name = `${card.en_name}\n`;
-			else if (card.md_name_en)
-				other_name = `${card.md_name_en}    (MD)\n`;
+			if (card.text.en_name)
+				other_name = `${card.text.en_name}\n`;
+			else if (card.text.md_name_en)
+				other_name = `${card.text.md_name_en}    (MD)\n`;
 			desc = card.text.db_desc ?? '';
 			break;
 		case 'ko':
-			if (card.kr_name)
-				card_name = card.kr_name;
+			if (card.text.kr_name)
+				card_name = card.text.kr_name;
 
-			if (card.en_name)
-				other_name = `${card.en_name}\n`;
-			else if (card.md_name_en)
-				other_name = `${card.md_name_en}    (MD)\n`;
+			if (card.text.en_name)
+				other_name = `${card.text.en_name}\n`;
+			else if (card.text.md_name_en)
+				other_name = `${card.text.md_name_en}    (MD)\n`;
 			desc = card.text.db_desc ?? '';
 			break;
 		case 'en':
-			if (card.en_name)
-				card_name = card.en_name;
-			else if (card.md_name_en)
-				card_name = `${card.md_name_en}    (MD)`;
+			if (card.text.en_name)
+				card_name = card.text.en_name;
+			else if (card.text.md_name_en)
+				card_name = `${card.text.md_name_en}    (MD)`;
 
-			if (card.jp_name)
-				other_name = `${card.jp_name}\n`;
-			else if (card.md_name_jp)
-				other_name = `${card.md_name_jp}    (MD)\n`;
+			if (card.text.jp_name)
+				other_name = `${card.text.jp_name}\n`;
+			else if (card.text.md_name_jp)
+				other_name = `${card.text.md_name_jp}    (MD)\n`;
 			desc = card.text.db_desc ?? '';
 			break;
 		default:
