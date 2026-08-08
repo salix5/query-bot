@@ -531,9 +531,9 @@ export function generate_condition(params, id_list) {
 		qstr += " AND attribute & $attribute";
 		arg.$attribute = params.attribute;
 	}
-	if (typeof params.race === 'bigint' && params.race > 0) {
+	if (Number.isSafeInteger(params.race) && params.race > 0) {
 		qstr += " AND race & $race";
-		arg.$race = BigInt.asUintN(64, params.race);
+		arg.$race = params.race;
 	}
 	// marker
 	if (Number.isSafeInteger(params.marker) && params.marker > 0) {
