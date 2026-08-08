@@ -55,6 +55,12 @@ const arg_entry = {
 
 /**
  * @typedef {object} CardText
+ * @property {string} [en_name]
+ * @property {string} [jp_name]
+ * @property {string} [jp_ruby]
+ * @property {string} [kr_name]
+ * @property {string} [md_name_en]
+ * @property {string} [md_name_jp]
  * @property {string} desc
  * @property {string} [db_desc]
  */
@@ -64,12 +70,6 @@ const arg_entry = {
  * @property {number} id
  * @property {number|null} cid
  * @property {string} tw_name
- * @property {string} [en_name]
- * @property {string} [jp_name]
- * @property {string} [jp_ruby]
- * @property {string} [kr_name]
- * @property {string} [md_name_en]
- * @property {string} [md_name_jp]
  * 
  * @property {number} ot
  * @property {number} rule_code
@@ -761,7 +761,7 @@ export function get_card(id) {
  * @returns {string}
  */
 export function get_request_locale(card, locale) {
-	if (card[official_name[locale]]) {
+	if (Object.hasOwn(official_name, locale) && card.text[official_name[locale]]) {
 		return locale;
 	}
 	if (card.ot & 0x1) {
