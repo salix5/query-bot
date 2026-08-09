@@ -209,28 +209,6 @@ function generate_card(cdata) {
 	return card;
 }
 
-/**
- * The sqlite condition of monsters related to No.101 ~ No.107.
- * @returns {string}
- */
-// eslint-disable-next-line no-unused-vars
-function seventh_condition() {
-	let condition1 = '0';
-	for (let i = 1; i <= 13; i += 1) {
-		if (!multimap_seventh.has(i))
-			continue;
-		let attr_value = 0;
-		let race_value = 0n;
-		for (const card of multimap_seventh.get(i)) {
-			attr_value |= card.attribute;
-			race_value |= card.race;
-		}
-		condition1 += ` OR level = ${i} AND (attribute & ${attr_value} OR race & ${race_value})`;
-	}
-	const ret = ` AND type & $monster AND NOT type & $extra AND (${condition1})`;
-	return ret;
-}
-
 
 // query
 function is_string(str) {
