@@ -55,7 +55,7 @@ export const arg_base_v1 = {
 
 // schema v2 tables
 export const full_columns = `id, datas.ot, datas.alias, datas.rule_code, datas.another_code, datas.type, datas.atk, datas.def, datas.level, datas.scale, datas.race, datas.attribute,
-datas.setcode, texts.name, texts."desc", extension.cid`;
+datas.setcode, texts.name, texts."desc", extension.cid, coalesce(extension.md_rarity, 0) AS md_rarity`;
 export const full_tables = `FROM datas JOIN texts USING (id) LEFT JOIN extension USING (id)`;
 
 export const default_clause_v2 = `WHERE (type & $token) = 0 AND (cid IS NOT NULL OR id > ${MAX_CARD_ID})`;
@@ -112,9 +112,10 @@ for (const [name, code] of Object.entries(setname_table)) {
  * @property {number} def
  * @property {number} level
  * @property {number} scale
- * @property {bigint} race
+ * @property {number} race
  * @property {number} attribute
- * @property {number[]} setcode
+ * @property {string} setcode
+ * @property {number} md_rarity
  * 
  * @property {string} name
  * @property {string} desc
@@ -226,76 +227,6 @@ export async function alter_db(db) {
 }
 
 /**
- * Write int64 `setcode` to an array.
- * @param {number[]} list 
- * @param {bigint} setcode 
- */
-export function write_setcode(list, setcode) {
-	if (!setcode) {
-		return;
-	}
-	for (let i = 0; i < 4; i += 1) {
-		const section = (setcode >> BigInt(i * 16)) & 0xffffn;
-		if (!section) {
-			return;
-		}
-		list.push(Number(section));
-	}
-}
-
-export function generate_entry(row) {
-	const { race, setcode, ...rest } = row;
-	return {
-		__proto__: null,
-		...rest,
-		race: BigInt(race),
-		setcode: JSON.parse(setcode),
-	};
-}
-
-/**
- * Query cards from `db` using statement `qstr` and binding object `arg`.
- * @param {DatabaseSync} db 
- * @param {string} sql 
- * @param {object} arg 
- * @returns {object[]}
- */
-export function query_db(db, sql = sql_default_v1, arg = arg_default_v1) {
-	let page_filter = '';
-	if (Number.isSafeInteger(arg.$limit)) {
-		page_filter = ` LIMIT $limit`;
-		if (Number.isSafeInteger(arg.$offset)) {
-			page_filter += ` OFFSET $offset`;
-		}
-	}
-	const full_sql = `${sql} ORDER BY id${page_filter}`;
-	const stmt = db.prepare(full_sql);
-	const rows = stmt.all(arg);
-	return rows.map(row => {
-		const { setcode, ...rest } = row;
-		const card = {
-			__proto__: null,
-			...rest,
-		};
-		if (Object.hasOwn(card, 'level')) {
-			const value = card.level;
-			card.level = value & 0xffff;
-			card.scale = value >>> 24;
-		}
-		if (typeof setcode === 'string') {
-			const setcode_list = [];
-			const value = BigInt(setcode);
-			if (extra_setcodes[card.id])
-				setcode_list.push(...extra_setcodes[card.id]);
-			else
-				write_setcode(setcode_list, value);
-			card.setcode = setcode_list;
-		}
-		return card;
-	});
-}
-
-/**
  * Query cards from `db` with schema v2 using statement `qstr` and binding object `arg`.
  * @param {DatabaseSync} db 
  * @param {string} sql 
@@ -312,19 +243,7 @@ export function query_db_v2(db, sql = sql_default_v2, arg = arg_default_v2) {
 	}
 	const full_sql = `${sql} ORDER BY id${page_filter}`;
 	const stmt = db.prepare(full_sql);
-	const rows = stmt.all(arg);
-	return rows.map(generate_entry);
-}
-
-/**
- * Check if the card is an alternative artwork card.
- * @param {Entry} cdata
- * @returns 
- */
-export function is_alternative(cdata) {
-	if (cdata.id === ID_BLACK_LUSTER_SOLDIER)
-		return false;
-	return Math.abs(cdata.id - cdata.alias) < CARD_ARTWORK_VERSIONS_OFFSET;
+	return stmt.all(arg);
 }
 
 /**
@@ -396,7 +315,68 @@ export function name_condition(input, arg) {
 	return `(${condition})`;
 }
 
+
 // database tool
+/**
+ * Write int64 `setcode` to an array.
+ * @param {number[]} list 
+ * @param {bigint} setcode 
+ */
+export function write_setcode(list, setcode) {
+	if (!setcode) {
+		return;
+	}
+	for (let i = 0; i < 4; i += 1) {
+		const section = (setcode >> BigInt(i * 16)) & 0xffffn;
+		if (!section) {
+			return;
+		}
+		list.push(Number(section));
+	}
+}
+
+/**
+ * Query cards from `db` using statement `qstr` and binding object `arg`.
+ * @param {DatabaseSync} db 
+ * @param {string} sql 
+ * @param {object} arg 
+ * @returns {object[]}
+ */
+export function query_db(db, sql = sql_default_v1, arg = arg_default_v1) {
+	let page_filter = '';
+	if (Number.isSafeInteger(arg.$limit)) {
+		page_filter = ` LIMIT $limit`;
+		if (Number.isSafeInteger(arg.$offset)) {
+			page_filter += ` OFFSET $offset`;
+		}
+	}
+	const full_sql = `${sql} ORDER BY id${page_filter}`;
+	const stmt = db.prepare(full_sql);
+	const rows = stmt.all(arg);
+	return rows.map(row => {
+		const { setcode, ...rest } = row;
+		const card = {
+			__proto__: null,
+			...rest,
+		};
+		if (Object.hasOwn(card, 'level')) {
+			const value = card.level;
+			card.level = value & 0xffff;
+			card.scale = value >>> 24;
+		}
+		if (typeof setcode === 'string') {
+			const setcode_list = [];
+			const value = BigInt(setcode);
+			if (extra_setcodes[card.id])
+				setcode_list.push(...extra_setcodes[card.id]);
+			else
+				write_setcode(setcode_list, value);
+			card.setcode = setcode_list;
+		}
+		return card;
+	});
+}
+
 /**
  * Get cards from databases file at `path` using statement `sql` and binding object `arg`.
  * @param {string} path
