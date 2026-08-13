@@ -185,31 +185,36 @@ export function get_name(cid, locale) {
 	return complete_name_table[locale][cid];
 }
 
+const extension_schema = `CREATE TABLE extension (
+    id INTEGER PRIMARY KEY,
+    cid INTEGER NOT NULL,
+    en_name TEXT NOT NULL,
+    jp_name TEXT NOT NULL,
+    jp_ruby TEXT NOT NULL,
+    md_name_en TEXT NOT NULL,
+    md_name_jp TEXT NOT NULL,
+    md_rarity INTEGER NOT NULL
+) STRICT;`;
 /**
- * Add complete_name_table to the database `db`.
+ * Add cid, language-specific names, md_rarity to the database `db`.
  * @param {DatabaseSync} db 
  */
 export function load_name_table(db) {
-	const table_name = 'extension';
-	db.exec(`DROP TABLE IF EXISTS ${table_name};`);
-	db.exec(`CREATE TABLE ${table_name} ("id" INTEGER PRIMARY KEY, "cid" INTEGER, "en_name" TEXT, "jp_name" TEXT, "jp_ruby" TEXT, "md_rarity" INTEGER);`);
-	const insert_name = db.prepare(`INSERT INTO ${table_name} VALUES (?, ?, ?, ?, ?, ?);`);
+	db.exec(`DROP TABLE IF EXISTS extension;`);
+	db.exec(extension_schema);
+	const insert_name = db.prepare(`INSERT INTO extension (id, cid, en_name, jp_name, jp_ruby, md_name_en, md_name_jp, md_rarity) VALUES (?, ?, ?, ?, ?, ?, ?, ?);`);
 	try {
 		db.exec(`BEGIN TRANSACTION;`);
 		for (const cid of cid_table.keys()) {
 			const id = cid_table.get(cid);
-			const en_name = complete_name_table['en'][cid] ?? '';
-			const jp_name = complete_name_table['ja'][cid] ?? '';
+			const en_name = name_table['en'][cid] ?? '';
+			const jp_name = name_table['ja'][cid] ?? '';
 			const jp_ruby = ruby_table[cid] ?? '';
+			const md_name_en = md_table['en'][cid] ?? '';
+			const md_name_jp = md_table['ja'][cid] ?? '';
 			const rarity = md_card_list[cid] ?? 0;
-			insert_name.run(id, cid, en_name, jp_name, jp_ruby, rarity);
+			insert_name.run(id, cid, en_name, jp_name, jp_ruby, md_name_en, md_name_jp, rarity);
 		}
-		const fix_name = db.prepare(`UPDATE ${table_name} SET en_name = ?, jp_name = ?, jp_ruby = ? WHERE id = ?;`);
-		const bls_name_en = complete_name_table['en'][CID_RITUAL_BLS] ?? '';
-		const bls_name_jp = complete_name_table['ja'][CID_RITUAL_BLS] ?? '';
-		const bls_name_ruby = ruby_table[CID_RITUAL_BLS] ?? '';
-		const bls_id = cid_table.get(CID_BLACK_LUSTER_SOLDIER);
-		fix_name.run(bls_name_en, bls_name_jp, bls_name_ruby, bls_id);
 		db.exec(`COMMIT;`);
 	}
 	catch (error) {

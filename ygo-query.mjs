@@ -1,6 +1,6 @@
 import { rename, rm, writeFile } from 'node:fs/promises';
-import { ltable_ocg, ltable_tcg, ltable_md, pack_list, pre_release, genesys_point, setname_table, load_name_table, ruby_table } from './ygo-json-loader.mjs';
-import { language_pack, official_name, game_name, cid_table, name_table, md_table } from './ygo-json-loader.mjs';
+import { ltable_ocg, ltable_tcg, ltable_md, pack_list, pre_release, genesys_point, setname_table, load_name_table } from './ygo-json-loader.mjs';
+import { language_pack, official_name, cid_table, name_table } from './ygo-json-loader.mjs';
 import { escape_regexp, escape_wildcard, zh_collator, zh_compare } from './ygo-utility.mjs';
 import { db_url1, db_url2, fetch_db } from './ygo-fetch.mjs';
 import { card_types, monster_types, link_markers, rarity, spell_colors, trap_colors, CID_BLACK_LUSTER_SOLDIER, spell_types, trap_types, marker_char } from "./ygo-constant.mjs";
@@ -50,6 +50,11 @@ const arg_entry = {
  * @property {number} md_rarity
  * 
  * @property {string} name
+ * @property {string|null} en_name
+ * @property {string|null} jp_name
+ * @property {string|null} jp_ruby
+ * @property {string|null} md_name_en
+ * @property {string|null} md_name_jp
  * @property {string} desc
  */
 
@@ -176,14 +181,18 @@ function generate_card(cdata) {
 		desc: cdata.desc,
 	};
 	if (cid) {
-		for (const [locale, prop] of Object.entries(official_name)) {
-			if (name_table[locale][cid])
-				text[prop] = name_table[locale][cid];
-			else if (md_table[locale] && md_table[locale][cid])
-				text[game_name[locale]] = md_table[locale][cid];
-		}
-		if (ruby_table[cid])
-			text.jp_ruby = ruby_table[cid];
+		if (cdata.en_name)
+			text.en_name = cdata.en_name;
+		else if (cdata.md_name_en)
+			text.md_name_en = cdata.md_name_en;
+		if (cdata.jp_name)
+			text.jp_name = cdata.jp_name;
+		else if (cdata.md_name_jp)
+			text.md_name_jp = cdata.md_name_jp;
+		if (cdata.jp_ruby)
+			text.jp_ruby = cdata.jp_ruby;
+		if (name_table['ko'][cid])
+			text.kr_name = name_table['ko'][cid];
 	}
 	const card = {
 		__proto__: null,
@@ -350,11 +359,11 @@ export function generate_condition(params, id_list) {
 		}
 	}
 	if (is_string(params.en_name)) {
-		qstr += ` AND en_name LIKE $en_name ESCAPE '$'`;
+		qstr += ` AND (en_name LIKE $en_name ESCAPE '$' OR md_name_en LIKE $en_name ESCAPE '$')`;
 		arg.$en_name = params.en_name;
 	}
 	if (is_string(params.jp_name)) {
-		qstr += ` AND jp_name LIKE $jp_name ESCAPE '$'`;
+		qstr += ` AND (jp_name LIKE $jp_name ESCAPE '$' OR md_name_jp LIKE $jp_name ESCAPE '$')`;
 		arg.$jp_name = params.jp_name;
 	}
 	if (is_string(params.jp_ruby)) {
