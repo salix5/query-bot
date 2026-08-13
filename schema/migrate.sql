@@ -37,7 +37,7 @@ UPDATE datas SET setcode1 = json_array(143, 84, 89, 130, 314) WHERE id IN (85125
 ALTER TABLE datas DROP COLUMN setcode;
 ALTER TABLE datas RENAME COLUMN setcode1 TO setcode;
 
-CREATE TABLE IF NOT EXISTS schema_version (version INTEGER NOT NULL);
+CREATE TABLE IF NOT EXISTS schema_version (version INTEGER NOT NULL) STRICT;
 DELETE FROM schema_version;
 INSERT INTO schema_version (version) VALUES (2);
 COMMIT;
