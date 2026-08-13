@@ -30,7 +30,7 @@ const ID_TYLER_THE_GREAT_WARRIOR = 68811206;
 const ID_DECOY = 20240828;
 
 // old schema tables
-export const basic_columns = `id, datas.ot, datas.alias, CAST(datas.setcode AS TEXT) AS setcode, datas.type, datas.atk, datas.def, datas.level, datas.race, datas.attribute, texts.name, texts."description"`;
+export const basic_columns = `id, datas.ot, datas.alias, CAST(datas.setcode AS TEXT) AS setcode, datas.type, datas.atk, datas.def, datas.level, datas.race, datas.attribute, texts.name, texts."desc"`;
 export const basic_tables = `FROM datas JOIN texts USING (id)`;
 
 export const default_clause_v1 = `WHERE id NOT IN ($tyler, $decoy) AND (type & $token) = 0 AND (id = $luster OR abs(id - alias) >= $artwork_offset)`;
