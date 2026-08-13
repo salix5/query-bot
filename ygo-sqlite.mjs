@@ -30,7 +30,7 @@ const ID_TYLER_THE_GREAT_WARRIOR = 68811206;
 const ID_DECOY = 20240828;
 
 // old schema tables
-export const basic_columns = `id, datas.ot, datas.alias, CAST(datas.setcode AS TEXT) AS setcode, datas.type, datas.atk, datas.def, datas.level, datas.race, datas.attribute, texts.name, texts."desc"`;
+export const basic_columns = `id, datas.ot, datas.alias, CAST(datas.setcode AS TEXT) AS setcode, datas.type, datas.atk, datas.def, datas.level, datas.race, datas.attribute, texts.name, texts."description"`;
 export const basic_tables = `FROM datas JOIN texts USING (id)`;
 
 export const default_clause_v1 = `WHERE id NOT IN ($tyler, $decoy) AND (type & $token) = 0 AND (id = $luster OR abs(id - alias) >= $artwork_offset)`;
@@ -55,7 +55,7 @@ export const arg_base_v1 = {
 
 // schema v2 tables
 export const full_columns = `id, datas.ot, datas.alias, datas.rule_code, datas.another_code, datas.type, datas.atk, datas.def, datas.level, datas.scale, datas.race, datas.attribute,
-datas.setcode, texts.name, texts."desc",
+datas.setcode, texts.name, texts.description,
 extension.cid, extension.en_name, extension.jp_name, extension.jp_ruby, extension.md_name_en, extension.md_name_jp, coalesce(extension.md_rarity, 0) AS md_rarity`;
 export const full_tables = `FROM datas JOIN texts USING (id) LEFT JOIN extension USING (id)`;
 
@@ -124,7 +124,7 @@ for (const [name, code] of Object.entries(setname_table)) {
  * @property {string|null} jp_ruby
  * @property {string|null} md_name_en
  * @property {string|null} md_name_jp
- * @property {string} desc
+ * @property {string} description
  */
 
 /**
@@ -308,7 +308,7 @@ export function like_pattern(str) {
  * @returns {string}
  */
 export function name_condition(input, arg) {
-	let condition = `name LIKE $name ESCAPE '$' OR "desc" LIKE $kanji ESCAPE '$' OR rule_code IN (SELECT id ${full_tables} ${default_clause_v2} AND name LIKE $name ESCAPE '$')`;
+	let condition = `name LIKE $name ESCAPE '$' OR description LIKE $kanji ESCAPE '$' OR rule_code IN (SELECT id ${full_tables} ${default_clause_v2} AND name LIKE $name ESCAPE '$')`;
 	arg.$name = like_pattern(input);
 	arg.$kanji = `%※${like_pattern(input)}`;
 	if (re_wildcard.test(input)) {
