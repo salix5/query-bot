@@ -359,11 +359,11 @@ export function generate_condition(params, id_list) {
 		}
 	}
 	if (is_string(params.en_name)) {
-		qstr += ` AND en_name LIKE $en_name ESCAPE '$'`;
+		qstr += ` AND (en_name LIKE $en_name ESCAPE '$' OR md_name_en LIKE $en_name ESCAPE '$')`;
 		arg.$en_name = params.en_name;
 	}
 	if (is_string(params.jp_name)) {
-		qstr += ` AND jp_name LIKE $jp_name ESCAPE '$'`;
+		qstr += ` AND (jp_name LIKE $jp_name ESCAPE '$' OR md_name_jp LIKE $jp_name ESCAPE '$')`;
 		arg.$jp_name = params.jp_name;
 	}
 	if (is_string(params.jp_ruby)) {
