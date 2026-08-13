@@ -185,7 +185,6 @@ export function get_name(cid, locale) {
 	return complete_name_table[locale][cid];
 }
 
-
 const extension_schema = `CREATE TABLE extension (
     id INTEGER PRIMARY KEY,
     cid INTEGER NOT NULL,
