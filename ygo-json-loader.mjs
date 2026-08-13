@@ -187,14 +187,14 @@ export function get_name(cid, locale) {
 
 
 const extension_schema = `CREATE TABLE extension (
-    "id" INTEGER PRIMARY KEY,
-    "cid" INTEGER NOT NULL,
-    "en_name" TEXT NOT NULL,
-    "jp_name" TEXT NOT NULL,
-    "jp_ruby" TEXT NOT NULL,
-    "md_name_en" TEXT NOT NULL,
-    "md_name_jp" TEXT NOT NULL,
-    "md_rarity" INTEGER NOT NULL
+    id INTEGER PRIMARY KEY,
+    cid INTEGER NOT NULL,
+    en_name TEXT NOT NULL,
+    jp_name TEXT NOT NULL,
+    jp_ruby TEXT NOT NULL,
+    md_name_en TEXT NOT NULL,
+    md_name_jp TEXT NOT NULL,
+    md_rarity INTEGER NOT NULL
 ) STRICT;`;
 /**
  * Add complete_name_table to the database `db`.
@@ -203,7 +203,7 @@ const extension_schema = `CREATE TABLE extension (
 export function load_name_table(db) {
 	db.exec(`DROP TABLE IF EXISTS extension;`);
 	db.exec(extension_schema);
-	const insert_name = db.prepare(`INSERT INTO extension ("id", "cid", "en_name", "jp_name", "jp_ruby", "md_name_en", "md_name_jp", "md_rarity") VALUES (?, ?, ?, ?, ?, ?, ?, ?);`);
+	const insert_name = db.prepare(`INSERT INTO extension (id, cid, en_name, jp_name, jp_ruby, md_name_en, md_name_jp, md_rarity) VALUES (?, ?, ?, ?, ?, ?, ?, ?);`);
 	try {
 		db.exec(`BEGIN TRANSACTION;`);
 		for (const cid of cid_table.keys()) {
