@@ -192,10 +192,10 @@ const extension_schema = `CREATE TABLE extension (
     "en_name" TEXT NOT NULL,
     "jp_name" TEXT NOT NULL,
     "jp_ruby" TEXT NOT NULL,
-	"md_name_en" TEXT NOT NULL,
+    "md_name_en" TEXT NOT NULL,
     "md_name_jp" TEXT NOT NULL,
     "md_rarity" INTEGER NOT NULL
-);`;
+) STRICT;`;
 /**
  * Add complete_name_table to the database `db`.
  * @param {DatabaseSync} db 
