@@ -197,7 +197,7 @@ const extension_schema = `CREATE TABLE extension (
     md_rarity INTEGER NOT NULL
 ) STRICT;`;
 /**
- * Add complete_name_table to the database `db`.
+ * Add cid, language-specific names, md_rarity to the database `db`.
  * @param {DatabaseSync} db 
  */
 export function load_name_table(db) {
