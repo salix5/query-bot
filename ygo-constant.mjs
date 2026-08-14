@@ -257,7 +257,7 @@ export const interface_types = {
 
 	pack: 2,
 	name: 2,
-	description: 2,
+	desc: 2,
 	keyword: 2,
 	en_name: 2,
 	jp_name: 2,

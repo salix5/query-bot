@@ -353,9 +353,9 @@ export function generate_condition(params, id_list) {
 		else if (Number.isSafeInteger(params.setcode) && params.setcode > 0) {
 			qstr += ` AND ${setcode_condition(params.setcode, arg)}`;
 		}
-		if (is_string(params.description)) {
+		if (is_string(params.desc)) {
 			qstr += ` AND description LIKE $description ESCAPE '$'`;
-			arg.$description = like_pattern(params.description);
+			arg.$description = like_pattern(params.desc);
 		}
 	}
 	if (is_string(params.en_name)) {
