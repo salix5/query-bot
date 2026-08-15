@@ -55,7 +55,7 @@ const arg_entry = {
  * @property {string|null} jp_ruby
  * @property {string|null} md_name_en
  * @property {string|null} md_name_jp
- * @property {string} desc
+ * @property {string} description
  */
 
 /**
@@ -66,7 +66,7 @@ const arg_entry = {
  * @property {string} [kr_name]
  * @property {string} [md_name_en]
  * @property {string} [md_name_jp]
- * @property {string} desc
+ * @property {string} description
  * @property {string} [db_desc]
  */
 
@@ -178,7 +178,7 @@ function generate_card(cdata) {
 	}
 	const text = {
 		__proto__: null,
-		desc: cdata.desc,
+		description: cdata.description,
 	};
 	if (cid) {
 		if (cdata.en_name)
@@ -308,11 +308,11 @@ export function generate_condition(params, id_list) {
 		const tw_name = get_db_name(params.mention);
 		if (tw_name) {
 			if (Object.hasOwn(setname_table, tw_name)) {
-				qstr += `${effect_filter} AND "desc" REGEXP $mention`;
+				qstr += `${effect_filter} AND description REGEXP $mention`;
 				arg.$mention = `「${escape_regexp(tw_name)}」(?!怪|魔|陷|卡|融合怪獸|同步怪獸|超量怪獸|連結怪獸|儀式怪獸|靈擺怪獸|通常|永續|裝備|速攻|儀式魔法|場地|反擊)`;
 			}
 			else {
-				qstr += `${effect_filter} AND "desc" LIKE $mention ESCAPE '$'`;
+				qstr += `${effect_filter} AND description LIKE $mention ESCAPE '$'`;
 				arg.$mention = `%「${escape_wildcard(tw_name)}」%`;
 			}
 			arg.$normal = monster_types.TYPE_NORMAL;
@@ -344,7 +344,7 @@ export function generate_condition(params, id_list) {
 
 	// text
 	if (is_string(params.keyword)) {
-		qstr += ` AND (${name_condition(params.keyword, arg)} OR "desc" LIKE $name ESCAPE '$')`;
+		qstr += ` AND (${name_condition(params.keyword, arg)} OR description LIKE $name ESCAPE '$')`;
 	}
 	else {
 		if (is_string(params.name)) {
@@ -354,8 +354,8 @@ export function generate_condition(params, id_list) {
 			qstr += ` AND ${setcode_condition(params.setcode, arg)}`;
 		}
 		if (is_string(params.desc)) {
-			qstr += ` AND "desc" LIKE $desc ESCAPE '$'`;
-			arg.$desc = like_pattern(params.desc);
+			qstr += ` AND description LIKE $description ESCAPE '$'`;
+			arg.$description = like_pattern(params.desc);
 		}
 	}
 	if (is_string(params.en_name)) {
@@ -378,7 +378,7 @@ export function generate_condition(params, id_list) {
 			const material = escape_wildcard(tw_name);
 			let material_condition = "0";
 			for (let i = 0; i < 4; i += 1) {
-				material_condition += ` OR "desc" LIKE $mat${i} ESCAPE '$'`;
+				material_condition += ` OR description LIKE $mat${i} ESCAPE '$'`;
 			}
 			qstr += ` AND (${material_condition})`;
 			arg.$mat0 = `「${material}」+%`;
@@ -921,7 +921,7 @@ export function print_card(card, locale) {
 
 	let card_name = 'null';
 	let other_name = '';
-	let desc = '';
+	let description = '';
 
 	switch (locale) {
 		case 'zh-tw':
@@ -934,7 +934,7 @@ export function print_card(card, locale) {
 				other_name += `${card.text.en_name}\n`;
 			else if (card.text.md_name_en)
 				other_name += `${card.text.md_name_en}    (MD)\n`;
-			desc = `${card.text.desc}\n--`;
+			description = `${card.text.description}\n--`;
 			break;
 		case 'ja':
 			if (card.text.jp_name)
@@ -946,7 +946,7 @@ export function print_card(card, locale) {
 				other_name = `${card.text.en_name}\n`;
 			else if (card.text.md_name_en)
 				other_name = `${card.text.md_name_en}    (MD)\n`;
-			desc = card.text.db_desc ?? '';
+			description = card.text.db_desc ?? '';
 			break;
 		case 'ko':
 			if (card.text.kr_name)
@@ -956,7 +956,7 @@ export function print_card(card, locale) {
 				other_name = `${card.text.en_name}\n`;
 			else if (card.text.md_name_en)
 				other_name = `${card.text.md_name_en}    (MD)\n`;
-			desc = card.text.db_desc ?? '';
+			description = card.text.db_desc ?? '';
 			break;
 		case 'en':
 			if (card.text.en_name)
@@ -968,7 +968,7 @@ export function print_card(card, locale) {
 				other_name = `${card.text.jp_name}\n`;
 			else if (card.text.md_name_jp)
 				other_name = `${card.text.md_name_jp}    (MD)\n`;
-			desc = card.text.db_desc ?? '';
+			description = card.text.db_desc ?? '';
 			break;
 		default:
 			break;
@@ -1008,7 +1008,7 @@ export function print_card(card, locale) {
 	if (card.cid && genesys_point[card.cid]) {
 		genesys_status = `Genesys：${genesys_point[card.cid]}\n`;
 	}
-	const card_text = `**${card_name}**\n${other_name}${md_status}${genesys_status}${lfstr}${print_data(card, locale).join('\n')}\n${desc}\n`;
+	const card_text = `**${card_name}**\n${other_name}${md_status}${genesys_status}${lfstr}${print_data(card, locale).join('\n')}\n${description}\n`;
 	return card_text;
 }
 
@@ -1024,7 +1024,7 @@ export function create_choice_prerelease() {
 	const re_kanji = /※.*/;
 	const cards = query(sql_pre);
 	for (const card of cards) {
-		const res = card.text.desc.match(re_kanji);
+		const res = card.text.description.match(re_kanji);
 		const kanji = res ? res[0] : '';
 		if (choices.has(card.tw_name) || kanji && choices.has(kanji)) {
 			console.error('choice_prerelease', card.id);
@@ -1046,7 +1046,7 @@ export function create_choice_db() {
 	const re_kanji = /※.*/;
 	const sql_db = `${sql_default_v2} AND cid IS NOT NULL;`;
 	for (const card of query(sql_db)) {
-		const res = card.text.desc.match(re_kanji);
+		const res = card.text.description.match(re_kanji);
 		const kanji = res ? res[0] : '';
 		let key = card.tw_name;
 		if (card.cid === CID_BLACK_LUSTER_SOLDIER) {
