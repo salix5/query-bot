@@ -1,5 +1,5 @@
 import { rename, rm, writeFile } from 'node:fs/promises';
-import { ltable_ocg, ltable_tcg, ltable_md, pack_list, pre_release, genesys_point, setname_table, load_name_table, id_to_cid } from './ygo-json-loader.mjs';
+import { ltable_ocg, ltable_tcg, ltable_md, pack_list, pre_release, genesys_point, setname_table, load_name_table } from './ygo-json-loader.mjs';
 import { language_pack, official_name, cid_table, name_table } from './ygo-json-loader.mjs';
 import { escape_regexp, escape_wildcard, zh_collator, zh_compare } from './ygo-utility.mjs';
 import { db_url1, db_url2, fetch_db } from './ygo-fetch.mjs';
@@ -172,14 +172,13 @@ function get_color(type) {
  * @returns {Card}
  */
 function generate_card(cdata) {
-	const cid = cdata.alias ? (id_to_cid.get(cdata.alias) ?? null) : cdata.cid;
 	const id = cdata.alias || cdata.id;
 	const artid = cdata.alias ? cdata.id : 0;
 	const text = {
 		__proto__: null,
 		description: cdata.description,
 	};
-	if (cid) {
+	if (cdata.cid) {
 		if (cdata.en_name)
 			text.en_name = cdata.en_name;
 		else if (cdata.md_name_en)
@@ -190,12 +189,12 @@ function generate_card(cdata) {
 			text.md_name_jp = cdata.md_name_jp;
 		if (cdata.jp_ruby)
 			text.jp_ruby = cdata.jp_ruby;
-		if (name_table['ko'][cid])
+		if (Object.hasOwn(name_table['ko'], cdata.cid))
 			text.kr_name = name_table['ko'][cid];
 	}
 	const card = {
 		__proto__: null,
-		cid,
+		cid: cdata.cid,
 		id,
 		tw_name: cdata.name,
 		ot: cdata.ot,
