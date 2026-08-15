@@ -736,6 +736,8 @@ export function get_card(id) {
 		return null;
 	if (entry.alias) {
 		const base_entry = get_entry(entry.alias);
+		if(!base_entry)
+			return null;
 		const base_card = generate_card(base_entry);
 		base_card.artid = entry.id;
 		return base_card;
