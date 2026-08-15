@@ -196,8 +196,8 @@ function generate_card(cdata) {
 	}
 	const card = {
 		__proto__: null,
-		id,
 		cid: cdata.cid,
+		id,
 		tw_name: cdata.name,
 		ot: cdata.ot,
 		type: cdata.type,
@@ -621,11 +621,9 @@ export function is_setcode(card, value) {
  * @returns {Card[]}
  */
 export function query(qstr = sql_default_v2, arg = arg_default_v2) {
-	const ret = [];
-	for (const cdata of query_db_v2(db, qstr, arg)) {
-		ret.push(generate_card(cdata));
-	}
-	return ret;
+	const rows = query_db_v2(db, qstr, arg);
+	const result = rows.map(generate_card);
+	return result;
 }
 
 /**
