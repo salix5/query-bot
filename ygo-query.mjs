@@ -1,5 +1,5 @@
 import { rename, rm, writeFile } from 'node:fs/promises';
-import { ltable_ocg, ltable_tcg, ltable_md, pack_list, pre_release, genesys_point, setname_table, load_name_table } from './ygo-json-loader.mjs';
+import { ltable_ocg, ltable_tcg, ltable_md, pack_list, pre_release, genesys_point, setname_table, load_name_table, id_to_cid } from './ygo-json-loader.mjs';
 import { language_pack, official_name, cid_table, name_table } from './ygo-json-loader.mjs';
 import { escape_regexp, escape_wildcard, zh_collator, zh_compare } from './ygo-utility.mjs';
 import { db_url1, db_url2, fetch_db } from './ygo-fetch.mjs';
@@ -130,19 +130,7 @@ function get_db_name(id) {
 	return card.name;
 }
 
-/**
- * @param {Entry} cdata 
- * @returns {Card}
- */
-function generate_card(cdata) {
-	let id = cdata.id;
-	let artid = 0;
-	if (cdata.alias) {
-		id = cdata.alias;
-		artid = cdata.id;
-	}
-	const { cid, type } = cdata;
-	// color
+function get_color(type) {
 	let color = -1;
 	if (type & card_types.TYPE_MONSTER) {
 		if (!(type & monster_types.TYPES_EXTRA)) {
@@ -176,6 +164,17 @@ function generate_card(cdata) {
 		if (trap_colors[extype])
 			color = trap_colors[extype];
 	}
+	return color;
+}
+
+/**
+ * @param {Entry} cdata 
+ * @returns {Card}
+ */
+function generate_card(cdata) {
+	const cid = cdata.alias ? (id_to_cid.get(cdata.alias) ?? null) : cdata.cid;
+	const id = cdata.alias || cdata.id;
+	const artid = cdata.alias ? cdata.id : 0;
 	const text = {
 		__proto__: null,
 		description: cdata.description,
@@ -213,7 +212,7 @@ function generate_card(cdata) {
 		md_rarity: cdata.md_rarity,
 		text,
 		artid,
-		color,
+		color: get_color(cdata.type),
 	};
 	return card;
 }
