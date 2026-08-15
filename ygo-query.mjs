@@ -195,7 +195,7 @@ function generate_card(cdata) {
 	}
 	const card = {
 		__proto__: null,
-		cid: cdata.cid,
+		cid,
 		id,
 		tw_name: cdata.name,
 		ot: cdata.ot,
