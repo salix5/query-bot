@@ -190,7 +190,7 @@ function generate_card(cdata) {
 		if (cdata.jp_ruby)
 			text.jp_ruby = cdata.jp_ruby;
 		if (Object.hasOwn(name_table['ko'], cdata.cid))
-			text.kr_name = name_table['ko'][cid];
+			text.kr_name = name_table['ko'][cdata.cid];
 	}
 	const card = {
 		__proto__: null,
