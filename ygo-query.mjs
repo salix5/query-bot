@@ -130,19 +130,7 @@ function get_db_name(id) {
 	return card.name;
 }
 
-/**
- * @param {Entry} cdata 
- * @returns {Card}
- */
-function generate_card(cdata) {
-	let id = cdata.id;
-	let artid = 0;
-	if (cdata.alias) {
-		id = cdata.alias;
-		artid = cdata.id;
-	}
-	const { cid, type } = cdata;
-	// color
+function get_color(type) {
 	let color = -1;
 	if (type & card_types.TYPE_MONSTER) {
 		if (!(type & monster_types.TYPES_EXTRA)) {
@@ -176,11 +164,21 @@ function generate_card(cdata) {
 		if (trap_colors[extype])
 			color = trap_colors[extype];
 	}
+	return color;
+}
+
+/**
+ * @param {Entry} cdata 
+ * @returns {Card}
+ */
+function generate_card(cdata) {
+	const id = cdata.alias || cdata.id;
+	const artid = cdata.alias ? cdata.id : 0;
 	const text = {
 		__proto__: null,
 		description: cdata.description,
 	};
-	if (cid) {
+	if (cdata.cid) {
 		if (cdata.en_name)
 			text.en_name = cdata.en_name;
 		else if (cdata.md_name_en)
@@ -191,13 +189,13 @@ function generate_card(cdata) {
 			text.md_name_jp = cdata.md_name_jp;
 		if (cdata.jp_ruby)
 			text.jp_ruby = cdata.jp_ruby;
-		if (name_table['ko'][cid])
-			text.kr_name = name_table['ko'][cid];
+		if (Object.hasOwn(name_table['ko'], cdata.cid))
+			text.kr_name = name_table['ko'][cdata.cid];
 	}
 	const card = {
 		__proto__: null,
-		id,
 		cid: cdata.cid,
+		id,
 		tw_name: cdata.name,
 		ot: cdata.ot,
 		type: cdata.type,
@@ -213,7 +211,7 @@ function generate_card(cdata) {
 		md_rarity: cdata.md_rarity,
 		text,
 		artid,
-		color,
+		color: get_color(cdata.type),
 	};
 	return card;
 }
@@ -621,11 +619,9 @@ export function is_setcode(card, value) {
  * @returns {Card[]}
  */
 export function query(qstr = sql_default_v2, arg = arg_default_v2) {
-	const ret = [];
-	for (const cdata of query_db_v2(db, qstr, arg)) {
-		ret.push(generate_card(cdata));
-	}
-	return ret;
+	const rows = query_db_v2(db, qstr, arg);
+	const result = rows.map(generate_card);
+	return result;
 }
 
 /**
@@ -738,6 +734,14 @@ export function get_card(id) {
 	const entry = get_entry(id);
 	if (!entry)
 		return null;
+	if (entry.alias) {
+		const base_entry = get_entry(entry.alias);
+		if(!base_entry)
+			return null;
+		const base_card = generate_card(base_entry);
+		base_card.artid = entry.id;
+		return base_card;
+	}
 	return generate_card(entry);
 }
 
