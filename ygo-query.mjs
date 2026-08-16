@@ -18,18 +18,10 @@ let db = null;
  * @type {import('node:sqlite').StatementSync}
  */
 let stmt_name = null;
-const arg_name = {
-	...arg_default_v2,
-	$id: 0,
-};
 /**
  * @type {import('node:sqlite').StatementSync}
  */
 let stmt_entry = null;
-const arg_entry = {
-	...arg_default_v2,
-	$id: 0,
-};
 
 /**
  * @typedef {object} Entry
@@ -111,7 +103,10 @@ await init_query();
 function get_entry(id) {
 	if (!stmt_entry)
 		return null;
-	arg_entry.$id = id;
+	const arg_entry = {
+		...arg_default_v2,
+		$id: id,
+	};
 	const row = stmt_entry.get(arg_entry);
 	return row ?? null;
 }
@@ -123,7 +118,10 @@ function get_entry(id) {
 function get_db_name(id) {
 	if (!stmt_name)
 		return null;
-	arg_name.$id = id;
+	const arg_name = {
+		...arg_default_v2,
+		$id: id,
+	};
 	const card = stmt_name.get(arg_name);
 	if (!card)
 		return null;
