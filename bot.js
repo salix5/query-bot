@@ -1,5 +1,5 @@
 import { readdirSync } from 'node:fs';
-import { Client, Collection, Events, GatewayIntentBits, ChannelType, Partials, MessageFlags } from 'discord.js';
+import { Client, Collection, Events, GatewayIntentBits, ChannelType, Partials, MessageFlags, Options } from 'discord.js';
 import { name_table } from './ygo-query.mjs';
 import { seventh_handler } from './common_query.js';
 import { deploy_command } from './deploy-commands.js';
@@ -7,6 +7,9 @@ import { deploy_command } from './deploy-commands.js';
 const client = new Client({
 	intents: [GatewayIntentBits.Guilds, GatewayIntentBits.DirectMessages],
 	partials: [Partials.Channel],
+	makeCache: Options.cacheWithLimits({
+		MessageManager: 0,
+	}),
 });
 
 client.cooldowns = new Collection();
