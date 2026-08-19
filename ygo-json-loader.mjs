@@ -21,16 +21,15 @@ import { CID_BLACK_LUSTER_SOLDIER } from './ygo-constant.mjs';
  * @returns {Map<number, any>}
  */
 function object_to_map(obj) {
-	const result = new Map();
-	for (const [prop, value] of Object.entries(obj)) {
-		const key = Number.parseInt(prop, 10);
-		if (!Number.isSafeInteger(key)) {
-			console.error('object_to_map: invalid key', prop);
-			continue;
-		}
-		result.set(key, value);
-	}
-	return result;
+	const entries = Object.entries(obj)
+		.map(([prop, value]) => {
+			const key = Number.parseInt(prop, 10);
+			if (!Number.isSafeInteger(key)) {
+				console.error('object_to_map: invalid key', prop);
+			}
+			return [key, value];
+		});
+	return new Map(entries);
 }
 
 /**
