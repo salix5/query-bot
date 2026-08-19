@@ -99,10 +99,6 @@ function create_choice(request_locale) {
 	if (md_table[request_locale]) {
 		const table1 = object_to_map(md_table[request_locale]);
 		for (const [cid, name] of table1) {
-			if (complete_name_table.has(cid)) {
-				console.error(`duplicate cid: md_table[${request_locale}]`, cid);
-				continue;
-			}
 			complete_name_table.set(cid, name);
 		}
 	}
