@@ -178,11 +178,11 @@ export function get_pack_name(id) {
  * @returns {string}
  */
 export function get_name(cid, locale) {
-	if (!complete_name_table[locale]?.[cid])
-		return '';
-	if (cid === CID_BLACK_LUSTER_SOLDIER && complete_name_table[locale][CID_RITUAL_BLS])
-		return complete_name_table[locale][CID_RITUAL_BLS];
-	return complete_name_table[locale][cid];
+	if (name_table[locale] && Object.hasOwn(name_table[locale], cid))
+		return name_table[locale][cid];
+	if (md_table[locale] && Object.hasOwn(md_table[locale], cid))
+		return md_table[locale][cid];
+	return '';
 }
 
 const extension_schema = `CREATE TABLE extension (
