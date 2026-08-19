@@ -14,23 +14,15 @@ import lang_ja from './lang/ja.json' with { type: 'json' };
 import lang_ko from './lang/ko.json' with { type: 'json' };
 import lang_zhtw from './lang/zh-tw.json' with { type: 'json' };
 import { inverse_mapping, inverse_table } from './ygo-utility.mjs';
-import { CID_BLACK_LUSTER_SOLDIER, CID_RITUAL_BLS } from './ygo-constant.mjs';
+import { CID_BLACK_LUSTER_SOLDIER } from './ygo-constant.mjs';
 
 /**
  * @param {object} obj 
  * @returns {Map<number, any>}
  */
 function object_to_map(obj) {
-	const result = new Map();
-	for (const [prop, value] of Object.entries(obj)) {
-		const key = Number.parseInt(prop, 10);
-		if (!Number.isSafeInteger(key)) {
-			console.error('object_to_map: invalid key', prop);
-			continue;
-		}
-		result.set(key, value);
-	}
-	return result;
+	return new Map(Object.entries(obj)
+				   .map(([k, v]) => [Number.parseInt(k, 10), v]));
 }
 
 /**
@@ -94,45 +86,28 @@ export const language_pack = {
 	},
 };
 
-export const complete_name_table = Object.create(null);
-for (const locale of Object.keys(official_name)) {
-	if (!md_table[locale] && !name_table[locale][CID_BLACK_LUSTER_SOLDIER]) {
-		complete_name_table[locale] = name_table[locale];
-		continue;
-	}
-	const table1 = Object.assign({}, name_table[locale]);
-	let valid = true;
-	if (md_table[locale]) {
-		for (const [cid, name] of Object.entries(md_table[locale])) {
-			if (table1[cid]) {
-				console.error(`duplicate cid: md_table[${locale}]`, cid);
-				valid = false;
-				break;
-			}
-			table1[cid] = name;
-		}
-		if (!valid) {
-			complete_name_table[locale] = {};
-			continue;
-		}
-	}
-	if (table1[CID_BLACK_LUSTER_SOLDIER]) {
-		const bls_name = `${table1[CID_BLACK_LUSTER_SOLDIER]}${language_pack[locale].bls_postfix}`;
-		table1[CID_BLACK_LUSTER_SOLDIER] = bls_name;
-	}
-	complete_name_table[locale] = table1;
-}
-
 /**
  * Create the [name, id] table of region `request_locale`
  * @param {string} request_locale 
  * @returns {Map<string, number>}
  */
 function create_choice(request_locale) {
-	if (!complete_name_table[request_locale])
+	if (!name_table[request_locale]) {
 		return new Map();
+	}
+	const complete_name_table = object_to_map(name_table[request_locale]);
+	if (md_table[request_locale]) {
+		const table1 = object_to_map(md_table[request_locale]);
+		for (const [cid, name] of table1) {
+			complete_name_table.set(cid, name);
+		}
+	}
+	if (complete_name_table.has(CID_BLACK_LUSTER_SOLDIER)) {
+		const bls_name = `${complete_name_table.get(CID_BLACK_LUSTER_SOLDIER)}${language_pack[request_locale].bls_postfix}`;
+		complete_name_table.set(CID_BLACK_LUSTER_SOLDIER, bls_name);
+	}
 	const collator = new Intl.Collator(language_pack[request_locale].collator);
-	const entries = [...inverse_table(complete_name_table[request_locale])].sort((a, b) => collator.compare(a[0], b[0]));
+	const entries = [...inverse_mapping(complete_name_table)].sort((a, b) => collator.compare(a[0], b[0]));
 	for (const entry of entries) {
 		entry[1] = cid_table.get(entry[1]);
 	}
@@ -178,11 +153,11 @@ export function get_pack_name(id) {
  * @returns {string}
  */
 export function get_name(cid, locale) {
-	if (!complete_name_table[locale]?.[cid])
-		return '';
-	if (cid === CID_BLACK_LUSTER_SOLDIER && complete_name_table[locale][CID_RITUAL_BLS])
-		return complete_name_table[locale][CID_RITUAL_BLS];
-	return complete_name_table[locale][cid];
+	if (name_table[locale] && Object.hasOwn(name_table[locale], cid))
+		return name_table[locale][cid];
+	if (md_table[locale] && Object.hasOwn(md_table[locale], cid))
+		return md_table[locale][cid];
+	return '';
 }
 
 const extension_schema = `CREATE TABLE extension (
