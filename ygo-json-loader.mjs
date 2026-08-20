@@ -21,8 +21,11 @@ import { CID_BLACK_LUSTER_SOLDIER } from './ygo-constant.mjs';
  * @returns {Map<number, any>}
  */
 function object_to_map(obj) {
-	return new Map(Object.entries(obj)
-				   .map(([k, v]) => [Number.parseInt(k, 10), v]));
+	const result = new Map();
+	for (const key of Object.keys(obj)) {
+		result.set(Number(key), obj[key]);
+	}
+	return result;
 }
 
 /**
@@ -97,9 +100,8 @@ function create_choice(request_locale) {
 	}
 	const complete_name_table = object_to_map(name_table[request_locale]);
 	if (md_table[request_locale]) {
-		const table1 = object_to_map(md_table[request_locale]);
-		for (const [cid, name] of table1) {
-			complete_name_table.set(cid, name);
+		for (const key of Object.keys(md_table[request_locale])) {
+			complete_name_table.set(Number(key), md_table[request_locale][key]);
 		}
 	}
 	if (complete_name_table.has(CID_BLACK_LUSTER_SOLDIER)) {
