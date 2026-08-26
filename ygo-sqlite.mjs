@@ -1,6 +1,6 @@
 import { DatabaseSync } from "node:sqlite";
 import { MAX_CARD_ID, monster_types } from "./ygo-constant.mjs";
-import { inverse_mapping } from "./ygo-utility.mjs";
+import { escape_wildcard, inverse_mapping } from "./ygo-utility.mjs";
 import { id_to_cid, extra_setcodes, setname_table } from "./ygo-json-loader.mjs";
 import { update_schema } from "./schema/update-schema.mjs";
 
@@ -95,8 +95,8 @@ const replace_dollar = /\$(?![%_])/g;
 const replace_escape = /\$(?=[%_])/g;
 
 const normalized_setname_table = Object.create(null);
-for (const [name, code] of Object.entries(setname_table)) {
-	normalized_setname_table[name.toLowerCase()] = code;
+for (const name of Object.keys(setname_table)) {
+	normalized_setname_table[name.toLowerCase()] = setname_table[name];
 }
 
 /**
@@ -307,17 +307,12 @@ export function like_pattern(str) {
  * @returns {string}
  */
 export function name_condition(input, arg) {
-	let condition = `name LIKE $name ESCAPE '$' OR description LIKE $kanji ESCAPE '$' OR rule_code IN (SELECT id ${full_tables} ${default_clause_v2} AND name LIKE $name ESCAPE '$')`;
-	arg.$name = like_pattern(input);
-	arg.$kanji = `%※${like_pattern(input)}`;
-	if (re_wildcard.test(input)) {
-		return `(${condition})`;
-	}
-	const keyword = input.replace(replace_escape, '').toLowerCase();
-	if (Object.hasOwn(normalized_setname_table, keyword)) {
-		condition += ` OR ${setcode_condition(normalized_setname_table[keyword], arg)}`;
-	}
-	return `(${condition})`;
+	const condition = `name LIKE $name ESCAPE '$' OR description LIKE $kanji ESCAPE '$' OR rule_code IN (SELECT id ${full_tables} ${default_clause_v2} AND name LIKE $name ESCAPE '$')`;
+	arg.$name = `%${escape_wildcard(input)}%`;
+	arg.$kanji = `%※%${escape_wildcard(input)}%`;
+	const keyword = input.toLowerCase();
+	const setcode = Object.hasOwn(normalized_setname_table, keyword) ? ` OR ${setcode_condition(normalized_setname_table[keyword], arg)}` : '';
+	return `(${condition}${setcode})`;
 }
 
 
