@@ -181,7 +181,7 @@ export async function seventh_handler(interaction) {
 	const seventh_list = get_seventh_xyz(card);
 	const row_seventh = new ActionRowBuilder();
 	for (const seventh of seventh_list) {
-		const match = seventh.tw_name.match(re_number);
+		const match = seventh.text.tw_name.match(re_number);
 		const label = match ? match[0] : 'No.10X';
 		const button1 = new ButtonBuilder()
 			.setStyle(ButtonStyle.Link)
