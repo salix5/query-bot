@@ -1,6 +1,7 @@
 import { SlashCommandBuilder } from 'discord.js';
 import { query_command } from '../common_query.js';
 
+export const disabled = true;
 export const module_url = import.meta.url;
 export const data = new SlashCommandBuilder()
 	.setName('ocg-jp')

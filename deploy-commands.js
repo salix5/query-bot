@@ -12,17 +12,20 @@ export async function deploy_command(commands) {
 	const public_commands = [];
 	const test_commands = [];
 	for (const command of commands) {
-		if (command.is_test)
+		if(command.disabled) {
+			continue;
+		}
+		if (command.experimental) {
 			test_commands.push(command.data.toJSON());
-		else
-			public_commands.push(command.data.toJSON());
+			continue;
+		}
+		public_commands.push(command.data.toJSON());
 	}
 	try {
 		console.log(`Started refreshing ${public_commands.length} application (/) commands.`);
 
 		// The put method is used to fully refresh all commands in the guild with the current set
 		const data = await rest.put(
-			//Routes.applicationGuildCommands(clientId, guildId),
 			Routes.applicationCommands(clientId),
 			{ body: public_commands },
 		);
