@@ -20,14 +20,14 @@
   "author": "salix5",
   "license": "MIT",
   "dependencies": {
-    "discord.js": "^14.0.0"
+    "discord.js": "^14.27.0"
   },
   "engines": {
     "node": ">=24.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "eslint": "^10.0.1",
-    "globals": "^15.8.0"
+    "eslint": "^10.10.0",
+    "globals": "^15.15.0"
   }
 }
