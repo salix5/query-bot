@@ -44,9 +44,9 @@ export const data = new SlashCommandBuilder()
 data.integration_types = [0, 1];
 data.contexts = [0, 1, 2];
 export async function execute(interaction) {
-	const card = await random_integer(22);
-	const position = await random_integer(2);
-	const text = card === 12 ? msg[position][await random_integer(msg[position].length)] : '';
+	const card = random_integer(22);
+	const position = random_integer(2);
+	const text = card === 12 ? msg[position][random_integer(msg[position].length)] : '';
 	const result = `${major_arcana[card]}，${position ? '正位' : '逆位'}\n${text}\n`;
 	await interaction.reply(result);
 }

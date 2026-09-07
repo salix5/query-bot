@@ -11,7 +11,7 @@ export const data = new SlashCommandBuilder()
 data.integration_types = [0, 1];
 data.contexts = [0, 1, 2];
 export async function execute(interaction) {
-	const cid = cid_list_ja[await random_integer(cid_list_ja.length)];
+	const cid = cid_list_ja[random_integer(cid_list_ja.length)];
 	const card = get_card(cid_table.get(cid));
 	if (card) {
 		await interaction.reply(create_reply(card, 'zh-tw'));

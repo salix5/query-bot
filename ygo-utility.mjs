@@ -1,5 +1,4 @@
 import { randomInt } from "node:crypto";
-import { promisify } from "node:util";
 
 /**
  * @param {number} cid 
@@ -129,4 +128,6 @@ export function bigint_replacer(key, value) {
 	return value;
 }
 
-export const random_integer = promisify(randomInt);
+export function random_integer(...args) {
+	return randomInt(...args);
+}

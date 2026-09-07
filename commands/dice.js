@@ -17,6 +17,6 @@ export async function execute(interaction) {
 	let face = interaction.options.getInteger('face');
 	if (!face)
 		face = 20;
-	const result = await random_integer(face) + 1;
+	const result = random_integer(face) + 1;
 	await interaction.reply(`${result}`);
 }

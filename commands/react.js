@@ -17,6 +17,6 @@ const emoji_list = [
  * @param {import('discord.js').ChatInputCommandInteraction} interaction 
  */
 export async function execute(interaction) {
-	const emoji = emoji_list[await random_integer(emoji_list.length)];
+	const emoji = emoji_list[random_integer(emoji_list.length)];
 	await interaction.reply(emoji);
 }
