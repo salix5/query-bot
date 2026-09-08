@@ -92,7 +92,6 @@ COMMIT;`;
 
 export const re_wildcard = /(?<!\$)[%_]/;
 const replace_dollar = /\$(?![%_])/g;
-const replace_escape = /\$(?=[%_])/g;
 
 const normalized_setname_table = Object.create(null);
 for (const name of Object.keys(setname_table)) {
@@ -226,9 +225,9 @@ export function merge_db(base_db, db_list) {
  * Update the database to the new schema.
  * @param {DatabaseSync} db 
  */
-export async function alter_db(db) {
+export function alter_db(db) {
 	db.exec(sql_delete);
-	await update_schema(db);
+	update_schema(db);
 }
 
 /**
