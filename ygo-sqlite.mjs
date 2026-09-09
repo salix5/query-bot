@@ -1,3 +1,4 @@
+import { copyFileSync } from "node:fs";
 import { DatabaseSync } from "node:sqlite";
 import { MAX_CARD_ID, monster_types } from "./ygo-constant.mjs";
 import { escape_wildcard, inverse_mapping } from "./ygo-utility.mjs";
@@ -186,39 +187,36 @@ export function sqlite3_open(filename) {
 }
 
 /**
- * Merge databases in `db_list` into `base_db`.
- * @param {string} base_db
+ * Merge databases into ``.
+ * @param {string} output_file
  * @param {string[]} db_list
- * @returns {DatabaseSync|null}
+ * @returns {boolean}
  */
-export function merge_db(base_db, db_list) {
+export function merge_db(output_file, db_list) {
 	if (db_list.length === 0) {
-		return null;
+		return false;
 	}
-	const base = new DatabaseSync(base_db);
+	copyFileSync(db_list[0], output_file);
+	using base = new DatabaseSync(output_file);
 	base.exec(`PRAGMA trusted_schema = OFF;`);
-	const stmt_attach = base.prepare(`ATTACH DATABASE ? AS sub;`);
+	using stmt_attach = base.prepare(`ATTACH DATABASE ? AS sub;`);
 	const sql_merge = `BEGIN TRANSACTION;
 	INSERT OR REPLACE INTO datas SELECT * FROM sub.datas;
 	INSERT OR REPLACE INTO texts SELECT * FROM sub.texts;
 	COMMIT;`;
-	for (const db of db_list) {
+	for (let i = 1; i < db_list.length; i++) {
 		try {
-			stmt_attach.run(db);
+			stmt_attach.run(db_list[i]);
 			base.exec(sql_merge);
 			base.exec(`DETACH DATABASE sub;`);
 		}
 		catch (error) {
-			console.error('Failed to merge database:', db);
+			console.error('Failed to merge database:', db_list[i]);
 			console.error(error);
-			try {
-				base.exec(`ROLLBACK;`);
-			}
-			catch { /* empty */ }
-			break;
+			return false;
 		}
 	}
-	return base;
+	return true;
 }
 
 /**
