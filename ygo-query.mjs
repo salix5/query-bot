@@ -1,4 +1,6 @@
+import { renameSync } from 'node:fs';
 import { writeFile } from 'node:fs/promises';
+import { DatabaseSync } from 'node:sqlite';
 import { ltable_ocg, ltable_tcg, ltable_md, pack_list, pre_release, genesys_point, setname_table, load_name_table } from './ygo-json-loader.mjs';
 import { language_pack, official_name, cid_table, name_table } from './ygo-json-loader.mjs';
 import { escape_regexp, escape_wildcard, zh_collator, zh_compare } from './ygo-utility.mjs';
@@ -6,8 +8,6 @@ import { db_url1, db_url2, fetch_db } from './ygo-fetch.mjs';
 import { card_types, monster_types, link_markers, rarity, CID_BLACK_LUSTER_SOLDIER, spell_types, trap_types, marker_char, color_table } from "./ygo-constant.mjs";
 import { arg_default_v2, arg_seventh, effect_filter, default_clause_v2, sql_base_v2, sql_count_v2, sql_default_v2, sql_seventh, full_tables } from './ygo-sqlite.mjs';
 import { like_pattern, name_condition, list_condition, alter_db, merge_db, query_db_v2, setcode_condition, sqlite3_open } from './ygo-sqlite.mjs';
-import { DatabaseSync } from 'node:sqlite';
-import { renameSync } from 'node:fs';
 
 export const regexp_mention = `(?<=「)[^「」]*「?[^「」]*」?[^「」]*(?=」)`;
 const RESULT_PER_PAGE = 50;
