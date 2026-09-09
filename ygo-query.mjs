@@ -548,6 +548,7 @@ export async function reload_db(file = null) {
 	}
 	const current = `${import.meta.dirname}/db/query.cdb`;
 	const full_db = new DatabaseSync(file);
+	full_db.exec(`PRAGMA trusted_schema = OFF;`);
 	alter_db(full_db);
 	load_name_table(full_db);
 	full_db.close();
