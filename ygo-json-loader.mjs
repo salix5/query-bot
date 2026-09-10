@@ -179,7 +179,7 @@ const extension_schema = `CREATE TABLE extension (
 export function load_name_table(db) {
 	db.exec(`DROP TABLE IF EXISTS extension;`);
 	db.exec(extension_schema);
-	const insert_name = db.prepare(`INSERT INTO extension (id, cid, en_name, jp_name, jp_ruby, md_name_en, md_name_jp, md_rarity) VALUES (?, ?, ?, ?, ?, ?, ?, ?);`);
+	using insert_name = db.prepare(`INSERT INTO extension (id, cid, en_name, jp_name, jp_ruby, md_name_en, md_name_jp, md_rarity) VALUES (?, ?, ?, ?, ?, ?, ?, ?);`);
 	try {
 		db.exec(`BEGIN TRANSACTION;`);
 		for (const cid of cid_table.keys()) {
@@ -195,7 +195,9 @@ export function load_name_table(db) {
 		db.exec(`COMMIT;`);
 	}
 	catch (error) {
-		db.exec(`ROLLBACK;`);
+		if (db.inTransaction) {
+			db.exec(`ROLLBACK;`);
+		}
 		console.error('Failed to load extension table:', error);
 	}
 }

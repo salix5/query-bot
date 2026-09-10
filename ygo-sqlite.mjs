@@ -250,7 +250,7 @@ export function query_db_v2(db, sql = sql_default_v2, arg = arg_default_v2) {
 		}
 	}
 	const full_sql = `${sql} ORDER BY id${page_filter}`;
-	const stmt = db.prepare(full_sql);
+	using stmt = db.prepare(full_sql);
 	return stmt.all(arg);
 }
 
@@ -354,7 +354,7 @@ export function query_db(db, sql = sql_default_v1, arg = arg_default_v1) {
 		}
 	}
 	const full_sql = `${sql} ORDER BY id${page_filter}`;
-	const stmt = db.prepare(full_sql);
+	using stmt = db.prepare(full_sql);
 	const rows = stmt.all(arg);
 	return rows.map(row => {
 		const { setcode, ...rest } = row;

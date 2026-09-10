@@ -668,7 +668,7 @@ export function query_card(params) {
 		const arg2 = { ...arg1 };
 		delete arg2.$limit;
 		delete arg2.$offset;
-		const st = db.prepare(command);
+		using st = db.prepare(command);
 		st.setReturnArrays(true);
 		const rows = st.all(arg2);
 		meta.total = rows[0]?.[0] ?? 0;
