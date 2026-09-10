@@ -1,10 +1,12 @@
-import { rename, rm, writeFile } from 'node:fs/promises';
+import { renameSync } from 'node:fs';
+import { writeFile } from 'node:fs/promises';
+import { DatabaseSync } from 'node:sqlite';
 import { ltable_ocg, ltable_tcg, ltable_md, pack_list, pre_release, genesys_point, setname_table, load_name_table } from './ygo-json-loader.mjs';
 import { language_pack, official_name, cid_table, name_table } from './ygo-json-loader.mjs';
 import { escape_regexp, escape_wildcard, zh_collator, zh_compare } from './ygo-utility.mjs';
 import { db_url1, db_url2, fetch_db } from './ygo-fetch.mjs';
 import { card_types, monster_types, link_markers, rarity, CID_BLACK_LUSTER_SOLDIER, spell_types, trap_types, marker_char, color_table } from "./ygo-constant.mjs";
-import { arg_default_v2, arg_seventh, effect_filter, default_clause_v2, sql_base_v2, sql_count_v2, sql_default_v2, sql_seventh, full_tables } from './ygo-sqlite.mjs';
+import { arg_default_v2, arg_seventh, effect_filter, default_clause_v2, sql_base_v2, sql_count_v2, sql_default_v2, sql_seventh, full_tables, default_options } from './ygo-sqlite.mjs';
 import { like_pattern, name_condition, list_condition, alter_db, merge_db, query_db_v2, setcode_condition, sqlite3_open } from './ygo-sqlite.mjs';
 
 export const regexp_mention = `(?<=「)[^「」]*「?[^「」]*」?[^「」]*(?=」)`;
@@ -93,7 +95,7 @@ let stmt_entry = null;
 const multimap_seventh = new Map();
 
 //workaround
-await init_query();
+await reload_db();
 
 
 /**
@@ -529,11 +531,10 @@ export function generate_condition(params, id_list) {
 }
 
 /**
- * @param {string[]?} files
+ * @param {string[]} [files]
  */
-export async function init_query(files = null) {
-	if (files === null || files.length === 0) {
-		const current_path = `${import.meta.dirname}/db/query.cdb`;
+export async function reload_db(files) {
+	if (files === undefined) {
 		const base = `${import.meta.dirname}/db/main.cdb`;
 		const ext1 = `${import.meta.dirname}/db/pre.cdb`;
 		try {
@@ -545,34 +546,23 @@ export async function init_query(files = null) {
 			console.error(error);
 			return;
 		}
-		const full_db = merge_db(base, [ext1]);
-		if (!full_db) {
-			return;
-		}
-		alter_db(full_db);
-		load_name_table(full_db);
-		full_db.close();
-		stmt_name = null;
-		stmt_entry = null;
-		db?.close();
-		await rm(current_path, { force: true });
-		await rename(base, current_path);
-		db = sqlite3_open(current_path);
-		await rm(ext1, { force: true });
+		files = [base, ext1];
 	}
-	else {
-		const full_db = merge_db(files[0], files.slice(1));
-		if (!full_db) {
-			return;
-		}
-		alter_db(full_db);
-		load_name_table(full_db);
-		full_db.close();
-		stmt_name = null;
-		stmt_entry = null;
-		db?.close();
-		db = sqlite3_open(files[0]);
+	const temp = `${import.meta.dirname}/db/temp.cdb`;
+	if (!merge_db(temp, files)) {
+		return;
 	}
+	const current = `${import.meta.dirname}/db/query.cdb`;
+	const full_db = new DatabaseSync(temp, default_options);
+	full_db.exec(`PRAGMA trusted_schema = OFF;`);
+	alter_db(full_db);
+	load_name_table(full_db);
+	full_db.close();
+	stmt_name?.close();
+	stmt_entry?.close();
+	db?.close();
+	renameSync(temp, current);
+	db = sqlite3_open(current);
 	stmt_name = db.prepare(`SELECT id, name ${full_tables} ${default_clause_v2} AND id = $id;`);
 	stmt_entry = db.prepare(`${sql_default_v2} AND id = $id;`);
 	// refresh multimap of No.101 ~ No.107
