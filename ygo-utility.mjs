@@ -72,15 +72,6 @@ export function inverse_table(obj) {
 	return inverse;
 }
 
-const replace_regexp = /[|\\{}()[\]^$+*?.]/g;
-/**
- * @param {string} str 
- * @returns {string}
- */
-export function escape_regexp(str) {
-	return str.replace(replace_regexp, "\\$&");
-}
-
 const replace_wildcard = /[%_$]/g;
 /**
  * @param {string} str 

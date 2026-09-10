@@ -3,7 +3,7 @@ import { writeFile } from 'node:fs/promises';
 import { DatabaseSync } from 'node:sqlite';
 import { ltable_ocg, ltable_tcg, ltable_md, pack_list, pre_release, genesys_point, setname_table, load_name_table } from './ygo-json-loader.mjs';
 import { language_pack, official_name, cid_table, name_table } from './ygo-json-loader.mjs';
-import { escape_regexp, escape_wildcard, zh_collator, zh_compare } from './ygo-utility.mjs';
+import { escape_wildcard, zh_collator, zh_compare } from './ygo-utility.mjs';
 import { db_url1, db_url2, fetch_db } from './ygo-fetch.mjs';
 import { card_types, monster_types, link_markers, rarity, CID_BLACK_LUSTER_SOLDIER, spell_types, trap_types, marker_char, color_table } from "./ygo-constant.mjs";
 import { arg_default_v2, arg_seventh, effect_filter, default_clause_v2, sql_base_v2, sql_count_v2, sql_default_v2, sql_seventh, full_tables, default_options } from './ygo-sqlite.mjs';
@@ -300,7 +300,7 @@ export function generate_condition(params, id_list) {
 		if (tw_name) {
 			if (Object.hasOwn(setname_table, tw_name)) {
 				qstr += `${effect_filter} AND description REGEXP $mention`;
-				arg.$mention = `「${escape_regexp(tw_name)}」(?!怪|魔|陷|卡|融合怪獸|同步怪獸|超量怪獸|連結怪獸|儀式怪獸|靈擺怪獸|通常|永續|裝備|速攻|儀式魔法|場地|反擊)`;
+				arg.$mention = `「${RegExp.escape(tw_name)}」(?!怪|魔|陷|卡|融合怪獸|同步怪獸|超量怪獸|連結怪獸|儀式怪獸|靈擺怪獸|通常|永續|裝備|速攻|儀式魔法|場地|反擊)`;
 			}
 			else {
 				qstr += `${effect_filter} AND description LIKE $mention ESCAPE '$'`;
