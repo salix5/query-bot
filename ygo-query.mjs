@@ -537,9 +537,15 @@ export async function reload_db(files) {
 	if (files === undefined) {
 		const base = `${import.meta.dirname}/db/main.cdb`;
 		const ext1 = `${import.meta.dirname}/db/pre.cdb`;
-		const task1 = fetch_db(db_url1).then(data => writeFile(base, data));
-		const task2 = fetch_db(db_url2).then(data => writeFile(ext1, data));
-		await Promise.all([task1, task2]);
+		try {
+			const task1 = fetch_db(db_url1).then(data => writeFile(base, data));
+			const task2 = fetch_db(db_url2).then(data => writeFile(ext1, data));
+			await Promise.all([task1, task2]);
+		}
+		catch (error) {
+			console.error(error);
+			return;
+		}
 		files = [base, ext1];
 	}
 	const temp = `${import.meta.dirname}/db/temp.cdb`;
