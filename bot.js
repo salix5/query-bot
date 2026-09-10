@@ -34,8 +34,8 @@ for (const command of commands) {
 }
 
 client.once(Events.ClientReady, c => {
-	const currentDate = new Date();
-	console.log(`[${currentDate.toUTCString()}] Ready! Logged in as ${c.user.tag} (total: ${Object.keys(name_table['ja']).length})`);
+	const current = Temporal.Now.plainDateTimeISO("+08:00");
+	console.log(`[${current.toLocaleString("zh-TW-u-hc-h23")}] Ready! Logged in as ${c.user.tag} (total: ${Object.keys(name_table['ja']).length})`);
 });
 
 client.on(Events.MessageCreate, async msg => {
@@ -93,7 +93,7 @@ client.on(Events.InteractionCreate, async interaction => {
 		const cooldownAmount = (command.cooldown ?? defaultCooldownDuration) * 1000;
 		if (cooldownAmount) {
 			const timestamps = cooldowns.ensure(command.data.name, () => new Collection());
-			const now = Date.now();
+			const now = Temporal.Now.instant().epochMilliseconds;
 			if (timestamps.has(interaction.user.id)) {
 				const expirationTime = timestamps.get(interaction.user.id) + cooldownAmount;
 				if (now < expirationTime) {
@@ -135,16 +135,14 @@ client.on(Events.InteractionCreate, async interaction => {
 			console.error(`No command matching ${interaction.commandName} was found.`);
 			return;
 		}
-		const begin = Date.now();
+		const begin = performance.now();
 		try {
 			await command.autocomplete(interaction);
 		}
 		catch (error) {
-			const fail_time = new Date();
-			const begin_time = new Date(begin);
+			const fail = performance.now();
 			console.error(`autocomplete in ${interaction.commandName}:`, interaction.options.getFocused());
-			console.error('begin at', begin_time.toTimeString());
-			console.error('fail at', fail_time.toTimeString());
+			console.error('failed after:', fail - begin, 'ms');
 			console.error(error);
 		}
 	}
