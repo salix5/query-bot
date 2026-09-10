@@ -147,32 +147,6 @@ function regexp_test(pattern, str) {
 }
 
 /**
- * Execute a callback within a database transaction.
- * @param {DatabaseSync} db 
- * @param {Function} fn 
- * @returns
- */
-// eslint-disable-next-line no-unused-vars
-function execute_transaction(db, fn) {
-	if (db.isTransaction) {
-		return fn();
-	}
-	db.exec(`BEGIN TRANSACTION;`);
-	try {
-		const result = fn();
-		db.exec(`COMMIT;`);
-		return result;
-	}
-	catch (error) {
-		try {
-			db.exec(`ROLLBACK;`);
-		}
-		catch { /* empty */ }
-		throw error;
-	}
-}
-
-/**
  * Open a database file and add custom functions `regexp` and `match`.
  * @param {string} filename 
  * @returns {DatabaseSync}
