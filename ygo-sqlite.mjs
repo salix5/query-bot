@@ -362,9 +362,8 @@ export function query_db(db, sql = sql_default_v1, arg = arg_default_v1) {
  * @returns 
  */
 export function read_db(path, sql = sql_default_v1, arg = arg_default_v1) {
-	const db = sqlite3_open(path);
+	using db = sqlite3_open(path);
 	const rows = query_db(db, sql, arg);
-	db.close();
 	return rows;
 }
 
