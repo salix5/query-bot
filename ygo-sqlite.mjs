@@ -187,7 +187,7 @@ export function sqlite3_open(filename) {
 }
 
 /**
- * Merge databases into ``.
+ * Merge databases into a new file `output_file`.
  * @param {string} output_file
  * @param {string[]} db_list
  * @returns {boolean}
