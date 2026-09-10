@@ -84,6 +84,11 @@ export const arg_seventh = {
 	$n107: '%No.107%',
 };
 
+export const default_options = {
+	allowExtension: false,
+	defensive: true,
+};
+
 const sql_delete = `BEGIN TRANSACTION;
 DELETE FROM datas WHERE id = ${ID_TYLER_THE_GREAT_WARRIOR};
 DELETE FROM texts WHERE id = ${ID_TYLER_THE_GREAT_WARRIOR};
@@ -174,6 +179,7 @@ function execute_transaction(db, fn) {
  */
 export function sqlite3_open(filename) {
 	const db_option = {
+		...default_options,
 		readOnly: true,
 	};
 	const regexp_option = {
@@ -197,7 +203,7 @@ export function merge_db(output_file, db_list) {
 		return false;
 	}
 	copyFileSync(db_list[0], output_file);
-	using base = new DatabaseSync(output_file);
+	using base = new DatabaseSync(output_file, default_options);
 	base.exec(`PRAGMA trusted_schema = OFF;`);
 	using stmt_attach = base.prepare(`ATTACH DATABASE ? AS sub;`);
 	const sql_merge = `BEGIN TRANSACTION;

@@ -6,7 +6,7 @@ import { language_pack, official_name, cid_table, name_table } from './ygo-json-
 import { escape_regexp, escape_wildcard, zh_collator, zh_compare } from './ygo-utility.mjs';
 import { db_url1, db_url2, fetch_db } from './ygo-fetch.mjs';
 import { card_types, monster_types, link_markers, rarity, CID_BLACK_LUSTER_SOLDIER, spell_types, trap_types, marker_char, color_table } from "./ygo-constant.mjs";
-import { arg_default_v2, arg_seventh, effect_filter, default_clause_v2, sql_base_v2, sql_count_v2, sql_default_v2, sql_seventh, full_tables } from './ygo-sqlite.mjs';
+import { arg_default_v2, arg_seventh, effect_filter, default_clause_v2, sql_base_v2, sql_count_v2, sql_default_v2, sql_seventh, full_tables, default_options } from './ygo-sqlite.mjs';
 import { like_pattern, name_condition, list_condition, alter_db, merge_db, query_db_v2, setcode_condition, sqlite3_open } from './ygo-sqlite.mjs';
 
 export const regexp_mention = `(?<=「)[^「」]*「?[^「」]*」?[^「」]*(?=」)`;
@@ -553,7 +553,7 @@ export async function reload_db(files) {
 		return;
 	}
 	const current = `${import.meta.dirname}/db/query.cdb`;
-	const full_db = new DatabaseSync(temp);
+	const full_db = new DatabaseSync(temp, default_options);
 	full_db.exec(`PRAGMA trusted_schema = OFF;`);
 	alter_db(full_db);
 	load_name_table(full_db);
