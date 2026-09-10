@@ -531,23 +531,23 @@ export function generate_condition(params, id_list) {
 }
 
 /**
- * @param {string|null} file
+ * @param {string[]} [files]
  */
-export async function reload_db(file = null) {
-	if (file === null) {
+export async function reload_db(files) {
+	if (files === undefined) {
 		const base = `${import.meta.dirname}/db/main.cdb`;
 		const ext1 = `${import.meta.dirname}/db/pre.cdb`;
 		const task1 = fetch_db(db_url1).then(data => writeFile(base, data));
 		const task2 = fetch_db(db_url2).then(data => writeFile(ext1, data));
 		await Promise.all([task1, task2]);
-		const temp = `${import.meta.dirname}/db/temp.cdb`;
-		if (!merge_db(temp, [base, ext1])) {
-			return;
-		}
-		file = temp;
+		files = [base, ext1];
+	}
+	const temp = `${import.meta.dirname}/db/temp.cdb`;
+	if (!merge_db(temp, files)) {
+		return;
 	}
 	const current = `${import.meta.dirname}/db/query.cdb`;
-	const full_db = new DatabaseSync(file);
+	const full_db = new DatabaseSync(temp);
 	full_db.exec(`PRAGMA trusted_schema = OFF;`);
 	alter_db(full_db);
 	load_name_table(full_db);
@@ -555,7 +555,7 @@ export async function reload_db(file = null) {
 	stmt_name?.close();
 	stmt_entry?.close();
 	db?.close();
-	renameSync(file, current);
+	renameSync(temp, current);
 	db = sqlite3_open(current);
 	stmt_name = db.prepare(`SELECT id, name ${full_tables} ${default_clause_v2} AND id = $id;`);
 	stmt_entry = db.prepare(`${sql_default_v2} AND id = $id;`);
