@@ -37,9 +37,10 @@ let stmt_entry = null;
  * @property {number} atk
  * @property {number} def
  * @property {number} level
- * @property {number} scale
  * @property {number} race
  * @property {number} attribute
+ * @property {number} scale
+ * @property {number} marker
  * @property {string} setcode
  * @property {number} md_rarity
  * 
@@ -77,9 +78,10 @@ let stmt_entry = null;
  * @property {number} atk
  * @property {number} def
  * @property {number} level
- * @property {number} scale
  * @property {number} race
  * @property {number} attribute
+ * @property {number} scale
+ * @property {number} marker
  * @property {string} setcode
  * @property {number} md_rarity
  * @property {CardText} text
@@ -195,9 +197,10 @@ function generate_card(cdata) {
 		atk: cdata.atk,
 		def: cdata.def,
 		level: cdata.level,
-		scale: cdata.scale,
 		race: cdata.race,
 		attribute: cdata.attribute,
+		scale: cdata.scale,
+		marker: cdata.marker,
 		setcode: cdata.setcode,
 		rule_code: cdata.rule_code,
 		another_code: cdata.another_code,
@@ -439,7 +442,7 @@ export function generate_condition(params, id_list) {
 		has_def = true;
 	}
 	if (has_def) {
-		qstr += " AND NOT type & $link";
+		qstr += " AND (type & $link) = 0";
 		arg.$link = monster_types.TYPE_LINK;
 	}
 
@@ -506,25 +509,25 @@ export function generate_condition(params, id_list) {
 
 	// attribute, race
 	if (Number.isSafeInteger(params.attribute) && params.attribute > 0) {
-		qstr += " AND attribute & $attribute";
+		qstr += " AND (attribute & $attribute) != 0";
 		arg.$attribute = params.attribute;
 	}
 	if (Number.isSafeInteger(params.race) && params.race > 0) {
-		qstr += " AND race & $race";
+		qstr += " AND (race & $race) != 0";
 		arg.$race = params.race;
 	}
 	// marker
 	if (Number.isSafeInteger(params.marker) && params.marker > 0) {
-		qstr += " AND type & $link";
+		qstr += " AND (type & $link) != 0";
 		arg.$link = monster_types.TYPE_LINK;
 		if (Number.isSafeInteger(params.marker_op) && params.marker_op)
-			qstr += " AND def & $marker = $marker";
+			qstr += " AND (marker & $marker) = $marker";
 		else
-			qstr += " AND def & $marker";
+			qstr += " AND (marker & $marker) != 0";
 		arg.$marker = params.marker;
 	}
 	if (qstr.length !== command_length && !arg.$monster) {
-		qstr += " AND type & $monster";
+		qstr += " AND (type & $monster) != 0";
 		arg.$monster = card_types.TYPE_MONSTER;
 	}
 	return [qstr, arg];
@@ -851,7 +854,7 @@ export function print_data(card, locale) {
 		if (card.type & monster_types.TYPE_LINK) {
 			let marker_text = '';
 			for (let marker = link_markers.LINK_MARKER_TOP_LEFT; marker <= link_markers.LINK_MARKER_TOP_RIGHT; marker <<= 1) {
-				if (card.def & marker)
+				if (card.marker & marker)
 					marker_text += marker_char[marker];
 				else
 					marker_text += marker_char['default'];
@@ -859,12 +862,12 @@ export function print_data(card, locale) {
 			result.push(marker_text);
 
 			marker_text = '';
-			if (card.def & link_markers.LINK_MARKER_LEFT)
+			if (card.marker & link_markers.LINK_MARKER_LEFT)
 				marker_text += marker_char[link_markers.LINK_MARKER_LEFT];
 			else
 				marker_text += marker_char['default'];
 			marker_text += marker_char.center;
-			if (card.def & link_markers.LINK_MARKER_RIGHT)
+			if (card.marker & link_markers.LINK_MARKER_RIGHT)
 				marker_text += marker_char[link_markers.LINK_MARKER_RIGHT];
 			else
 				marker_text += marker_char['default'];
@@ -872,7 +875,7 @@ export function print_data(card, locale) {
 
 			marker_text = '';
 			for (let marker = link_markers.LINK_MARKER_BOTTOM_LEFT; marker <= link_markers.LINK_MARKER_BOTTOM_RIGHT; marker <<= 1) {
-				if (card.def & marker)
+				if (card.marker & marker)
 					marker_text += marker_char[marker];
 				else
 					marker_text += marker_char['default'];

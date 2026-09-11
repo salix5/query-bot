@@ -54,8 +54,8 @@ export const arg_base_v1 = {
 
 
 // schema v2 tables
-export const full_columns = `id, datas.ot, datas.alias, datas.rule_code, datas.another_code, datas.type, datas.atk, datas.def, datas.level, datas.scale, datas.race, datas.attribute,
-datas.setcode, texts.name, texts.description,
+export const full_columns = `id, datas.ot, datas.alias, datas.rule_code, datas.another_code, datas.type, datas.atk, datas.def, datas.level, datas.race, datas.attribute,
+datas.scale, datas.marker, datas.setcode, texts.name, texts.description,
 extension.cid, extension.en_name, extension.jp_name, extension.jp_ruby, extension.md_name_en, extension.md_name_jp, coalesce(extension.md_rarity, 0) AS md_rarity`;
 export const full_tables = `FROM datas JOIN texts USING (id) LEFT JOIN extension USING (id)`;
 
@@ -116,9 +116,10 @@ for (const name of Object.keys(setname_table)) {
  * @property {number} atk
  * @property {number} def
  * @property {number} level
- * @property {number} scale
  * @property {number} race
  * @property {number} attribute
+ * @property {number} scale
+ * @property {number} marker
  * @property {string} setcode
  * @property {number} md_rarity
  * 
@@ -147,7 +148,7 @@ function regexp_test(pattern, str) {
 }
 
 /**
- * Open a database file and add custom functions `regexp` and `match`.
+ * Open a database file and add custom functions `regexp`.
  * @param {string} filename 
  * @returns {DatabaseSync}
  */
