@@ -132,18 +132,6 @@ export const trap_types = {
 	TYPE_NORMAL: 0x80000000,	// Pseudo type for API (not stored in database)
 };
 
-export const color_table = {
-	[TYPE_SPELL]: 10,
-	[TYPE_SPELL | TYPE_QUICKPLAY]: 11,
-	[TYPE_SPELL | TYPE_CONTINUOUS]: 12,
-	[TYPE_SPELL | TYPE_EQUIP]: 13,
-	[TYPE_SPELL | TYPE_RITUAL]: 14,
-	[TYPE_SPELL | TYPE_FIELD]: 15,
-	[TYPE_TRAP]: 20,
-	[TYPE_TRAP | TYPE_CONTINUOUS]: 21,
-	[TYPE_TRAP | TYPE_COUNTER]: 22,
-};
-
 export const races = {
 	RACE_WARRIOR,
 	RACE_SPELLCASTER,

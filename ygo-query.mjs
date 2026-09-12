@@ -5,7 +5,7 @@ import { ltable_ocg, ltable_tcg, ltable_md, pack_list, pre_release, genesys_poin
 import { language_pack, official_name, cid_table, name_table } from './ygo-json-loader.mjs';
 import { escape_wildcard, zh_collator, zh_compare } from './ygo-utility.mjs';
 import { db_url1, db_url2, fetch_db } from './ygo-fetch.mjs';
-import { card_types, monster_types, link_markers, rarity, CID_BLACK_LUSTER_SOLDIER, spell_types, trap_types, marker_char, color_table } from "./ygo-constant.mjs";
+import { card_types, monster_types, link_markers, rarity, CID_BLACK_LUSTER_SOLDIER, spell_types, trap_types, marker_char } from "./ygo-constant.mjs";
 import { arg_default_v2, arg_seventh, effect_filter, default_clause_v2, sql_base_v2, sql_count_v2, sql_default_v2, sql_seventh, full_tables, default_options } from './ygo-sqlite.mjs';
 import { like_pattern, name_condition, list_condition, alter_db, merge_db, query_db_v2, setcode_condition, sqlite3_open } from './ygo-sqlite.mjs';
 
@@ -131,6 +131,17 @@ function get_db_name(id) {
 	return card.name;
 }
 
+const color_table = new Map([
+	[card_types.TYPE_SPELL, 10],
+	[card_types.TYPE_SPELL | spell_types.TYPE_QUICKPLAY, 11],
+	[card_types.TYPE_SPELL | spell_types.TYPE_CONTINUOUS, 12],
+	[card_types.TYPE_SPELL | spell_types.TYPE_EQUIP, 13],
+	[card_types.TYPE_SPELL | spell_types.TYPE_RITUAL, 14],
+	[card_types.TYPE_SPELL | spell_types.TYPE_FIELD, 15],
+	[card_types.TYPE_TRAP, 20],
+	[card_types.TYPE_TRAP | trap_types.TYPE_CONTINUOUS, 21],
+	[card_types.TYPE_TRAP | trap_types.TYPE_COUNTER, 22],
+]);
 function get_color(type) {
 	let color = -1;
 	if (type & card_types.TYPE_MONSTER) {
@@ -156,7 +167,7 @@ function get_color(type) {
 		}
 	}
 	else {
-		color = color_table[type] ?? -1;
+		color = color_table.get(type) ?? -1;
 	}
 	return color;
 }
