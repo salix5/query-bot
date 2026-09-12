@@ -87,7 +87,7 @@ export function escape_wildcard(str) {
  * @returns 
  */
 export function table_stringify(map) {
-	return JSON.stringify(Object.fromEntries(map), null, 1);
+	return JSON.stringify(Object.fromEntries(map), null, 2);
 }
 
 export const zh_collator = new Intl.Collator("zh-Hant");
