@@ -1,8 +1,6 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Collection, MessageFlags } from 'discord.js';
-import { monster_types } from './ygo-constant.mjs';
-import { language_pack, official_name, get_pack_name } from './ygo-json-loader.mjs';
+import { get_pack_name } from './ygo-json-loader.mjs';
 import { get_card, get_request_locale, get_seventh_xyz, print_card, print_db_link, print_qa_link } from './ygo-query.mjs';
-import { fetch_text } from './ygo-fetch.mjs';
 import { choice_table } from './common_all.js';
 
 const reply_text = {
@@ -22,38 +20,6 @@ const reply_text = {
 const search_count = new Collection();
 
 export { reply_text, search_count };
-
-const max_size = 1 * 1024 * 1024;
-const timeout = 5000;
-
-async function fetch_desc(card, request_locale) {
-	if (!Number.isSafeInteger(card.cid) || !official_name[request_locale])
-		return '';
-	const raw_data = await fetch_text(print_db_link(card.cid, request_locale), max_size, timeout);
-	const re_ptext = /<div class="frame pen_effect">.*?<div class="item_box_text">.*?([^\r\n\t]+).*?<\/div>/s;
-	const re_text = /<div class="text_title">.*?<\/div>.*?([^\r\n\t]+).*?<\/div>/s;
-	const res_text = re_text.exec(raw_data);
-	if (!res_text) {
-		console.error('Failed to extract text:', card.cid, request_locale);
-		return '';
-	}
-	const ctext = res_text[1].replaceAll('<br>', '\n');
-	if (card.type & monster_types.TYPE_PENDULUM) {
-		const res_ptext = re_ptext.exec(raw_data);
-		let ptext;
-		if (!res_ptext) {
-			console.error('Failed to extract pendulum text:', card.cid, request_locale);
-			ptext = '???';
-		}
-		else {
-			const raw_ptext = (res_ptext[1] === '</div>') ? '' : res_ptext[1];
-			ptext = raw_ptext.replaceAll('<br>', '\n');
-		}
-		const strings = language_pack[request_locale]?.strings ?? language_pack['en']?.strings;
-		return `【${strings.text_name.pendulum_effect}】\n${ptext}\n【${strings.type_name[monster_types.TYPE_EFFECT]}】\n${ctext}\n`;
-	}
-	return `${ctext}\n`;
-}
 
 /**
  * Create the reply of `card` in region `locale`.
@@ -134,20 +100,6 @@ export async function query_command(interaction, input_locale, output_locale) {
 			}
 			else {
 				await interaction.deferReply();
-				let db_desc;
-				try {
-					db_desc = await fetch_desc(card, get_request_locale(card, output_locale));
-				}
-				catch (error) {
-					console.error(error);
-					await interaction.editReply('Network error.');
-					return;
-				}
-				if (!db_desc) {
-					await interaction.editReply('Parse error.');
-					return;
-				}
-				card.text.db_desc = db_desc;
 				await interaction.editReply(create_reply(card, output_locale));
 			}
 		}
