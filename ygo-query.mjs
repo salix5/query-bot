@@ -61,6 +61,7 @@ let stmt_entry = null;
  * @property {string} [kr_name]
  * @property {string} [md_name_en]
  * @property {string} [md_name_jp]
+ * @property {string} tw_name
  * @property {string} description
  * @property {string} [db_desc]
  */
@@ -69,7 +70,6 @@ let stmt_entry = null;
  * @typedef {object} Card
  * @property {number} id
  * @property {number|null} cid
- * @property {string} tw_name
  * 
  * @property {number} ot
  * @property {number} rule_code
@@ -169,10 +169,7 @@ function get_color(type) {
 function generate_card(cdata) {
 	const id = cdata.alias || cdata.id;
 	const artid = cdata.alias ? cdata.id : 0;
-	const text = {
-		__proto__: null,
-		description: cdata.description,
-	};
+	const text = Object.create(null);
 	if (cdata.cid) {
 		if (cdata.en_name)
 			text.en_name = cdata.en_name;
@@ -187,11 +184,12 @@ function generate_card(cdata) {
 		if (Object.hasOwn(name_table['ko'], cdata.cid))
 			text.kr_name = name_table['ko'][cdata.cid];
 	}
+	text.tw_name = cdata.name;
+	text.description = cdata.description;
 	const card = {
 		__proto__: null,
 		cid: cdata.cid,
 		id,
-		tw_name: cdata.name,
 		ot: cdata.ot,
 		type: cdata.type,
 		atk: cdata.atk,
@@ -571,7 +569,7 @@ export async function reload_db(files) {
 	// refresh multimap of No.101 ~ No.107
 	multimap_seventh.clear();
 	const seventh_cards = query(sql_seventh, arg_seventh);
-	seventh_cards.sort((c1, c2) => zh_collator.compare(c1.tw_name, c2.tw_name));
+	seventh_cards.sort((c1, c2) => zh_collator.compare(c1.text.tw_name, c2.text.tw_name));
 	for (const card of seventh_cards) {
 		if (!multimap_seventh.has(card.level))
 			multimap_seventh.set(card.level, []);
@@ -702,7 +700,7 @@ export function compare_card(a, b) {
 	if (a.level !== b.level) {
 		return b.level - a.level;
 	}
-	return zh_collator.compare(a.tw_name, b.tw_name);
+	return zh_collator.compare(a.text.tw_name, b.text.tw_name);
 }
 
 /**
@@ -913,7 +911,7 @@ export function print_card(card, locale) {
 
 	switch (locale) {
 		case 'zh-tw':
-			card_name = card.tw_name;
+			card_name = card.text.tw_name;
 			if (card.text.jp_name)
 				other_name += `${card.text.jp_name}\n`;
 			else if (card.text.md_name_jp)
@@ -1014,11 +1012,11 @@ export function create_choice_prerelease() {
 	for (const card of cards) {
 		const res = card.text.description.match(re_kanji);
 		const kanji = res ? res[0] : '';
-		if (choices.has(card.tw_name) || kanji && choices.has(kanji)) {
+		if (choices.has(card.text.tw_name) || kanji && choices.has(kanji)) {
 			console.error('choice_prerelease', card.id);
 			return new Map();
 		}
-		choices.set(card.tw_name, card.id);
+		choices.set(card.text.tw_name, card.id);
 		if (kanji)
 			choices.set(kanji, card.id);
 	}
@@ -1036,7 +1034,7 @@ export function create_choice_db() {
 	for (const card of query(sql_db)) {
 		const res = card.text.description.match(re_kanji);
 		const kanji = res ? res[0] : '';
-		let key = card.tw_name;
+		let key = card.text.tw_name;
 		if (card.cid === CID_BLACK_LUSTER_SOLDIER) {
 			key += language_pack['zh-tw'].bls_postfix;
 		}
@@ -1055,7 +1053,7 @@ export function create_name_table() {
 	const table1 = new Map();
 	const sql_name = `${sql_default_v2} AND cid IS NOT NULL;`;
 	for (const card of query(sql_name)) {
-		table1.set(card.cid, card.tw_name);
+		table1.set(card.cid, card.text.tw_name);
 	}
 	table1.set(CID_BLACK_LUSTER_SOLDIER, `${table1.get(CID_BLACK_LUSTER_SOLDIER)}${language_pack['zh-tw'].bls_postfix}`);
 	if (table1.size !== cid_table.size)
