@@ -63,7 +63,6 @@ let stmt_entry = null;
  * @property {string} [md_name_jp]
  * @property {string} tw_name
  * @property {string} description
- * @property {string} [db_desc]
  */
 
 /**
@@ -932,7 +931,7 @@ export function print_card(card, locale) {
 				other_name = `${card.text.en_name}\n`;
 			else if (card.text.md_name_en)
 				other_name = `${card.text.md_name_en}    (MD)\n`;
-			description = card.text.db_desc ?? '';
+			description = '';
 			break;
 		case 'ko':
 			if (card.text.kr_name)
@@ -942,7 +941,7 @@ export function print_card(card, locale) {
 				other_name = `${card.text.en_name}\n`;
 			else if (card.text.md_name_en)
 				other_name = `${card.text.md_name_en}    (MD)\n`;
-			description = card.text.db_desc ?? '';
+			description = '';
 			break;
 		case 'en':
 			if (card.text.en_name)
@@ -954,7 +953,7 @@ export function print_card(card, locale) {
 				other_name = `${card.text.jp_name}\n`;
 			else if (card.text.md_name_jp)
 				other_name = `${card.text.md_name_jp}    (MD)\n`;
-			description = card.text.db_desc ?? '';
+			description = '';
 			break;
 		default:
 			break;
