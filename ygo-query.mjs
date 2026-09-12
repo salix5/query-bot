@@ -595,7 +595,7 @@ export async function reload_db(files) {
 }
 
 /**
- * Check if `card.data.setcode` contains `value`.
+ * Check if setcode contains `value`.
  * @param {Card} card 
  * @param {number} value 
  * @returns {boolean}
@@ -801,77 +801,77 @@ export function print_ad(x) {
 }
 
 /**
- * Return the formatted lines of `card` in language `locale`.
- * @param {Card} card 
+ * Return the formatted lines of card data in `locale`.
+ * @param {CardData} data 
  * @param {string} locale 
  * @returns {string[]}
  */
-export function print_data(card, locale) {
+export function print_data(data, locale) {
 	const strings = language_pack[locale].strings;
 	const result = [];
-	if (card.data.type & card_types.TYPE_MONSTER) {
+	if (data.type & card_types.TYPE_MONSTER) {
 		const mtype = strings.type_name[card_types.TYPE_MONSTER];
 		let subtype = '';
 		let lvstr = '\u2605';
-		if (card.data.type & monster_types.TYPE_RITUAL) {
+		if (data.type & monster_types.TYPE_RITUAL) {
 			subtype = `/${strings.type_name[monster_types.TYPE_RITUAL]}`;
 		}
-		else if (card.data.type & monster_types.TYPE_FUSION) {
+		else if (data.type & monster_types.TYPE_FUSION) {
 			subtype = `/${strings.type_name[monster_types.TYPE_FUSION]}`;
 		}
-		else if (card.data.type & monster_types.TYPE_SYNCHRO) {
+		else if (data.type & monster_types.TYPE_SYNCHRO) {
 			subtype = `/${strings.type_name[monster_types.TYPE_SYNCHRO]}`;
 		}
-		else if (card.data.type & monster_types.TYPE_XYZ) {
+		else if (data.type & monster_types.TYPE_XYZ) {
 			subtype = `/${strings.type_name[monster_types.TYPE_XYZ]}`;
 			lvstr = `\u2606`;
 		}
-		else if (card.data.type & monster_types.TYPE_LINK) {
+		else if (data.type & monster_types.TYPE_LINK) {
 			subtype = `/${strings.type_name[monster_types.TYPE_LINK]}`;
 			lvstr = `LINK-`;
 		}
-		else if (card.data.type & monster_types.TYPE_SPSUMMON) {
+		else if (data.type & monster_types.TYPE_SPSUMMON) {
 			subtype = `/${strings.type_name[monster_types.TYPE_SPSUMMON]}`;
 		}
-		if (card.data.type & monster_types.TYPE_PENDULUM) {
+		if (data.type & monster_types.TYPE_PENDULUM) {
 			subtype += `/${strings.type_name[monster_types.TYPE_PENDULUM]}`;
 		}
 
 		// extype
-		if (card.data.type & monster_types.TYPE_NORMAL)
+		if (data.type & monster_types.TYPE_NORMAL)
 			subtype += `/${strings.type_name[monster_types.TYPE_NORMAL]}`;
-		if (card.data.type & monster_types.TYPE_SPIRIT)
+		if (data.type & monster_types.TYPE_SPIRIT)
 			subtype += `/${strings.type_name[monster_types.TYPE_SPIRIT]}`;
-		if (card.data.type & monster_types.TYPE_UNION)
+		if (data.type & monster_types.TYPE_UNION)
 			subtype += `/${strings.type_name[monster_types.TYPE_UNION]}`;
-		if (card.data.type & monster_types.TYPE_DUAL)
+		if (data.type & monster_types.TYPE_DUAL)
 			subtype += `/${strings.type_name[monster_types.TYPE_DUAL]}`;
-		if (card.data.type & monster_types.TYPE_TUNER)
+		if (data.type & monster_types.TYPE_TUNER)
 			subtype += `/${strings.type_name[monster_types.TYPE_TUNER]}`;
-		if (card.data.type & monster_types.TYPE_FLIP)
+		if (data.type & monster_types.TYPE_FLIP)
 			subtype += `/${strings.type_name[monster_types.TYPE_FLIP]}`;
-		if (card.data.type & monster_types.TYPE_TOON)
+		if (data.type & monster_types.TYPE_TOON)
 			subtype += `/${strings.type_name[monster_types.TYPE_TOON]}`;
-		if (card.data.type & monster_types.TYPE_EFFECT)
+		if (data.type & monster_types.TYPE_EFFECT)
 			subtype += `/${strings.type_name[monster_types.TYPE_EFFECT]}`;
 		result.push(`[${mtype}${subtype}]`);
 
-		const level = `${lvstr}${card.data.level || '?'}`;
-		const attribute = `/${strings.attribute_name[card.data.attribute] ?? 'null'}`;
-		const race = `/${strings.race_name[card.data.race] ?? 'null'}`;
-		const attack = `/${strings.value_name['atk']}${print_ad(card.data.atk)}`;
-		const defense = !(card.data.type & monster_types.TYPE_LINK) ? `/${strings.value_name['def']}${print_ad(card.data.def)}` : '';
+		const level = `${lvstr}${data.level || '?'}`;
+		const attribute = `/${strings.attribute_name[data.attribute] ?? 'null'}`;
+		const race = `/${strings.race_name[data.race] ?? 'null'}`;
+		const attack = `/${strings.value_name['atk']}${print_ad(data.atk)}`;
+		const defense = !(data.type & monster_types.TYPE_LINK) ? `/${strings.value_name['def']}${print_ad(data.def)}` : '';
 		result.push(`${level}${attribute}${race}${attack}${defense}`);
 
-		if (card.data.type & monster_types.TYPE_PENDULUM) {
+		if (data.type & monster_types.TYPE_PENDULUM) {
 			const scale_left = ':small_blue_diamond:';
 			const scale_right = ':small_orange_diamond:';
-			result.push(`${scale_left}${card.data.scale}/${card.data.scale}${scale_right}`);
+			result.push(`${scale_left}${data.scale}/${data.scale}${scale_right}`);
 		}
-		if (card.data.type & monster_types.TYPE_LINK) {
+		if (data.type & monster_types.TYPE_LINK) {
 			let marker_text = '';
 			for (let marker = link_markers.LINK_MARKER_TOP_LEFT; marker <= link_markers.LINK_MARKER_TOP_RIGHT; marker <<= 1) {
-				if (card.data.marker & marker)
+				if (data.marker & marker)
 					marker_text += marker_char[marker];
 				else
 					marker_text += marker_char['default'];
@@ -879,12 +879,12 @@ export function print_data(card, locale) {
 			result.push(marker_text);
 
 			marker_text = '';
-			if (card.data.marker & link_markers.LINK_MARKER_LEFT)
+			if (data.marker & link_markers.LINK_MARKER_LEFT)
 				marker_text += marker_char[link_markers.LINK_MARKER_LEFT];
 			else
 				marker_text += marker_char['default'];
 			marker_text += marker_char.center;
-			if (card.data.marker & link_markers.LINK_MARKER_RIGHT)
+			if (data.marker & link_markers.LINK_MARKER_RIGHT)
 				marker_text += marker_char[link_markers.LINK_MARKER_RIGHT];
 			else
 				marker_text += marker_char['default'];
@@ -892,7 +892,7 @@ export function print_data(card, locale) {
 
 			marker_text = '';
 			for (let marker = link_markers.LINK_MARKER_BOTTOM_LEFT; marker <= link_markers.LINK_MARKER_BOTTOM_RIGHT; marker <<= 1) {
-				if (card.data.marker & marker)
+				if (data.marker & marker)
 					marker_text += marker_char[marker];
 				else
 					marker_text += marker_char['default'];
@@ -900,14 +900,14 @@ export function print_data(card, locale) {
 			result.push(marker_text);
 		}
 	}
-	else if (card.data.type & card_types.TYPE_SPELL) {
-		const extype = card.data.type & ~card_types.TYPE_SPELL;
+	else if (data.type & card_types.TYPE_SPELL) {
+		const extype = data.type & ~card_types.TYPE_SPELL;
 		const mtype = `${strings.type_name[card_types.TYPE_SPELL]}`;
 		const subtype = `/${strings.type_name[extype] ?? '???'}`;
 		result.push(`[${mtype}${subtype}]`);
 	}
-	else if (card.data.type & card_types.TYPE_TRAP) {
-		const extype = card.data.type & ~card_types.TYPE_TRAP;
+	else if (data.type & card_types.TYPE_TRAP) {
+		const extype = data.type & ~card_types.TYPE_TRAP;
 		const mtype = `${strings.type_name[card_types.TYPE_TRAP]}`;
 		const subtype = `/${strings.type_name[extype] ?? '???'}`;
 		result.push(`[${mtype}${subtype}]`);
@@ -1013,7 +1013,7 @@ export function print_card(card, locale) {
 	if (card.cid && genesys_point[card.cid]) {
 		genesys_status = `Genesys：${genesys_point[card.cid]}\n`;
 	}
-	const card_text = `**${card_name}**\n${other_name}${md_status}${genesys_status}${lfstr}${print_data(card, locale).join('\n')}\n${description}\n`;
+	const card_text = `**${card_name}**\n${other_name}${md_status}${genesys_status}${lfstr}${print_data(card.data, locale).join('\n')}\n${description}\n`;
 	return card_text;
 }
 
