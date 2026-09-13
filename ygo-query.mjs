@@ -210,6 +210,7 @@ function generate_card(cdata) {
 		data,
 		text,
 		artid,
+		color: get_color(cdata.type),
 	};
 	return card;
 }
@@ -711,10 +712,8 @@ export function query_card(params) {
  * @returns {number}
  */
 export function compare_card(a, b) {
-	const color_a = get_color(a.data.type);
-	const color_b = get_color(b.data.type);
-	if (color_a !== color_b) {
-		return color_a - color_b;
+	if (a.color !== b.color) {
+		return a.color - b.color;
 	}
 	if (a.data.level !== b.data.level) {
 		return b.data.level - a.data.level;
