@@ -59,7 +59,7 @@ export function create_reply(card, locale) {
 		msg.components.push(row_db);
 	}
 	else if (pack_name) {
-		const card_locale = (card.ot === 2) ? 'EN' : 'JP';
+		const card_locale = (card.data.ot === 2) ? 'EN' : 'JP';
 		const pack_index = (card.id % 1000).toString().padStart(3, '0');
 		const card_number = `${pack_name}-${card_locale}${pack_index}`;
 		const row1 = new ActionRowBuilder();
