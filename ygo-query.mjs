@@ -4,7 +4,7 @@ import { DatabaseSync } from 'node:sqlite';
 import { ltable_ocg, ltable_tcg, ltable_md, pack_list, pre_release, genesys_point, setname_table, load_name_table } from './ygo-json-loader.mjs';
 import { language_pack, official_name, cid_table, name_table } from './ygo-json-loader.mjs';
 import { escape_wildcard, zh_collator, zh_compare } from './ygo-utility.mjs';
-import { db_url1, db_url2, fetch_db } from './ygo-fetch.mjs';
+import { fetch_db } from './ygo-fetch.mjs';
 import { card_types, monster_types, link_markers, rarity, CID_BLACK_LUSTER_SOLDIER, spell_types, trap_types, marker_char } from "./ygo-constant.mjs";
 import { arg_default_v2, arg_seventh, effect_filter, default_clause_v2, sql_base_v2, sql_count_v2, sql_default_v2, sql_seventh, full_tables, default_options } from './ygo-sqlite.mjs';
 import { like_pattern, name_condition, list_condition, alter_db, merge_db, query_db_v2, setcode_condition, sqlite3_open } from './ygo-sqlite.mjs';
@@ -564,30 +564,32 @@ export function generate_condition(params, id_list) {
  * @param {string[]} [files]
  */
 export async function reload_db(files) {
+	const temp = `${import.meta.dirname}/db/temp.cdb`;
 	if (files === undefined) {
-		const base = `${import.meta.dirname}/db/main.cdb`;
-		const ext1 = `${import.meta.dirname}/db/pre.cdb`;
+		const db_url = 'https://github.com/salix5/cdb/releases/latest/download/query.cdb';
 		try {
-			const task1 = fetch_db(db_url1).then(data => writeFile(base, data));
-			const task2 = fetch_db(db_url2).then(data => writeFile(ext1, data));
-			await Promise.all([task1, task2]);
+			await fetch_db(db_url).then(data => writeFile(temp, data));
 		}
 		catch (error) {
 			console.error(error);
 			return;
 		}
-		files = [base, ext1];
+		const full_db = new DatabaseSync(temp, default_options);
+		full_db.exec(`PRAGMA trusted_schema = OFF;`);
+		load_name_table(full_db);
+		full_db.close();
 	}
-	const temp = `${import.meta.dirname}/db/temp.cdb`;
-	if (!merge_db(temp, files)) {
-		return;
+	else {
+		if (!merge_db(temp, files)) {
+			return;
+		}
+		const full_db = new DatabaseSync(temp, default_options);
+		full_db.exec(`PRAGMA trusted_schema = OFF;`);
+		alter_db(full_db);
+		load_name_table(full_db);
+		full_db.close();
 	}
 	const current = `${import.meta.dirname}/db/query.cdb`;
-	const full_db = new DatabaseSync(temp, default_options);
-	full_db.exec(`PRAGMA trusted_schema = OFF;`);
-	alter_db(full_db);
-	load_name_table(full_db);
-	full_db.close();
 	stmt_name?.close();
 	stmt_entry?.close();
 	db?.close();
