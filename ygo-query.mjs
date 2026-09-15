@@ -133,47 +133,6 @@ function get_db_name(id) {
 	return card.name;
 }
 
-const color_table = new Map([
-	[card_types.TYPE_SPELL, 10],
-	[card_types.TYPE_SPELL | spell_types.TYPE_QUICKPLAY, 11],
-	[card_types.TYPE_SPELL | spell_types.TYPE_CONTINUOUS, 12],
-	[card_types.TYPE_SPELL | spell_types.TYPE_EQUIP, 13],
-	[card_types.TYPE_SPELL | spell_types.TYPE_RITUAL, 14],
-	[card_types.TYPE_SPELL | spell_types.TYPE_FIELD, 15],
-	[card_types.TYPE_TRAP, 20],
-	[card_types.TYPE_TRAP | trap_types.TYPE_CONTINUOUS, 21],
-	[card_types.TYPE_TRAP | trap_types.TYPE_COUNTER, 22],
-]);
-function get_color(type) {
-	let color = -1;
-	if (type & card_types.TYPE_MONSTER) {
-		if (!(type & monster_types.TYPES_EXTRA)) {
-			if (type & monster_types.TYPE_TOKEN)
-				color = 0;
-			else if (type & monster_types.TYPE_NORMAL)
-				color = 1;
-			else if (type & monster_types.TYPE_RITUAL)
-				color = 3;
-			else if (type & monster_types.TYPE_EFFECT)
-				color = 2;
-		}
-		else {
-			if (type & monster_types.TYPE_FUSION)
-				color = 4;
-			else if (type & monster_types.TYPE_SYNCHRO)
-				color = 5;
-			else if (type & monster_types.TYPE_XYZ)
-				color = 6;
-			else if (type & monster_types.TYPE_LINK)
-				color = 7;
-		}
-	}
-	else {
-		color = color_table.get(type) ?? -1;
-	}
-	return color;
-}
-
 /**
  * @param {Entry} cdata 
  * @returns {Card}
@@ -221,7 +180,6 @@ function generate_card(cdata) {
 		data,
 		text,
 		artid,
-		color: get_color(cdata.type),
 	};
 	return card;
 }
@@ -348,6 +306,11 @@ export function generate_condition(params, id_list) {
 		else {
 			arg.$offset = 0;
 		}
+	}
+	else if (Number.isSafeInteger(params.page) && params.page > 0) {
+		arg.$limit = RESULT_PER_PAGE;
+		arg.$offset = (params.page - 1) * RESULT_PER_PAGE;
+		arg.$page = params.page;
 	}
 
 	// text
@@ -671,7 +634,6 @@ export function query_card(params) {
 	if (result.length === 0) {
 		return { result, meta };
 	}
-	let is_sorted = false;
 	if (typeof params.pack === 'string' && Object.hasOwn(pack_list, params.pack)) {
 		const pack = pack_list[params.pack];
 		const index_table = new Map();
@@ -684,11 +646,9 @@ export function query_card(params) {
 			card.pack_index = index_table.get(card.id);
 		}
 		result.sort((a, b) => a.pack_index - b.pack_index);
-		is_sorted = true;
 		meta.pack = params.pack;
 	}
 	else if (typeof params.pack === 'string' && Object.hasOwn(pre_release, params.pack)) {
-		is_sorted = true;
 		meta.pack = params.pack;
 	}
 	else if (arg_condition.$limit) {
@@ -706,32 +666,7 @@ export function query_card(params) {
 		meta.total = rows[0]?.[0] ?? 0;
 		return { result, meta };
 	}
-	if (Number.isSafeInteger(params.page) && params.page > 0) {
-		if (!is_sorted) {
-			result.sort(compare_card);
-		}
-		const begin = (params.page - 1) * RESULT_PER_PAGE;
-		const section = result.slice(begin, begin + RESULT_PER_PAGE);
-		meta.total = result.length;
-		return { result: section, meta };
-	}
 	return { result, meta };
-}
-
-/**
- * The compare function of Card.
- * @param {Card} a 
- * @param {Card} b 
- * @returns {number}
- */
-export function compare_card(a, b) {
-	if (a.color !== b.color) {
-		return a.color - b.color;
-	}
-	if (a.data.level !== b.data.level) {
-		return b.data.level - a.data.level;
-	}
-	return zh_collator.compare(a.text.tw_name, b.text.tw_name);
 }
 
 /**

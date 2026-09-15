@@ -219,12 +219,14 @@ export function alter_db(db) {
 export function query_db_v2(db, sql = sql_default_v2, arg = arg_default_v2) {
 	let page_filter = '';
 	if (Number.isSafeInteger(arg.$limit)) {
-		page_filter = ` LIMIT $limit`;
+		page_filter = `LIMIT $limit`;
 		if (Number.isSafeInteger(arg.$offset)) {
 			page_filter += ` OFFSET $offset`;
 		}
 	}
-	const full_sql = `${sql} ORDER BY id${page_filter}`;
+	const order_filter = arg.$page ? `ORDER BY color, level DESC, name` : `ORDER BY id`;
+	const full_sql = `${sql} ${order_filter} ${page_filter}`;
+	delete arg.$page;
 	using stmt = db.prepare(full_sql);
 	return stmt.all(arg);
 }
