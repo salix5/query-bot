@@ -15,7 +15,7 @@ const RESULT_PER_PAGE = 50;
 /**
  * @type {import('node:sqlite').DatabaseSync}
  */
-let db = null;
+let db_current = null;
 /**
  * @type {import('node:sqlite').StatementSync}
  */
@@ -525,6 +525,7 @@ export function generate_condition(params, id_list) {
 
 /**
  * @param {string[]} [files]
+ * @returns {Promise<boolean>}
  */
 export async function reload_db(files) {
 	const temp = `${import.meta.dirname}/db/temp.cdb`;
@@ -535,31 +536,29 @@ export async function reload_db(files) {
 		}
 		catch (error) {
 			console.error(error);
-			return;
+			return false;
 		}
-		const full_db = new DatabaseSync(temp, default_options);
-		full_db.exec(`PRAGMA trusted_schema = OFF;`);
-		load_name_table(full_db);
-		full_db.close();
+		using db_temp = new DatabaseSync(temp, default_options);
+		db_temp.exec(`PRAGMA trusted_schema = OFF;`);
+		load_name_table(db_temp);
 	}
 	else {
 		if (!merge_db(temp, files)) {
-			return;
+			return false;
 		}
-		const full_db = new DatabaseSync(temp, default_options);
-		full_db.exec(`PRAGMA trusted_schema = OFF;`);
-		alter_db(full_db);
-		load_name_table(full_db);
-		full_db.close();
+		using db_temp = new DatabaseSync(temp, default_options);
+		db_temp.exec(`PRAGMA trusted_schema = OFF;`);
+		alter_db(db_temp);
+		load_name_table(db_temp);
 	}
-	const current = `${import.meta.dirname}/db/query.cdb`;
 	stmt_name?.close();
 	stmt_entry?.close();
-	db?.close();
+	db_current?.close();
+	const current = `${import.meta.dirname}/db/query.cdb`;
 	renameSync(temp, current);
-	db = sqlite3_open(current);
-	stmt_name = db.prepare(`SELECT id, name ${full_tables} ${default_clause_v2} AND id = $id;`);
-	stmt_entry = db.prepare(`${sql_default_v2} AND id = $id;`);
+	db_current = sqlite3_open(current);
+	stmt_name = db_current.prepare(`SELECT id, name ${full_tables} ${default_clause_v2} AND id = $id;`);
+	stmt_entry = db_current.prepare(`${sql_default_v2} AND id = $id;`);
 	// refresh multimap of No.101 ~ No.107
 	multimap_seventh.clear();
 	const seventh_cards = query(sql_seventh, arg_seventh);
@@ -569,6 +568,7 @@ export async function reload_db(files) {
 			multimap_seventh.set(card.data.level, []);
 		multimap_seventh.get(card.data.level).push(card);
 	}
+	return true;
 }
 
 /**
@@ -595,7 +595,7 @@ export function is_setcode(card, value) {
  * @returns {Card[]}
  */
 export function query(qstr = sql_default_v2, arg = arg_default_v2) {
-	const rows = query_db_v2(db, qstr, arg);
+	const rows = query_db_v2(db_current, qstr, arg);
 	const result = rows.map(generate_card);
 	return result;
 }
@@ -660,7 +660,7 @@ export function query_card(params) {
 		const arg2 = { ...arg1 };
 		delete arg2.$limit;
 		delete arg2.$offset;
-		using st = db.prepare(command);
+		using st = db_current.prepare(command);
 		st.setReturnArrays(true);
 		const rows = st.all(arg2);
 		meta.total = rows[0]?.[0] ?? 0;
