@@ -194,11 +194,18 @@ function is_string(str) {
  * Parse param into sqlite statement condition.
  * @param {object} params 
  * @param {number[]} [id_list]
- * @returns {[string, object]}
  */
 export function generate_condition(params, id_list) {
+	const result = {
+		__proto__: null,
+		condition: "",
+		args: {},
+		limit: -1,
+		offset: 0,
+		sort: 0,
+	};
 	let qstr = "";
-	const arg = {};
+	const arg = result.args;
 	const key_condition = [];
 	// primary key
 	if (Number.isSafeInteger(params.id)) {
@@ -211,7 +218,8 @@ export function generate_condition(params, id_list) {
 	}
 	if (key_condition.length) {
 		qstr = ` AND (${key_condition.join(' OR ')})`;
-		return [qstr, arg];
+		result.condition = qstr;
+		return result;
 	}
 
 	// number
@@ -299,18 +307,15 @@ export function generate_condition(params, id_list) {
 		arg.$pack_end = pre_release[params.pack] + 500;
 	}
 	else if (Number.isSafeInteger(params.limit) && params.limit > 0) {
-		arg.$limit = params.limit;
+		result.limit = params.limit;
 		if (Number.isSafeInteger(params.offset) && params.offset >= 0) {
-			arg.$offset = params.offset;
-		}
-		else {
-			arg.$offset = 0;
+			result.offset = params.offset;
 		}
 	}
 	else if (Number.isSafeInteger(params.page) && params.page > 0) {
-		arg.$limit = RESULT_PER_PAGE;
-		arg.$offset = (params.page - 1) * RESULT_PER_PAGE;
-		arg.$page = params.page;
+		result.limit = RESULT_PER_PAGE;
+		result.offset = (params.page - 1) * RESULT_PER_PAGE;
+		result.sort = 1;
 	}
 
 	// text
@@ -520,7 +525,8 @@ export function generate_condition(params, id_list) {
 		qstr += " AND (type & $monster) != 0";
 		arg.$monster = card_types.TYPE_MONSTER;
 	}
-	return [qstr, arg];
+	result.condition = qstr;
+	return result;
 }
 
 /**
