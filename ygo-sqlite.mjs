@@ -287,6 +287,8 @@ export function setcode_condition(setcode, arg) {
  * @returns {string}
  */
 export function list_condition(column, prefix, list, arg) {
+	if (list.length === 0)
+		return 'FALSE';
 	const set1 = new Set(list);
 	const tokens = [];
 	let index = 0;
