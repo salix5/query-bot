@@ -193,7 +193,7 @@ function is_string(str) {
 /**
  * Parse param into sqlite statement condition.
  * @param {object} params 
- * @param {number[]} [id_list]
+ * @param {Set<number>} [id_list]
  */
 export function generate_condition(params, id_list) {
 	const result = {
@@ -217,13 +217,12 @@ export function generate_condition(params, id_list) {
 		arg.$cid = params.cid;
 	}
 	if (key_condition.length) {
-		qstr = ` AND (${key_condition.join(' OR ')})`;
-		result.condition = qstr;
+		result.condition = ` AND (${key_condition.join(' OR ')})`;
 		return result;
 	}
 
 	// number
-	if (Array.isArray(id_list) && id_list.length) {
+	if (id_list && id_list.size > 0) {
 		qstr += ` AND ${list_condition('id', 'id', id_list, arg)}`;
 	}
 	if (Number.isSafeInteger(params.ot) && params.ot > 0) {
@@ -293,7 +292,7 @@ export function generate_condition(params, id_list) {
 			arg.$pendulum = monster_types.TYPE_PENDULUM;
 		}
 	}
-	if (Number.isSafeInteger(params.md_rarity)) {
+	if (Number.isSafeInteger(params.md_rarity) && params.md_rarity > 0) {
 		qstr += " AND md_rarity = $md_rarity";
 		arg.$md_rarity = params.md_rarity;
 	}
