@@ -282,14 +282,14 @@ export function setcode_condition(setcode, arg) {
  * The sqlite condition for a list.
  * @param {string} column 
  * @param {string} prefix 
- * @param {number[]} list 
+ * @param {number[]|Set<number>} list 
  * @param {object} arg 
  * @returns {string}
  */
 export function list_condition(column, prefix, list, arg) {
-	if (list.length === 0)
+	const set1 = list instanceof Set ? list : new Set(list);
+	if (set1.size === 0)
 		return 'FALSE';
-	const set1 = new Set(list);
 	const tokens = [];
 	let index = 0;
 	for (const value of set1) {
