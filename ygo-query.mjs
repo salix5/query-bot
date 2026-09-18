@@ -6,11 +6,12 @@ import { language_pack, official_name, cid_table, name_table } from './ygo-json-
 import { escape_wildcard, zh_collator, zh_compare } from './ygo-utility.mjs';
 import { fetch_db } from './ygo-fetch.mjs';
 import { card_types, monster_types, link_markers, rarity, CID_BLACK_LUSTER_SOLDIER, spell_types, trap_types, marker_char } from "./ygo-constant.mjs";
-import { arg_default_v2, arg_seventh, effect_filter, default_clause_v2, sql_base_v2, sql_count_v2, sql_default_v2, sql_seventh, full_tables, default_options } from './ygo-sqlite.mjs';
+import { arg_default_v2, arg_seventh, effect_filter, default_clause_v2, sql_base_v2, sql_default_v2, sql_seventh, full_tables, default_options } from './ygo-sqlite.mjs';
 import { like_pattern, name_condition, list_condition, alter_db, merge_db, query_db_v2, setcode_condition, sqlite3_open } from './ygo-sqlite.mjs';
 
 export const regexp_mention = `(?<=「)[^「」]*「?[^「」]*」?[^「」]*(?=」)`;
 const RESULT_PER_PAGE = 50;
+const MAX_COUNT = 1000;
 
 /**
  * @type {import('node:sqlite').DatabaseSync}
@@ -670,7 +671,7 @@ export function query_card(params) {
 		const arg2 = {
 			...arg_default_v2,
 			...args,
-			$limit: RESULT_PER_PAGE * MAX_PAGE + 1,
+			$limit: MAX_COUNT + 1,
 		};
 		using st = db_current.prepare(cmd2);
 		st.setReturnArrays(true);
