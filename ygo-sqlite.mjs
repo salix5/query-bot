@@ -235,12 +235,7 @@ export function alter_db(db) {
     END
 	) VIRTUAL;`;
 	db.exec(sql_trim);
-	try {
-		db.exec(sql_color);
-	}
-	catch (error) {
-		console.error(error);
-	}
+	db.exec(sql_color);
 }
 
 /**
