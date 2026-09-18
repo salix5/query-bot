@@ -225,7 +225,6 @@ export const interface_types = {
 	trap_type: 0,
 	mention: 0,
 	limit: 0,
-	offset: 0,
 
 	atk_from: 0,
 	atk_to: 0,
