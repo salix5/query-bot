@@ -194,15 +194,14 @@ function is_string(str) {
  * Parse param into sqlite statement condition.
  * @param {object} params 
  * @param {Set<number>} [id_list]
+ * @returns {{condition: string, args: object, pack: string|null}}
  */
-export function generate_condition(params, id_list) {
+function generate_condition(params, id_list) {
 	const result = {
 		__proto__: null,
 		condition: "",
 		args: {},
-		limit: -1,
-		offset: 0,
-		sort: 0,
+		pack: null,
 	};
 	let qstr = "";
 	const arg = result.args;
@@ -299,22 +298,12 @@ export function generate_condition(params, id_list) {
 	if (typeof params.pack === 'string' && Object.hasOwn(pack_list, params.pack)) {
 		const pack = pack_list[params.pack].filter(x => Number.isSafeInteger(x) && x > 0);
 		qstr += ` AND ${list_condition('id', 'pack', pack, arg)}`;
+		result.pack = params.pack;
 	}
 	else if (typeof params.pack === 'string' && Object.hasOwn(pre_release, params.pack)) {
 		qstr += " AND (id BETWEEN $pack_begin AND $pack_end)";
 		arg.$pack_begin = pre_release[params.pack];
 		arg.$pack_end = pre_release[params.pack] + 500;
-	}
-	else if (Number.isSafeInteger(params.limit) && params.limit > 0) {
-		result.limit = params.limit;
-		if (Number.isSafeInteger(params.offset) && params.offset >= 0) {
-			result.offset = params.offset;
-		}
-	}
-	else if (Number.isSafeInteger(params.page) && params.page > 0) {
-		result.limit = RESULT_PER_PAGE;
-		result.offset = (params.page - 1) * RESULT_PER_PAGE;
-		result.sort = 1;
 	}
 
 	// text
@@ -613,63 +602,81 @@ export function query_card(params) {
 	const meta = {
 		total: 0,
 		limit: 0,
-		offset: 0,
 	};
-	const [condition, arg_condition] = generate_condition(params);
-	if (Object.keys(arg_condition).length === 0) {
+	const { condition, args, pack, } = generate_condition(params);
+	if (Object.keys(args).length === 0) {
 		return { result: [], meta };
 	}
-	if (Number.isSafeInteger(params.id) || Number.isSafeInteger(params.cid)) {
-		const stmt = `${sql_base_v2}${condition}`;
-		const arg = {
+	if (args.$id || args.$cid) {
+		const cmd1 = `${sql_base_v2}${condition}`;
+		const arg1 = {
 			...arg_default_v2,
-			...arg_condition,
+			...args,
 		};
-		const result = query(stmt, arg);
+		const result = query(cmd1, arg1);
 		meta.total = result.length;
 		return { result, meta };
 	}
-	const sql1 = `${sql_default_v2}${condition}`;
+	const query_parts = [];
 	const arg1 = {
 		...arg_default_v2,
-		...arg_condition,
+		...args,
 	};
-	const result = query(sql1, arg1);
+	const page = (Number.isSafeInteger(params.page) && params.page > 0) ? params.page : 0;
+	const limit = (Number.isSafeInteger(params.limit) && params.limit > 0) ? params.limit : -1;
+	query_parts.push(condition);
+	if (pack) {
+		query_parts.push(`ORDER BY id LIMIT $limit`);
+		arg1.$limit = 500;
+	}
+	else if (page > 0) {
+		query_parts.push(`ORDER BY color, level DESC, name LIMIT $limit OFFSET $offset`);
+		arg1.$limit = RESULT_PER_PAGE;
+		arg1.$offset = (page - 1) * limit;
+	}
+	else {
+		query_parts.push(`ORDER BY id LIMIT $limit`);
+		arg1.$limit = limit;
+	}
+	const cmd1 = `${sql_default_v2}${query_parts.join(' ')}`;
+	const result = query(cmd1, arg1);
 	meta.total = result.length;
 	if (result.length === 0) {
 		return { result, meta };
 	}
-	if (typeof params.pack === 'string' && Object.hasOwn(pack_list, params.pack)) {
-		const pack = pack_list[params.pack];
+	if (pack) {
+		const id_list = pack_list[pack];
 		const index_table = new Map();
-		for (let i = 0; i < pack.length; i += 1) {
-			if (Number.isSafeInteger(pack[i]) && pack[i] > 0) {
-				index_table.set(pack[i], i);
+		for (let i = 0; i < id_list.length; i += 1) {
+			if (Number.isSafeInteger(id_list[i]) && id_list[i] > 0) {
+				index_table.set(id_list[i], i);
 			}
 		}
 		for (const card of result) {
 			card.pack_index = index_table.get(card.id);
 		}
 		result.sort((a, b) => a.pack_index - b.pack_index);
-		meta.pack = params.pack;
+		meta.limit = arg1.$limit;
+		meta.pack = pack;
 	}
-	else if (typeof params.pack === 'string' && Object.hasOwn(pre_release, params.pack)) {
-		meta.pack = params.pack;
-	}
-	else if (arg_condition.$limit) {
-		meta.limit = arg_condition.$limit;
-		meta.offset = arg_condition.$offset;
-	}
-	if (meta.limit > 0) {
-		const command = `${sql_count_v2}${condition};`;
-		const arg2 = { ...arg1 };
-		delete arg2.$limit;
-		delete arg2.$offset;
-		using st = db_current.prepare(command);
+	else if (page > 0) {
+		meta.page = page;
+		const cmd2 = `${sql_count_v2}${condition};`;
+		const arg2 = {
+			...arg_default_v2,
+			...args,
+		};
+		using st = db_current.prepare(cmd2);
 		st.setReturnArrays(true);
 		const rows = st.all(arg2);
 		meta.total = rows[0]?.[0] ?? 0;
-		return { result, meta };
+		meta.limit = arg1.$limit;
+		meta.page = page;
+	}
+	else {
+		meta.limit = arg1.$limit;
+		meta.start_cursor = result[0].id;
+		meta.end_cursor = result[result.length - 1].id;
 	}
 	return { result, meta };
 }
