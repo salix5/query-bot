@@ -243,20 +243,10 @@ export function alter_db(db) {
  * @param {DatabaseSync} db 
  * @param {string} sql 
  * @param {object} arg 
- * @returns {Entry[]}
+ * @returns {Record<string, SQLOutputValue>[]}
  */
 export function query_db_v2(db, sql = sql_default_v2, arg = arg_default_v2) {
-	let page_filter = '';
-	if (Number.isSafeInteger(arg.$limit)) {
-		page_filter = `LIMIT $limit`;
-		if (Number.isSafeInteger(arg.$offset)) {
-			page_filter += ` OFFSET $offset`;
-		}
-	}
-	const order_filter = arg.$page ? `ORDER BY color, level DESC, name` : `ORDER BY id`;
-	const full_sql = `${sql} ${order_filter} ${page_filter}`;
-	delete arg.$page;
-	using stmt = db.prepare(full_sql);
+	using stmt = db.prepare(sql);
 	return stmt.all(arg);
 }
 
