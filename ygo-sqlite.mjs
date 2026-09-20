@@ -283,8 +283,6 @@ export function setcode_condition(setcode, arg) {
  */
 export function list_condition(column, prefix, list, arg) {
 	const set1 = list instanceof Set ? list : new Set(list);
-	if (set1.size === 0)
-		return 'FALSE';
 	const tokens = [];
 	let index = 0;
 	for (const value of set1) {
@@ -294,6 +292,9 @@ export function list_condition(column, prefix, list, arg) {
 		tokens.push(`@${prefix}${index}`);
 		arg[`@${prefix}${index}`] = value;
 		index += 1;
+	}
+	if (tokens.length === 0) {
+		return "FALSE";
 	}
 	return `${column} IN (${tokens.join(', ')})`;
 }
