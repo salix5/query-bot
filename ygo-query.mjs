@@ -195,14 +195,13 @@ function is_string(str) {
  * Parse param into sqlite statement condition.
  * @param {object} params 
  * @param {Set<number>} [id_list]
- * @returns {{condition: string, args: object, pack: string|null}}
+ * @returns {{ condition: string, args: object }}
  */
 function generate_condition(params, id_list) {
 	const result = {
 		__proto__: null,
 		condition: "",
 		args: {},
-		pack: null,
 	};
 	let qstr = "";
 	const arg = result.args;
@@ -295,16 +294,6 @@ function generate_condition(params, id_list) {
 	if (Number.isSafeInteger(params.md_rarity) && params.md_rarity > 0) {
 		qstr += " AND md_rarity = $md_rarity";
 		arg.$md_rarity = params.md_rarity;
-	}
-	if (typeof params.pack === 'string' && Object.hasOwn(pack_list, params.pack)) {
-		const pack = pack_list[params.pack].filter(x => Number.isSafeInteger(x) && x > 0);
-		qstr += ` AND ${list_condition('id', 'pack', pack, arg)}`;
-		result.pack = params.pack;
-	}
-	else if (typeof params.pack === 'string' && Object.hasOwn(pre_release, params.pack)) {
-		qstr += " AND (id BETWEEN $pack_begin AND $pack_end)";
-		arg.$pack_begin = pre_release[params.pack];
-		arg.$pack_end = pre_release[params.pack] + 500;
 	}
 
 	// text
