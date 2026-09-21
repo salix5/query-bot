@@ -239,7 +239,7 @@ export function alter_db(db) {
 }
 
 /**
- * Query cards from `db` with schema v2 using statement `qstr` and binding object `arg`.
+ * Query cards from `db` with schema v2 using statement `sql` and binding object `arg`.
  * @param {DatabaseSync} db 
  * @param {string} sql 
  * @param {object} arg 
@@ -338,7 +338,7 @@ export function write_setcode(list, setcode) {
 }
 
 /**
- * Query cards from `db` using statement `qstr` and binding object `arg`.
+ * Query cards from `db` using statement `sql` and binding object `arg`.
  * @param {DatabaseSync} db 
  * @param {string} sql 
  * @param {object} arg 
