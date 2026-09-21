@@ -509,22 +509,6 @@ function generate_condition(params, id_list) {
 }
 
 /**
- * The compare function of Card.
- * @param {Card} a 
- * @param {Card} b 
- * @returns {number}
- */
-export function compare_card(a, b) {
-	if (a.color !== b.color) {
-		return a.data.color - b.data.color;
-	}
-	if (a.data.level !== b.data.level) {
-		return b.data.level - a.data.level;
-	}
-	return zh_collator.compare(a.text.tw_name, b.text.tw_name);
-}
-
-/**
  * @param {string[]} [files]
  * @returns {Promise<boolean>}
  */
@@ -721,6 +705,22 @@ export function query_card(params) {
 		meta.end_cursor = result.at(-1)?.id ?? null;
 	}
 	return { result, meta };
+}
+
+/**
+ * The compare function of Card.
+ * @param {Card} a 
+ * @param {Card} b 
+ * @returns {number}
+ */
+export function compare_card(a, b) {
+	if (a.color !== b.color) {
+		return a.data.color - b.data.color;
+	}
+	if (a.data.level !== b.data.level) {
+		return b.data.level - a.data.level;
+	}
+	return zh_collator.compare(a.text.tw_name, b.text.tw_name);
 }
 
 /**
