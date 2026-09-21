@@ -204,7 +204,6 @@ function generate_condition(params, id_list) {
 		condition: "",
 		args: {},
 	};
-	let qstr = "";
 	const arg = result.args;
 	const key_condition = [];
 	// primary key
@@ -216,43 +215,44 @@ function generate_condition(params, id_list) {
 		key_condition.push('cid = $cid');
 		arg.$cid = params.cid;
 	}
-	if (key_condition.length) {
+	if (key_condition.length > 0) {
 		result.condition = ` AND (${key_condition.join(' OR ')})`;
 		return result;
 	}
 
+	const segments = [];
 	// number
 	if (id_list !== undefined) {
-		qstr += ` AND ${list_condition('id', 'id', id_list, arg)}`;
+		segments.push(`AND ${list_condition('id', 'id', id_list, arg)}`);
 	}
 	if (Number.isSafeInteger(params.ot) && params.ot > 0) {
-		qstr += " AND (ot & $ot_mask) = $ot";
+		segments.push("AND (ot & $ot_mask) = $ot");
 		arg.$ot_mask = 0x3;
 		arg.$ot = params.ot;
 	}
 	if (Number.isSafeInteger(params.ot_exclude) && params.ot_exclude > 0) {
-		qstr += " AND (ot & $ot_mask) != $ot_exclude";
+		segments.push("AND (ot & $ot_mask) != $ot_exclude");
 		arg.$ot_mask = 0x3;
 		arg.$ot_exclude = params.ot_exclude;
 	}
 	if (Number.isSafeInteger(params.released) && params.released > 0) {
-		qstr += " AND cid IS NOT NULL";
+		segments.push("AND cid IS NOT NULL");
 	}
 	if (Number.isSafeInteger(params.type) && params.type > 0) {
-		qstr += " AND (type & $type) != 0";
+		segments.push("AND (type & $type) != 0");
 		arg.$type = params.type;
 	}
 	if (Number.isSafeInteger(params.monster_type) && params.monster_type > 0) {
-		qstr += " AND (type & $monster) != 0";
+		segments.push("AND (type & $monster) != 0");
 		arg.$monster = card_types.TYPE_MONSTER;
 		if (Number.isSafeInteger(params.monster_type_op) && params.monster_type_op)
-			qstr += " AND (type & $monster_type) = $monster_type";
+			segments.push("AND (type & $monster_type) = $monster_type");
 		else
-			qstr += " AND (type & $monster_type) != 0";
+			segments.push("AND (type & $monster_type) != 0");
 		arg.$monster_type = params.monster_type;
 	}
 	if (Number.isSafeInteger(params.excluded_type) && params.excluded_type > 0) {
-		qstr += " AND (type & $excluded_type) = 0";
+		segments.push("AND (type & $excluded_type) = 0");
 		arg.$excluded_type = params.excluded_type;
 	}
 	if (Number.isSafeInteger(params.spell_type) && params.spell_type > 0) {
@@ -262,7 +262,7 @@ function generate_condition(params, id_list) {
 			subtype_condition += " OR type = $spell";
 			subtype = (subtype & ~spell_types.TYPE_NORMAL) >>> 0;
 		}
-		qstr += ` AND (type & $spell) != 0 AND (${subtype_condition})`;
+		segments.push(`AND (type & $spell) != 0 AND (${subtype_condition})`);
 		arg.$spell = card_types.TYPE_SPELL;
 		arg.$stype = subtype;
 	}
@@ -273,7 +273,7 @@ function generate_condition(params, id_list) {
 			subtype_condition += " OR type = $trap";
 			subtype = (subtype & ~trap_types.TYPE_NORMAL) >>> 0;
 		}
-		qstr += ` AND (type & $trap) != 0 AND (${subtype_condition})`;
+		segments.push(`AND (type & $trap) != 0 AND (${subtype_condition})`);
 		arg.$trap = card_types.TYPE_TRAP;
 		arg.$ttype = subtype;
 	}
@@ -281,11 +281,11 @@ function generate_condition(params, id_list) {
 		const tw_name = get_db_name(params.mention);
 		if (tw_name) {
 			if (Object.hasOwn(setname_table, tw_name)) {
-				qstr += `${effect_filter} AND description REGEXP $mention`;
+				segments.push(`${effect_filter} AND description REGEXP $mention`);
 				arg.$mention = `「${RegExp.escape(tw_name)}」(?!怪|魔|陷|卡|融合怪獸|同步怪獸|超量怪獸|連結怪獸|儀式怪獸|靈擺怪獸|通常|永續|裝備|速攻|儀式魔法|場地|反擊)`;
 			}
 			else {
-				qstr += `${effect_filter} AND description LIKE $mention ESCAPE '$'`;
+				segments.push(`${effect_filter} AND description LIKE $mention ESCAPE '$'`);
 				arg.$mention = `%「${escape_wildcard(tw_name)}」%`;
 			}
 			arg.$normal = monster_types.TYPE_NORMAL;
@@ -293,36 +293,36 @@ function generate_condition(params, id_list) {
 		}
 	}
 	if (Number.isSafeInteger(params.md_rarity) && params.md_rarity > 0) {
-		qstr += " AND md_rarity = $md_rarity";
+		segments.push("AND md_rarity = $md_rarity");
 		arg.$md_rarity = params.md_rarity;
 	}
 
 	// text
 	if (is_string(params.keyword)) {
-		qstr += ` AND (${name_condition(params.keyword, arg)} OR description LIKE $name ESCAPE '$')`;
+		segments.push(`AND (${name_condition(params.keyword, arg)} OR description LIKE $name ESCAPE '$')`);
 	}
 	else {
 		if (is_string(params.name)) {
-			qstr += ` AND ${name_condition(params.name, arg)}`;
+			segments.push(`AND ${name_condition(params.name, arg)}`);
 		}
 		else if (Number.isSafeInteger(params.setcode) && params.setcode > 0) {
-			qstr += ` AND ${setcode_condition(params.setcode, arg)}`;
+			segments.push(`AND ${setcode_condition(params.setcode, arg)}`);
 		}
 		if (is_string(params.desc)) {
-			qstr += ` AND description LIKE $description ESCAPE '$'`;
+			segments.push(`AND description LIKE $description ESCAPE '$'`);
 			arg.$description = like_pattern(params.desc);
 		}
 	}
 	if (is_string(params.en_name)) {
-		qstr += ` AND (en_name LIKE $en_name ESCAPE '$' OR md_name_en LIKE $en_name ESCAPE '$')`;
+		segments.push(`AND (en_name LIKE $en_name ESCAPE '$' OR md_name_en LIKE $en_name ESCAPE '$')`);
 		arg.$en_name = params.en_name;
 	}
 	if (is_string(params.jp_name)) {
-		qstr += ` AND (jp_name LIKE $jp_name ESCAPE '$' OR md_name_jp LIKE $jp_name ESCAPE '$')`;
+		segments.push(`AND (jp_name LIKE $jp_name ESCAPE '$' OR md_name_jp LIKE $jp_name ESCAPE '$')`);
 		arg.$jp_name = params.jp_name;
 	}
 	if (is_string(params.jp_ruby)) {
-		qstr += ` AND jp_ruby LIKE $jp_ruby ESCAPE '$'`;
+		segments.push(`AND jp_ruby LIKE $jp_ruby ESCAPE '$'`);
 		arg.$jp_ruby = params.jp_ruby;
 	}
 
@@ -335,7 +335,7 @@ function generate_condition(params, id_list) {
 			for (let i = 0; i < 4; i += 1) {
 				material_condition += ` OR description LIKE $mat${i} ESCAPE '$'`;
 			}
-			qstr += ` AND (${material_condition})`;
+			segments.push(`AND (${material_condition})`);
 			arg.$mat0 = `「${material}」+%`;
 			arg.$mat1 = `「${material}」（%）+%`;
 			arg.$mat2 = `%+「${material}」%`;
@@ -392,29 +392,29 @@ function generate_condition(params, id_list) {
 		has_def = true;
 	}
 	if (atk_condition && def_condition) {
-		qstr += ` AND (${atk_condition} AND ${def_condition})`;
+		segments.push(`AND (${atk_condition} AND ${def_condition})`);
 	}
 	else if (atk_condition) {
-		qstr += ` AND ${atk_condition}`;
+		segments.push(`AND ${atk_condition}`);
 	}
 	else if (def_condition) {
-		qstr += ` AND ${def_condition}`;
+		segments.push(`AND ${def_condition}`);
 	}
 	if (Number.isSafeInteger(params.sum) && params.sum >= 0) {
-		qstr += " AND atk >= $zero AND def >= $zero AND atk + def = $sum";
+		segments.push("AND atk >= $zero AND def >= $zero AND atk + def = $sum");
 		arg.$zero = 0;
 		arg.$sum = params.sum;
 		has_def = true;
 	}
 	if (has_def) {
-		qstr += " AND (type & $link) = 0";
+		segments.push("AND (type & $link) = 0");
 		arg.$link = monster_types.TYPE_LINK;
 		require_monster = true;
 	}
 
 	// lv, rank, link
 	if (Array.isArray(params.level) && params.level.length) {
-		qstr += ` AND ${list_condition('level', 'level', params.level, arg)}`;
+		segments.push(`AND ${list_condition('level', 'level', params.level, arg)}`);
 		require_monster = true;
 	}
 	else {
@@ -425,18 +425,18 @@ function generate_condition(params, id_list) {
 		if (Number.isSafeInteger(params.level_to) && params.level_to >= 0)
 			level_to = params.level_to;
 		if (level_from >= 0 && level_to >= 0) {
-			qstr += " AND (level BETWEEN $level_from AND $level_to)";
+			segments.push("AND (level BETWEEN $level_from AND $level_to)");
 			arg.$level_from = level_from;
 			arg.$level_to = level_to;
 			require_monster = true;
 		}
 		else if (level_from >= 0) {
-			qstr += " AND level >= $level_from";
+			segments.push("AND level >= $level_from");
 			arg.$level_from = level_from;
 			require_monster = true;
 		}
 		else if (level_to >= 0) {
-			qstr += " AND level <= $level_to";
+			segments.push("AND level <= $level_to");
 			arg.$level_to = level_to;
 			require_monster = true;
 		}
@@ -445,7 +445,7 @@ function generate_condition(params, id_list) {
 	// scale, pendulum monster only
 	let has_scale = false;
 	if (Array.isArray(params.scale) && params.scale.length) {
-		qstr += ` AND ${list_condition('scale', 'scale', params.scale, arg)}`;
+		segments.push(`AND ${list_condition('scale', 'scale', params.scale, arg)}`);
 		has_scale = true;
 	}
 	else {
@@ -456,55 +456,55 @@ function generate_condition(params, id_list) {
 		if (Number.isSafeInteger(params.scale_to) && params.scale_to >= 0)
 			scale_to = params.scale_to;
 		if (scale_from >= 0 && scale_to >= 0) {
-			qstr += ` AND (scale BETWEEN $scale_from AND $scale_to)`;
+			segments.push(`AND (scale BETWEEN $scale_from AND $scale_to)`);
 			arg.$scale_from = scale_from;
 			arg.$scale_to = scale_to;
 			has_scale = true;
 		}
 		else if (scale_from >= 0) {
-			qstr += ` AND scale >= $scale_from`;
+			segments.push(`AND scale >= $scale_from`);
 			arg.$scale_from = scale_from;
 			has_scale = true;
 		}
 		else if (scale_to >= 0) {
-			qstr += ` AND scale <= $scale_to`;
+			segments.push(`AND scale <= $scale_to`);
 			arg.$scale_to = scale_to;
 			has_scale = true;
 		}
 	}
 	if (has_scale) {
-		qstr += " AND type & $pendulum";
+		segments.push("AND type & $pendulum");
 		arg.$pendulum = monster_types.TYPE_PENDULUM;
 		require_monster = true;
 	}
 
 	// attribute, race
 	if (Number.isSafeInteger(params.attribute) && params.attribute > 0) {
-		qstr += " AND (attribute & $attribute) != 0";
+		segments.push("AND (attribute & $attribute) != 0");
 		arg.$attribute = params.attribute;
 		require_monster = true;
 	}
 	if (Number.isSafeInteger(params.race) && params.race > 0) {
-		qstr += " AND (race & $race) != 0";
+		segments.push("AND (race & $race) != 0");
 		arg.$race = params.race;
 		require_monster = true;
 	}
 	// marker
 	if (Number.isSafeInteger(params.marker) && params.marker > 0) {
-		qstr += " AND (type & $link) != 0";
+		segments.push("AND (type & $link) != 0");
 		arg.$link = monster_types.TYPE_LINK;
 		if (Number.isSafeInteger(params.marker_op) && params.marker_op)
-			qstr += " AND (marker & $marker) = $marker";
+			segments.push("AND (marker & $marker) = $marker");
 		else
-			qstr += " AND (marker & $marker) != 0";
+			segments.push("AND (marker & $marker) != 0");
 		arg.$marker = params.marker;
 		require_monster = true;
 	}
 	if (require_monster && !Object.hasOwn(arg, '$monster')) {
-		qstr += " AND (type & $monster) != 0";
+		segments.push("AND (type & $monster) != 0");
 		arg.$monster = card_types.TYPE_MONSTER;
 	}
-	result.condition = qstr;
+	result.condition = segments.join(' ');
 	return result;
 }
 

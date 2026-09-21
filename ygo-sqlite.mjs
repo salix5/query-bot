@@ -345,14 +345,14 @@ export function write_setcode(list, setcode) {
  * @returns {object[]}
  */
 export function query_db(db, sql = sql_default_v1, arg = arg_default_v1) {
-	let page_filter = '';
+	const page_segments = [];
 	if (Number.isSafeInteger(arg.$limit)) {
-		page_filter = ` LIMIT $limit`;
+		page_segments.push(`LIMIT $limit`);
 		if (Number.isSafeInteger(arg.$offset)) {
-			page_filter += ` OFFSET $offset`;
+			page_segments.push(`OFFSET $offset`);
 		}
 	}
-	const full_sql = `${sql} ORDER BY id${page_filter}`;
+	const full_sql = `${sql} ORDER BY id ${page_segments.join(' ')}`;
 	using stmt = db.prepare(full_sql);
 	const rows = stmt.all(arg);
 	return rows.map(row => {
