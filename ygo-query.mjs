@@ -69,6 +69,7 @@ let stmt_entry = null;
  * @property {number} rule_code
  * @property {number} another_code
  * @property {number} md_rarity
+ * @property {number} color
  */
 
 /**
@@ -505,6 +506,22 @@ function generate_condition(params, id_list) {
 	}
 	result.condition = qstr;
 	return result;
+}
+
+/**
+ * The compare function of Card.
+ * @param {Card} a 
+ * @param {Card} b 
+ * @returns {number}
+ */
+export function compare_card(a, b) {
+	if (a.color !== b.color) {
+		return a.data.color - b.data.color;
+	}
+	if (a.data.level !== b.data.level) {
+		return b.data.level - a.data.level;
+	}
+	return zh_collator.compare(a.text.tw_name, b.text.tw_name);
 }
 
 /**
