@@ -590,7 +590,7 @@ export function query(qstr = sql_default_v2, arg = arg_default_v2) {
  * @param {object} params 
  */
 export function query_card(params) {
-	if (params.pack) {
+	if (typeof params.pack === 'string') {
 		const query_segments = [];
 		const arg1 = {
 			...arg_default_v2,
@@ -614,8 +614,8 @@ export function query_card(params) {
 			}
 			result.sort((a, b) => a.pack_index - b.pack_index);
 			const meta = {
-				total: result.length,
 				pack: params.pack,
+				total: result.length,
 			};
 			return { result, meta };
 		}
@@ -628,12 +628,12 @@ export function query_card(params) {
 			const cmd1 = query_segments.join(' ');
 			const result = query(cmd1, arg1);
 			const meta = {
-				total: result.length,
 				pack: params.pack,
+				total: result.length,
 			};
 			return { result, meta };
 		}
-		return { result: [], meta: { total: 0, pack: null } };
+		return { result: [], meta: { pack: params.pack, total: 0 } };
 	}
 	const meta = {
 		limit: 0,
