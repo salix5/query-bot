@@ -267,7 +267,7 @@ export function setcode_condition(setcode, arg) {
  * The sqlite condition for a list.
  * @param {string} column 
  * @param {string} prefix 
- * @param {number[]|Set<number>} list 
+ * @param {Iterable<number>} list 
  * @param {object} arg 
  * @returns {string}
  */

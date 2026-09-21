@@ -194,7 +194,7 @@ function is_string(str) {
 /**
  * Parse param into sqlite statement condition.
  * @param {object} params 
- * @param {Set<number>} [id_list]
+ * @param {Iterable<number>} [id_list]
  * @returns {{ condition: string, args: object }}
  */
 function generate_condition(params, id_list) {
@@ -221,7 +221,7 @@ function generate_condition(params, id_list) {
 	}
 
 	// number
-	if (id_list && id_list.size > 0) {
+	if (id_list !== undefined) {
 		qstr += ` AND ${list_condition('id', 'id', id_list, arg)}`;
 	}
 	if (Number.isSafeInteger(params.ot) && params.ot > 0) {
