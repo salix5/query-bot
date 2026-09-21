@@ -237,7 +237,7 @@ export const interface_types = {
 	race: 0,
 	attribute: 0,
 	material: 0,
-	md_rarity: 1,
+	md_rarity: 0,
 
 	pack: 2,
 	name: 2,
