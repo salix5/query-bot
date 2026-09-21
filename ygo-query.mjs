@@ -714,7 +714,7 @@ export function query_card(params) {
  * @returns {number}
  */
 export function compare_card(a, b) {
-	if (a.color !== b.color) {
+	if (a.data.color !== b.data.color) {
 		return a.data.color - b.data.color;
 	}
 	if (a.data.level !== b.data.level) {
