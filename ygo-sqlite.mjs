@@ -3,7 +3,6 @@ import { DatabaseSync } from "node:sqlite";
 import { MAX_CARD_ID, monster_types } from "./ygo-constant.mjs";
 import { escape_wildcard, inverse_mapping } from "./ygo-utility.mjs";
 import { id_to_cid, extra_setcodes, setname_table } from "./ygo-json-loader.mjs";
-import { update_schema } from "./schema/update-schema.mjs";
 
 export {
 	CID_BLACK_LUSTER_SOLDIER,
@@ -88,13 +87,6 @@ export const default_options = {
 	allowExtension: false,
 	defensive: true,
 };
-
-const sql_delete = `BEGIN TRANSACTION;
-DELETE FROM datas WHERE id = ${ID_TYLER_THE_GREAT_WARRIOR};
-DELETE FROM texts WHERE id = ${ID_TYLER_THE_GREAT_WARRIOR};
-DELETE FROM datas WHERE id = ${ID_DECOY};
-DELETE FROM texts WHERE id = ${ID_DECOY};
-COMMIT;`;
 
 export const re_wildcard = /(?<!\$)[%_]/;
 const replace_dollar = /\$(?![%_])/g;
@@ -201,12 +193,49 @@ export function merge_db(output_file, db_list) {
 }
 
 /**
- * Update the database to the new schema.
+ * Update the v2 schema database `db`.
  * @param {DatabaseSync} db 
  */
 export function alter_db(db) {
-	db.exec(sql_delete);
-	update_schema(db);
+	const sql_trim = `BEGIN TRANSACTION;
+	DELETE FROM datas WHERE id = ${ID_TYLER_THE_GREAT_WARRIOR};
+	DELETE FROM texts WHERE id = ${ID_TYLER_THE_GREAT_WARRIOR};
+	DELETE FROM datas WHERE id = ${ID_DECOY};
+	DELETE FROM texts WHERE id = ${ID_DECOY};
+	UPDATE datas SET (atk, def, level, race, attribute, scale, marker) = (0, 0, 0, 0, 0, 0, 0) WHERE (type & 0x1) = 0;
+	COMMIT;`
+	const sql_color = `ALTER TABLE datas ADD COLUMN color INTEGER GENERATED ALWAYS AS (
+	CASE (type & 0x59f60d7)
+        WHEN 0x4000 THEN 0x0
+        WHEN 0x4011 THEN 0x0
+        WHEN 0x11   THEN 0x1
+        WHEN 0x1000011 THEN 0x2
+        WHEN 0x81   THEN 0x3
+        WHEN 0x1000081 THEN 0x4
+        WHEN 0x41   THEN 0x5
+        WHEN 0x1000041 THEN 0x6
+        WHEN 0x2001 THEN 0x7
+        WHEN 0x1002001 THEN 0x8
+        WHEN 0x800001 THEN 0x9
+        WHEN 0x1800001 THEN 0xa
+        WHEN 0x4000001 THEN 0xb
+        WHEN 0x2 THEN 0x10
+        WHEN 0x10002 THEN 0x11
+        WHEN 0x20002 THEN 0x12
+        WHEN 0x40002 THEN 0x13
+        WHEN 0x82 THEN 0x14
+        WHEN 0x80002 THEN 0x15
+        WHEN 0x4 THEN 0x20
+        WHEN 0x20004 THEN 0x21
+        WHEN 0x100004 THEN 0x22
+        ELSE CASE
+            WHEN (type & 0x21) = 0x21 THEN 0xc
+            ELSE -1
+        END
+    END
+	) VIRTUAL;`;
+	db.exec(sql_trim);
+	db.exec(sql_color);
 }
 
 /**
@@ -214,18 +243,10 @@ export function alter_db(db) {
  * @param {DatabaseSync} db 
  * @param {string} sql 
  * @param {object} arg 
- * @returns {Entry[]}
+ * @returns {Record<string, SQLOutputValue>[]}
  */
 export function query_db_v2(db, sql = sql_default_v2, arg = arg_default_v2) {
-	let page_filter = '';
-	if (Number.isSafeInteger(arg.$limit)) {
-		page_filter = ` LIMIT $limit`;
-		if (Number.isSafeInteger(arg.$offset)) {
-			page_filter += ` OFFSET $offset`;
-		}
-	}
-	const full_sql = `${sql} ORDER BY id${page_filter}`;
-	using stmt = db.prepare(full_sql);
+	using stmt = db.prepare(sql);
 	return stmt.all(arg);
 }
 
@@ -246,12 +267,12 @@ export function setcode_condition(setcode, arg) {
  * The sqlite condition for a list.
  * @param {string} column 
  * @param {string} prefix 
- * @param {number[]} list 
+ * @param {Iterable<number>} list 
  * @param {object} arg 
  * @returns {string}
  */
 export function list_condition(column, prefix, list, arg) {
-	const set1 = new Set(list);
+	const set1 = list instanceof Set ? list : new Set(list);
 	const tokens = [];
 	let index = 0;
 	for (const value of set1) {
@@ -261,6 +282,9 @@ export function list_condition(column, prefix, list, arg) {
 		tokens.push(`@${prefix}${index}`);
 		arg[`@${prefix}${index}`] = value;
 		index += 1;
+	}
+	if (tokens.length === 0) {
+		return "FALSE";
 	}
 	return `${column} IN (${tokens.join(', ')})`;
 }

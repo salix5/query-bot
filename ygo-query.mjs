@@ -6,16 +6,17 @@ import { language_pack, official_name, cid_table, name_table } from './ygo-json-
 import { escape_wildcard, zh_collator, zh_compare } from './ygo-utility.mjs';
 import { fetch_db } from './ygo-fetch.mjs';
 import { card_types, monster_types, link_markers, rarity, CID_BLACK_LUSTER_SOLDIER, spell_types, trap_types, marker_char } from "./ygo-constant.mjs";
-import { arg_default_v2, arg_seventh, effect_filter, default_clause_v2, sql_base_v2, sql_count_v2, sql_default_v2, sql_seventh, full_tables, default_options } from './ygo-sqlite.mjs';
+import { arg_default_v2, arg_seventh, effect_filter, default_clause_v2, sql_base_v2, sql_default_v2, sql_seventh, full_tables, default_options } from './ygo-sqlite.mjs';
 import { like_pattern, name_condition, list_condition, alter_db, merge_db, query_db_v2, setcode_condition, sqlite3_open } from './ygo-sqlite.mjs';
 
 export const regexp_mention = `(?<=「)[^「」]*「?[^「」]*」?[^「」]*(?=」)`;
-const RESULT_PER_PAGE = 50;
+const MAX_LIMIT = 100;
+const MAX_COUNT = 1000;
 
 /**
  * @type {import('node:sqlite').DatabaseSync}
  */
-let db = null;
+let db_current = null;
 /**
  * @type {import('node:sqlite').StatementSync}
  */
@@ -68,6 +69,7 @@ let stmt_entry = null;
  * @property {number} rule_code
  * @property {number} another_code
  * @property {number} md_rarity
+ * @property {number} color
  */
 
 /**
@@ -133,47 +135,6 @@ function get_db_name(id) {
 	return card.name;
 }
 
-const color_table = new Map([
-	[card_types.TYPE_SPELL, 10],
-	[card_types.TYPE_SPELL | spell_types.TYPE_QUICKPLAY, 11],
-	[card_types.TYPE_SPELL | spell_types.TYPE_CONTINUOUS, 12],
-	[card_types.TYPE_SPELL | spell_types.TYPE_EQUIP, 13],
-	[card_types.TYPE_SPELL | spell_types.TYPE_RITUAL, 14],
-	[card_types.TYPE_SPELL | spell_types.TYPE_FIELD, 15],
-	[card_types.TYPE_TRAP, 20],
-	[card_types.TYPE_TRAP | trap_types.TYPE_CONTINUOUS, 21],
-	[card_types.TYPE_TRAP | trap_types.TYPE_COUNTER, 22],
-]);
-function get_color(type) {
-	let color = -1;
-	if (type & card_types.TYPE_MONSTER) {
-		if (!(type & monster_types.TYPES_EXTRA)) {
-			if (type & monster_types.TYPE_TOKEN)
-				color = 0;
-			else if (type & monster_types.TYPE_NORMAL)
-				color = 1;
-			else if (type & monster_types.TYPE_RITUAL)
-				color = 3;
-			else if (type & monster_types.TYPE_EFFECT)
-				color = 2;
-		}
-		else {
-			if (type & monster_types.TYPE_FUSION)
-				color = 4;
-			else if (type & monster_types.TYPE_SYNCHRO)
-				color = 5;
-			else if (type & monster_types.TYPE_XYZ)
-				color = 6;
-			else if (type & monster_types.TYPE_LINK)
-				color = 7;
-		}
-	}
-	else {
-		color = color_table.get(type) ?? -1;
-	}
-	return color;
-}
-
 /**
  * @param {Entry} cdata 
  * @returns {Card}
@@ -221,7 +182,6 @@ function generate_card(cdata) {
 		data,
 		text,
 		artid,
-		color: get_color(cdata.type),
 	};
 	return card;
 }
@@ -235,12 +195,17 @@ function is_string(str) {
 /**
  * Parse param into sqlite statement condition.
  * @param {object} params 
- * @param {number[]} [id_list]
- * @returns {[string, object]}
+ * @param {Iterable<number>} [id_list]
+ * @returns {{ condition: string, args: object }}
  */
-export function generate_condition(params, id_list) {
+function generate_condition(params, id_list) {
+	const result = {
+		__proto__: null,
+		condition: "",
+		args: {},
+	};
 	let qstr = "";
-	const arg = {};
+	const arg = result.args;
 	const key_condition = [];
 	// primary key
 	if (Number.isSafeInteger(params.id)) {
@@ -252,12 +217,12 @@ export function generate_condition(params, id_list) {
 		arg.$cid = params.cid;
 	}
 	if (key_condition.length) {
-		qstr = ` AND (${key_condition.join(' OR ')})`;
-		return [qstr, arg];
+		result.condition = ` AND (${key_condition.join(' OR ')})`;
+		return result;
 	}
 
 	// number
-	if (Array.isArray(id_list) && id_list.length) {
+	if (id_list !== undefined) {
 		qstr += ` AND ${list_condition('id', 'id', id_list, arg)}`;
 	}
 	if (Number.isSafeInteger(params.ot) && params.ot > 0) {
@@ -327,27 +292,9 @@ export function generate_condition(params, id_list) {
 			arg.$pendulum = monster_types.TYPE_PENDULUM;
 		}
 	}
-	if (Number.isSafeInteger(params.md_rarity)) {
+	if (Number.isSafeInteger(params.md_rarity) && params.md_rarity > 0) {
 		qstr += " AND md_rarity = $md_rarity";
 		arg.$md_rarity = params.md_rarity;
-	}
-	if (typeof params.pack === 'string' && Object.hasOwn(pack_list, params.pack)) {
-		const pack = pack_list[params.pack].filter(x => Number.isSafeInteger(x) && x > 0);
-		qstr += ` AND ${list_condition('id', 'pack', pack, arg)}`;
-	}
-	else if (typeof params.pack === 'string' && Object.hasOwn(pre_release, params.pack)) {
-		qstr += " AND (id BETWEEN $pack_begin AND $pack_end)";
-		arg.$pack_begin = pre_release[params.pack];
-		arg.$pack_end = pre_release[params.pack] + 500;
-	}
-	else if (Number.isSafeInteger(params.limit) && params.limit > 0) {
-		arg.$limit = params.limit;
-		if (Number.isSafeInteger(params.offset) && params.offset >= 0) {
-			arg.$offset = params.offset;
-		}
-		else {
-			arg.$offset = 0;
-		}
 	}
 
 	// text
@@ -557,11 +504,13 @@ export function generate_condition(params, id_list) {
 		qstr += " AND (type & $monster) != 0";
 		arg.$monster = card_types.TYPE_MONSTER;
 	}
-	return [qstr, arg];
+	result.condition = qstr;
+	return result;
 }
 
 /**
  * @param {string[]} [files]
+ * @returns {Promise<boolean>}
  */
 export async function reload_db(files) {
 	const temp = `${import.meta.dirname}/db/temp.cdb`;
@@ -572,31 +521,29 @@ export async function reload_db(files) {
 		}
 		catch (error) {
 			console.error(error);
-			return;
+			return false;
 		}
-		const full_db = new DatabaseSync(temp, default_options);
-		full_db.exec(`PRAGMA trusted_schema = OFF;`);
-		load_name_table(full_db);
-		full_db.close();
+		using db_temp = new DatabaseSync(temp, default_options);
+		db_temp.exec(`PRAGMA trusted_schema = OFF;`);
+		load_name_table(db_temp);
 	}
 	else {
 		if (!merge_db(temp, files)) {
-			return;
+			return false;
 		}
-		const full_db = new DatabaseSync(temp, default_options);
-		full_db.exec(`PRAGMA trusted_schema = OFF;`);
-		alter_db(full_db);
-		load_name_table(full_db);
-		full_db.close();
+		using db_temp = new DatabaseSync(temp, default_options);
+		db_temp.exec(`PRAGMA trusted_schema = OFF;`);
+		alter_db(db_temp);
+		load_name_table(db_temp);
 	}
-	const current = `${import.meta.dirname}/db/query.cdb`;
 	stmt_name?.close();
 	stmt_entry?.close();
-	db?.close();
+	db_current?.close();
+	const current = `${import.meta.dirname}/db/query.cdb`;
 	renameSync(temp, current);
-	db = sqlite3_open(current);
-	stmt_name = db.prepare(`SELECT id, name ${full_tables} ${default_clause_v2} AND id = $id;`);
-	stmt_entry = db.prepare(`${sql_default_v2} AND id = $id;`);
+	db_current = sqlite3_open(current);
+	stmt_name = db_current.prepare(`SELECT id, name ${full_tables} ${default_clause_v2} AND id = $id;`);
+	stmt_entry = db_current.prepare(`${sql_default_v2} AND id = $id;`);
 	// refresh multimap of No.101 ~ No.107
 	multimap_seventh.clear();
 	const seventh_cards = query(sql_seventh, arg_seventh);
@@ -606,6 +553,7 @@ export async function reload_db(files) {
 			multimap_seventh.set(card.data.level, []);
 		multimap_seventh.get(card.data.level).push(card);
 	}
+	return true;
 }
 
 /**
@@ -632,88 +580,129 @@ export function is_setcode(card, value) {
  * @returns {Card[]}
  */
 export function query(qstr = sql_default_v2, arg = arg_default_v2) {
-	const rows = query_db_v2(db, qstr, arg);
+	const rows = query_db_v2(db_current, qstr, arg);
 	const result = rows.map(generate_card);
 	return result;
 }
 
 /**
- * Query card from all databases with JSON object `params`.
+ * Query cards from the database using `params`.
  * @param {object} params 
  */
 export function query_card(params) {
+	if (typeof params.pack === 'string') {
+		const query_segments = [];
+		const arg1 = {
+			...arg_default_v2,
+		};
+		if (Object.hasOwn(pack_list, params.pack)) {
+			const pack = pack_list[params.pack];
+			const index_table = new Map();
+			for (let i = 0; i < pack.length; i += 1) {
+				if (Number.isSafeInteger(pack[i]) && pack[i] > 0) {
+					index_table.set(pack[i], i);
+				}
+			}
+			const id_list = [...index_table.keys()];
+			query_segments.push(sql_default_v2);
+			query_segments.push(`AND ${list_condition('id', 'pack', id_list, arg1)}`);
+			query_segments.push("ORDER BY id");
+			const cmd1 = query_segments.join(' ');
+			const result = query(cmd1, arg1);
+			for (const card of result) {
+				card.pack_index = index_table.get(card.id);
+			}
+			result.sort((a, b) => a.pack_index - b.pack_index);
+			const meta = {
+				pack: params.pack,
+				total: result.length,
+			};
+			return { result, meta };
+		}
+		if (Object.hasOwn(pre_release, params.pack)) {
+			query_segments.push(sql_default_v2);
+			query_segments.push("AND (id BETWEEN $pack_begin AND $pack_end)");
+			arg1.$pack_begin = pre_release[params.pack];
+			arg1.$pack_end = pre_release[params.pack] + 500;
+			query_segments.push("ORDER BY id");
+			const cmd1 = query_segments.join(' ');
+			const result = query(cmd1, arg1);
+			const meta = {
+				pack: params.pack,
+				total: result.length,
+			};
+			return { result, meta };
+		}
+		return { result: [], meta: { pack: params.pack, total: 0 } };
+	}
 	const meta = {
-		total: 0,
 		limit: 0,
-		offset: 0,
 	};
-	const [condition, arg_condition] = generate_condition(params);
-	if (Object.keys(arg_condition).length === 0) {
+	const { condition, args } = generate_condition(params);
+	if (Object.keys(args).length === 0) {
 		return { result: [], meta };
 	}
 	if (Number.isSafeInteger(params.id) || Number.isSafeInteger(params.cid)) {
-		const stmt = `${sql_base_v2}${condition}`;
-		const arg = {
+		const cmd1 = `${sql_base_v2}${condition}`;
+		const arg1 = {
 			...arg_default_v2,
-			...arg_condition,
+			...args,
 		};
-		const result = query(stmt, arg);
-		meta.total = result.length;
+		const result = query(cmd1, arg1);
 		return { result, meta };
 	}
-	const sql1 = `${sql_default_v2}${condition}`;
+	const query_segments = [];
 	const arg1 = {
 		...arg_default_v2,
-		...arg_condition,
+		...args,
 	};
-	const result = query(sql1, arg1);
-	meta.total = result.length;
-	if (result.length === 0) {
-		return { result, meta };
-	}
-	let is_sorted = false;
-	if (typeof params.pack === 'string' && Object.hasOwn(pack_list, params.pack)) {
-		const pack = pack_list[params.pack];
-		const index_table = new Map();
-		for (let i = 0; i < pack.length; i += 1) {
-			if (Number.isSafeInteger(pack[i]) && pack[i] > 0) {
-				index_table.set(pack[i], i);
-			}
+	query_segments.push(sql_default_v2);
+	query_segments.push(condition);
+	const limit = (Number.isSafeInteger(params.limit) && params.limit > 0) ? Math.min(params.limit, MAX_LIMIT) : MAX_LIMIT;
+	if (Object.hasOwn(params, 'page')) {
+		if (!Number.isSafeInteger(params.page) || params.page <= 0) {
+			return { result: [], meta };
 		}
-		for (const card of result) {
-			card.pack_index = index_table.get(card.id);
+		if (limit * params.page > MAX_COUNT) {
+			return { result: [], meta };
 		}
-		result.sort((a, b) => a.pack_index - b.pack_index);
-		is_sorted = true;
-		meta.pack = params.pack;
+		query_segments.push("ORDER BY color, level DESC, name");
+		query_segments.push("LIMIT $limit OFFSET $offset");
+		arg1.$limit = limit + 1;
+		arg1.$offset = (params.page - 1) * limit;
 	}
-	else if (typeof params.pack === 'string' && Object.hasOwn(pre_release, params.pack)) {
-		is_sorted = true;
-		meta.pack = params.pack;
+	else {
+		query_segments.push("ORDER BY id");
+		query_segments.push("LIMIT $limit");
+		arg1.$limit = limit + 1;
 	}
-	else if (arg_condition.$limit) {
-		meta.limit = arg_condition.$limit;
-		meta.offset = arg_condition.$offset;
+	const cmd1 = query_segments.join(' ');
+	const result = query(cmd1, arg1);
+	meta.limit = limit;
+	if (result.length > limit) {
+		meta.has_next = true;
+		result.pop();
 	}
-	if (meta.limit > 0) {
-		const command = `${sql_count_v2}${condition};`;
-		const arg2 = { ...arg1 };
-		delete arg2.$limit;
-		delete arg2.$offset;
-		using st = db.prepare(command);
-		st.setReturnArrays(true);
-		const rows = st.all(arg2);
-		meta.total = rows[0]?.[0] ?? 0;
-		return { result, meta };
+	else {
+		meta.has_next = false;
 	}
-	if (Number.isSafeInteger(params.page) && params.page > 0) {
-		if (!is_sorted) {
-			result.sort(compare_card);
-		}
-		const begin = (params.page - 1) * RESULT_PER_PAGE;
-		const section = result.slice(begin, begin + RESULT_PER_PAGE);
-		meta.total = result.length;
-		return { result: section, meta };
+	if (Object.hasOwn(params, 'page')) {
+		const count_segments = [];
+		count_segments.push(`SELECT count(*) AS count FROM (SELECT 1 ${full_tables} ${default_clause_v2}`);
+		count_segments.push(condition);
+		count_segments.push(`ORDER BY id LIMIT $limit) AS query`);
+		const cmd2 = count_segments.join(' ');
+		const arg2 = {
+			...arg_default_v2,
+			...args,
+			$limit: MAX_COUNT + 1,
+		};
+		const rows = query_db_v2(db_current, cmd2, arg2);
+		meta.total = rows[0].count;
+		meta.page = params.page;
+	}
+	else {
+		meta.end_cursor = result.at(-1)?.id ?? null;
 	}
 	return { result, meta };
 }
@@ -725,8 +714,8 @@ export function query_card(params) {
  * @returns {number}
  */
 export function compare_card(a, b) {
-	if (a.color !== b.color) {
-		return a.color - b.color;
+	if (a.data.color !== b.data.color) {
+		return a.data.color - b.data.color;
 	}
 	if (a.data.level !== b.data.level) {
 		return b.data.level - a.data.level;
