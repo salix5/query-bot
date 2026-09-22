@@ -591,7 +591,7 @@ export function query(qstr = sql_default_v2, arg = arg_default_v2) {
  */
 export function query_card(params) {
 	if (typeof params.pack === 'string') {
-		const query_segments = [];
+		const query_segments = [sql_default_v2];
 		const arg1 = {
 			...arg_default_v2,
 		};
@@ -604,7 +604,6 @@ export function query_card(params) {
 				}
 			}
 			const id_list = [...index_table.keys()];
-			query_segments.push(sql_default_v2);
 			query_segments.push(`AND ${list_condition('id', 'pack', id_list, arg1)}`);
 			query_segments.push("ORDER BY id");
 			const cmd1 = query_segments.join(' ');
@@ -620,7 +619,6 @@ export function query_card(params) {
 			return { result, meta };
 		}
 		if (Object.hasOwn(pre_release, params.pack)) {
-			query_segments.push(sql_default_v2);
 			query_segments.push("AND (id BETWEEN $pack_begin AND $pack_end)");
 			arg1.$pack_begin = pre_release[params.pack];
 			arg1.$pack_end = pre_release[params.pack] + 500;
@@ -633,15 +631,18 @@ export function query_card(params) {
 			};
 			return { result, meta };
 		}
-		return { result: [], meta: { pack: params.pack, total: 0 } };
+		return {
+			result: [],
+			meta: {
+				pack: params.pack,
+				total: 0
+			}
+		};
 	}
 	const meta = {
 		limit: 0,
 	};
 	const { condition, args } = generate_condition(params);
-	if (Object.keys(args).length === 0) {
-		return { result: [], meta };
-	}
 	if (Number.isSafeInteger(params.id) || Number.isSafeInteger(params.cid)) {
 		const cmd1 = `${sql_base_v2}${condition}`;
 		const arg1 = {
@@ -651,22 +652,18 @@ export function query_card(params) {
 		const result = query(cmd1, arg1);
 		return { result, meta };
 	}
-	const query_segments = [];
+	const query_segments = [sql_default_v2, condition];
 	const arg1 = {
 		...arg_default_v2,
 		...args,
 	};
-	query_segments.push(sql_default_v2);
-	query_segments.push(condition);
 	const limit = (Number.isSafeInteger(params.limit) && params.limit > 0) ? Math.min(params.limit, MAX_LIMIT) : MAX_LIMIT;
-	if (Object.hasOwn(params, 'page')) {
-		if (!Number.isSafeInteger(params.page) || params.page <= 0) {
-			return { result: [], meta };
-		}
+	const has_page = Number.isSafeInteger(params.page) && params.page > 0;
+	if (has_page) {
 		if (limit * params.page > MAX_COUNT) {
 			return { result: [], meta };
 		}
-		query_segments.push("ORDER BY color, level DESC, name");
+		query_segments.push("ORDER BY color, level DESC, name, id");
 		query_segments.push("LIMIT $limit OFFSET $offset");
 		arg1.$limit = limit + 1;
 		arg1.$offset = (params.page - 1) * limit;
@@ -686,11 +683,10 @@ export function query_card(params) {
 	else {
 		meta.has_next = false;
 	}
-	if (Object.hasOwn(params, 'page')) {
-		const count_segments = [];
-		count_segments.push(`SELECT count(*) AS count FROM (SELECT 1 ${full_tables} ${default_clause_v2}`);
+	if (has_page) {
+		const count_segments = [`SELECT count(*) AS count FROM (SELECT 1 ${full_tables} ${default_clause_v2}`];
 		count_segments.push(condition);
-		count_segments.push(`ORDER BY id LIMIT $limit) AS query`);
+		count_segments.push(`LIMIT $limit) AS query`);
 		const cmd2 = count_segments.join(' ');
 		const arg2 = {
 			...arg_default_v2,
