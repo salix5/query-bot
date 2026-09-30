@@ -155,6 +155,7 @@ export function sqlite3_open(filename) {
 	};
 	const db = new DatabaseSync(filename, db_option);
 	db.exec(`PRAGMA trusted_schema = OFF;`);
+	db.exec(`PRAGMA cache_size = -16000;`);
 	db.function('regexp', regexp_option, regexp_test);
 	return db;
 }
