@@ -174,7 +174,7 @@ const extension_schema = `CREATE TABLE extension (
 ) STRICT;`;
 /**
  * Add cid, language-specific names, md_rarity to the database `db`.
- * @param {DatabaseSync} db 
+ * @param {import('node:sqlite').DatabaseSync} db 
  */
 export function load_name_table(db) {
 	db.exec(`DROP TABLE IF EXISTS extension;`);
@@ -195,7 +195,7 @@ export function load_name_table(db) {
 		db.exec(`COMMIT;`);
 	}
 	catch (error) {
-		if (db.inTransaction) {
+		if (db.isTransaction) {
 			db.exec(`ROLLBACK;`);
 		}
 		console.error('Failed to load extension table:', error);
