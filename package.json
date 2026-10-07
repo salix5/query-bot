@@ -4,9 +4,6 @@
   "description": "Discord card query bot",
   "type": "module",
   "main": "./bot.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/salix5/query-bot"
