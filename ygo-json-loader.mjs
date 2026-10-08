@@ -182,8 +182,7 @@ export function load_name_table(db) {
 	using insert_name = db.prepare(`INSERT INTO extension (id, cid, en_name, jp_name, jp_ruby, md_name_en, md_name_jp, md_rarity) VALUES (?, ?, ?, ?, ?, ?, ?, ?);`);
 	try {
 		db.exec(`BEGIN TRANSACTION;`);
-		for (const cid of cid_table.keys()) {
-			const id = cid_table.get(cid);
+		for (const [cid, id] of cid_table) {
 			const en_name = name_table['en'][cid] ?? '';
 			const jp_name = name_table['ja'][cid] ?? '';
 			const jp_ruby = ruby_table[cid] ?? '';
@@ -192,6 +191,9 @@ export function load_name_table(db) {
 			const rarity = md_card_list[cid] ?? 0;
 			insert_name.run(id, cid, en_name, jp_name, jp_ruby, md_name_en, md_name_jp, rarity);
 		}
+		db.exec(`INSERT INTO extension (id, cid, en_name, jp_name, jp_ruby, md_name_en, md_name_jp, md_rarity)
+		SELECT datas.id, cid, en_name, jp_name, jp_ruby, md_name_en, md_name_jp, md_rarity
+		FROM datas JOIN extension ON datas.alias != 0 AND datas.alias = extension.id;`);
 		db.exec(`COMMIT;`);
 	}
 	catch (error) {
