@@ -156,10 +156,11 @@ function generate_card(cdata) {
 		setcode: cdata.setcode,
 		rule_code: cdata.rule_code,
 		another_code: cdata.another_code,
-		md_rarity: cdata.md_rarity,
+		md_rarity: 0,
 	};
 	const text = Object.create(null);
 	if (cdata.cid) {
+		data.md_rarity = cdata.md_rarity;
 		if (cdata.en_name)
 			text.en_name = cdata.en_name;
 		else if (cdata.md_name_en)
