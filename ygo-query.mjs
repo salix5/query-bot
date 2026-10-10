@@ -292,6 +292,9 @@ function generate_condition(params, id_list) {
 			arg.$normal = monster_types.TYPE_NORMAL;
 			arg.$pendulum = monster_types.TYPE_PENDULUM;
 		}
+		else {
+			segments.push("AND FALSE");
+		}
 	}
 	if (Number.isSafeInteger(params.md_rarity) && params.md_rarity > 0) {
 		segments.push("AND md_rarity = $md_rarity");
@@ -342,6 +345,9 @@ function generate_condition(params, id_list) {
 			arg.$mat2 = `%+「${material}」%`;
 			arg.$mat3 = `%「${material}」×%`;
 			require_monster = true;
+		}
+		else {
+			segments.push("AND FALSE");
 		}
 	}
 
@@ -474,7 +480,7 @@ function generate_condition(params, id_list) {
 		}
 	}
 	if (has_scale) {
-		segments.push("AND type & $pendulum");
+		segments.push("AND (type & $pendulum) != 0");
 		arg.$pendulum = monster_types.TYPE_PENDULUM;
 		require_monster = true;
 	}
