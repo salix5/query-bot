@@ -550,7 +550,7 @@ export async function reload_db(files) {
 	renameSync(temp, current);
 	db_current = sqlite3_open(current);
 	stmt_name = db_current.prepare(`SELECT id, name ${full_tables} ${default_clause_v2} AND id = $id;`);
-	stmt_entry = db_current.prepare(`${sql_default_v2} AND id = $id;`);
+	stmt_entry = db_current.prepare(`${sql_base_v2} AND id = $id;`);
 	// refresh multimap of No.101 ~ No.107
 	multimap_seventh.clear();
 	const seventh_cards = query(sql_seventh, arg_seventh);

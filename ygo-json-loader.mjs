@@ -191,9 +191,6 @@ export function load_name_table(db) {
 			const rarity = md_card_list[cid] ?? 0;
 			insert_name.run(id, cid, en_name, jp_name, jp_ruby, md_name_en, md_name_jp, rarity);
 		}
-		db.exec(`INSERT INTO extension (id, cid, en_name, jp_name, jp_ruby, md_name_en, md_name_jp, md_rarity)
-		SELECT datas.id, cid, en_name, jp_name, jp_ruby, md_name_en, md_name_jp, md_rarity
-		FROM datas JOIN extension ON datas.alias != 0 AND datas.alias = extension.id;`);
 		db.exec(`COMMIT;`);
 	}
 	catch (error) {
