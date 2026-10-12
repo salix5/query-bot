@@ -1,6 +1,6 @@
 import { copyFileSync } from "node:fs";
 import { DatabaseSync } from "node:sqlite";
-import { MAX_CARD_ID, monster_types } from "./ygo-constant.mjs";
+import { monster_types } from "./ygo-constant.mjs";
 import { escape_wildcard, inverse_mapping } from "./ygo-utility.mjs";
 import { id_to_cid, extra_setcodes, setname_table } from "./ygo-json-loader.mjs";
 
@@ -58,7 +58,7 @@ datas.scale, datas.marker, datas.setcode, texts.name, texts.description,
 extension.cid, extension.en_name, extension.jp_name, extension.jp_ruby, extension.md_name_en, extension.md_name_jp, extension.md_rarity`;
 export const full_tables = `FROM datas JOIN texts USING (id) LEFT JOIN extension USING (id)`;
 
-export const default_clause_v2 = `WHERE (type & $token) = 0 AND (cid IS NOT NULL OR id > ${MAX_CARD_ID})`;
+export const default_clause_v2 = `WHERE (type & $token) = 0 AND alias = 0`;
 export const sql_default_v2 = `SELECT ${full_columns} ${full_tables} ${default_clause_v2}`;
 export const sql_count_v2 = `SELECT count(*) ${full_tables} ${default_clause_v2}`;
 export const arg_default_v2 = {

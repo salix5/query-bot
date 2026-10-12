@@ -108,13 +108,11 @@ await reload_db();
  * @returns {Entry|null}
  */
 function get_entry(id) {
-	if (!stmt_entry)
-		return null;
 	const arg_entry = {
 		...arg_default_v2,
 		$id: id,
 	};
-	const row = stmt_entry.get(arg_entry);
+	const row = stmt_entry?.get(arg_entry);
 	return row ?? null;
 }
 
@@ -123,13 +121,11 @@ function get_entry(id) {
  * @returns {string|null}
  */
 function get_db_name(id) {
-	if (!stmt_name)
-		return null;
 	const arg_name = {
 		...arg_default_v2,
 		$id: id,
 	};
-	const card = stmt_name.get(arg_name);
+	const card = stmt_name?.get(arg_name);
 	if (!card)
 		return null;
 	return card.name;
@@ -549,8 +545,8 @@ export async function reload_db(files) {
 	const current = `${import.meta.dirname}/db/query.cdb`;
 	renameSync(temp, current);
 	db_current = sqlite3_open(current);
-	stmt_name = db_current.prepare(`SELECT id, name ${full_tables} ${default_clause_v2} AND id = $id;`);
-	stmt_entry = db_current.prepare(`${sql_base_v2} AND id = $id;`);
+	stmt_name = db_current.prepare(`SELECT id, name FROM datas JOIN texts USING (id) ${default_clause_v2} AND id = $id;`, { persistent: true });
+	stmt_entry = db_current.prepare(`${sql_base_v2} AND id = $id;`, { persistent: true });
 	// refresh multimap of No.101 ~ No.107
 	multimap_seventh.clear();
 	const seventh_cards = query(sql_seventh, arg_seventh);
