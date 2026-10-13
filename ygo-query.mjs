@@ -199,36 +199,17 @@ function is_string(str) {
 /**
  * Parse param into sqlite statement condition.
  * @param {object} params 
- * @param {Iterable<number>} [id_list]
  * @returns {{ condition: string, args: object }}
  */
-function generate_condition(params, id_list) {
+function generate_condition(params) {
 	const result = {
 		__proto__: null,
 		condition: "",
 		args: {},
 	};
 	const arg = result.args;
-	const key_condition = [];
-	// primary key
-	if (Number.isSafeInteger(params.id)) {
-		key_condition.push('id = $id');
-		arg.$id = params.id;
-	}
-	if (Number.isSafeInteger(params.cid)) {
-		key_condition.push('cid = $cid');
-		arg.$cid = params.cid;
-	}
-	if (key_condition.length > 0) {
-		result.condition = ` AND (${key_condition.join(' OR ')})`;
-		return result;
-	}
-
 	const segments = [];
 	// number
-	if (id_list !== undefined) {
-		segments.push(`AND ${list_condition('id', 'id', id_list, arg)}`);
-	}
 	if (Number.isSafeInteger(params.ot) && params.ot > 0) {
 		segments.push("AND (ot & $ot_mask) = $ot");
 		arg.$ot_mask = 0x3;
@@ -664,24 +645,24 @@ export function query_card(params) {
 			}
 		}
 		else if (is_cid) {
-		const arg1 = {
-			...arg_default_v2,
+			const arg1 = {
+				...arg_default_v2,
 				$cid: params.cid,
-		};
+			};
 			const entry_cid = stmt_cid?.get(arg1);
 			if (entry_cid) {
 				result.push(generate_card(entry_cid));
-	}
+			}
 		}
 		else if (is_code) {
 			const card = get_card(params.code);
 			if (card) {
 				result.push(card);
 			}
-	const arg1 = {
-		...arg_default_v2,
+			const arg1 = {
+				...arg_default_v2,
 				$cid: params.code,
-	};
+			};
 			const entry_cid = stmt_cid?.get(arg1);
 			if (entry_cid) {
 				result.push(generate_card(entry_cid));
@@ -702,8 +683,8 @@ export function query_card(params) {
 	const limit = (Number.isSafeInteger(params.limit) && params.limit > 0) ? Math.min(params.limit, MAX_LIMIT) : MAX_LIMIT;
 	const stmt_full = db_current.prepare(`SELECT id ${full_tables} ${default_clause_v2} ${condition} ORDER BY id;`, { returnArrays: true });
 	const arg1 = {
-			...arg_default_v2,
-			...args,
+		...arg_default_v2,
+		...args,
 	};
 	const rows = stmt_full.all(arg1);
 	const begin = rows.findIndex(row => row[0] > after);
