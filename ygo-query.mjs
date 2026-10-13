@@ -6,12 +6,11 @@ import { language_pack, official_name, cid_table, name_table } from './ygo-json-
 import { escape_wildcard, zh_collator, zh_compare } from './ygo-utility.mjs';
 import { fetch_db } from './ygo-fetch.mjs';
 import { card_types, monster_types, link_markers, rarity, CID_BLACK_LUSTER_SOLDIER, spell_types, trap_types, marker_char } from "./ygo-constant.mjs";
-import { arg_default_v2, arg_seventh, effect_filter, default_clause_v2, sql_base_v2, sql_default_v2, sql_seventh, full_tables, default_options } from './ygo-sqlite.mjs';
+import { arg_default_v2, arg_seventh, effect_filter, default_clause_v2, sql_base_v2, sql_default_v2, sql_list, sql_seventh, full_tables, default_options } from './ygo-sqlite.mjs';
 import { like_pattern, name_condition, list_condition, alter_db, merge_db, query_db_v2, setcode_condition, sqlite3_open } from './ygo-sqlite.mjs';
 
 export const regexp_mention = `(?<=「)[^「」]*「?[^「」]*」?[^「」]*(?=」)`;
-const MAX_LIMIT = 100;
-const MAX_COUNT = 1000;
+const MAX_LIMIT = 20000;
 
 /**
  * @type {import('node:sqlite').DatabaseSync}
@@ -606,10 +605,6 @@ export function query(qstr = sql_default_v2, arg = arg_default_v2) {
  */
 export function query_card(params) {
 	if (typeof params.pack === 'string') {
-		const query_segments = [sql_default_v2];
-		const arg1 = {
-			...arg_default_v2,
-		};
 		if (Object.hasOwn(pack_list, params.pack)) {
 			const pack = pack_list[params.pack];
 			const index_table = new Map();
@@ -619,9 +614,11 @@ export function query_card(params) {
 				}
 			}
 			const id_list = [...index_table.keys()];
-			query_segments.push(`AND ${list_condition('id', 'pack', id_list, arg1)}`);
-			query_segments.push("ORDER BY id");
-			const cmd1 = query_segments.join(' ');
+			const cmd1 = `${sql_list} ORDER BY id`;
+			const arg1 = {
+				...arg_default_v2,
+				$id_list: JSON.stringify(id_list),
+			};
 			const result = query(cmd1, arg1);
 			for (const card of result) {
 				card.pack_index = index_table.get(card.id);
@@ -634,11 +631,12 @@ export function query_card(params) {
 			return { result, meta };
 		}
 		if (Object.hasOwn(pre_release, params.pack)) {
-			query_segments.push("AND (id BETWEEN $pack_begin AND $pack_end)");
-			arg1.$pack_begin = pre_release[params.pack];
-			arg1.$pack_end = pre_release[params.pack] + 500;
-			query_segments.push("ORDER BY id");
-			const cmd1 = query_segments.join(' ');
+			const cmd1 = `${sql_default_v2} AND (id BETWEEN $pack_begin AND $pack_end) ORDER BY id`;
+			const arg1 = {
+				...arg_default_v2,
+				$pack_begin: pre_release[params.pack],
+				$pack_end: pre_release[params.pack] + 500,
+			};
 			const result = query(cmd1, arg1);
 			const meta = {
 				pack: params.pack,
@@ -654,67 +652,85 @@ export function query_card(params) {
 			}
 		};
 	}
-	const meta = {
-		limit: 0,
-	};
-	const { condition, args } = generate_condition(params);
-	if (Number.isSafeInteger(params.id) || Number.isSafeInteger(params.cid)) {
-		const cmd1 = `${sql_base_v2}${condition}`;
+	const is_id = Number.isSafeInteger(params.id);
+	const is_cid = Number.isSafeInteger(params.cid);
+	const is_code = Number.isSafeInteger(params.code);
+	if (is_id || is_cid || is_code) {
+		const result = [];
+		if (is_id) {
+			const card = get_card(params.id);
+			if (card) {
+				result.push(card);
+			}
+		}
+		else if (is_cid) {
 		const arg1 = {
 			...arg_default_v2,
-			...args,
+				$cid: params.cid,
 		};
-		const result = query(cmd1, arg1);
-		return { result, meta };
+			const entry_cid = stmt_cid?.get(arg1);
+			if (entry_cid) {
+				result.push(generate_card(entry_cid));
 	}
-	const query_segments = [sql_default_v2, condition];
+		}
+		else if (is_code) {
+			const card = get_card(params.code);
+			if (card) {
+				result.push(card);
+			}
 	const arg1 = {
 		...arg_default_v2,
-		...args,
+				$cid: params.code,
 	};
-	const limit = (Number.isSafeInteger(params.limit) && params.limit > 0) ? Math.min(params.limit, MAX_LIMIT) : MAX_LIMIT;
-	const has_page = Number.isSafeInteger(params.page) && params.page > 0;
-	if (has_page) {
-		if (limit * params.page > MAX_COUNT) {
-			return { result: [], meta };
+			const entry_cid = stmt_cid?.get(arg1);
+			if (entry_cid) {
+				result.push(generate_card(entry_cid));
+			}
 		}
-		query_segments.push("ORDER BY color, level DESC, name, id");
-		query_segments.push("LIMIT $limit OFFSET $offset");
-		arg1.$limit = limit + 1;
-		arg1.$offset = (params.page - 1) * limit;
+		return {
+			result,
+			meta: {
+				total: result.length,
+				limit: 0,
+				has_next: false,
+				end_cursor: null,
+			}
+		};
 	}
-	else {
-		query_segments.push("ORDER BY id");
-		query_segments.push("LIMIT $limit");
-		arg1.$limit = limit + 1;
-	}
-	const cmd1 = query_segments.join(' ');
-	const result = query(cmd1, arg1);
-	meta.limit = limit;
-	if (result.length > limit) {
-		meta.has_next = true;
-		result.pop();
-	}
-	else {
-		meta.has_next = false;
-	}
-	if (has_page) {
-		const count_segments = [`SELECT count(*) AS count FROM (SELECT 1 ${full_tables} ${default_clause_v2}`];
-		count_segments.push(condition);
-		count_segments.push(`LIMIT $limit) AS query`);
-		const cmd2 = count_segments.join(' ');
-		const arg2 = {
+	const { condition, args } = generate_condition(params);
+	const after = (Number.isSafeInteger(params.after) && params.after > 0) ? params.after : -1;
+	const limit = (Number.isSafeInteger(params.limit) && params.limit > 0) ? Math.min(params.limit, MAX_LIMIT) : MAX_LIMIT;
+	const stmt_full = db_current.prepare(`SELECT id ${full_tables} ${default_clause_v2} ${condition} ORDER BY id;`, { returnArrays: true });
+	const arg1 = {
 			...arg_default_v2,
 			...args,
-			$limit: MAX_COUNT + 1,
+	};
+	const rows = stmt_full.all(arg1);
+	const begin = rows.findIndex(row => row[0] > after);
+	if (begin < 0) {
+		return {
+			result: [],
+			meta: {
+				total: rows.length,
+				limit: limit,
+				has_next: false,
+				end_cursor: null,
+			}
 		};
-		const rows = query_db_v2(db_current, cmd2, arg2);
-		meta.total = rows[0].count;
-		meta.page = params.page;
 	}
-	else {
-		meta.end_cursor = result.at(-1)?.id ?? null;
-	}
+	const id_list = rows.slice(begin, begin + limit).flat();
+	const arg_result = {
+		...arg_default_v2,
+		$id_list: JSON.stringify(id_list),
+	};
+	const result = stmt_list.all(arg_result).map(generate_card);
+	const has_next = begin + limit < rows.length;
+	const meta = {
+		total: rows.length,
+		limit: limit,
+		has_next: has_next,
+		end_cursor: has_next ? id_list.at(-1) : null,
+	};
 	return { result, meta };
 }
 
