@@ -25,6 +25,14 @@ let stmt_name = null;
  * @type {import('node:sqlite').StatementSync}
  */
 let stmt_entry = null;
+/**
+ * @type {import('node:sqlite').StatementSync}
+ */
+let stmt_cid = null;
+/**
+ * @type {import('node:sqlite').StatementSync}
+ */
+let stmt_list = null;
 
 /**
  * @typedef {object} Entry
@@ -541,12 +549,16 @@ export async function reload_db(files) {
 	}
 	stmt_name?.close();
 	stmt_entry?.close();
+	stmt_cid?.close();
+	stmt_list?.close();
 	db_current?.close();
 	const current = `${import.meta.dirname}/db/query.cdb`;
 	renameSync(temp, current);
 	db_current = sqlite3_open(current);
 	stmt_name = db_current.prepare(`SELECT id, name FROM datas JOIN texts USING (id) ${default_clause_v2} AND id = $id;`, { persistent: true });
 	stmt_entry = db_current.prepare(`${sql_base_v2} AND id = $id;`, { persistent: true });
+	stmt_cid = db_current.prepare(`${sql_default_v2} AND cid = $cid;`, { persistent: true });
+	stmt_list = db_current.prepare(`${sql_list} ORDER BY id;`, { persistent: true });
 	// refresh multimap of No.101 ~ No.107
 	multimap_seventh.clear();
 	const seventh_cards = query(sql_seventh, arg_seventh);
