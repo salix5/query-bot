@@ -61,6 +61,7 @@ export const full_tables = `FROM datas JOIN texts USING (id) LEFT JOIN extension
 export const default_clause_v2 = `WHERE (type & $token) = 0 AND alias = 0`;
 export const sql_default_v2 = `SELECT ${full_columns} ${full_tables} ${default_clause_v2}`;
 export const sql_count_v2 = `SELECT count(*) ${full_tables} ${default_clause_v2}`;
+export const sql_list = `SELECT ${full_columns} ${full_tables} ${default_clause_v2} AND id IN (SELECT value FROM json_each($id_list))`;
 export const arg_default_v2 = {
 	$token: monster_types.TYPE_TOKEN,
 };
@@ -68,7 +69,6 @@ export const arg_default_v2 = {
 export const base_clause_v2 = `WHERE (type & $token) = 0`;
 export const sql_base_v2 = `SELECT ${full_columns} ${full_tables} ${base_clause_v2}`;
 export const effect_filter = ` AND ((type & $normal) = 0 OR (type & $pendulum) != 0)`;
-export const sql_list = `SELECT ${full_columns} ${full_tables} ${base_clause_v2} AND id IN (SELECT value FROM json_each($id_list))`;
 
 const over_hundred = ` AND (name like $n101 OR name like $n102 OR name like $n103 OR name like $n104 OR name like $n105 OR name like $n106 OR name like $n107)`;
 export const sql_seventh = `${sql_default_v2} AND cid IS NOT NULL AND (type & $xyz) != 0${over_hundred}`;
