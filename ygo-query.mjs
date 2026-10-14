@@ -705,12 +705,11 @@ export function query_card(params) {
 		$id_list: JSON.stringify(id_list),
 	};
 	const result = stmt_list.all(arg_result).map(generate_card);
-	const has_next = begin + limit < rows.length;
 	const meta = {
 		total: rows.length,
 		limit: limit,
-		has_next: has_next,
-		end_cursor: has_next ? id_list.at(-1) : null,
+		has_next: begin + limit < rows.length,
+		end_cursor: id_list.at(-1),
 	};
 	return { result, meta };
 }
