@@ -367,8 +367,7 @@ function generate_condition(params) {
 		has_def = true;
 	}
 	else if (def_from === -2) {
-		def_condition = "def = atk AND def >= $zero";
-		arg.$zero = 0;
+		def_condition = "def = atk AND def >= 0";
 		has_def = true;
 	}
 	else if (def_to !== null && def_to >= 0) {
@@ -392,8 +391,7 @@ function generate_condition(params) {
 		segments.push(`AND ${def_condition}`);
 	}
 	if (Number.isSafeInteger(params.sum) && params.sum >= 0) {
-		segments.push("AND atk >= $zero AND def >= $zero AND atk + def = $sum");
-		arg.$zero = 0;
+		segments.push("AND atk >= 0 AND def >= 0 AND atk + def = $sum");
 		arg.$sum = params.sum;
 		has_def = true;
 	}
