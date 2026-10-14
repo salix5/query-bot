@@ -681,7 +681,7 @@ export function query_card(params) {
 	const { condition, args } = generate_condition(params);
 	const after = (Number.isSafeInteger(params.after) && params.after > 0) ? params.after : -1;
 	const limit = (Number.isSafeInteger(params.limit) && params.limit > 0) ? Math.min(params.limit, MAX_LIMIT) : MAX_LIMIT;
-	const stmt_full = db_current.prepare(`SELECT id ${full_tables} ${default_clause_v2} ${condition} ORDER BY id;`, { returnArrays: true });
+	using stmt_full = db_current.prepare(`SELECT id ${full_tables} ${default_clause_v2} ${condition} ORDER BY id;`, { returnArrays: true });
 	const arg1 = {
 		...arg_default_v2,
 		...args,
