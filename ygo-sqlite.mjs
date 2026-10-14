@@ -61,6 +61,7 @@ export const full_tables = `FROM datas JOIN texts USING (id) LEFT JOIN extension
 export const default_clause_v2 = `WHERE (type & $token) = 0 AND alias = 0`;
 export const sql_default_v2 = `SELECT ${full_columns} ${full_tables} ${default_clause_v2}`;
 export const sql_count_v2 = `SELECT count(*) ${full_tables} ${default_clause_v2}`;
+export const sql_list = `SELECT ${full_columns} ${full_tables} ${default_clause_v2} AND id IN (SELECT value FROM json_each($id_list))`;
 export const arg_default_v2 = {
 	$token: monster_types.TYPE_TOKEN,
 };
