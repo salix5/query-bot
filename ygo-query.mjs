@@ -50,15 +50,15 @@ let stmt_list = null;
  * @property {number} scale
  * @property {number} marker
  * @property {string} setcode
- * @property {number} md_rarity
  * 
  * @property {string} name
+ * @property {string} description
  * @property {string|null} en_name
  * @property {string|null} jp_name
  * @property {string|null} jp_ruby
  * @property {string|null} md_name_en
  * @property {string|null} md_name_jp
- * @property {string} description
+ * @property {number|null} md_rarity
  */
 
 /**
