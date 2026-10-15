@@ -70,8 +70,8 @@ export const base_clause_v2 = `WHERE (type & $token) = 0`;
 export const sql_base_v2 = `SELECT ${full_columns} ${full_tables} ${base_clause_v2}`;
 export const effect_filter = ` AND ((type & $normal) = 0 OR (type & $pendulum) != 0)`;
 
-const over_hundred = ` AND (name like $n101 OR name like $n102 OR name like $n103 OR name like $n104 OR name like $n105 OR name like $n106 OR name like $n107)`;
-export const sql_seventh = `${sql_default_v2} AND cid IS NOT NULL AND (type & $xyz) != 0${over_hundred}`;
+const over_hundred = `AND (name like $n101 OR name like $n102 OR name like $n103 OR name like $n104 OR name like $n105 OR name like $n106 OR name like $n107)`;
+export const sql_seventh = `${sql_default_v2} AND cid IS NOT NULL AND (type & $xyz) != 0 ${over_hundred}`;
 export const arg_seventh = {
 	...arg_default_v2,
 	$xyz: monster_types.TYPE_XYZ,
@@ -311,12 +311,18 @@ export function like_pattern(str) {
  * @returns {string}
  */
 export function name_condition(input, arg) {
-	const condition = `name LIKE $name ESCAPE '$' OR description LIKE $kanji ESCAPE '$' OR rule_code IN (SELECT id ${full_tables} ${default_clause_v2} AND name LIKE $name ESCAPE '$')`;
+	const segments = [
+		"name LIKE $name ESCAPE '$'",
+		"OR description LIKE $kanji ESCAPE '$'",
+		"OR (rule_code != 0 AND (SELECT name FROM texts t2 WHERE t2.id = datas.rule_code) LIKE $name ESCAPE '$')",
+	];
 	arg.$name = `%${escape_wildcard(input)}%`;
 	arg.$kanji = `%※%${escape_wildcard(input)}%`;
 	const keyword = input.toLowerCase();
-	const setcode = Object.hasOwn(normalized_setname_table, keyword) ? ` OR ${setcode_condition(normalized_setname_table[keyword], arg)}` : '';
-	return `(${condition}${setcode})`;
+	if (Object.hasOwn(normalized_setname_table, keyword)) {
+		segments.push(`OR ${setcode_condition(normalized_setname_table[keyword], arg)}`);
+	}
+	return `(${segments.join(' ')})`;
 }
 
 
