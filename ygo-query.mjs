@@ -945,7 +945,7 @@ export function print_card(card, locale) {
 				other_name.push(card.text.en_name);
 			else if (card.text.md_name_en)
 				other_name.push(`${card.text.md_name_en}    (MD)`);
-			description = `${card.text.description}\n--`;
+			description = `${card.text.description}\n--\n`;
 			break;
 		case 'ja':
 			if (card.text.jp_name)
@@ -1025,7 +1025,7 @@ export function print_card(card, locale) {
 		...metadata,
 		...print_data(card.data, locale),
 	];
-	const card_text = `**${card_name}**\n${segments.join('\n')}\n${description}\n`;
+	const card_text = `**${card_name}**\n${segments.join('\n')}\n${description}`;
 	return card_text;
 }
 
