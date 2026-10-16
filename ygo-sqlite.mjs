@@ -1,7 +1,7 @@
 import { copyFileSync } from "node:fs";
 import { DatabaseSync } from "node:sqlite";
 import { monster_types } from "./ygo-constant.mjs";
-import { escape_wildcard, inverse_mapping } from "./ygo-utility.mjs";
+import { inverse_mapping } from "./ygo-utility.mjs";
 import { id_to_cid, extra_setcodes, setname_table } from "./ygo-json-loader.mjs";
 
 export {
@@ -316,8 +316,8 @@ export function name_condition(input, arg) {
 		"OR description LIKE $kanji ESCAPE '$'",
 		"OR (rule_code != 0 AND (SELECT name FROM texts t2 WHERE t2.id = datas.rule_code) LIKE $name ESCAPE '$')",
 	];
-	arg.$name = `%${escape_wildcard(input)}%`;
-	arg.$kanji = `%※%${escape_wildcard(input)}%`;
+	arg.$name = like_pattern(input);
+	arg.$kanji = `%※${arg.$name}`;
 	const keyword = input.toLowerCase();
 	if (Object.hasOwn(normalized_setname_table, keyword)) {
 		segments.push(`OR ${setcode_condition(normalized_setname_table[keyword], arg)}`);
