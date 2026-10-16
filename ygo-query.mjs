@@ -1017,11 +1017,15 @@ export function print_card(card, locale) {
 	if (show_lflist) {
 		metadata.push(`(${lfstr_ocg} / ${lfstr_tcg} / ${lfstr_md})`);
 	}
-	let genesys_status = '';
 	if (card.cid && genesys_point[card.cid]) {
 		metadata.push(`Genesys：${genesys_point[card.cid]}`);
 	}
-	const card_text = `**${card_name}**\n${other_name.join('\n')}\n${metadata.join('\n')}\n${print_data(card.data, locale).join('\n')}\n${description}\n`;
+	const segments = [
+		...other_name,
+		...metadata,
+		...print_data(card.data, locale),
+	];
+	const card_text = `**${card_name}**\n${segments.join('\n')}\n${description}\n`;
 	return card_text;
 }
 
