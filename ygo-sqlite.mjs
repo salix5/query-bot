@@ -89,7 +89,7 @@ export const default_options = {
 	defensive: true,
 };
 
-export const re_wildcard = /(?<!\$)[%_]/;
+export const re_wildcard = /(?<!\$)(?:\$\$)*[%_]/;
 const replace_dollar = /\$(?![%_])/g;
 
 const normalized_setname_table = Object.create(null);
