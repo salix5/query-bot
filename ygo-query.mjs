@@ -966,7 +966,7 @@ export function print_card(card, locale) {
 			if (card.text.en_name)
 				other_name.push(card.text.en_name);
 			else if (card.text.md_name_en)
-				other_name.push(`${card.text.md_name_en}    (MD)\n`);
+				other_name.push(`${card.text.md_name_en}    (MD)`);
 			description = '';
 			break;
 		case 'en':
@@ -978,7 +978,7 @@ export function print_card(card, locale) {
 			if (card.text.jp_name)
 				other_name.push(card.text.jp_name);
 			else if (card.text.md_name_jp)
-				other_name.push(`${card.text.md_name_jp}    (MD)\n`);
+				other_name.push(`${card.text.md_name_jp}    (MD)`);
 			description = '';
 			break;
 		default:
