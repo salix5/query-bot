@@ -931,20 +931,20 @@ export function print_card(card, locale) {
 	const strings = language_pack[locale].strings;
 
 	let card_name = 'null';
-	let other_name = '';
+	const other_name = [];
 	let description = '';
 
 	switch (locale) {
 		case 'zh-tw':
 			card_name = card.text.tw_name;
 			if (card.text.jp_name)
-				other_name += `${card.text.jp_name}\n`;
+				other_name.push(card.text.jp_name);
 			else if (card.text.md_name_jp)
-				other_name += `${card.text.md_name_jp}    (MD)\n`;
+				other_name.push(`${card.text.md_name_jp}    (MD)`);
 			if (card.text.en_name)
-				other_name += `${card.text.en_name}\n`;
+				other_name.push(card.text.en_name);
 			else if (card.text.md_name_en)
-				other_name += `${card.text.md_name_en}    (MD)\n`;
+				other_name.push(`${card.text.md_name_en}    (MD)`);
 			description = `${card.text.description}\n--`;
 			break;
 		case 'ja':
@@ -954,9 +954,9 @@ export function print_card(card, locale) {
 				card_name = `${card.text.md_name_jp}    (MD)`;
 
 			if (card.text.en_name)
-				other_name = `${card.text.en_name}\n`;
+				other_name.push(card.text.en_name);
 			else if (card.text.md_name_en)
-				other_name = `${card.text.md_name_en}    (MD)\n`;
+				other_name.push(`${card.text.md_name_en}    (MD)`);
 			description = '';
 			break;
 		case 'ko':
@@ -964,9 +964,9 @@ export function print_card(card, locale) {
 				card_name = card.text.kr_name;
 
 			if (card.text.en_name)
-				other_name = `${card.text.en_name}\n`;
+				other_name.push(card.text.en_name);
 			else if (card.text.md_name_en)
-				other_name = `${card.text.md_name_en}    (MD)\n`;
+				other_name.push(`${card.text.md_name_en}    (MD)`);
 			description = '';
 			break;
 		case 'en':
@@ -976,17 +976,19 @@ export function print_card(card, locale) {
 				card_name = `${card.text.md_name_en}    (MD)`;
 
 			if (card.text.jp_name)
-				other_name = `${card.text.jp_name}\n`;
+				other_name.push(card.text.jp_name);
 			else if (card.text.md_name_jp)
-				other_name = `${card.text.md_name_jp}    (MD)\n`;
+				other_name.push(`${card.text.md_name_jp}    (MD)`);
 			description = '';
 			break;
 		default:
 			break;
 	}
 
-	const md_status = card.data.md_rarity ? `MD：${rarity[card.data.md_rarity]}\n` : '';
-	let lfstr = '';
+	const metadata = [];
+	if (card.data.md_rarity) {
+		metadata.push(`MD：${rarity[card.data.md_rarity]}`);
+	}
 	let lfstr_ocg;
 	let lfstr_tcg;
 	let lfstr_md;
@@ -1012,14 +1014,18 @@ export function print_card(card, locale) {
 	else {
 		lfstr_md = `MD：-`;
 	}
-	if (show_lflist)
-		lfstr = `(${lfstr_ocg} / ${lfstr_tcg} / ${lfstr_md})\n`;
-
-	let genesys_status = '';
-	if (card.cid && genesys_point[card.cid]) {
-		genesys_status = `Genesys：${genesys_point[card.cid]}\n`;
+	if (show_lflist) {
+		metadata.push(`(${lfstr_ocg} / ${lfstr_tcg} / ${lfstr_md})`);
 	}
-	const card_text = `**${card_name}**\n${other_name}${md_status}${genesys_status}${lfstr}${print_data(card.data, locale).join('\n')}\n${description}\n`;
+	if (card.cid && genesys_point[card.cid]) {
+		metadata.push(`Genesys：${genesys_point[card.cid]}`);
+	}
+	const segments = [
+		...other_name,
+		...metadata,
+		...print_data(card.data, locale),
+	];
+	const card_text = `**${card_name}**\n${segments.join('\n')}\n${description}\n`;
 	return card_text;
 }
 
