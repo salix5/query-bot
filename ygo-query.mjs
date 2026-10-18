@@ -181,8 +181,8 @@ function generate_card(cdata) {
 	text.description = cdata.description;
 	const card = {
 		__proto__: null,
-		cid: cdata.cid,
 		id,
+		cid: cdata.cid,
 		data,
 		text,
 		artid,
