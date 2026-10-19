@@ -685,8 +685,8 @@ export function query_card(params) {
 		...args,
 	};
 	const rows = stmt_full.all(arg1);
-	const begin = rows.findIndex(row => row[0] > after);
-	if (begin < 0) {
+	const offset = rows.findIndex(row => row[0] > after);
+	if (offset < 0) {
 		return {
 			result: [],
 			meta: {
@@ -697,7 +697,7 @@ export function query_card(params) {
 			}
 		};
 	}
-	const id_list = rows.slice(begin, begin + limit).flat();
+	const id_list = rows.slice(offset, offset + limit).flat();
 	const arg_result = {
 		...arg_default_v2,
 		$id_list: JSON.stringify(id_list),
@@ -706,7 +706,7 @@ export function query_card(params) {
 	const meta = {
 		total: rows.length,
 		limit: limit,
-		has_next: begin + limit < rows.length,
+		has_next: offset + limit < rows.length,
 		end_cursor: id_list.at(-1),
 	};
 	return { result, meta };
