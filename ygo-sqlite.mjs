@@ -54,7 +54,7 @@ export const arg_base_v1 = {
 
 // schema v2 tables
 export const full_columns = `id, datas.ot, datas.alias, datas.rule_code, datas.another_code, datas.type, datas.atk, datas.def, datas.level, datas.race, datas.attribute,
-datas.scale, datas.marker, datas.setcode, texts.name, texts.description,
+datas.scale, datas.marker, datas.setcode, datas.color, texts.name, texts.description,
 extension.cid, extension.en_name, extension.jp_name, extension.jp_ruby, extension.md_name_en, extension.md_name_jp, extension.md_rarity`;
 export const full_tables = `FROM datas JOIN texts USING (id) LEFT JOIN extension USING (id)`;
 
@@ -114,15 +114,17 @@ for (const name of Object.keys(setname_table)) {
  * @property {number} scale
  * @property {number} marker
  * @property {string} setcode
- * @property {number} md_rarity
+ * @property {number} color
  * 
  * @property {string} name
+ * @property {string} description
+ * 
  * @property {string|null} en_name
  * @property {string|null} jp_name
  * @property {string|null} jp_ruby
  * @property {string|null} md_name_en
  * @property {string|null} md_name_jp
- * @property {string} description
+ * @property {number|null} md_rarity
  */
 
 /**
