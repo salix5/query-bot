@@ -109,7 +109,7 @@ let stmt_list = null;
 const multimap_seventh = new Map();
 
 //workaround
-await reload_db();
+await load_db();
 
 
 /**
@@ -506,7 +506,7 @@ function generate_condition(params) {
  * @param {string[]} [files]
  * @returns {Promise<boolean>}
  */
-export async function reload_db(files) {
+export async function load_db(files) {
 	const temp = `${import.meta.dirname}/db/temp.cdb`;
 	if (files === undefined) {
 		const db_url = 'https://github.com/salix5/cdb/releases/latest/download/query.cdb';
