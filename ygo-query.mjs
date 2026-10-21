@@ -50,9 +50,11 @@ let stmt_list = null;
  * @property {number} scale
  * @property {number} marker
  * @property {string} setcode
+ * @property {number} color
  * 
  * @property {string} name
  * @property {string} description
+ * 
  * @property {string|null} en_name
  * @property {string|null} jp_name
  * @property {string|null} jp_ruby
@@ -64,6 +66,7 @@ let stmt_list = null;
 /**
  * @typedef {object} CardData
  * @property {number} ot
+ * @property {string} setcode
  * @property {number} type
  * @property {number} atk
  * @property {number} def
@@ -72,11 +75,10 @@ let stmt_list = null;
  * @property {number} attribute
  * @property {number} scale
  * @property {number} marker
- * @property {string} setcode
- * @property {number} rule_code
- * @property {number} another_code
- * @property {number} md_rarity
  * @property {number} color
+ * @property {number} md_rarity
+ * @property {number} [rule_code]
+ * @property {number} [another_code]
  */
 
 /**
@@ -148,6 +150,7 @@ function generate_card(cdata) {
 	const data = {
 		__proto__: null,
 		ot: cdata.ot,
+		setcode: cdata.setcode,
 		type: cdata.type,
 		atk: cdata.atk,
 		def: cdata.def,
@@ -156,11 +159,13 @@ function generate_card(cdata) {
 		attribute: cdata.attribute,
 		scale: cdata.scale,
 		marker: cdata.marker,
-		setcode: cdata.setcode,
-		rule_code: cdata.rule_code,
-		another_code: cdata.another_code,
+		color: cdata.color,
 		md_rarity: 0,
 	};
+	if (cdata.rule_code)
+		data.rule_code = cdata.rule_code;
+	if (cdata.another_code)
+		data.another_code = cdata.another_code;
 	const text = Object.create(null);
 	if (cdata.cid) {
 		data.md_rarity = cdata.md_rarity;
