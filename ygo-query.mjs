@@ -728,7 +728,7 @@ export function compare_card(a, b) {
 		return a.data.color - b.data.color;
 	}
 	if (a.data.level !== b.data.level) {
-		return b.data.level - a.data.level;
+		return a.data.level - b.data.level;
 	}
 	return zh_collator.compare(a.text.tw_name, b.text.tw_name);
 }
