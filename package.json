@@ -3,7 +3,7 @@
   "version": "5.0.0",
   "description": "Discord card query bot",
   "type": "module",
-  "main": "./bot.js",
+  "main": "index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/salix5/query-bot"
