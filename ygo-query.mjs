@@ -1,6 +1,7 @@
 import { renameSync } from 'node:fs';
 import { writeFile } from 'node:fs/promises';
 import { DatabaseSync } from 'node:sqlite';
+import { gunzipSync } from 'node:zlib';
 import { ltable_ocg, ltable_tcg, ltable_md, pack_list, pre_release, genesys_point, setname_table, load_name_table } from './ygo-json-loader.mjs';
 import { language_pack, official_name, cid_table, name_table } from './ygo-json-loader.mjs';
 import { escape_wildcard, zh_collator, zh_compare } from './ygo-utility.mjs';
@@ -509,9 +510,9 @@ function generate_condition(params) {
 export async function load_db(files) {
 	const temp = `${import.meta.dirname}/db/temp.cdb`;
 	if (files === undefined) {
-		const db_url = 'https://github.com/salix5/cdb/releases/latest/download/query.cdb';
+		const db_url = 'https://github.com/salix5/cdb/releases/latest/download/query.cdb.gz';
 		try {
-			await fetch_db(db_url).then(data => writeFile(temp, data));
+			await fetch_db(db_url).then(data => writeFile(temp, gunzipSync(data)));
 		}
 		catch (error) {
 			console.error(error);
@@ -530,12 +531,12 @@ export async function load_db(files) {
 		alter_db(db_temp);
 		load_name_table(db_temp);
 	}
+	const current = `${import.meta.dirname}/db/query.cdb`;
 	stmt_name?.close();
 	stmt_entry?.close();
 	stmt_cid?.close();
 	stmt_list?.close();
 	db_current?.close();
-	const current = `${import.meta.dirname}/db/query.cdb`;
 	renameSync(temp, current);
 	db_current = sqlite3_open(current);
 	stmt_name = db_current.prepare(`SELECT id, name FROM datas JOIN texts USING (id) ${default_clause_v2} AND id = $id;`, { persistent: true });
