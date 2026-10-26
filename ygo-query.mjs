@@ -510,7 +510,7 @@ function generate_condition(params) {
 export async function load_db(files) {
 	const temp = `${import.meta.dirname}/db/temp.cdb`;
 	if (files === undefined) {
-		const db_url = 'https://github.com/salix5/cdb/releases/latest/download/query.cdb.gz';
+		const db_url = 'https://github.com/salix5/cdb/releases/download/snapshot/query.cdb.gz';
 		try {
 			await fetch_db(db_url).then(data => writeFile(temp, gunzipSync(data)));
 		}
