@@ -8,8 +8,8 @@ import { randomInt } from "node:crypto";
 export function print_db_link(cid, request_locale) {
 	const params = new URLSearchParams({
 		ope: "2",
-		cid: cid.toString(),
-		request_locale: request_locale
+		cid,
+		request_locale,
 	});
 	return `https://www.db.yugioh-card.com/yugiohdb/card_search.action?${params.toString()}`;
 }
@@ -24,7 +24,7 @@ export function print_yp_link(id) {
 export function print_qa_link(cid) {
 	const params = new URLSearchParams({
 		ope: "4",
-		cid: cid.toString(),
+		cid,
 		sort: "2",
 		request_locale: "ja"
 	});
@@ -87,7 +87,7 @@ export function escape_wildcard(str) {
  * @returns 
  */
 export function table_stringify(map) {
-	return `${JSON.stringify(Object.fromEntries(map), null, 2)}\n`;
+	return JSON.stringify(Object.fromEntries(map), null, 2) + "\n";
 }
 
 export const zh_collator = new Intl.Collator("zh-Hant");
