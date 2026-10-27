@@ -454,3 +454,14 @@ export function get_source_cid(id) {
 	}
 	return 0;
 }
+
+/**
+ * Check if a row in database is an alternate artwork card.
+ * @param {object} row
+ * @returns {boolean}
+ */
+export function is_alternate(row) {
+	if (row.id === ID_BLACK_LUSTER_SOLDIER)
+		return false;
+	return Math.abs(row.id - row.alias) < CARD_ARTWORK_VERSIONS_OFFSET;
+}
