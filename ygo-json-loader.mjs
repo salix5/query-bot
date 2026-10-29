@@ -165,11 +165,11 @@ const extension_schema = `CREATE TABLE extension (
  * @param {import('node:sqlite').DatabaseSync} db 
  */
 export function load_name_table(db) {
-	db.exec(`DROP TABLE IF EXISTS extension;`);
-	db.exec(extension_schema);
-	using insert_name = db.prepare(`INSERT INTO extension (id, cid, en_name, jp_name, jp_ruby, md_name_en, md_name_jp, md_rarity) VALUES (?, ?, ?, ?, ?, ?, ?, ?);`);
+	db.exec(`BEGIN TRANSACTION;`);
 	try {
-		db.exec(`BEGIN TRANSACTION;`);
+		db.exec(`DROP TABLE IF EXISTS extension;`);
+		db.exec(extension_schema);
+		using insert_name = db.prepare(`INSERT INTO extension (id, cid, en_name, jp_name, jp_ruby, md_name_en, md_name_jp, md_rarity) VALUES (?, ?, ?, ?, ?, ?, ?, ?);`);
 		for (const [cid, id] of cid_table) {
 			const en_name = name_table['en'][cid] ?? '';
 			const jp_name = name_table['ja'][cid] ?? '';
@@ -185,7 +185,7 @@ export function load_name_table(db) {
 		if (db.isTransaction) {
 			db.exec(`ROLLBACK;`);
 		}
-		console.error('Failed to load extension table:', error);
+		throw error;
 	}
 }
 
