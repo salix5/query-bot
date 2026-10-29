@@ -615,6 +615,9 @@ export function is_setcode(card, value) {
  * @returns {Card[]}
  */
 export function query(qstr = sql_default_v2, arg = arg_default_v2) {
+	if (!db_current) {
+		throw new Error('Database is not loaded; call load_db() successfully first');
+	}
 	const rows = query_db_v2(db_current, qstr, arg);
 	const result = rows.map(generate_card);
 	return result;
@@ -625,6 +628,9 @@ export function query(qstr = sql_default_v2, arg = arg_default_v2) {
  * @param {object} params 
  */
 export function query_card(params) {
+	if (!db_current) {
+		throw new Error('Database is not loaded; call load_db() successfully first');
+	}
 	if (typeof params.pack === 'string') {
 		if (Object.hasOwn(pack_list, params.pack)) {
 			const pack = pack_list[params.pack];
@@ -777,7 +783,7 @@ export function compare_card(a, b) {
  */
 export function get_card(id) {
 	if (typeof id === 'string')
-		id = Number.parseInt(id, 10);
+		id = Number(id);
 	if (!Number.isSafeInteger(id))
 		return null;
 	const entry = get_entry(id);
@@ -1091,7 +1097,8 @@ export function create_name_table() {
 	for (const card of query(sql_name)) {
 		table1.set(card.cid, card.text.tw_name);
 	}
-	table1.set(CID_BLACK_LUSTER_SOLDIER, `${table1.get(CID_BLACK_LUSTER_SOLDIER)}${language_pack['zh-tw'].bls_postfix}`);
+	if (table1.has(CID_BLACK_LUSTER_SOLDIER))
+		table1.set(CID_BLACK_LUSTER_SOLDIER, `${table1.get(CID_BLACK_LUSTER_SOLDIER)}${language_pack['zh-tw'].bls_postfix}`);
 	if (table1.size !== cid_table.size)
 		console.error('invalid name_table_tw:', cid_table.size, table1.size);
 	return table1;
