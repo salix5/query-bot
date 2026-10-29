@@ -13,20 +13,8 @@ import lang_en from './lang/en.json' with { type: 'json' };
 import lang_ja from './lang/ja.json' with { type: 'json' };
 import lang_ko from './lang/ko.json' with { type: 'json' };
 import lang_zhtw from './lang/zh-tw.json' with { type: 'json' };
-import { inverse_mapping, inverse_table } from './ygo-utility.mjs';
+import { inverse_mapping, inverse_table, object_to_map } from './ygo-utility.mjs';
 import { CID_BLACK_LUSTER_SOLDIER } from './ygo-constant.mjs';
-
-/**
- * @param {object} obj 
- * @returns {Map<number, any>}
- */
-function object_to_map(obj) {
-	const result = new Map();
-	for (const key of Object.keys(obj)) {
-		result.set(Number(key), obj[key]);
-	}
-	return result;
-}
 
 /**
  * @type {Map<number, number>}

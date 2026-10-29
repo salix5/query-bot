@@ -38,6 +38,19 @@ export function print_history_link(cid) {
 }
 
 /**
+ * Convert an object with numeric keys to a Map.
+ * @param {object} obj 
+ * @returns {Map<number, any>}
+ */
+export function object_to_map(obj) {
+	const result = new Map();
+	for (const key of Object.keys(obj)) {
+		result.set(Number(key), obj[key]);
+	}
+	return result;
+}
+
+/**
  * Create the inverse mapping of a Map `table`.
  * @param {Map} table 
  * @returns {Map}
@@ -53,7 +66,6 @@ export function inverse_mapping(table) {
 	}
 	return inverse;
 }
-
 
 /**
  * Create the inverse mapping of a JSON object `obj`.
