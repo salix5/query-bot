@@ -1,4 +1,5 @@
-import { renameSync } from 'node:fs';
+import { renameSync, rmSync, existsSync } from 'node:fs';
+import { randomUUID } from 'node:crypto';
 import { writeFile } from 'node:fs/promises';
 import { DatabaseSync } from 'node:sqlite';
 import { gunzipSync } from 'node:zlib';
@@ -109,7 +110,7 @@ let stmt_list = null;
  */
 const multimap_seventh = new Map();
 
-//workaround
+let loading = false;
 await load_db();
 
 
@@ -503,56 +504,91 @@ function generate_condition(params) {
 	return result;
 }
 
+function prepare_queries(db) {
+	return [
+		db.prepare(`SELECT id, name FROM datas JOIN texts USING (id) ${default_clause_v2} AND id = $id;`, { persistent: true }),
+		db.prepare(`${sql_base_v2} AND id = $id;`, { persistent: true }),
+		db.prepare(`${sql_default_v2} AND cid = $cid;`, { persistent: true }),
+		db.prepare(`${sql_list} ORDER BY id;`, { persistent: true }),
+	];
+}
+
+function close_queries() {
+	stmt_name?.close();
+	stmt_entry?.close();
+	stmt_cid?.close();
+	stmt_list?.close();
+	stmt_name = stmt_entry = stmt_cid = stmt_list = null;
+	db_current?.close();
+	db_current = null;
+}
+
 /**
  * @param {string[]} [files]
  * @returns {Promise<boolean>}
  */
 export async function load_db(files) {
-	const temp = `${import.meta.dirname}/db/temp.cdb`;
-	if (files === undefined) {
-		const db_url = 'https://github.com/salix5/cdb/releases/download/snapshot/query.cdb.gz';
-		try {
-			await fetch_db(db_url).then(data => writeFile(temp, gunzipSync(data)));
-		}
-		catch (error) {
-			console.error(error);
-			return false;
-		}
-		using db_temp = new DatabaseSync(temp, default_options);
-		db_temp.exec(`PRAGMA trusted_schema = OFF;`);
-		load_name_table(db_temp);
+	if (loading) {
+		throw new Error('A database load is already in progress');
 	}
-	else {
-		if (!merge_db(temp, files)) {
-			return false;
+	loading = true;
+	const current = new URL(`db/query.cdb`, import.meta.url);
+	const temp = new URL(`db/temp-${randomUUID()}.cdb`, import.meta.url);
+	try {
+		if (files === undefined) {
+			const db_url = 'https://github.com/salix5/cdb/releases/download/snapshot/query.cdb.gz';
+			try {
+				await fetch_db(db_url).then(data => writeFile(temp, gunzipSync(data, { maxOutputLength: 64 * 1024 * 1024 })));
+			}
+			catch (error) {
+				console.error(error);
+				return false;
+			}
+			using db_temp = new DatabaseSync(temp, default_options);
+			db_temp.exec(`PRAGMA trusted_schema = OFF;`);
+			load_name_table(db_temp);
 		}
-		using db_temp = new DatabaseSync(temp, default_options);
-		db_temp.exec(`PRAGMA trusted_schema = OFF;`);
-		alter_db(db_temp);
-		load_name_table(db_temp);
+		else {
+			if (!merge_db(temp, files)) {
+				return false;
+			}
+			using db_temp = new DatabaseSync(temp, default_options);
+			db_temp.exec(`PRAGMA trusted_schema = OFF;`);
+			alter_db(db_temp);
+			load_name_table(db_temp);
+		}
+		close_queries();
+		renameSync(temp, current);
+		db_current = sqlite3_open(current);
+		[stmt_name, stmt_entry, stmt_cid, stmt_list] = prepare_queries(db_current);
+		const seventh_cards = query(sql_seventh, arg_seventh);
+		seventh_cards.sort((c1, c2) => zh_collator.compare(c1.text.tw_name, c2.text.tw_name));
+		multimap_seventh.clear();
+		for (const card of seventh_cards) {
+			if (!multimap_seventh.has(card.data.level))
+				multimap_seventh.set(card.data.level, []);
+			multimap_seventh.get(card.data.level).push(card);
+		}
+		return true;
 	}
-	const current = `${import.meta.dirname}/db/query.cdb`;
-	stmt_name?.close();
-	stmt_entry?.close();
-	stmt_cid?.close();
-	stmt_list?.close();
-	db_current?.close();
-	renameSync(temp, current);
-	db_current = sqlite3_open(current);
-	stmt_name = db_current.prepare(`SELECT id, name FROM datas JOIN texts USING (id) ${default_clause_v2} AND id = $id;`, { persistent: true });
-	stmt_entry = db_current.prepare(`${sql_base_v2} AND id = $id;`, { persistent: true });
-	stmt_cid = db_current.prepare(`${sql_default_v2} AND cid = $cid;`, { persistent: true });
-	stmt_list = db_current.prepare(`${sql_list} ORDER BY id;`, { persistent: true });
-	// refresh multimap of No.101 ~ No.107
-	multimap_seventh.clear();
-	const seventh_cards = query(sql_seventh, arg_seventh);
-	seventh_cards.sort((c1, c2) => zh_collator.compare(c1.text.tw_name, c2.text.tw_name));
-	for (const card of seventh_cards) {
-		if (!multimap_seventh.has(card.data.level))
-			multimap_seventh.set(card.data.level, []);
-		multimap_seventh.get(card.data.level).push(card);
+	catch (error) {
+		if (!db_current && existsSync(current)) {
+			try {
+				db_current = sqlite3_open(current);
+				[stmt_name, stmt_entry, stmt_cid, stmt_list] = prepare_queries(db_current);
+			}
+			catch (restore_error) {
+				close_queries();
+				console.error('Failed to restore database:', restore_error);
+			}
+		}
+		console.error('Failed to load database:', error);
+		return false;
 	}
-	return true;
+	finally {
+		loading = false;
+		rmSync(temp, { force: true });
+	}
 }
 
 /**
