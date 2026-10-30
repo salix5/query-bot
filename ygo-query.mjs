@@ -538,7 +538,8 @@ export async function load_db(files) {
 		if (files === undefined) {
 			const db_url = 'https://github.com/salix5/cdb/releases/download/snapshot/query.cdb.gz';
 			try {
-				await fetch_db(db_url).then(data => writeFile(temp, gunzipSync(data, { maxOutputLength: 64 * 1024 * 1024 })));
+				const data = await fetch_db(db_url);
+				await writeFile(temp, gunzipSync(data, { maxOutputLength: 64 * 1024 * 1024 }));
 			}
 			catch (error) {
 				console.error(error);
