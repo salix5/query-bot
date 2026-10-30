@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from 'discord.js';
 import { get_name, id_to_cid } from '../ygo-json-loader.js';
-import { autocomplete_default, choice_table } from '../common_all.js';
+import { autocomplete_default, choice_table } from '../common-all.js';
 
 export const module_url = import.meta.url;
 export const data = new SlashCommandBuilder()

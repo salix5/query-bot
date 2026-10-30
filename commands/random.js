@@ -1,7 +1,7 @@
 import { SlashCommandBuilder } from 'discord.js';
 import { name_table, get_card, cid_table } from '../ygo-query.js';
 import { random_integer } from '../ygo-utility.js';
-import { create_reply } from '../common_query.js';
+import { create_reply } from '../common-query.js';
 const cid_list_ja = Object.keys(name_table['ja']).map(key => Number.parseInt(key, 10));
 
 export const module_url = import.meta.url;

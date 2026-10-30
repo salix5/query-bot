@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from 'discord.js';
-import { query_command } from '../common_query.js';
+import { query_command } from '../common-query.js';
 
 export const module_url = import.meta.url;
 export const data = new SlashCommandBuilder()
@@ -14,7 +14,7 @@ export const data = new SlashCommandBuilder()
 data.integration_types = [0, 1];
 data.contexts = [0, 1, 2];
 export const cooldown = 5;
-export { autocomplete_jp as autocomplete } from '../common_all.js';
+export { autocomplete_jp as autocomplete } from '../common-all.js';
 export async function execute(interaction) {
 	await query_command(interaction, 'ja', 'ja');
 }

@@ -1,7 +1,7 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Collection, MessageFlags } from 'discord.js';
 import { get_pack_name } from './ygo-json-loader.js';
 import { get_card, get_request_locale, get_seventh_xyz, print_card, print_db_link, print_qa_link } from './ygo-query.js';
-import { choice_table } from './common_all.js';
+import { choice_table } from './common-all.js';
 
 const reply_text = {
 	'zh-tw': {

@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from 'discord.js';
-import { autocomplete_default } from '../common_all.js';
-import { query_command } from '../common_query.js';
+import { autocomplete_default } from '../common-all.js';
+import { query_command } from '../common-query.js';
 
 export const module_url = import.meta.url;
 export const data = new SlashCommandBuilder()
