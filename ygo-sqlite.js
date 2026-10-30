@@ -1,8 +1,8 @@
 import { copyFileSync } from "node:fs";
 import { DatabaseSync } from "node:sqlite";
-import { monster_types } from "./ygo-constant.mjs";
-import { inverse_mapping } from "./ygo-utility.mjs";
-import { id_to_cid, extra_setcodes, setname_table } from "./ygo-json-loader.mjs";
+import { monster_types } from "./ygo-constant.js";
+import { inverse_mapping } from "./ygo-utility.js";
+import { id_to_cid, extra_setcodes, setname_table } from "./ygo-json-loader.js";
 
 export {
 	CID_BLACK_LUSTER_SOLDIER,
@@ -14,7 +14,7 @@ export {
 	races,
 	attributes,
 	link_markers,
-} from './ygo-constant.mjs';
+} from './ygo-constant.js';
 
 export const CARD_ARTWORK_VERSIONS_OFFSET = 20;
 export const ID_BLACK_LUSTER_SOLDIER = 5405695;

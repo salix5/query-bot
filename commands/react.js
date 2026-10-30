@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from 'discord.js';
-import { random_integer } from '../ygo-utility.mjs';
+import { random_integer } from '../ygo-utility.js';
 
 export const module_url = import.meta.url;
 export const data = new SlashCommandBuilder()

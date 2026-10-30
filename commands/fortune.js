@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from 'discord.js';
-import { random_integer } from '../ygo-utility.mjs';
+import { random_integer } from '../ygo-utility.js';
 
 const major_arcana = {
 	0: '0 愚者',

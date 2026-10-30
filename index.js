@@ -1,6 +1,6 @@
 import { readdirSync } from 'node:fs';
 import { Client, Collection, Events, GatewayIntentBits, ChannelType, Partials, MessageFlags, Options } from 'discord.js';
-import { name_table } from './ygo-query.mjs';
+import { name_table } from './ygo-query.js';
 import { seventh_handler } from './common_query.js';
 import { deploy_command } from './deploy-commands.js';
 

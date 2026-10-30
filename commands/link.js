@@ -1,6 +1,6 @@
 import { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 import { autocomplete_default, choice_table } from '../common_all.js';
-import { id_to_cid, print_history_link } from '../ygo-query.mjs';
+import { id_to_cid, print_history_link } from '../ygo-query.js';
 
 export const module_url = import.meta.url;
 export const data = new SlashCommandBuilder()

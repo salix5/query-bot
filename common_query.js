@@ -1,6 +1,6 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Collection, MessageFlags } from 'discord.js';
-import { get_pack_name } from './ygo-json-loader.mjs';
-import { get_card, get_request_locale, get_seventh_xyz, print_card, print_db_link, print_qa_link } from './ygo-query.mjs';
+import { get_pack_name } from './ygo-json-loader.js';
+import { get_card, get_request_locale, get_seventh_xyz, print_card, print_db_link, print_qa_link } from './ygo-query.js';
 import { choice_table } from './common_all.js';
 
 const reply_text = {
@@ -23,7 +23,7 @@ export { reply_text, search_count };
 
 /**
  * Create the reply of `card` in region `locale`.
- * @param {import('./ygo-query.mjs').Card} card 
+ * @param {import('./ygo-query.js').Card} card 
  * @param {string} locale 
  * @returns
  */

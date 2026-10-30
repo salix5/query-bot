@@ -3,13 +3,13 @@ import { randomUUID } from 'node:crypto';
 import { writeFile } from 'node:fs/promises';
 import { DatabaseSync } from 'node:sqlite';
 import { gunzipSync } from 'node:zlib';
-import { ltable_ocg, ltable_tcg, ltable_md, pack_list, pre_release, genesys_point, setname_table, load_name_table } from './ygo-json-loader.mjs';
-import { language_pack, official_name, cid_table, name_table } from './ygo-json-loader.mjs';
-import { escape_wildcard, zh_collator, zh_compare } from './ygo-utility.mjs';
-import { fetch_db } from './ygo-fetch.mjs';
-import { card_types, monster_types, link_markers, rarity, CID_BLACK_LUSTER_SOLDIER, spell_types, trap_types, marker_char } from "./ygo-constant.mjs";
-import { arg_default_v2, arg_seventh, effect_filter, default_clause_v2, sql_base_v2, sql_default_v2, sql_list, sql_seventh, full_tables, default_options } from './ygo-sqlite.mjs';
-import { like_pattern, name_condition, list_condition, alter_db, merge_db, query_db_v2, setcode_condition, sqlite3_open } from './ygo-sqlite.mjs';
+import { ltable_ocg, ltable_tcg, ltable_md, pack_list, pre_release, genesys_point, setname_table, load_name_table } from './ygo-json-loader.js';
+import { language_pack, official_name, cid_table, name_table } from './ygo-json-loader.js';
+import { escape_wildcard, zh_collator, zh_compare } from './ygo-utility.js';
+import { fetch_db } from './ygo-fetch.js';
+import { card_types, monster_types, link_markers, rarity, CID_BLACK_LUSTER_SOLDIER, spell_types, trap_types, marker_char } from "./ygo-constant.js";
+import { arg_default_v2, arg_seventh, effect_filter, default_clause_v2, sql_base_v2, sql_default_v2, sql_list, sql_seventh, full_tables, default_options } from './ygo-sqlite.js';
+import { like_pattern, name_condition, list_condition, alter_db, merge_db, query_db_v2, setcode_condition, sqlite3_open } from './ygo-sqlite.js';
 
 export const regexp_mention = `(?<=「)[^「」]*「?[^「」]*」?[^「」]*(?=」)`;
 const MAX_LIMIT = 20000;
@@ -1108,8 +1108,8 @@ export function create_name_table() {
 export {
 	card_types, monster_types, spell_types, trap_types,
 	link_markers, races, attributes,
-} from './ygo-constant.mjs';
+} from './ygo-constant.js';
 
-export * from './ygo-json-loader.mjs';
+export * from './ygo-json-loader.js';
 
-export * from './ygo-utility.mjs';
+export * from './ygo-utility.js';
