@@ -5,20 +5,29 @@
 export async function fetch_db(url) {
 	const resp = await fetch(url);
 	if (!resp.ok) {
-		throw new Error(`Failed to fetch ${url}: ${resp.status} ${resp.statusText}`);
+		throw new Error(`fetch failed: ${resp.status} ${url}`);
 	}
 	return resp.bytes();
 }
 
-export async function fetch_text(url, max_size, timeout) {
+export async function fetch_text(url, {
+	max_size = 2 * 1024 * 1024,
+	timeout = 15000,
+	headers = {}
+} = {}) {
 	const sizeController = new AbortController();
 	const combinedSignal = AbortSignal.any([sizeController.signal, AbortSignal.timeout(timeout)]);
-	const resp = await fetch(url, { referrer: '', signal: combinedSignal });
+	const resp = await fetch(url, {
+		method: 'GET',
+		headers,
+		referrer: '',
+		signal: combinedSignal,
+	});
 	if (!resp.ok) {
-		throw new Error(`Failed to fetch ${url}: ${resp.status} ${resp.statusText}`);
+		throw new Error(`fetch failed: ${resp.status} ${url}`);
 	}
 	if (!resp.body) {
-		throw new Error(`Response body is null for ${url}`);
+		throw new Error(`null response: ${url}`);
 	}
 	const chunks = [];
 	let received = 0;
