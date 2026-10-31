@@ -64,3 +64,13 @@ export async function fetch_repo(owner, repo, path) {
 	}
 	return res.text();
 }
+
+/**
+ * @param {number} cid 
+ * @returns 
+ */
+export async function fetch_card_text(cid) {
+	const content = await fetch_repo('salix5', 'ygodb', `${cid}.txt`);
+	const lines = content.split('\n');
+	return lines.slice(1).join('\n') + '\n';
+}
