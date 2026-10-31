@@ -14,19 +14,19 @@
     "query",
     "Discord-bot"
   ],
+  "engines": {
+    "node": ">=26.0.0"
+  },
+  "packageManager": "pnpm@11.28.5",
   "author": "salix5",
   "license": "MIT",
   "dependencies": {
     "discord.js": "^14.27.0"
-  },
-  "engines": {
-    "node": ">=26.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@types/node": "^26.6.5",
     "eslint": "^10.13.0",
     "globals": "^15.15.0"
-  },
-  "packageManager": "pnpm@11.28.5"
+  }
 }
