@@ -6,7 +6,7 @@ import { gunzipSync } from 'node:zlib';
 import { ltable_ocg, ltable_tcg, ltable_md, pack_list, pre_release, genesys_point, setname_table, load_name_table } from './ygo-json-loader.js';
 import { language_pack, official_name, cid_table, name_table } from './ygo-json-loader.js';
 import { escape_wildcard, zh_collator, zh_compare } from './ygo-utility.js';
-import { fetch_db } from './ygo-fetch.js';
+import { fetch_binary } from './ygo-fetch.js';
 import { card_types, monster_types, link_markers, rarity, CID_BLACK_LUSTER_SOLDIER, spell_types, trap_types, marker_char } from "./ygo-constant.js";
 import { arg_default_v2, arg_seventh, effect_filter, default_clause_v2, sql_base_v2, sql_default_v2, sql_list, sql_seventh, full_tables, default_options } from './ygo-sqlite.js';
 import { like_pattern, name_condition, list_condition, alter_db, merge_db, query_db_v2, setcode_condition, sqlite3_open } from './ygo-sqlite.js';
@@ -538,7 +538,7 @@ export async function load_db(files) {
 		if (files === undefined) {
 			const db_url = 'https://github.com/salix5/cdb/releases/download/snapshot/query.cdb.gz';
 			try {
-				const data = await fetch_db(db_url);
+				const data = await fetch_binary(db_url);
 				await writeFile(temp, gunzipSync(data, { maxOutputLength: 64 * 1024 * 1024 }));
 			}
 			catch (error) {

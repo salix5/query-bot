@@ -2,7 +2,7 @@
  * @param {string} url 
  * @returns 
  */
-export async function fetch_db(url) {
+export async function fetch_binary(url) {
 	const resp = await fetch(url);
 	if (!resp.ok) {
 		throw new Error(`fetch failed: ${resp.status} ${url}`);
