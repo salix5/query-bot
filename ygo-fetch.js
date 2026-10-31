@@ -41,3 +41,26 @@ export async function fetch_text(url, {
 	}
 	return Buffer.concat(chunks).toString();
 }
+
+/**
+ * @param {string} owner
+ * @param {string} repo
+ * @param {string} path
+ * @returns {string}
+ */
+export async function fetch_repo(owner, repo, path) {
+	const url = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
+	const headers = {
+		'Accept': 'application/vnd.github.raw',
+		'User-Agent': 'node-fetch-script',
+		'X-GitHub-Api-Version': '2022-11-28',
+	};
+	if (process.env.GITHUB_TOKEN) {
+		headers['Authorization'] = `Bearer ${process.env.GITHUB_TOKEN}`;
+	}
+	const res = await fetch(url, { headers });
+	if (!res.ok) {
+		throw new Error(`fetch failed: ${res.status} ${url}`);
+	}
+	return res.text();
+}
