@@ -1,6 +1,7 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Collection, MessageFlags } from 'discord.js';
 import { get_pack_name } from './ygo-json-loader.js';
-import { get_card, get_request_locale, get_seventh_xyz, print_card, print_db_link, print_qa_link } from './ygo-query.js';
+import { get_card, get_request_locale, get_seventh_xyz, print_card } from './ygo-query.js';
+import { print_db_link, print_qa_link } from './ygo-utility.js';
 import { choice_table } from './common-all.js';
 
 const reply_text = {
@@ -88,28 +89,26 @@ export function create_reply(card, locale) {
  */
 export async function query_command(interaction, input_locale, output_locale) {
 	const input = interaction.options.getString('input');
-	if (choice_table[input_locale] && choice_table[input_locale].has(input)) {
-		const id = choice_table[input_locale].get(input);
-		const card = get_card(id);
-		if (card) {
-			let count = search_count.ensure(card.id, () => 0);
-			count++;
-			search_count.set(card.id, count);
-			if (output_locale === 'zh-tw') {
-				await interaction.reply(create_reply(card, output_locale));
-			}
-			else {
-				await interaction.deferReply();
-				await interaction.editReply(create_reply(card, output_locale));
-			}
-		}
-		else {
-			console.error('invalid card id', id);
-			await interaction.reply(reply_text[output_locale].none);
-		}
+	if (!input || !choice_table[input_locale]?.has(input)) {
+		await interaction.reply(reply_text[output_locale].none);
+		return;
+	}
+	const id = choice_table[input_locale].get(input);
+	const card = get_card(id);
+	if (!card) {
+		console.error('invalid card id', id);
+		await interaction.reply(reply_text[output_locale].none);
+		return;
+	}
+	let count = search_count.ensure(card.id, () => 0);
+	count++;
+	search_count.set(card.id, count);
+	if (output_locale === 'zh-tw') {
+		await interaction.reply(create_reply(card, output_locale));
 	}
 	else {
-		await interaction.reply(reply_text[output_locale].none);
+		await interaction.deferReply();
+		await interaction.editReply(create_reply(card, output_locale));
 	}
 }
 
