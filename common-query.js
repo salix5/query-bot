@@ -1,4 +1,5 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Collection, MessageFlags } from 'discord.js';
+import { fetch_card_text } from './ygo-fetch.js';
 import { get_pack_name } from './ygo-json-loader.js';
 import { get_card, get_request_locale, get_seventh_xyz, print_card } from './ygo-query.js';
 import { print_db_link, print_qa_link } from './ygo-utility.js';
@@ -105,6 +106,13 @@ export async function query_command(interaction, input_locale, output_locale) {
 	search_count.set(card.id, count);
 	if (output_locale === 'zh-tw') {
 		await interaction.reply(create_reply(card, output_locale));
+	}
+	else if (output_locale === 'ja') {
+		await interaction.deferReply();
+		const msg = create_reply(card, output_locale);
+		const card_text = await fetch_card_text(card.cid);
+		msg.content += card_text
+		await interaction.editReply(msg);
 	}
 	else {
 		await interaction.deferReply();
