@@ -1,4 +1,4 @@
-import { create_choice_prerelease, create_choice_db, inverse_mapping } from "./ygo-query.js";
+import { create_choice_db, inverse_mapping } from "./ygo-query.js";
 import { choices_ruby, name_to_id } from "./ygo-json-loader.js";
 
 const MAX_CHOICE = 25;
@@ -40,18 +40,8 @@ function half_width_entries(choices) {
 
 
 function refresh_choice_table() {
-	const choices_tc = create_choice_db();
-	choice_table['zh-tw'] = choices_tc;
-	const choices_tc_full = new Map(choices_tc);
-	const choices_pre = create_choice_prerelease();
-	for (const [name, id] of choices_pre) {
-		if (choices_tc.has(name)) {
-			console.error('duplicate tc name', `${name}: ${id}`);
-			continue;
-		}
-		choices_tc_full.set(name, id);
-	}
-	choice_table['full'] = choices_tc_full;
+	choice_table['zh-tw'] = create_choice_db(false);
+	choice_table['full'] = create_choice_db(true);
 }
 
 /**
