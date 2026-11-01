@@ -101,9 +101,7 @@ export async function query_command(interaction, input_locale, output_locale) {
 		await interaction.reply(reply_text[output_locale].none);
 		return;
 	}
-	let count = search_count.ensure(card.id, () => 0);
-	count++;
-	search_count.set(card.id, count);
+	search_count.set(card.id, (search_count.get(card.id) ?? 0) + 1);
 	if (output_locale === 'zh-tw') {
 		await interaction.reply(create_reply(card, output_locale));
 	}
