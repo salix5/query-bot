@@ -1044,29 +1044,6 @@ export function print_card(card, locale) {
 
 // table
 /**
- * Create the [name, id] table for pre-release cards.
- * @returns {Map<string, number>}
- */
-export function create_choice_prerelease() {
-	const choices = new Map();
-	const sql_pre = `${sql_default_v2} AND cid IS NULL;`;
-	const re_kanji = /※.*/;
-	const cards = query(sql_pre);
-	for (const card of cards) {
-		const res = card.text.description.match(re_kanji);
-		const kanji = res ? res[0] : '';
-		if (choices.has(card.text.tw_name) || kanji && choices.has(kanji)) {
-			console.error('choice_prerelease', card.id);
-			return new Map();
-		}
-		choices.set(card.text.tw_name, card.id);
-		if (kanji)
-			choices.set(kanji, card.id);
-	}
-	return new Map([...choices].sort(zh_compare))
-}
-
-/**
  * Create the [name, id] table from database file.
  * @returns {Map<string, number>}
  */
