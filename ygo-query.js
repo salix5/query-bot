@@ -8,7 +8,7 @@ import { language_pack, official_name, cid_table, name_table } from './ygo-json-
 import { escape_wildcard, zh_collator, zh_compare } from './ygo-utility.js';
 import { fetch_binary } from './ygo-fetch.js';
 import { card_types, monster_types, link_markers, rarity, CID_BLACK_LUSTER_SOLDIER, spell_types, trap_types, marker_char } from "./ygo-constant.js";
-import { arg_default_v2, arg_seventh, effect_filter, default_clause_v2, sql_base_v2, sql_default_v2, sql_list, sql_seventh, full_tables, default_options } from './ygo-sqlite.js';
+import { arg_default_v2, arg_seventh, effect_filter, default_clause_v2, sql_base_v2, sql_default_v2, sql_list, sql_seventh, full_tables, default_options, ID_BLACK_LUSTER_SOLDIER } from './ygo-sqlite.js';
 import { like_pattern, name_condition, list_condition, alter_db, merge_db, query_db_v2, setcode_condition, sqlite3_open } from './ygo-sqlite.js';
 
 export const regexp_mention = `(?<=「)[^「」]*「?[^「」]*」?[^「」]*(?=」)`;
@@ -1045,26 +1045,24 @@ export function print_card(card, locale) {
 // table
 /**
  * Create the [name, id] table from database file.
+ * @param {boolean} has_prerelease 
  * @returns {Map<string, number>}
  */
-export function create_choice_db() {
+export function create_choice_db(has_prerelease) {
 	const choices = new Map();
 	const re_kanji = /※.*/;
-	const sql_db = `${sql_default_v2} AND cid IS NOT NULL;`;
-	for (const card of query(sql_db)) {
-		const res = card.text.description.match(re_kanji);
-		const kanji = res ? res[0] : '';
-		let key = card.text.tw_name;
-		if (card.cid === CID_BLACK_LUSTER_SOLDIER) {
-			key += language_pack['zh-tw'].bls_postfix;
-		}
-		if (choices.has(key) || kanji && choices.has(kanji)) {
-			console.error('choice_db', card.id);
-			return new Map();
-		}
+	let sql1 = `SELECT id, name, description ${full_tables} ${default_clause_v2}`;
+	if (!has_prerelease)
+		sql1 += ` AND cid IS NOT NULL`;
+	const cards = query_db_v2(db_current, sql1);
+	for (const card of cards) {
+		const key = (card.id === ID_BLACK_LUSTER_SOLDIER) ? `${card.name}${language_pack['zh-tw'].bls_postfix}` : card.name;
 		choices.set(key, card.id);
-		if (kanji)
+		const res = card.description.match(re_kanji);
+		const kanji = res ? res[0] : null;
+		if (kanji) {
 			choices.set(kanji, card.id);
+		}
 	}
 	return new Map([...choices].sort(zh_compare))
 }
