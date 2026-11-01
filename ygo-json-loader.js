@@ -14,7 +14,7 @@ import lang_ja from './lang/ja.json' with { type: 'json' };
 import lang_ko from './lang/ko.json' with { type: 'json' };
 import lang_zhtw from './lang/zh-tw.json' with { type: 'json' };
 import { inverse_mapping, inverse_table, object_to_map } from './ygo-utility.js';
-import { CID_BLACK_LUSTER_SOLDIER } from './ygo-constant.js';
+import { CID_BLACK_LUSTER_SOLDIER, MAX_CARD_ID } from './ygo-constant.js';
 
 /**
  * @type {Map<number, number>}
@@ -129,7 +129,7 @@ export const choices_ruby = create_ruby_choice();
  * @returns {string?}
  */
 export function get_pack_name(id) {
-	if (!Number.isSafeInteger(id))
+	if (!Number.isSafeInteger(id) || id <= MAX_CARD_ID)
 		return null;
 	const pack_id = id - id % 1000;
 	const pack_name = pack_id_table[pack_id];
