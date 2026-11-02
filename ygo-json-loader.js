@@ -82,6 +82,18 @@ export const name_to_id = {
 	'ko': create_choice('ko'),
 };
 
+export const choices_ruby = (() => {
+	const obj1 = Object.create(null);
+	Object.assign(obj1, ruby_table);
+	delete obj1[CID_BLACK_LUSTER_SOLDIER];
+	const jp_collator = new Intl.Collator('ja-JP');
+	const ruby_entries = [...inverse_table(obj1)].sort((a, b) => jp_collator.compare(jp_table[a[1]], jp_table[b[1]]));
+	for (const entry of ruby_entries) {
+		entry[1] = cid_table.get(entry[1]);
+	}
+	return new Map(ruby_entries);
+})();
+
 /**
  * Create the [name, id] table of region `request_locale`
  * @param {string} request_locale 
@@ -108,20 +120,6 @@ function create_choice(request_locale) {
 	}
 	return new Map(entries);
 }
-
-function create_ruby_choice() {
-	const obj1 = {};
-	Object.assign(obj1, ruby_table);
-	delete obj1[CID_BLACK_LUSTER_SOLDIER];
-	const jp_collator = new Intl.Collator('ja-JP');
-	const ruby_entries = [...inverse_table(obj1)].sort((a, b) => jp_collator.compare(jp_table[a[1]], jp_table[b[1]]));
-	for (const entry of ruby_entries) {
-		entry[1] = cid_table.get(entry[1]);
-	}
-	return new Map(ruby_entries);
-}
-
-export const choices_ruby = create_ruby_choice();
 
 const pack_id_table = Object.fromEntries(Object.entries(pre_release).map(([k, v]) => [v, k]));
 /**
