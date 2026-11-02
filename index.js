@@ -42,9 +42,18 @@ client.on(Events.MessageCreate, async msg => {
 	if (msg.author.id === msg.client.user.id)
 		return;
 	if (msg.channel.type === ChannelType.DM) {
-		console.log(msg.author.id);
-		console.log(msg.content.substring(0, 20));
-		if (msg.content === 'd!') {
+		if (msg.author.id !== process.env.ADMIN) {
+			return;
+		}
+		if (msg.content === 'r!') {
+			await msg.channel.send('🤖');
+			await msg.client.destroy();
+			process.exit();
+		}
+		else if (msg.content === 'deploy!') {
+			await deploy_command(commands);
+		}
+		else if (msg.content === 'd!') {
 			const history = await msg.channel.messages.fetch();
 			const delete_list = [];
 			history.each((old_message) => {
@@ -59,16 +68,6 @@ client.on(Events.MessageCreate, async msg => {
 				}
 			});
 			await Promise.all(delete_list);
-		}
-		if (msg.author.id === process.env.ADMIN) {
-			if (msg.content === 'r!') {
-				await msg.channel.send('🤖');
-				await msg.client.destroy();
-				process.exit();
-			}
-			else if (msg.content === 'deploy!') {
-				await deploy_command(commands);
-			}
 		}
 	}
 });
