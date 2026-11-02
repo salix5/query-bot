@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from 'discord.js';
-import { autocomplete_default } from '../common-all.js';
+import { autocomplete_default } from '../autocomplete.js';
 import { query_command } from '../common-query.js';
 const request_locale = 'en';
 

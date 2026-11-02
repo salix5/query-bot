@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from 'discord.js';
 import { get_name, id_to_cid } from '../ygo-json-loader.js';
-import { choice_table } from '../common-all.js';
+import { choice_table } from '../autocomplete.js';
 import { reply_text } from '../common-query.js';
 
 export const module_url = import.meta.url;
@@ -15,7 +15,7 @@ export const data = new SlashCommandBuilder()
 	);
 data.integration_types = [0, 1];
 data.contexts = [0, 1, 2];
-export { autocomplete_jp as autocomplete } from '../common-all.js';
+export { autocomplete_jp as autocomplete } from '../autocomplete.js';
 export async function execute(interaction) {
 	const input = interaction.options.getString('input');
 	const cid = id_to_cid.get(choice_table['ja'].get(input));

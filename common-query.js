@@ -3,7 +3,7 @@ import { fetch_card_text } from './ygo-fetch.js';
 import { get_pack_name, official_name } from './ygo-json-loader.js';
 import { get_card, get_request_locale, get_seventh_xyz, print_card } from './ygo-query.js';
 import { print_db_link, print_qa_link } from './ygo-utility.js';
-import { choice_table } from './common-all.js';
+import { choice_table } from './autocomplete.js';
 
 const reply_text = {
 	'zh-tw': {
