@@ -529,7 +529,7 @@ function close_queries() {
  */
 export async function load_db(files) {
 	if (loading) {
-		throw new Error('A database load is already in progress');
+		throw new Error('A database load is already in progress!');
 	}
 	loading = true;
 	const current = new URL(`db/query.cdb`, import.meta.url);
@@ -562,15 +562,6 @@ export async function load_db(files) {
 		renameSync(temp, current);
 		db_current = sqlite3_open(current);
 		[stmt_name, stmt_entry, stmt_cid, stmt_list] = prepare_queries(db_current);
-		const seventh_cards = query(sql_seventh, arg_seventh);
-		seventh_cards.sort((c1, c2) => zh_collator.compare(c1.text.tw_name, c2.text.tw_name));
-		multimap_seventh.clear();
-		for (const card of seventh_cards) {
-			if (!multimap_seventh.has(card.data.level))
-				multimap_seventh.set(card.data.level, []);
-			multimap_seventh.get(card.data.level).push(card);
-		}
-		return true;
 	}
 	catch (error) {
 		if (!db_current && existsSync(current)) {
@@ -590,6 +581,15 @@ export async function load_db(files) {
 		loading = false;
 		rmSync(temp, { force: true });
 	}
+	const seventh_cards = query_db_v2(db_current, sql_seventh, arg_seventh);
+	seventh_cards.sort((c1, c2) => zh_collator.compare(c1.name, c2.name));
+	multimap_seventh.clear();
+	for (const card of seventh_cards) {
+		if (!multimap_seventh.has(card.level))
+			multimap_seventh.set(card.level, []);
+		multimap_seventh.get(card.level).push(card);
+	}
+	return true;
 }
 
 /**
