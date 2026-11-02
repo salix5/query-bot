@@ -1068,14 +1068,14 @@ export function create_choice_db(has_prerelease) {
 
 export function create_name_table() {
 	const table1 = new Map();
-	const sql_name = `${sql_default_v2} AND cid IS NOT NULL;`;
-	for (const card of query(sql_name)) {
-		table1.set(card.cid, card.text.tw_name);
+	const sql_name = `SELECT id, cid, name ${full_tables} ${default_clause_v2} AND cid IS NOT NULL ORDER BY cid;`;
+	for (const card of query_db_v2(db_current, sql_name)) {
+		table1.set(card.cid, card.name);
 	}
 	if (table1.has(CID_BLACK_LUSTER_SOLDIER))
 		table1.set(CID_BLACK_LUSTER_SOLDIER, `${table1.get(CID_BLACK_LUSTER_SOLDIER)}${language_pack['zh-tw'].bls_postfix}`);
 	if (table1.size !== cid_table.size)
-		console.error('invalid name_table_tw:', cid_table.size, table1.size);
+		console.error('size mismatch in zh-tw name table:', cid_table.size, table1.size);
 	return table1;
 }
 
