@@ -1051,9 +1051,8 @@ export function print_card(card, locale) {
 export function create_choice_db(has_prerelease) {
 	const choices = new Map();
 	const re_kanji = /※.*/;
-	let sql1 = `SELECT id, name, description ${full_tables} ${default_clause_v2}`;
-	if (!has_prerelease)
-		sql1 += ` AND cid IS NOT NULL`;
+	const base = `SELECT id, name, description ${full_tables} ${default_clause_v2}`;
+	const sql1 = has_prerelease ? base : `${base} AND cid IS NOT NULL`;
 	const cards = query_db_v2(db_current, sql1);
 	for (const card of cards) {
 		const key = (card.id === ID_BLACK_LUSTER_SOLDIER) ? `${card.name}${language_pack['zh-tw'].bls_postfix}` : card.name;
