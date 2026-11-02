@@ -581,13 +581,13 @@ export async function load_db(files) {
 		loading = false;
 		rmSync(temp, { force: true });
 	}
-	const seventh_cards = query_db_v2(db_current, sql_seventh, arg_seventh);
-	seventh_cards.sort((c1, c2) => zh_collator.compare(c1.name, c2.name));
+	const seventh_cards = query(sql_seventh, arg_seventh);
+	seventh_cards.sort((c1, c2) => zh_collator.compare(c1.text.tw_name, c2.text.tw_name));
 	multimap_seventh.clear();
 	for (const card of seventh_cards) {
-		if (!multimap_seventh.has(card.level))
-			multimap_seventh.set(card.level, []);
-		multimap_seventh.get(card.level).push(card);
+		if (!multimap_seventh.has(card.data.level))
+			multimap_seventh.set(card.data.level, []);
+		multimap_seventh.get(card.data.level).push(card);
 	}
 	return true;
 }
