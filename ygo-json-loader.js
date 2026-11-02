@@ -20,6 +20,10 @@ import { CID_BLACK_LUSTER_SOLDIER, MAX_CARD_ID } from './ygo-constant.js';
  * @type {Map<number, number>}
  */
 export const cid_table = object_to_map(cid_json);
+/**
+ * @type {Map<number, number>}
+ */
+export const id_to_cid = inverse_mapping(cid_table);
 
 export const name_table = {
 	__proto__: null,
@@ -34,11 +38,12 @@ export const md_table = {
 	'ja': md_jp_table,
 };
 
-/**
- * @type {Map<number, number>}
- */
-export const id_to_cid = inverse_mapping(cid_table);
-const pack_id_table = Object.fromEntries(Object.entries(pre_release).map(([k, v]) => [v, k]));
+export const name_to_id = {
+	__proto__: null,
+	'en': create_choice('en'),
+	'ja': create_choice('ja'),
+	'ko': create_choice('ko'),
+};
 
 export const official_name = {
 	__proto__: null,
@@ -104,11 +109,6 @@ function create_choice(request_locale) {
 	return new Map(entries);
 }
 
-export const name_to_id = Object.create(null);
-for (const locale of Object.keys(official_name)) {
-	name_to_id[locale] = create_choice(locale);
-}
-
 function create_ruby_choice() {
 	const obj1 = {};
 	Object.assign(obj1, ruby_table);
@@ -123,6 +123,7 @@ function create_ruby_choice() {
 
 export const choices_ruby = create_ruby_choice();
 
+const pack_id_table = Object.fromEntries(Object.entries(pre_release).map(([k, v]) => [v, k]));
 /**
  * Get the pack name for pre-release id.
  * @param {number} id
