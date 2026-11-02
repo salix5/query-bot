@@ -1,6 +1,6 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Collection, MessageFlags } from 'discord.js';
 import { fetch_card_text } from './ygo-fetch.js';
-import { get_pack_name } from './ygo-json-loader.js';
+import { get_pack_name, official_name } from './ygo-json-loader.js';
 import { get_card, get_request_locale, get_seventh_xyz, print_card } from './ygo-query.js';
 import { print_db_link, print_qa_link } from './ygo-utility.js';
 import { choice_table } from './common-all.js';
@@ -55,7 +55,7 @@ export function create_reply(card, locale) {
 			const button3 = new ButtonBuilder()
 				.setStyle(ButtonStyle.Primary)
 				.setLabel('七皇')
-				.setCustomId(`${request_locale}${card.id}`);
+				.setCustomId(`${request_locale},${card.id}`);
 			row_db.addComponents(button3);
 		}
 		msg.components.push(row_db);
@@ -74,7 +74,7 @@ export function create_reply(card, locale) {
 			const button_seventh = new ButtonBuilder()
 				.setStyle(ButtonStyle.Primary)
 				.setLabel('七皇')
-				.setCustomId(`${request_locale}${card.id}`);
+				.setCustomId(`${request_locale},${card.id}`);
 			row1.addComponents(button_seventh);
 		}
 		msg.components.push(row1);
@@ -109,7 +109,7 @@ export async function query_command(interaction, input_locale, output_locale) {
 		await interaction.deferReply();
 		const msg = create_reply(card, output_locale);
 		const card_text = await fetch_card_text(card.cid);
-		msg.content += card_text
+		msg.content += card_text;
 		await interaction.editReply(msg);
 	}
 	else {
@@ -123,13 +123,14 @@ export async function query_command(interaction, input_locale, output_locale) {
  * @param {import('discord.js').ButtonInteraction} interaction 
  */
 export async function seventh_handler(interaction) {
-	const msg = {};
-	msg.flags = MessageFlags.Ephemeral;
+	const msg = {
+		flags: MessageFlags.Ephemeral
+	};
 	const re_number = /\w?No.10[1-7]/;
-	const request_locale = interaction.customId.substring(0, 2);
-	const id = Number.parseInt(interaction.customId.substring(2), 10) || 0;
+	const sections = interaction.customId.split(',');
+	const [request_locale, id] = sections;
 	const card = get_card(id);
-	if (!card) {
+	if (sections.length !== 2 || !official_name[request_locale] || !card) {
 		console.error('invalid customId', interaction.customId);
 		msg.content = 'invalid button';
 		await interaction.reply(msg);
