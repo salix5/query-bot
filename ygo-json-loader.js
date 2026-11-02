@@ -38,13 +38,6 @@ export const md_table = {
 	'ja': md_jp_table,
 };
 
-export const name_to_id = {
-	__proto__: null,
-	'en': create_choice('en'),
-	'ja': create_choice('ja'),
-	'ko': create_choice('ko'),
-};
-
 export const official_name = {
 	__proto__: null,
 	'en': 'en_name',
@@ -80,6 +73,13 @@ export const language_pack = {
 		collator: 'zh-Hant',
 		bls_postfix: '（通常怪獸）',
 	},
+};
+
+export const name_to_id = {
+	__proto__: null,
+	'en': create_choice('en'),
+	'ja': create_choice('ja'),
+	'ko': create_choice('ko'),
 };
 
 /**
