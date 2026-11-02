@@ -137,6 +137,11 @@ client.on(Events.InteractionCreate, async interaction => {
 			console.error(`No command matching ${interaction.commandName} was found.`);
 			return;
 		}
+		const delay = Temporal.Now.instant().epochMilliseconds - interaction.createdTimestamp;
+		if (delay > 2500) {
+			console.warn(`Autocomplete dropped due to high gateway delay (${delay}ms)`);
+			return;
+		}
 		const begin = performance.now();
 		try {
 			await command.autocomplete(interaction);
@@ -144,7 +149,8 @@ client.on(Events.InteractionCreate, async interaction => {
 		catch (error) {
 			const fail = performance.now();
 			console.error(`autocomplete in ${interaction.commandName}:`, interaction.options.getFocused());
-			console.error('failed after:', fail - begin, 'ms');
+			console.error('gateway delay:', `${delay}ms`);
+			console.error('failed after:', `${fail - begin}ms`);
 			console.error(error);
 		}
 	}
