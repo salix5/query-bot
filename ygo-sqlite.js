@@ -250,6 +250,9 @@ export function alter_db(db) {
  * @returns {Record<string, SQLOutputValue>[]}
  */
 export function query_db_v2(db, sql = sql_default_v2, arg = arg_default_v2) {
+	if (!db) {
+		throw new Error('Database is not loaded!');
+	}
 	using stmt = db.prepare(sql);
 	return stmt.all(arg);
 }
