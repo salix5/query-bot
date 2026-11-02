@@ -616,9 +616,6 @@ export function is_setcode(card, value) {
  * @returns {Card[]}
  */
 export function query(qstr = sql_default_v2, arg = arg_default_v2) {
-	if (!db_current) {
-		throw new Error('Database is not loaded; call load_db() successfully first');
-	}
 	const rows = query_db_v2(db_current, qstr, arg);
 	const result = rows.map(generate_card);
 	return result;
@@ -630,7 +627,7 @@ export function query(qstr = sql_default_v2, arg = arg_default_v2) {
  */
 export function query_card(params) {
 	if (!db_current) {
-		throw new Error('Database is not loaded; call load_db() successfully first');
+		throw new Error('Database is not loaded!');
 	}
 	if (typeof params.pack === 'string') {
 		if (Object.hasOwn(pack_list, params.pack)) {
@@ -778,7 +775,7 @@ export function compare_card(a, b) {
 }
 
 /**
- * Get a card with id from all databases.
+ * Get a card with id.
  * @param {number|string} id 
  * @returns {?Card}
  */
