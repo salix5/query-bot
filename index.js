@@ -73,21 +73,23 @@ client.on(Events.MessageCreate, async msg => {
 });
 
 client.on(Events.InteractionCreate, async interaction => {
-	const command = interaction.client.commands.get(interaction.commandName);
 	const { cooldowns, counts } = interaction.client;
-	if (interaction.isChatInputCommand()) {
-		if (!command) {
+	if (interaction.isCommand()) {
+		if (!counts.has(interaction.commandName)) {
 			console.error(`No command matching ${interaction.commandName} was found.`);
 			return;
 		}
-		let x = counts.get(command.data.name);
-		x++;
-		counts.set(command.data.name, x);
-		if (x == 1)
-			console.log('start:', command.data.name);
-		else if (x % 10 === 0)
-			console.log(`#${command.data.name}:`, x);
-
+		const count = counts.get(interaction.commandName) + 1;
+		counts.set(interaction.commandName, count);
+		if (count == 1) {
+			console.log('start:', interaction.commandName);
+		}
+		else if (count % 10 === 0) {
+			console.log(`#${interaction.commandName}:`, count);
+		}
+	}
+	if (interaction.isChatInputCommand()) {
+		const command = interaction.client.commands.get(interaction.commandName);
 		const defaultCooldownDuration = 0;
 		const cooldownAmount = (command.cooldown ?? defaultCooldownDuration) * 1000;
 		if (cooldownAmount) {
@@ -130,6 +132,7 @@ client.on(Events.InteractionCreate, async interaction => {
 		}
 	}
 	else if (interaction.isAutocomplete()) {
+		const command = interaction.client.commands.get(interaction.commandName);
 		if (!command) {
 			console.error(`No command matching ${interaction.commandName} was found.`);
 			return;
@@ -146,17 +149,7 @@ client.on(Events.InteractionCreate, async interaction => {
 		}
 	}
 	else if (interaction.isMessageContextMenuCommand()) {
-		if (!command) {
-			console.error(`No command matching ${interaction.commandName} was found.`);
-			return;
-		}
-		let x = counts.get(command.data.name);
-		x++;
-		counts.set(command.data.name, x);
-		if (x == 1)
-			console.log('start:', command.data.name);
-		else if (x % 10 === 0)
-			console.log(`#${command.data.name}:`, x);
+		const command = interaction.client.commands.get(interaction.commandName);
 		try {
 			await command.execute(interaction);
 		}
