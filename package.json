@@ -17,7 +17,13 @@
   "engines": {
     "node": ">=26.0.0"
   },
-  "packageManager": "pnpm@11.28.5",
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "^11.28.10",
+      "onFail": "warn"
+    }
+  },
   "author": "salix5",
   "license": "MIT",
   "dependencies": {
