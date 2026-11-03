@@ -1042,25 +1042,39 @@ export function print_card(card, locale) {
 // table
 /**
  * Create the [name, id] table from database file.
- * @param {boolean} has_prerelease 
- * @returns {Map<string, number>}
+ * @returns {[Map<string, number>, Map<string, number>]} [released cards map, full cards map]
  */
-export function create_choice_db(has_prerelease) {
-	const choices = new Map();
+export function create_choice_db() {
+	const choices_tc = new Map();
+	const choices_full = new Map();
 	const re_kanji = /※.*/;
-	const base = `SELECT id, name, description ${full_tables} ${default_clause_v2}`;
-	const sql1 = has_prerelease ? base : `${base} AND cid IS NOT NULL`;
+	const sql1 = `SELECT id, cid, name, description ${full_tables} ${default_clause_v2}`;
 	const cards = query_db_v2(db_current, sql1);
 	for (const card of cards) {
 		const key = (card.id === ID_BLACK_LUSTER_SOLDIER) ? `${card.name}${language_pack['zh-tw'].bls_postfix}` : card.name;
-		choices.set(key, card.id);
+		if (card.cid !== null) {
+			choices_tc.set(key, card.id);
+			choices_full.set(key, card.id);
+		}
+		else {
+			choices_full.set(key, card.id)
+		}
 		const res = card.description.match(re_kanji);
 		const kanji = res ? res[0] : null;
-		if (kanji) {
-			choices.set(kanji, card.id);
+		if (!kanji) {
+			continue;
+		}
+		if (card.cid !== null) {
+			choices_tc.set(kanji, card.id);
+			choices_full.set(kanji, card.id);
+		}
+		else {
+			choices_full.set(kanji, card.id);
 		}
 	}
-	return new Map([...choices].sort(zh_compare))
+	const result1 = new Map([...choices_tc].sort(zh_compare));
+	const result2 = new Map([...choices_full].sort(zh_compare));
+	return [result1, result2];
 }
 
 export function create_name_table() {

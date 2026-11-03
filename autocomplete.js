@@ -8,6 +8,10 @@ export const choice_table = {
 	__proto__: null,
 	...name_to_id,
 };
+
+export function refresh_choice_table() {
+	[choice_table['zh-tw'], choice_table['full']] = create_choice_db();
+}
 refresh_choice_table();
 
 const jp_entries = half_width_entries(choice_table['ja']);
@@ -36,12 +40,6 @@ function half_width_entries(choices) {
 		result.push([toHalfWidth(name), id]);
 	}
 	return result;
-}
-
-
-function refresh_choice_table() {
-	choice_table['zh-tw'] = create_choice_db(false);
-	choice_table['full'] = create_choice_db(true);
 }
 
 /**
